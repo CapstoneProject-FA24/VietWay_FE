@@ -13,7 +13,7 @@ export const mockTours = [
     destinationProvince: "Quảng Ninh",
     days: 3,
     totalAcceptedParticipants: 20,
-    "description": "Tour du lịch Hạ Long 3 ngày 2 đêm, khám phá vịnh Hạ Long xinh đẹp và các hang động kỳ thú. Ngoài ra, tour còn đi sâu vào cuộc sống của người dân địa phương để khám phá văn hóa và ẩm thực đặc trưng. Du khách sẽ được tham gia các hoạt động trải nghiệm như chèo thuyền kayak, thăm làng chài cổ Cửa Vạn và thưởng thức hải sản tươi ngon ngay tại nguồn. Đây là cơ hội tuyệt vời để hòa mình vào thiên nhiên hùng vĩ và tìm hiểu nét đẹp văn hóa của người dân vùng biển.",
+    description: "Tour du lịch Hạ Long 3 ngày 2 đêm, khám phá vịnh Hạ Long xinh đẹp và các hang động kỳ thú. Ngoài ra, tour còn đi sâu vào cuộc sống của người dân địa phương để khám phá văn hóa và ẩm thực đặc trưng. Du khách sẽ được tham gia các hoạt động trải nghiệm như chèo thuyền kayak, thăm làng chài cổ Cửa Vạn và thưởng thức hải sản tươi ngon ngay tại nguồn. Đây là cơ hội tuyệt vời để hòa mình vào thiên nhiên hùng vĩ và tìm hiểu nét đẹp văn hóa của người dân vùng biển.",
     images: [
       { url: "https://ik.imagekit.io/tvlk/blog/2022/10/kinh-nghiem-du-lich-vinh-ha-long-5.jpg?tr=dpr-2,w-675", alt: "Vịnh Hạ Long" },
       { url: "https://lejourneyhalongcruise.com/wp-content/uploads/2022/07/co-gi-ben-trong-hang-sung-sot-khien-ai-cung-phai-kinh-ngac-08-1641706550.jpeg", alt: "Hang Sửng Sốt" },
@@ -125,6 +125,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Đồ uống"],
     pickupPoints: ["Hà Nội", "Hải Phòng"],
     attractions: [6, 1, 5], // Vịnh Hạ Long, Dinh Độc Lập, Bưu điện Trung tâm Sài Gòn
+    travelCompany: "Amazing Tours"
   },
   {
     id: "NDSGN564-047-080824XE-D",
@@ -197,6 +198,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Các bữa ăn ngoài chương trình"],
     pickupPoints: ["TP.HCM", "Biên Hòa"],
     attractions: [7, 2, 4], // Hồ Xuân Hương, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
+    travelCompany: "Amazing Tours"
   },
   {
     id: "NDSGN564-047-090924XE-P",
@@ -230,6 +232,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Dịch vụ spa"],
     pickupPoints: ["TP.HCM", "Cần Thơ"],
     attractions: [8, 1, 5], // Bãi Sao, Dinh Độc Lập, Bưu điện Trung tâm Sài Gòn
+    travelCompany: "Amazing Tours"
   },
   {
     id: "NDSGN564-047-100524XE-S",
@@ -262,6 +265,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé cáp treo Fansipan"],
     pickupPoints: ["Hà Nội", "Lào Cai"],
     attractions: [9, 2, 4], // Bản Cát Cát, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
+    travelCompany: "Amazing Tours"
   },
   {
     id: "NDSGN564-047-111124XE-H",
@@ -295,6 +299,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Các bữa ăn ngoài chương trình"],
     pickupPoints: ["TP.HCM", "Đà Nẵng"],
     attractions: [10, 1, 2, 4], // Phố cổ Hội An, Dinh Độc Lập, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
+    travelCompany: "Amazing Tours"
   },
   {
     id: "NDSGN564-047-120724XE-N",
@@ -326,6 +331,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [3, 5], // Bưu điện Trung tâm Sài Gòn, Bảo tàng Chứng tích Chiến tranh
+    travelCompany: "Amazing Tours"
   },
   {
     id: "NDSGN564-047-130124XE-B",
@@ -357,6 +363,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [1, 4], // Dinh Độc Lập, Bảo tàng Chứng tích Chiến tranh
+    travelCompany: "Amazing Tours"
   },
   {
     id: "NDSGN564-047-140224XE-H",
@@ -388,6 +395,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [2, 3, 5], // Nhà thờ Đức Bà, Bưu điện Trung tâm Sài Gòn, Bảo tàng Chứng tích Chiến tranh
+    travelCompany: "Viet Tours"
   },
   {
     id: "NDSGN564-047-150324XE-M",
@@ -419,6 +427,7 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [1, 2, 4], // Dinh Độc Lập, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
+    travelCompany: "Viet Tours"
   },
 ];
 

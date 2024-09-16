@@ -40,10 +40,10 @@ const Tours = () => {
   ];
 
   const totalDaysOptions = [
-    '1-3 ngày',
+    'Trong ngày',
+    '2-3 ngày',
     '4-7 ngày',
-    '8-14 ngày',
-    '15+ ngày'
+    '7+ ngày'
   ];
 
   const priceOptions = [
@@ -223,6 +223,22 @@ const Tours = () => {
                   ))}
                 </FormGroup>
               </FormControl>
+
+              <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
+                <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Công ty du lịch</Typography>
+                <Select
+                  value={tempFilters.travelCompany || ''}
+                  onChange={(event) => handleFilterChange({ target: { name: 'travelCompany', value: event.target.value } })}
+                  displayEmpty
+                  inputProps={{ 'aria-label': 'Without label' }}
+                >
+                  <MenuItem value="">
+                    <em>Tất cả</em>
+                  </MenuItem>
+                  <MenuItem value="Amazing Tours">Amazing Tours</MenuItem>
+                  <MenuItem value="Viet Tours">Viet Tours</MenuItem>
+                </Select>
+              </FormControl>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, pl: 2, pr: 2}}>
                 <Button variant="contained" color="primary" onClick={handleSubmitFilters} sx={{ width: '100%', height: '50px', borderRadius: '5px' }}>
                   Áp dụng bộ lọc
@@ -255,14 +271,25 @@ const Tours = () => {
             <Grid container spacing={3}>
               {tours.map((tour) => (
                 <Grid item xs={12} key={tour.id}>
-                  <Card sx={{ display: 'flex', height: '200px', textAlign: 'left', borderRadius: '7px' }}>
+                  <Card sx={{ display: 'flex', height: '225px', textAlign: 'left', borderRadius: '7px' }}>
                     <CardMedia
                       component="img"
-                      sx={{ width: '30%', objectFit: 'cover', margin: '7px', borderRadius: '7px' }}
+                      sx={{ width: '28%', objectFit: 'cover', margin: '7px', borderRadius: '7px' }}
                       image={tour.images[0].url}
                       alt={tour.images[0].alt}
                     />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '50%', p: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '48%', p: 2 }}>
+                    <Typography
+                        gutterBottom 
+                        sx={{ 
+                          textAlign: 'right',
+                          color: 'grey',
+                          fontSize: '0.9rem',
+                          mb: 0
+                        }}
+                      >
+                        {tour.travelCompany}
+                      </Typography>
                       <Typography 
                         variant="h5" 
                         component={Link} 
@@ -285,7 +312,7 @@ const Tours = () => {
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                         <SubtitlesOutlinedIcon sx={{ marginRight: '8px' }} />
-                        Mã tour: {tour.id}
+                        {tour.id}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1  }}>
                         <MapOutlinedIcon sx={{ marginRight: '8px' }} />
@@ -300,7 +327,8 @@ const Tours = () => {
                         Số chỗ còn nhận: {tour.totalAcceptedParticipants}
                       </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', width: '20%', p: '0px 15px 15px 0px' }}>
+                    <Box sx={{ width: '1px', backgroundColor: '#e0e0e0', margin: '0 15px' }} />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', width: '20%', p: '5px 15px 15px 5px' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 4 }}>
                         <AccessTimeOutlinedIcon sx={{ marginRight: '8px', fontSize: '1.7rem' }} />
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
@@ -310,7 +338,7 @@ const Tours = () => {
                       <Typography variant="h6" color="primary" sx={{ alignSelf: 'flex-end', mb: 1 }}>
                         {tour.price.adult.toLocaleString()} VNĐ
                       </Typography>
-                      <StyledButton component={Link} to={`/tour-du-lich/${tour.id}`} sx={{ color: 'primary', textTransform: 'none', alignSelf: 'flex-end', borderRadius: '10px', border: '1px solid #3572EF', height: '50px', width: '80%' }}>Xem chi tiết</StyledButton>
+                      <StyledButton component={Link} to={`/tour-du-lich/${tour.id}`} sx={{ color: 'primary', textTransform: 'none', alignSelf: 'center', borderRadius: '10px', border: '1px solid #3572EF', height: '50px', width: '80%' }}>Xem chi tiết</StyledButton>
                     </Box>
                   </Card>
                 </Grid>

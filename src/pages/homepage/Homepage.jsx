@@ -42,7 +42,11 @@ const Homepage = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', height: '80vh' }}>
+            <img src="../../public/loading.gif" alt="Loading..." />
+        </div>
+    );
   }
 
   const sliderSettings = {
@@ -74,35 +78,35 @@ const Homepage = () => {
       </Box>
       <Box>
         <Box component="section" className="why-choose-us">
-          <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem' }}>
+          <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>
             Tại sao nên tin dùng Vietway Tour
           </Typography>
           <Box className="feature-cards">
             <Box className="feature-card">
               <img src="../../public/icon/linh-hoat.png" alt="Linh hoạt" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Linh hoạt</Typography>
-              <Typography className="feature-description" sx={{ margin: "1rem 1.5rem 0 0", lineHeight: 1.8 }}>
+              <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Bạn có thể tùy ý hủy hoàn toàn miễn phí và thanh toán bất kì lúc nào để đáp ứng bất kỳ kế hoạch hoặc ngân sách nào của bạn.
               </Typography>
             </Box>
             <Box className="feature-card">
               <img src="../../public/icon/trai-nghiem.png" alt="Trải nghiệm tuyệt vời" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Trải nghiệm tuyệt vời</Typography>
-              <Typography className="feature-description" sx={{ margin: "1rem 1.5rem 0 0", lineHeight: 1.8 }}>
+              <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Tìm kiếm các địa điểm tham quan và tour một cách dễ dàng với đầy đủ thông tin
               </Typography>
             </Box>
             <Box className="feature-card">
               <img src="../../public/icon/dich-vu.png" alt="Dịch vụ chất lượng cao" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Dịch vụ chất lượng cao</Typography>
-              <Typography className="feature-description" sx={{ margin: "1rem 1.5rem 0 0", lineHeight: 1.8 }}>
+              <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Dịch vụ chất lượng và đáng tin cậy với hàng chục lượt đánh giá sau hơn 3 tháng hoạt động.
               </Typography>
             </Box>
             <Box className="feature-card">
               <img src="../../public/icon/ho-tro.png" alt="Hỗ trợ nhiệt tình" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Hỗ trợ nhiệt tình</Typography>
-              <Typography className="feature-description" sx={{ margin: "1rem 1.5rem 0 0", lineHeight: 1.8 }}>
+              <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Thắc mắc về giá cả? Quy trình đặt tour quá rắc rối? Muốn được tư vấn thêm về các tour du lịch? Hãy liên hệ chúng tôi!
               </Typography>
             </Box>
@@ -111,8 +115,8 @@ const Homepage = () => {
 
         <Box component="section" className="destinations">
           <Box className="section-header">
-            <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem'}}>Khám phá các điểm tham quan</Typography>
-            <Button component={Link} to="/diem-tham-quan" className="view-all-button">Xem tất cả</Button>
+            <Typography variant="h4" className="section-title" sx={{ mb: 2, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>Khám phá các điểm tham quan</Typography>
+            <Button component={Link} to="/diem-tham-quan" className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestProvinces />
           <Box className="destination-cards">
@@ -130,16 +134,16 @@ const Homepage = () => {
 
         <Box component="section" className="popular-tours">
           <Box className="section-header">
-            <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem' }}>Tour Nổi Tiếng</Typography>
-            <Button className="view-all-button">Xem tất cả</Button>
+            <Typography variant="h4" className="section-title" sx={{ mb: 1, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem'  }}>Tour Nổi Tiếng</Typography>
+            <Button className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestTours/>
         </Box>
 
         <Box component="section" className="featured-destinations">
           <Box className="section-header">
-            <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem' }}>Điểm đến yêu thích</Typography>
-            <Button className="view-all-button">Xem tất cả</Button>
+            <Typography variant="h4" className="section-title" sx={{ mb: 1, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem'  }}>Điểm đến yêu thích</Typography>
+            <Button className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestTourByProvince/>
         </Box>

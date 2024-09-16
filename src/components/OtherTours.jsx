@@ -9,7 +9,7 @@ const OtherTours = () => {
   const { id } = useParams();
   const allTours = getRandomTours(10); // Assuming getRandomTours can take a parameter for the number of tours
   const currentTourIndex = allTours.findIndex(tour => tour.id === id);
-  
+
   // Get 5 tours, excluding the current one
   const getOtherTours = () => {
     let otherTours = [];
@@ -24,18 +24,18 @@ const OtherTours = () => {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 2, textAlign:'left', fontSize: '2rem' }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 2, textAlign: 'left', fontSize: '2rem' }}>
         Các tour du lịch khác
       </Typography>
       <Box sx={{ overflowX: 'auto', display: 'flex', pb: 2, width: '100%', position: 'relative' }}>
         <Grid container spacing={2} sx={{ flexWrap: 'nowrap', width: 'max-content', margin: '0 auto' }}>
           {tours.map((tour) => (
             <Grid item key={tour.id}>
-              <Card sx={{ width: 250, height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Card sx={{ width: 290, height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <CardActionArea component={Link} to={`/tour-du-lich/${tour.id}`}>
                   <CardMedia
                     component="img"
-                    height="200"
+                    height="210"
                     image={tour.images[0].url}
                     alt={tour.name}
                     onError={(e) => {
@@ -50,17 +50,22 @@ const OtherTours = () => {
                     }}
                   />
                   <CardContent sx={{ textAlign: 'left' }}>
-                    <Typography variant="body2" color="text.secondary" gutterBottom sx={{fontSize: 13}}>
-                      {tour.destinationProvince}
-                    </Typography>
-                    <Typography variant="h6" component="div" sx={{fontSize: 19, fontWeight: 500}}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: 13 }}>
+                        {tour.destinationProvince}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: 13 }}>
+                        {tour.travelCompany}
+                      </Typography>
+                    </Box>
+                    <Typography variant="h6" component="div" sx={{ fontSize: 19, fontWeight: 500, textAlign: 'justify' }}>
                       {tour.name}
                     </Typography>
-                    <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 1}}>
-                      <Typography variant="body2" color="text.secondary" sx={{fontSize: 13}}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
                         {tour.days} ngày
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{fontSize: 13}}>
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
                         Giá: {tour.price.adult.toLocaleString()} VND
                       </Typography>
                     </Box>

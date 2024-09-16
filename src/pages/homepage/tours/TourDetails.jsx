@@ -88,11 +88,14 @@ const TourDetails = () => {
       </Helmet>
       <Header/>
       <Box sx={{ p: 3, flexGrow: 1, mt: 5 }}>
-        <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '16px', textAlign: 'left' }}>
+        <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '30px', textAlign: 'left' }}>
           <a href="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</a> 
           &gt; 
           <a href="/tour-du-lich" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Tour du lịch</a> 
           &gt; <strong>{tour.name}</strong>
+        </Typography>
+        <Typography gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'grey' }}>
+          {tour.travelCompany}
         </Typography>
         <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
           {tour.name}
