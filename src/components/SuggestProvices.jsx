@@ -5,14 +5,17 @@ import Slider from 'react-slick';
 import { provinces } from '../hooks/Provinces'; // Importing provinces data
 import { mockAttractions } from '../hooks/MockAttractions'; // Importing mockAttractions data
 import { useNavigate } from 'react-router-dom';
+import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
 
 const SuggestProvinces = () => {
   const navigate = useNavigate();
   const settings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 1000,
     slidesToShow: 6,
+    autoplay: true,
     slidesToScroll: 6,
     className: 'slider-attractions-homepage',
     responsive: [
@@ -45,6 +48,8 @@ const SuggestProvinces = () => {
     customPaging: i => (
       <div className="custom-dot"></div>
     ),
+    prevArrow: <ArrowBackIosNewOutlinedIcon sx={{ color: 'black', mt: -8}} className="slick-prev" />,
+    nextArrow: <ArrowForwardIosOutlinedIcon sx={{ color: 'black', mt: -8}} className="slick-next" />,
   };
 
   const handleProvinceClick = (provinceName) => {
@@ -59,13 +64,13 @@ const SuggestProvinces = () => {
           return (
             <Box key={province.id} sx={{ px: 1 }}>
               <Card 
-                sx={{ width: 180, height: '100%', display: 'flex', flexDirection: 'column', boxShadow: 'none' }}
+                sx={{ width: 170, height: '100%', display: 'flex', flexDirection: 'column', boxShadow: 'none' }}
                 onClick={() => handleProvinceClick(province.name)}
               >
                 <CardActionArea component={Link} to={`/diem-tham-quan?province=${province.name}`}>
                   <CardMedia
                     component="img"
-                    height="180"
+                    height="170"
                     image={province.image}
                     alt={province.name}
                     onError={(e) => {

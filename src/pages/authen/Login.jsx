@@ -143,7 +143,7 @@ export default function Login() {
                   label="Lưu mật khẩu"
                 />
                 <Grid item>
-                  <Link href="/quen-mat-khau" variant="body2" color="secondary" sx={{ textDecoration: 'none' }}>
+                  <Link href="/quen-mat-khau" variant="body2" color="#FF8682" sx={{ textDecoration: 'none' }}>
                     Quên mật khẩu?
                   </Link>
                 </Grid>
@@ -159,7 +159,7 @@ export default function Login() {
               <Grid container>
                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                   Chưa có tài khoản?
-                  <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-ky" variant="body2" color='secondary'>
+                  <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-ky" variant="body2" color='#FF8682'>
                     {"Đăng ký ngay"}
                   </Link>
                 </Grid>

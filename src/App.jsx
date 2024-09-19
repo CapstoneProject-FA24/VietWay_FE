@@ -9,6 +9,7 @@ import Attractions from './pages/homepage/attractions/Attractions.jsx'
 import Tours from './pages/homepage/tours/Tours.jsx'
 import TourDetails from './pages/homepage/tours/TourDetails.jsx'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Profile from './pages/account/Profile.jsx';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/dat-lai-mat-khau" element={<ResetPass/>} />
         <Route path="/tour-du-lich" element={<Tours/>} />
         <Route path="/tour-du-lich/:id" element={<TourDetails/>} />
+        <Route path="/tai-khoan" element={<Profile/>} />
       </Routes>
     </Router>
   );

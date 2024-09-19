@@ -34,6 +34,9 @@ const SuggestTours = () => {
                 alt={tour.images[0].alt}
               />
               <Box sx={{ p: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'right', mb: 1 }}>
+                  {tour.travelCompany}
+                </Typography>
                 <Typography
                   variant="h6"
                   component={Link}

@@ -221,7 +221,7 @@ export default function Register() {
                             <Grid container>
                                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                                     Đã có tài khoản?
-                                    <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-nhap" variant="body2" color='secondary'>
+                                    <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-nhap" variant="body2" color='#FF8682'>
                                         {"Đăng nhập ngay"}
                                     </Link>
                                 </Grid>
