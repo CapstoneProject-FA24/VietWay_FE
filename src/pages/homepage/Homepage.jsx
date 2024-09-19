@@ -65,7 +65,7 @@ const Homepage = () => {
       <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px" }} >
         <Slider {...sliderSettings}>
           <img src="../../public/hero.jpg" alt="Hero 1" className="hero-image" />
-          <img src="https://s.net.vn/bK7r" alt="Hero 2" className="hero-image"/>
+          <img src="../../public/vung_tau.jpg" alt="Hero 2" className="hero-image"/>
           <img src="https://static-images.vnncdn.net/files/publish/2023/9/1/cau-vang-nag-tran-tuan-viet-3-211.jpg" alt="Hero 3" className="hero-image" />
           <img src="https://honthom.sunworld.vn/wp-content/uploads/2020/07/shutterstock_1662998491-720x270.jpg" alt="Hero 4" className="hero-image" />
           <img src="https://media.tacdn.com/media/attractions-content--1x-1/12/19/ce/12.jpg" alt="Hero 5" className="hero-image" />
