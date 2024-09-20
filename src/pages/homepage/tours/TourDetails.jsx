@@ -6,7 +6,7 @@ import { faStar, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { faClock, faMoneyBill1, faCalendar, faSun } from '@fortawesome/free-regular-svg-icons';
 import OtherTours from '../../../components/OtherTours';
 import Footer from '../../../layouts/Footer';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { getTourById } from '../../../hooks/MockTours';
 import DirectionsBusFilledOutlinedIcon from '@mui/icons-material/DirectionsBusFilledOutlined';
@@ -25,6 +25,7 @@ const TourDetails = () => {
   const { id } = useParams();
   const pageTopRef = useRef(null);
   const [expandedDay, setExpandedDay] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTourData = async () => {
@@ -51,6 +52,10 @@ const TourDetails = () => {
 
   const handleDayClick = (day) => {
     setExpandedDay(expandedDay === day ? null : day);
+  };
+
+  const handleBookTour = () => {
+    navigate(`/book-tour/${id}`);
   };
 
   if (loading) {
@@ -272,7 +277,7 @@ const TourDetails = () => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-              <Button variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
+              <Button variant="contained" fullWidth sx={{ mb: 2, height: '45px' }} onClick={handleBookTour}>Đặt tour</Button>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FontAwesomeIcon icon={faPhone} style={{ marginRight: '10px' }} />
                 <Typography>Tư vấn: 1900 1234</Typography>
