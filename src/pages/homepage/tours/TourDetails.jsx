@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Table, TableBody, TableCell, TableContainer, TableRow, Button, Container, Collapse, IconButton } from '@mui/material';
-import Header from '../../../layouts/Header';
+import Header from '@layouts/Header';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { faClock, faMoneyBill1, faCalendar, faSun } from '@fortawesome/free-regular-svg-icons';
-import OtherTours from '../../../components/OtherTours';
-import Footer from '../../../layouts/Footer';
+import OtherTours from '@components/OtherTours';
+import Footer from '@layouts/Footer';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { getTourById } from '../../../hooks/MockTours';
+import { getTourById } from '@hooks/MockTours';
 import DirectionsBusFilledOutlinedIcon from '@mui/icons-material/DirectionsBusFilledOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
@@ -16,8 +16,8 @@ import LocalAtmOutlinedIcon from '@mui/icons-material/LocalAtmOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import CommonQuestions from '../../../components/CommonQuestions';
-import IncludeInTour from '../../../components/IncludeInTour';
+import CommonQuestions from '@components/CommonQuestions';
+import IncludeInTour from '@components/IncludeInTour';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
