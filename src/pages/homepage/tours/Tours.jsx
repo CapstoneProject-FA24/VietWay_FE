@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Card, CardMedia, Pagination, Select, MenuItem, FormControl, Button, TextField, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
-import Header from '../../../layouts/Header';
-import Footer from '../../../layouts/Footer';
+import Header from '@layouts/Header';
+import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
-import { getFilteredTours } from '../../../hooks/MockTours';
+import { getFilteredTours } from '@hooks/MockTours';
 import { styled } from '@mui/material/styles';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
