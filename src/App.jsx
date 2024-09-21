@@ -1,15 +1,15 @@
 import './App.css'
-import Homepage from './pages/homepage/Homepage.jsx';
-import Login from './pages/authen/Login.jsx'
-import ResetPass from './pages/authen/ResetPass.jsx'
-import Register from './pages/authen/Register.jsx'
-import ForgetPass from './pages/authen/ForgetPass.jsx'
-import AttractionDetails from './pages/homepage/attractions/AttractionDetails.jsx'
-import Attractions from './pages/homepage/attractions/Attractions.jsx'
-import Tours from './pages/homepage/tours/Tours.jsx'
-import TourDetails from './pages/homepage/tours/TourDetails.jsx'
+import Homepage from '@pages/homepage/Homepage.jsx';
+import Login from '@pages/authen/Login.jsx'
+import ResetPass from '@pages/authen/ResetPass.jsx'
+import Register from '@pages/authen/Register.jsx'
+import ForgetPass from '@pages/authen/ForgetPass.jsx'
+import AttractionDetails from '@pages/homepage/attractions/AttractionDetails.jsx'
+import Attractions from '@pages/homepage/attractions/Attractions.jsx'
+import Tours from '@pages/homepage/tours/Tours.jsx'
+import TourDetails from '@pages/homepage/tours/TourDetails.jsx'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Profile from './pages/account/Profile.jsx';
+import Profile from '@pages/account/Profile.jsx';
 
 const App = () => {
   return (

@@ -4,14 +4,14 @@ import { faStar, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { faClock, faMoneyBill1, faCalendar, faSun } from '@fortawesome/free-regular-svg-icons';
 import { Box, Container, Grid, Typography, Paper, Button, CircularProgress, Card, CardContent, CardMedia, CardActionArea } from '@mui/material';
 import axios from 'axios';
-import '../../styles/Homepage.css';
-import Footer from '../../layouts/Footer';
-import Header from '../../layouts/Header';
-import SuggestProvinces from '../../components/SuggestProvices';
+import '@styles/Homepage.css';
+import Footer from '@layouts/Footer';
+import Header from '@layouts/Header';
+import SuggestProvinces from '@components/SuggestProvices';
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
-import SuggestTours from '../../components/SuggestTours'
-import SuggestTourByProvince from '../../components/SuggestTourByProvince';
+import SuggestTours from '@components/SuggestTours'
+import SuggestTourByProvince from '@components/SuggestTourByProvince';
 
 const Homepage = () => {
   const [popularDestinations, setPopularDestinations] = useState([]);

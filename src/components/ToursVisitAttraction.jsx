@@ -3,7 +3,7 @@ import { Box, Typography, Card, CardContent, CardMedia, Grid, CardActionArea } f
 import { Link, useParams } from 'react-router-dom';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { mockTours } from '../hooks/MockTours';
+import { mockTours } from '@hooks/MockTours';
 
 const ToursVisitAttraction = () => {
   const { id } = useParams();

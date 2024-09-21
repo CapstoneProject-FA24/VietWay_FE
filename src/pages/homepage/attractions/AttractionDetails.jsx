@@ -3,15 +3,15 @@ import { Box, Typography, Grid, Paper, CircularProgress, Table, TableBody, Table
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Header from '../../../layouts/Header';
+import Header from '@layouts/Header';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import OtherAttractions from '../../../components/OtherAttractions';
-import Footer from '../../../layouts/Footer';
+import OtherAttractions from '@components/OtherAttractions';
+import Footer from '@layouts/Footer';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { getAttractionById } from '../../../hooks/MockAttractions';
-import ToursVisitAttraction from '../../../components/ToursVisitAttraction';
+import { getAttractionById } from '@hooks/MockAttractions';
+import ToursVisitAttraction from '@components/ToursVisitAttraction';
 
 
 const AttractionDetails = () => {
