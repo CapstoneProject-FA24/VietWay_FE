@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Grid, Typography, Paper, Button, CircularProgress, Card, CardContent, CardMedia, CardActionArea, Tabs, Tab } from '@mui/material';
-import '../../styles/Homepage.css';
-import Footer from '../../layouts/Footer';
-import Header from '../../layouts/Header';
-import { mockProfiles } from '../../hooks/MockProfile';
-
+import '@styles/Homepage.css';
+import Footer from '@layouts/Footer';
+import Header from '@layouts/Header';
+import { mockProfiles } from '@hooks/MockProfile';
 const Profile = () => {
+
     const [profile, setProfile] = useState({});
     const [tabValue, setTabValue] = useState(0);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Card, CardMedia, Typography, Box, CardActionArea } from '@mui/material';
-import { provinces } from '../hooks/Provinces';
+import { provinces } from '@hooks/Provinces';
 import { useNavigate } from 'react-router-dom';
 
 const SuggestTourByProvince = () => {

@@ -15,7 +15,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import '../../styles/Slider.css';
+import '@styles/Slider.css';
 
 export default function ResetPass() {
   const settingLogin = {

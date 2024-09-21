@@ -2,8 +2,8 @@ import React from 'react';
 import { Box, Typography, Card, CardContent, CardMedia, Grid, CardActionArea } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
-import { provinces } from '../hooks/Provinces'; // Importing provinces data
-import { mockAttractions } from '../hooks/MockAttractions'; // Importing mockAttractions data
+import { provinces } from '@hooks/Provinces'; // Importing provinces data
+import { mockAttractions } from '@hooks/MockAttractions'; // Importing mockAttractions data
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';

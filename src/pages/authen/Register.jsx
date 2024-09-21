@@ -13,7 +13,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import '../../styles/Slider.css';
+import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
