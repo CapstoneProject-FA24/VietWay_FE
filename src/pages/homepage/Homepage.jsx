@@ -44,7 +44,7 @@ const Homepage = () => {
   if (loading) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', height: '80vh' }}>
-            <img src="../../public/loading.gif" alt="Loading..." />
+            <img src="/loading.gif" alt="Loading..." />
         </div>
     );
   }
@@ -64,8 +64,8 @@ const Homepage = () => {
       <Header />
       <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px" }} >
         <Slider {...sliderSettings}>
-          <img src="../../public/hero.jpg" alt="Hero 1" className="hero-image" />
-          <img src="../../public/vung_tau.jpg" alt="Hero 2" className="hero-image"/>
+          <img src="/hero.jpg" alt="Hero 1" className="hero-image" />
+          <img src="/vung_tau.jpg" alt="Hero 2" className="hero-image"/>
           <img src="https://static-images.vnncdn.net/files/publish/2023/9/1/cau-vang-nag-tran-tuan-viet-3-211.jpg" alt="Hero 3" className="hero-image" />
           <img src="https://honthom.sunworld.vn/wp-content/uploads/2020/07/shutterstock_1662998491-720x270.jpg" alt="Hero 4" className="hero-image" />
           <img src="https://media.tacdn.com/media/attractions-content--1x-1/12/19/ce/12.jpg" alt="Hero 5" className="hero-image" />
@@ -73,7 +73,7 @@ const Homepage = () => {
         <Box className="hero-text" sx={{ width: "100%", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
           <Typography variant="h1" sx={{ fontSize: '4.7rem', mb: 2 }}>Niềm vui quanh ta</Typography>
           <Typography variant="h7" sx={{ width: "40%" }}>Từ những chuyến đi gần đến những cuộc phiêu lưu xa xôi, hãy tìm thấy điều làm bạn hạnh phúc mỗi lúc, mọi nơi</Typography>
-          <img src="../../public/homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
+          <img src="/homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
       <Box>
@@ -83,28 +83,28 @@ const Homepage = () => {
           </Typography>
           <Box className="feature-cards">
             <Box className="feature-card">
-              <img src="../../public/icon/linh-hoat.png" alt="Linh hoạt" className="feature-icon" />
+              <img src="/icon/linh-hoat.png" alt="Linh hoạt" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Linh hoạt</Typography>
               <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Bạn có thể tùy ý hủy hoàn toàn miễn phí và thanh toán bất kì lúc nào để đáp ứng bất kỳ kế hoạch hoặc ngân sách nào của bạn.
               </Typography>
             </Box>
             <Box className="feature-card">
-              <img src="../../public/icon/trai-nghiem.png" alt="Trải nghiệm tuyệt vời" className="feature-icon" />
+              <img src="/icon/trai-nghiem.png" alt="Trải nghiệm tuyệt vời" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Trải nghiệm tuyệt vời</Typography>
               <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Tìm kiếm các địa điểm tham quan và tour một cách dễ dàng với đầy đủ thông tin
               </Typography>
             </Box>
             <Box className="feature-card">
-              <img src="../../public/icon/dich-vu.png" alt="Dịch vụ chất lượng cao" className="feature-icon" />
+              <img src="/icon/dich-vu.png" alt="Dịch vụ chất lượng cao" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Dịch vụ chất lượng cao</Typography>
               <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Dịch vụ chất lượng và đáng tin cậy với hàng chục lượt đánh giá sau hơn 3 tháng hoạt động.
               </Typography>
             </Box>
             <Box className="feature-card">
-              <img src="../../public/icon/ho-tro.png" alt="Hỗ trợ nhiệt tình" className="feature-icon" />
+              <img src="/icon/ho-tro.png" alt="Hỗ trợ nhiệt tình" className="feature-icon" />
               <Typography variant="h6" className="feature-title" sx={{fontWeight: 'bold'}}>Hỗ trợ nhiệt tình</Typography>
               <Typography className="feature-description" sx={{ margin: "1rem 0.5rem 0 0", lineHeight: 1.8 }}>
                 Thắc mắc về giá cả? Quy trình đặt tour quá rắc rối? Muốn được tư vấn thêm về các tour du lịch? Hãy liên hệ chúng tôi!

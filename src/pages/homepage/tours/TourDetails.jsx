@@ -160,7 +160,7 @@ const TourDetails = () => {
                 </Box>
               </Box>
             <Box sx={{ mb: 3 }}>
-              <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem' }}>Tổng quan</Typography>
+              <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', paddingTop: '20px' }}>Tổng quan</Typography>
               <Typography paragraph sx={{ textAlign: 'justify' }}>{tour.description}</Typography>
             </Box>
             <IncludeInTour />
