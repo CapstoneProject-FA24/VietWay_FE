@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -115,6 +115,7 @@ const BookTour = () => {
   const { id } = useParams();
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({ fullName: "", email: "", phone: "", address: "", adults: 1, children: 0, infants: 0, note: "", paymentMethod: "" });
+  const topRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -122,6 +123,9 @@ const BookTour = () => {
       setBookingData(data);
     };
     fetchData();
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [id]);
 
   const handleInputChange = (e) => {
@@ -167,7 +171,7 @@ const BookTour = () => {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }} ref={topRef}>
       <Header />
       <ContentContainer>
         <StyledBox>
@@ -331,7 +335,7 @@ const BookTour = () => {
                     control={<Radio />}
                     label="Zalopay"
                   />
-                  <img src="https://upload.afkmobi.com/photos/afkmobi-com/2020/11/Zalopay_logo.png" alt="Zalopay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
+                  <img src="https://cdn.tgdd.vn/2020/04/GameApp/image-180x180.png" alt="Zalopay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <PaymentMethod
@@ -347,7 +351,7 @@ const BookTour = () => {
               <SummaryTitle variant="h5" style={{ alignContent: "center" }}>
                 THÔNG TIN CHUYẾN ĐI
               </SummaryTitle>
-              <SummaryBox sx={{ backgroundColor: 'white', border: 'none', boxShadow: '0 0 5px #888888' }}>
+              <SummaryBox sx={{ backgroundColor: 'white', border: 'none', boxShadow: '0 0 5px #888888', borderRadius: 2 }}>
                 <Box sx={{ mb: 2 }}>
                   <img src={bookingData.images?.[0]?.url} alt={bookingData.name} style={{ width: "100%", height: "auto" }} />
                 </Box>

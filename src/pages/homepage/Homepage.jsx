@@ -135,7 +135,7 @@ const Homepage = () => {
         <Box component="section" className="popular-tours">
           <Box className="section-header">
             <Typography variant="h4" className="section-title" sx={{ mb: 1, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem'  }}>Tour Nổi Tiếng</Typography>
-            <Button className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
+            <Button component={Link} to={"/tour-du-lich"} className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestTours/>
         </Box>

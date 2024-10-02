@@ -26,7 +26,7 @@ const SuggestTours = () => {
       <Grid container spacing={3}>
         {tours && tours.slice(0, 6).map((tour) => (
           <Grid item xs={12} md={6} lg={4} key={tour.id}>
-            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%', textAlign: 'left', borderRadius: '7px' }}>
+            <Card component={Link} to={`/tour-du-lich/${tour.id}`} sx={{ display: 'flex', flexDirection: 'column', height: '100%', textAlign: 'left', borderRadius: '7px' }}>
               <CardMedia
                 component="img"
                 sx={{ height: '200px', objectFit: 'cover', borderRadius: '7px 7px 0 0' }}
@@ -39,8 +39,6 @@ const SuggestTours = () => {
                 </Typography>
                 <Typography
                   variant="h6"
-                  component={Link}
-                  to={`/tour-du-lich/${tour.id}`}
                   gutterBottom
                   sx={{
                     overflow: 'hidden',
@@ -77,7 +75,7 @@ const SuggestTours = () => {
                   <Typography variant="h6" color="primary">
                     {tour.price.adult.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                   </Typography>
-                  <StyledButton component={Link} to={`/tour-du-lich/${tour.id}`} sx={{ color: 'primary', textTransform: 'none', borderRadius: '10px', border: '1px solid #3572EF', height: '50px' }}>Đặt ngay</StyledButton>
+                  <StyledButton component={Link} to={`/dat-tour/${tour.id}`} sx={{ color: 'primary', textTransform: 'none', borderRadius: '10px', border: '1px solid #3572EF', height: '50px' }}>Đặt ngay</StyledButton>
                 </Box>
               </Box>
             </Card>
