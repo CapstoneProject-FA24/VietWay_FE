@@ -1,15 +1,15 @@
 import './App.css'
-import Homepage from './pages/homepage/Homepage.jsx';
-import Login from './pages/authen/Login.jsx'
-import ResetPass from './pages/authen/ResetPass.jsx'
-import Register from './pages/authen/Register.jsx'
-import ForgetPass from './pages/authen/ForgetPass.jsx'
-import AttractionDetails from './pages/homepage/attractions/AttractionDetails.jsx'
-import Attractions from './pages/homepage/attractions/Attractions.jsx'
-import Tours from './pages/homepage/tours/Tours.jsx'
-import TourDetails from './pages/homepage/tours/TourDetails.jsx'
-import BookTour from './pages/homepage/tours/BookTour'
+import Homepage from '@pages/homepage/Homepage.jsx';
+import Login from '@pages/authen/Login.jsx'
+import ResetPass from '@pages/authen/ResetPass.jsx'
+import Register from '@pages/authen/Register.jsx'
+import ForgetPass from '@pages/authen/ForgetPass.jsx'
+import AttractionDetails from '@pages/homepage/attractions/AttractionDetails.jsx'
+import Attractions from '@pages/homepage/attractions/Attractions.jsx'
+import Tours from '@pages/homepage/tours/Tours.jsx'
+import TourDetails from '@pages/homepage/tours/TourDetails.jsx'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Profile from '@pages/account/Profile.jsx';
 
 const App = () => {
   return (
@@ -26,7 +26,7 @@ const App = () => {
         <Route path="/dat-lai-mat-khau" element={<ResetPass/>} />
         <Route path="/tour-du-lich" element={<Tours/>} />
         <Route path="/tour-du-lich/:id" element={<TourDetails/>} />
-        <Route path="/book-tour/:id" element={<BookTour/>} />
+        <Route path="/tai-khoan" element={<Profile/>} />
       </Routes>
     </Router>
   );

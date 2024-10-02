@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Table, TableBody, TableCell, TableContainer, TableRow, Button, Container, Collapse, IconButton } from '@mui/material';
-import Header from '../../../layouts/Header';
+import Header from '@layouts/Header';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { faClock, faMoneyBill1, faCalendar, faSun } from '@fortawesome/free-regular-svg-icons';
-import OtherTours from '../../../components/OtherTours';
-import Footer from '../../../layouts/Footer';
-import { useParams, useNavigate } from 'react-router-dom';
+import OtherTours from '@components/OtherTours';
+import Footer from '@layouts/Footer';
+import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { getTourById } from '../../../hooks/MockTours';
+import { getTourById } from '@hooks/MockTours';
 import DirectionsBusFilledOutlinedIcon from '@mui/icons-material/DirectionsBusFilledOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
@@ -16,8 +16,8 @@ import LocalAtmOutlinedIcon from '@mui/icons-material/LocalAtmOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import CommonQuestions from '../../../components/CommonQuestions';
-import IncludeInTour from '../../../components/IncludeInTour';
+import CommonQuestions from '@components/CommonQuestions';
+import IncludeInTour from '@components/IncludeInTour';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -25,7 +25,6 @@ const TourDetails = () => {
   const { id } = useParams();
   const pageTopRef = useRef(null);
   const [expandedDay, setExpandedDay] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTourData = async () => {
@@ -52,10 +51,6 @@ const TourDetails = () => {
 
   const handleDayClick = (day) => {
     setExpandedDay(expandedDay === day ? null : day);
-  };
-
-  const handleBookTour = () => {
-    navigate(`/book-tour/${id}`);
   };
 
   if (loading) {
@@ -160,7 +155,7 @@ const TourDetails = () => {
                 </Box>
               </Box>
             <Box sx={{ mb: 3 }}>
-              <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', paddingTop: '20px' }}>Tổng quan</Typography>
+              <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem' }}>Tổng quan</Typography>
               <Typography paragraph sx={{ textAlign: 'justify' }}>{tour.description}</Typography>
             </Box>
             <IncludeInTour />
@@ -277,7 +272,7 @@ const TourDetails = () => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-              <Button variant="contained" fullWidth sx={{ mb: 2, height: '45px' }} onClick={handleBookTour}>Đặt tour</Button>
+              <Button variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FontAwesomeIcon icon={faPhone} style={{ marginRight: '10px' }} />
                 <Typography>Tư vấn: 1900 1234</Typography>

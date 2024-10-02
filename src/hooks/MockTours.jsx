@@ -222,11 +222,41 @@ export const mockTours = [
       { url: "https://nld.mediacdn.vn/291774122806476800/2024/2/15/rat-nhieu-san-pham-dac-trung-tai-40-gian-hang-cua-cho-dem-vui-fest-phu-quoc-1708000464595637849414.jpg", alt: "Chợ đêm Phú Quốc" },
     ],
     itinerary: [
-      { day: 1, description: "Khởi hành từ TP.HCM, đến Phú Quốc, nhận phòng và nghỉ ngơi." },
-      { day: 2, description: "Tham quan Nam đảo, trải nghiệm cáp treo Hòn Thơm." },
-      { day: 3, description: "Khám phá Vinpearl Safari, tắm biển Bãi Sao." },
-      { day: 4, description: "Tour câu cá và lặn ngắm san hô." },
-      { day: 5, description: "Mua sắm đặc sản, trở về TP.HCM." },
+      {
+        day: 1,
+        title: "Ngày 1: TP.HCM - Phú Quốc",
+        description: [
+          { order: 1, content: "Khởi hành từ TP.HCM, đến Phú Quốc, nhận phòng và nghỉ ngơi." }
+        ]
+      },
+      {
+        day: 2,
+        title: "Ngày 2: Phú Quốc",
+        description: [
+          { order: 1, content: "Tham quan Nam đảo, trải nghiệm cáp treo Hòn Thơm." }
+        ]
+      },
+      {
+        day: 3,
+        title: "Ngày 3: Phú Quốc",
+        description: [
+          { order: 1, content: "Khám phá Vinpearl Safari, tắm biển Bãi Sao." }
+        ]
+      },
+      {
+        day: 4,
+        title: "Ngày 4: Phú Quốc",
+        description: [
+          { order: 1, content: "Tour câu cá và lặn ngắm san hô." }
+        ]
+      },
+      {
+        day: 5,
+        title: "Ngày 5: Phú Quốc - TP.HCM",
+        description: [
+          { order: 1, content: "Mua sắm đặc sản, trở về TP.HCM." }
+        ]
+      }
     ],
     included: ["Vé máy bay khứ hồi", "Resort 5 sao", "Vé tham quan"],
     notIncluded: ["Chi phí cá nhân", "Dịch vụ spa"],
@@ -256,10 +286,34 @@ export const mockTours = [
       { url: "https://globaltravel.com.vn/wp-content/uploads/2019/08/cho-bac-ha-lao-cai-sapa6.jpg", alt: "Chợ Bắc Hà" },
     ],
     itinerary: [
-      { day: 1, description: "Khởi hành từ Hà Nội, đến Sapa, tham quan thị trấn." },
-      { day: 2, description: "Khám phá bản Cát Cát, trải nghiệm văn hóa H'Mông." },
-      { day: 3, description: "Chinh phục đỉnh Fansipan, ngắm cảnh từ 'Nóc nhà Đông Dương'." },
-      { day: 4, description: "Thăm chợ Bắc Hà, trở về Hà Nội." },
+      {
+        day: 1,
+        title: "Ngày 1: Hà Nội - Sapa",
+        description: [
+          { order: 1, content: "Khởi hành từ Hà Nội, đến Sapa, tham quan thị trấn." }
+        ]
+      },
+      {
+        day: 2,
+        title: "Ngày 2: Sapa",
+        description: [
+          { order: 1, content: "Khám phá bản Cát Cát, trải nghiệm văn hóa H'Mông." }
+        ]
+      },
+      {
+        day: 3,
+        title: "Ngày 3: Sapa - Fansipan",
+        description: [
+          { order: 1, content: "Chinh phục đỉnh Fansipan, ngắm cảnh từ 'Nóc nhà Đông Dương'." }
+        ]
+      },
+      {
+        day: 4,
+        title: "Ngày 4: Sapa - Hà Nội",
+        description: [
+          { order: 1, content: "Thăm chợ Bắc Hà, trở về Hà Nội." }
+        ]
+      },
     ],
     included: ["Vé tàu hỏa khứ hồi", "Khách sạn 4 sao", "HDV tiếng Việt"],
     notIncluded: ["Chi phí cá nhân", "Vé cáp treo Fansipan"],
@@ -289,17 +343,47 @@ export const mockTours = [
       { url: "https://ik.imagekit.io/tvlk/blog/2022/10/bien-my-khe-2.jpg?tr=dpr-2,w-675", alt: "Biển Mỹ Khê" },
     ],
     itinerary: [
-      { day: 1, description: "Khởi hành từ TP.HCM, đến Đà Nẵng, tham quan Cầu Rồng." },
-      { day: 2, description: "Khám phá Bà Nà Hills, trải nghiệm Cầu Vàng." },
-      { day: 3, description: "Tham quan phố cổ Hội An, trải nghiệm đèn lồng." },
-      { day: 4, description: "Tắm biển Mỹ Khê, thăm Ngũ Hành Sơn." },
-      { day: 5, description: "Mua sắm tại chợ Cồn, trở về TP.HCM." },
+      {
+        day: 1,
+        title: "Ngày 1: TP.HCM - Đà Nẵng",
+        description: [
+          { order: 1, content: "Khởi hành từ TP.HCM, đến Đà Nẵng, tham quan Cầu Rồng." }
+        ]
+      },
+      {
+        day: 2,
+        title: "Ngày 2: Đà Nẵng",
+        description: [
+          { order: 1, content: "Khám phá Bà Nà Hills, trải nghiệm Cầu Vàng." }
+        ]
+      },
+      {
+        day: 3,
+        title: "Ngày 3: Đà Nẵng - Hội An",
+        description: [
+          { order: 1, content: "Tham quan phố cổ Hội An, trải nghiệm đèn lồng." }
+        ]
+      },
+      {
+        day: 4,
+        title: "Ngày 4: Đà Nẵng",
+        description: [
+          { order: 1, content: "Tắm biển Mỹ Khê, thăm Ngũ Hành Sơn." }
+        ]
+      },
+      {
+        day: 5,
+        title: "Ngày 5: Đà Nẵng - TP.HCM",
+        description: [
+          { order: 1, content: "Mua sắm tại chợ Cồn, trở về TP.HCM." }
+        ]
+      }
     ],
     included: ["Vé máy bay khứ hồi", "Khách sạn 4 sao", "Vé tham quan"],
     notIncluded: ["Chi phí cá nhân", "Các bữa ăn ngoài chương trình"],
     pickupPoints: ["TP.HCM", "Đà Nẵng"],
     attractions: [10, 1, 2, 4], // Phố cổ Hội An, Dinh Độc Lập, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Amazing Tours"
+    travelCompany: "Viet Tours"
   },
   {
     id: "NDSGN564-047-120724XE-N",
@@ -355,9 +439,27 @@ export const mockTours = [
       { url: "https://bizweb.dktcdn.net/100/416/263/articles/vnmnha11.jpg?v=1698744311713", alt: "Hòn Mun" },
     ],
     itinerary: [
-      { day: 1, description: "Khởi hành từ TP.HCM, đến Nha Trang, tham quan thành phố." },
-      { day: 2, description: "Tour 4 đảo, lặn ngắm san hô tại Hòn Mun." },
-      { day: 3, description: "Tham quan Vinpearl Land, trở về TP.HCM." },
+      {
+        day: 1,
+        title: "Ngày 1: TP.HCM - Nha Trang",
+        description: [
+          { order: 1, content: "Khởi hành từ TP.HCM, đến Nha Trang, tham quan thành phố." }
+        ]
+      },
+      {
+        day: 2,
+        title: "Ngày 2: Nha Trang",
+        description: [
+          { order: 1, content: "Tour 4 đảo, lặn ngắm san hô tại Hòn Mun." }
+        ]
+      },
+      {
+        day: 3,
+        title: "Ngày 3: Nha Trang - TP.HCM",
+        description: [
+          { order: 1, content: "Tham quan Vinpearl Land, trở về TP.HCM." }
+        ]
+      }
     ],
     included: ["Vé máy bay khứ hồi", "Khách sạn 3 sao", "Tour 4 đảo"],
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
@@ -387,9 +489,27 @@ export const mockTours = [
       { url: "https://bizweb.dktcdn.net/100/416/263/articles/vnmnha11.jpg?v=1698744311713", alt: "Hòn Mun" },
     ],
     itinerary: [
-      { day: 1, description: "Khởi hành từ TP.HCM, đến Nha Trang, tham quan thành phố." },
-      { day: 2, description: "Tour 4 đảo, lặn ngắm san hô tại Hòn Mun." },
-      { day: 3, description: "Tham quan Vinpearl Land, trở về TP.HCM." },
+      {
+        day: 1,
+        title: "Ngày 1: TP.HCM - Nha Trang",
+        description: [
+          { order: 1, content: "Khởi hành từ TP.HCM, đến Nha Trang, tham quan thành phố." }
+        ]
+      },
+      {
+        day: 2,
+        title: "Ngày 2: Nha Trang",
+        description: [
+          { order: 1, content: "Tour 4 đảo, lặn ngắm san hô tại Hòn Mun." }
+        ]
+      },
+      {
+        day: 3,
+        title: "Ngày 3: Nha Trang - TP.HCM",
+        description: [
+          { order: 1, content: "Tham quan Vinpearl Land, trở về TP.HCM." }
+        ]
+      }
     ],
     included: ["Vé máy bay khứ hồi", "Khách sạn 3 sao", "Tour 4 đảo"],
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
@@ -419,9 +539,27 @@ export const mockTours = [
       { url: "https://bizweb.dktcdn.net/100/416/263/articles/vnmnha11.jpg?v=1698744311713", alt: "Hòn Mun" },
     ],
     itinerary: [
-      { day: 1, description: "Khởi hành từ TP.HCM, đến Nha Trang, tham quan thành phố." },
-      { day: 2, description: "Tour 4 đảo, lặn ngắm san hô tại Hòn Mun." },
-      { day: 3, description: "Tham quan Vinpearl Land, trở về TP.HCM." },
+      {
+        day: 1,
+        title: "Ngày 1: TP.HCM - Nha Trang",
+        description: [
+          { order: 1, content: "Khởi hành từ TP.HCM, đến Nha Trang, tham quan thành phố." }
+        ]
+      },
+      {
+        day: 2,
+        title: "Ngày 2: Nha Trang",
+        description: [
+          { order: 1, content: "Tour 4 đảo, lặn ngắm san hô tại Hòn Mun." }
+        ]
+      },
+      {
+        day: 3,
+        title: "Ngày 3: Nha Trang - TP.HCM",
+        description: [
+          { order: 1, content: "Tham quan Vinpearl Land, trở về TP.HCM." }
+        ]
+      }
     ],
     included: ["Vé máy bay khứ hồi", "Khách sạn 3 sao", "Tour 4 đảo"],
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],

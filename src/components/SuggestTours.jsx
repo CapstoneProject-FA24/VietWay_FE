@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, Card, CardMedia, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { mockTours } from '../hooks/MockTours';
+import { mockTours } from '@hooks/MockTours';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
@@ -34,6 +34,9 @@ const SuggestTours = () => {
                 alt={tour.images[0].alt}
               />
               <Box sx={{ p: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'right', mb: 1 }}>
+                  {tour.travelCompany}
+                </Typography>
                 <Typography
                   variant="h6"
                   component={Link}

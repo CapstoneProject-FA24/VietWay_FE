@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Card, CardMedia, Pagination, Select, MenuItem, FormControl, Checkbox, FormGroup, FormControlLabel, OutlinedInput, Button } from '@mui/material';
-import Header from '../../../layouts/Header';
+import Header from '@layouts/Header';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import Footer from '../../../layouts/Footer';
+import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { getFilteredAttractions } from '../../../hooks/MockAttractions';
+import { getFilteredAttractions } from '@hooks/MockAttractions';
 import { styled, alpha } from '@mui/material/styles';
 
 const Attractions = () => {
