@@ -18,11 +18,11 @@ const Profile = () => {
     };
 
     return (
-        <Box>
+        <Box sx={{ maxWidth: '100vw' }}>
             <Header />
             <Box component="header" sx={{
-                ml: "-112px",
-                mr: "-112px",
+                ml: "-60px",
+                mr: "-60px",
                 position: 'relative',
                 height: '380px',
                 borderRadius: '0 0 30px 30px',
@@ -34,86 +34,85 @@ const Profile = () => {
                     <Typography variant="h5" sx={{ width: "40%", zIndex: 2, color: 'white' }}>{profile.email}</Typography>
                     <img src="account-background.jpg" alt="Wave" style={{ width: "100%", height: "100%", bottom: 0, left: 0, position: "absolute", zIndex: -1 }} />
                 </Box>
-                
             </Box>
-            <Container sx={{ my: 2, mt: -23, position: "relative", zIndex: 1}}>
-                    <Tabs value={tabValue} onChange={handleTabChange} centered indicatorColor="secondary">
-                        <Tab label="Tài khoản" sx={{
-                            color: '#D4D4D4',
-                            width: '25%',
-                            '&.Mui-selected': {
-                                color: 'white',
-                                fontWeight: 700
-                            }
-                        }} />
-                        <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                        <Tab label="Tour Đăng Ký" sx={{
-                            color: '#D4D4D4',
-                            width: '25%',
-                            '&.Mui-selected': {
-                                color: 'white',
-                                fontWeight: 700,
-                            }
-                        }} />
-                        <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                        <Tab label="Lịch Sử Thanh Toán" sx={{
-                            color: '#D4D4D4',
-                            width: '25%',
-                            '&.Mui-selected': {
-                                color: 'white',
-                                fontWeight: 700
-                            }
-                        }} />
-                    </Tabs>
-                    {tabValue === 0 && (
-                        <Box sx={{ my: 5 }}>
-                            <Typography variant="h5" sx={{ mb: 2, color: 'white' }}>Thông tin tài khoản</Typography>
-                            <Paper sx={{ p: 4, borderRadius: '8px' }}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Tên</Typography>
-                                        <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.name}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button variant="text">Edit</Button>
-                                    </Grid>
-
-                                    <Grid item xs={6}>
-                                        <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Email</Typography>
-                                        <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.email}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button variant="text">Edit</Button>
-                                    </Grid>
-
-                                    <Grid item xs={6}>
-                                        <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Mật khẩu</Typography>
-                                        <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.password}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button variant="text">Edit</Button>
-                                    </Grid>
-
-                                    <Grid item xs={6}>
-                                        <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Số điện thoại</Typography>
-                                        <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.phone}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button variant="text">Edit</Button>
-                                    </Grid>
-
-                                    <Grid item xs={6}>
-                                        <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Ngày sinh</Typography>
-                                        <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{profile.dob}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button variant="text">Edit</Button>
-                                    </Grid>
+            <Container sx={{ my: 2, mt: -23, position: "relative", zIndex: 1 }}>
+                <Tabs value={tabValue} onChange={handleTabChange} centered indicatorColor="secondary" sx={{ mb: 5 }}>
+                    <Tab label="Tài khoản" sx={{
+                        color: '#D4D4D4',
+                        width: '25%',
+                        '&.Mui-selected': {
+                            color: 'white',
+                            fontWeight: 700
+                        }
+                    }} />
+                    <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
+                    <Tab label="Tour Đăng Ký" sx={{
+                        color: '#D4D4D4',
+                        width: '25%',
+                        '&.Mui-selected': {
+                            color: 'white',
+                            fontWeight: 700,
+                        }
+                    }} />
+                    <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
+                    <Tab label="Lịch Sử Thanh Toán" sx={{
+                        color: '#D4D4D4',
+                        width: '25%',
+                        '&.Mui-selected': {
+                            color: 'white',
+                            fontWeight: 700
+                        }
+                    }} />
+                </Tabs>
+                {tabValue === 0 && (
+                    <Box sx={{ width: '90%', margin: '0 auto' }}>
+                        <Typography variant="h5" sx={{ mb: 2, color: 'white' }}>Thông tin tài khoản</Typography>
+                        <Paper sx={{ p: 4, borderRadius: '8px' }}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={6}>
+                                    <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Tên</Typography>
+                                    <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.name}</Typography>
                                 </Grid>
-                            </Paper>
-                        </Box>
-                    )}
-                </Container>
+                                <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button sx={{ width: '7rem', height: '2.5rem', border: '1px solid #3572EF', borderRadius: 3 }} variant="text">Thay đổi</Button>
+                                </Grid>
+
+                                <Grid item xs={6}>
+                                    <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Email</Typography>
+                                    <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.email}</Typography>
+                                </Grid>
+                                <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button sx={{ width: '7rem', height: '2.5rem', border: '1px solid #3572EF', borderRadius: 3 }} variant="text">Thay đổi</Button>
+                                </Grid>
+
+                                <Grid item xs={6}>
+                                    <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Mật khẩu</Typography>
+                                    <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.password}</Typography>
+                                </Grid>
+                                <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button sx={{ width: '7rem', height: '2.5rem', border: '1px solid #3572EF', borderRadius: 3 }} variant="text">Thay đổi</Button>
+                                </Grid>
+
+                                <Grid item xs={6}>
+                                    <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Số điện thoại</Typography>
+                                    <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold', mb: 2 }}>{profile.phone}</Typography>
+                                </Grid>
+                                <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button sx={{ width: '7rem', height: '2.5rem', border: '1px solid #3572EF', borderRadius: 3 }} variant="text">Thay đổi</Button>
+                                </Grid>
+
+                                <Grid item xs={6}>
+                                    <Typography variant="body1" sx={{ color: 'grey.600', fontSize: '0.8rem' }}>Ngày sinh</Typography>
+                                    <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{profile.dob}</Typography>
+                                </Grid>
+                                <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Button sx={{ width: '7rem', height: '2.5rem', border: '1px solid #3572EF', borderRadius: 3 }} variant="text">Thay đổi</Button>
+                                </Grid>
+                            </Grid>
+                        </Paper>
+                    </Box>
+                )}
+            </Container>
             <Footer />
         </Box>
     );
