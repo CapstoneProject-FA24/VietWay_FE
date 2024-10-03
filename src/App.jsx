@@ -8,12 +8,8 @@ import AttractionDetails from "@pages/homepage/attractions/AttractionDetails.jsx
 import Attractions from "@pages/homepage/attractions/Attractions.jsx";
 import Tours from "@pages/homepage/tours/Tours.jsx";
 import TourDetails from "@pages/homepage/tours/TourDetails.jsx";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
+import Payment from "@pages/homepage/tours/Payment.jsx";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
 
@@ -34,6 +30,7 @@ const App = () => {
         <Route path="/tour-du-lich/:id" element={<TourDetails />} />
         <Route path="/tai-khoan" element={<Profile />} />
         <Route path="/dat-tour/:id" element={<BookTour />} />
+        <Route path="/dat-tour/thanh-toan" element={<Payment />} />
       </Routes>
     </Router>
   );

@@ -116,6 +116,7 @@ const BookTour = () => {
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({ fullName: "", email: "", phone: "", address: "", adults: 1, children: 0, infants: 0, note: "", paymentMethod: "" });
   const topRef = useRef(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,6 +135,13 @@ const BookTour = () => {
       ...prevState,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        [name]: ''
+      }));
+    }
   };
 
   const handlePassengerChange = (type, operation) => {
@@ -150,13 +158,52 @@ const BookTour = () => {
 
   const calculateTotal = () => {
     if (!bookingData || !bookingData.bookingInfo) return 0;
-    const { adultPrice, childPrice, infantPrice, singleRoomSurcharge, adultOnlineDiscount, childOnlineDiscount } = bookingData.bookingInfo;
+    const { adultPrice, childPrice, infantPrice } = bookingData.bookingInfo;
     const adult = formData.adults * adultPrice;
     const children = formData.children * childPrice;
     const infant = formData.infants * infantPrice;
     return (
       adult + children + infant
     );
+  };
+
+  const validateField = (name, value) => {
+    let error = '';
+    switch (name) {
+      case 'fullName':
+        if (!value.trim()) {
+          error = 'Thông tin bắt buộc';
+        } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value)) {
+          error = 'Họ và tên chỉ được chứa chữ cái';
+        }
+        break;
+      case 'phone':
+        if (!value) {
+          error = 'Thông tin bắt buộc';
+        } else if (!/^\d{10}$/.test(value)) {
+          error = 'Số điện thoại phải là dãy 10 chữ số';
+        }
+        break;
+      case 'email':
+        if (!value) {
+          error = 'Thông tin bắt buộc';
+        } else if (!/^\S+@\S+$/.test(value)) {
+          error = 'Không đúng định dạng mail';
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
+  };
+
+  const handleBlur = (event) => {
+    const { name, value } = event.target;
+    const error = validateField(name, value);
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: error
+    }));
   };
 
   if (!bookingData) {
@@ -178,28 +225,43 @@ const BookTour = () => {
           <Link to={`/tour-du-lich/${id}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
             <ArrowBackIcon style={{ marginLeft: 8 }} /> Quay lại
           </Link>
-          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
+          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 35, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>
-          <StepBox>
-            <StepItem active>NHẬP THÔNG TIN</StepItem>
+          <StepBox style={{ marginBottom: 20 }}>
+            <StepItem active style={{ fontSize: 15 }}>NHẬP THÔNG TIN</StepItem>
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem>THANH TOÁN</StepItem>
+            <StepItem style={{ fontSize: 15 }}>THANH TOÁN</StepItem>
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem>HOÀN TẤT</StepItem>
+            <StepItem style={{ fontSize: 15 }}>HOÀN TẤT</StepItem>
           </StepBox>
           <Grid container spacing={3} sx={{ maxWidth: "100%" }}>
             <Grid item xs={12} md={8} sx={{ maxWidth: "100%" }}>
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={formData.fullName} onChange={handleInputChange} />
+                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
+                  {errors.fullName && (
+                    <Typography variant="caption" color="error">
+                      {errors.fullName}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange} />
+                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone && "Thông tin bắt buộc"} required />
+                  {errors.phone && (
+                    <Typography variant="caption" color="error">
+                      {errors.phone}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Email" name="email" value={formData.email} onChange={handleInputChange} />
+                  <CustomTextField fullWidth label="Email" name="email" value={formData.email} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.email} helperText={errors.email && "Thông tin bắt buộc"} required />
+                  {errors.email && (
+                    <Typography variant="caption" color="error">
+                      {errors.email}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <CustomTextField fullWidth label="Địa chỉ" name="address" value={formData.address} onChange={handleInputChange} />
@@ -240,11 +302,11 @@ const BookTour = () => {
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên *" />
+                      <CustomTextField fullWidth label="Họ tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
-                        <InputLabel>Giới tính *</InputLabel>
+                        <InputLabel>Giới tính</InputLabel>
                         <Select>
                           <MenuItem value="male">Nam</MenuItem>
                           <MenuItem value="female">Nữ</MenuItem>
@@ -252,10 +314,10 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh *" type="date" InputLabelProps={{ shrink: true }} />
+                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name="birthday" value={formData.birthday} onChange={handleInputChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <FormControlLabel control={<Checkbox />} label="Phòng đơn" />
+                      <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange}/>
                     </Grid>
                   </Grid>
                 </PassengerInfo>
@@ -268,11 +330,11 @@ const BookTour = () => {
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên *" />
+                      <CustomTextField fullWidth label="Họ tên" />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
-                        <InputLabel>Giới tính *</InputLabel>
+                        <InputLabel>Giới tính</InputLabel>
                         <Select>
                           <MenuItem value="male">Nam</MenuItem>
                           <MenuItem value="female">Nữ</MenuItem>
@@ -280,7 +342,7 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh *" type="date" InputLabelProps={{ shrink: true }} />
+                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControlLabel control={<Checkbox />} label="Phòng đơn" />
@@ -296,11 +358,11 @@ const BookTour = () => {
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên *" />
+                      <CustomTextField fullWidth label="Họ tên" />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
-                        <InputLabel>Giới tính *</InputLabel>
+                        <InputLabel>Giới tính</InputLabel>
                         <Select>
                           <MenuItem value="male">Nam</MenuItem>
                           <MenuItem value="female">Nữ</MenuItem>
@@ -308,7 +370,7 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh *" type="date" InputLabelProps={{ shrink: true }} />
+                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControlLabel control={<Checkbox />} label="Phòng đơn" />

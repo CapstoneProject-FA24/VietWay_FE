@@ -44,7 +44,7 @@ const Homepage = () => {
   if (loading) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', height: '80vh' }}>
-            <img src="loading.gif" alt="Loading..." />
+            <img src="/loading.gif" alt="Loading..." />
         </div>
     );
   }
