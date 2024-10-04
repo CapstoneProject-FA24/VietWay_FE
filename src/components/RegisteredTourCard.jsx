@@ -1,44 +1,69 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Chip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip } from '@mui/material';
+import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
+import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const RegisteredTourCard = ({ tour }) => {
   return (
-    <Card sx={{ display: 'flex', mb: 2, borderRadius: '8px', overflow: 'hidden', boxShadow: 3 }}>
-      <CardMedia component="img" 
-      sx={{ width: '28%', height: '23%', margin: '10px' }} 
-      image={tour.images[0].url} alt={tour.name} />
-      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 2 }}>
-        <CardContent sx={{ flex: '1 0 auto', p: 0 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography component="div" variant="h6" sx={{ fontWeight: 'bold' }}>
+    <Card sx={{ mb: 2, borderRadius: '8px', overflow: 'hidden', boxShadow: 3 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={3} md={3}>
+          <CardMedia component="img" sx={{ margin: '6px', borderRadius: '10px', width: '100%', height: '95%', objectFit: 'cover' }} image={tour.images[0].url} alt={tour.name} />
+        </Grid>
+
+        <Grid item xs={12} sm={4} md={4}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               {tour.name}
             </Typography>
-            <Chip label="2N2Đ" size="small" sx={{ backgroundColor: '#E0E0E0', fontWeight: 'bold' }} />
-          </Box>
-          <Typography variant="subtitle2" color="text.secondary" component="div" sx={{ mb: 1 }}>
-            Mã tour: {tour.id}
+            <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <SubtitlesOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
+              {tour.id}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <MapOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
+              Khởi hành từ: {tour.pickupPoints[0]}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <CalendarMonthOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
+              Ngày khởi hành: {tour.startDate}
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 1, marginLeft: '20px' }}>
+              Bao gồm:
+            </Typography>
+            <Typography variant="body2" sx={{ marginLeft: '30px' }}>
+              - Người lớn: 2x {tour.price.adult.toLocaleString()} đ
+            </Typography>
+            <Typography variant="body2" sx={{ marginLeft: '30px' }}>
+              - Trẻ em: 1x {tour.price.children.toLocaleString()} đ
+            </Typography>
+          </CardContent>
+        </Grid>
+
+        <Grid item xs={6} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.primary'}}>
+            <AccessTimeIcon sx={{ marginRight: '8px', fontSize: 'large' }} />
+            {tour.duration}
           </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Ngày khởi hành: {tour.startDate}
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', mb: 1 }}>
+            Tổng tiền:
           </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Thời gian: {tour.beginTime}
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+            {tour.price.adult.toLocaleString()} đ
           </Typography>
-        </CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-            Tổng tiền: {tour.price.adult.toLocaleString()} đ
-          </Typography>
-          <Box>
-            <Button variant="contained" color="error" sx={{ mr: 1, textTransform: 'none' }}>
-              Thanh Toán
-            </Button>
-            <Button variant="outlined" color="primary" sx={{ textTransform: 'none' }}>
-              Hủy Đặt
-            </Button>
-          </Box>
-        </Box>
-      </Box>
+        </Grid>
+
+        <Grid item xs={6} sm={3} md={3} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <Button variant="contained" color="error" sx={{ mb: 2, width: '60%', height: '50px', borderRadius: '10px' }}>
+            Thanh Toán
+          </Button>
+          <Button variant="outlined" color="primary" sx={{ width: '60%', height: '50px', borderRadius: '10px' }}>
+            Hủy Đặt
+          </Button>
+        </Grid>
+      </Grid>
     </Card>
   );
 };
