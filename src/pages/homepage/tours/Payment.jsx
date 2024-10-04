@@ -137,10 +137,10 @@ const PayBooking = () => {
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
                   <Typography>{paymentData.bookingDetails.paymentMethod}</Typography>
-                  <Link to={`/trang-chu`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
-                    Thay đổi hình thức thanh toán
-                  </Link>
                 </SummaryItem>
+                <Link to={`/trang-chu`} style={{ color: "#3572EF", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
+                    - Thay đổi hình thức thanh toán
+                  </Link>
                 <SummaryItem>
                   <Typography>Số tiền đã thanh toán:</Typography>
                   <Typography>{paymentData.bookingDetails.paidAmount.toLocaleString()} đ</Typography>
@@ -155,7 +155,8 @@ const PayBooking = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Thời hạn thanh toán:</Typography>
-                  <Typography>{paymentData.bookingDetails.paymentDueDate}</Typography>
+                  <Typography color="#FF4836" fontWeight="bold">{paymentData.bookingDetails.paymentDueDate}</Typography>
+                  <Typography fontStyle="italic" fontWeight="bold"> - {paymentData.bookingDetails.paymentDueDateNote}</Typography>
                 </SummaryItem>
               </SummaryBox>
               <SummaryBox>
