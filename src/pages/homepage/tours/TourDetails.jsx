@@ -18,6 +18,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CommonQuestions from '@components/CommonQuestions';
 import IncludeInTour from '@components/IncludeInTour';
+import { Link, useLocation } from 'react-router-dom';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -272,7 +273,7 @@ const TourDetails = () => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-              <Button variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
+              <Button component={Link} to={"/dat-tour/" + tour.id} variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FontAwesomeIcon icon={faPhone} style={{ marginRight: '10px' }} />
                 <Typography>Tư vấn: 1900 1234</Typography>

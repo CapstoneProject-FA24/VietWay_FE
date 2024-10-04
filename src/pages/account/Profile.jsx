@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Grid, Typography, Paper, Button, CircularProgress, Card, CardContent, CardMedia, CardActionArea, Tabs, Tab } from '@mui/material';
+import { Box, Container, Grid, Typography, TextField, Paper, Button, Tabs, Tab, InputAdornment } from '@mui/material';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
 import { mockProfiles } from '@hooks/MockProfile';
+import RegisteredTourCard from '@components/RegisteredTourCard';
+import TourStatusTab from '@components/TourStatusTab';
+import { mockTours } from '@hooks/MockTours';
+import SearchIcon from '@mui/icons-material/Search';
+
 const Profile = () => {
 
     const [profile, setProfile] = useState({});
     const [tabValue, setTabValue] = useState(0);
+    const [statusTab, setStatusTab] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         setProfile(mockProfiles[0]);
@@ -17,17 +24,23 @@ const Profile = () => {
         setTabValue(newValue);
     };
 
+    const handleStatusTabChange = (event, newValue) => {
+        setStatusTab(newValue);
+    };
+
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+    const filteredTours = mockTours.filter(tour => 
+        tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tour.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <Box>
             <Header />
-            <Box component="header" sx={{
-                ml: "-112px",
-                mr: "-112px",
-                position: 'relative',
-                height: '380px',
-                borderRadius: '0 0 30px 30px',
-                overflow: 'hidden'
-            }}>
+            <Box component="header" sx={{ width: '98vw', ml: '-60px', mr: '-60px', position: 'relative', height: '430px', borderRadius: '0 0 30px 30px', overflow: 'hidden' }}>
                 <Box className="hero-text" sx={{ width: "100%", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', position: "relative", zIndex: 1 }}>
                     <Box sx={{ width: "100%", height: "100%", backgroundColor: 'rgba(89, 120, 183, 0.5)', position: "absolute", top: 0, left: 0, zIndex: 0 }}></Box>
                     <Typography variant="h1" sx={{ fontSize: '3.5rem', mb: 1, zIndex: 2, color: 'white', mt: -20 }}>{profile.name}</Typography>
@@ -38,32 +51,11 @@ const Profile = () => {
             </Box>
             <Container sx={{ my: 2, mt: -23, position: "relative", zIndex: 1}}>
                     <Tabs value={tabValue} onChange={handleTabChange} centered indicatorColor="secondary">
-                        <Tab label="Tài khoản" sx={{
-                            color: '#D4D4D4',
-                            width: '25%',
-                            '&.Mui-selected': {
-                                color: 'white',
-                                fontWeight: 700
-                            }
-                        }} />
+                        <Tab label="Tài khoản" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                         <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                        <Tab label="Tour Đăng Ký" sx={{
-                            color: '#D4D4D4',
-                            width: '25%',
-                            '&.Mui-selected': {
-                                color: 'white',
-                                fontWeight: 700,
-                            }
-                        }} />
+                        <Tab label="Tour Đăng Ký" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                         <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                        <Tab label="Lịch Sử Thanh Toán" sx={{
-                            color: '#D4D4D4',
-                            width: '25%',
-                            '&.Mui-selected': {
-                                color: 'white',
-                                fontWeight: 700
-                            }
-                        }} />
+                        <Tab label="Lịch Sử Thanh Toán" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                     </Tabs>
                     {tabValue === 0 && (
                         <Box sx={{ my: 5 }}>
@@ -111,6 +103,26 @@ const Profile = () => {
                                     </Grid>
                                 </Grid>
                             </Paper>
+                        </Box>
+                    )}
+                    {tabValue === 2 && (
+                        <Box sx={{ my: 5 }}>
+                            <TextField fullWidth variant="outlined" placeholder="Tìm kiếm theo Tên tour và Mã tour"
+                                        value={searchTerm} onChange={handleSearchChange} sx={{ mb: 2, backgroundColor: 'white', borderRadius: '10px', height: '40px', display: 'flex', justifyContent: 'center', border: 'none'}}
+                                        InputProps={{ startAdornment: ( <InputAdornment position="start"> <SearchIcon /> </InputAdornment> ) }} />
+                            <Paper sx={{ p: 2, borderRadius: '8px' }}>
+                                <TourStatusTab statusTab={statusTab} handleStatusTabChange={handleStatusTabChange} searchTerm={searchTerm} handleSearchChange={handleSearchChange} />
+                                <Box sx={{ mt: 2 }}>
+                                    {filteredTours.map((tour) => (
+                                        <RegisteredTourCard key={tour.id} tour={tour} />
+                                    ))}
+                                </Box>
+                            </Paper>
+                        </Box>
+                    )}
+                    {tabValue === 4 && (
+                        <Box sx={{ mt: 2 }}>
+                        {/* Nội dung cho tab "Lịch Sử Thanh Toán" */}
                         </Box>
                     )}
                 </Container>
