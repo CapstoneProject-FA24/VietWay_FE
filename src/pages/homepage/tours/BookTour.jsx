@@ -7,121 +7,69 @@ import { getBookingDataById } from "@hooks/MockBookTour";
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import PhoneIcon from '@mui/icons-material/Phone';
+import { getCustomerInfo } from '@services/BookingService'
 
-const StyledBox = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
-  maxWidth: "100%",
-  margin: "0 auto",
-  boxSizing: "border-box",
-}));
+const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
-const StepBox = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: theme.spacing(4),
-}));
+const StepBox = styled(Box)(({ theme }) => ({ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: theme.spacing(4) }));
 
-const StepItem = styled(Typography)(({ theme, active }) => ({
-  margin: "0 10px",
-  color: active ? "#3572EF" : "#999",
-  fontWeight: "bold",
-  fontSize: 30,
-}));
+const StepItem = styled(Typography)(({ theme, active }) => ({ margin: "0 10px", color: active ? "#3572EF" : "#999", fontWeight: "bold", fontSize: 30 }));
 
-const ArrowIcon = styled("img")({
-  width: "30px",
-  height: "30px",
-  margin: "0 15px",
-});
+const ArrowIcon = styled("img")({ width: "30px", height: "30px", margin: "0 15px" });
 
-const SectionTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  marginBottom: theme.spacing(2),
-}));
+const SectionTitle = styled(Typography)(({ theme }) => ({ fontWeight: "bold", marginBottom: theme.spacing(2) }));
 
-const CustomTextField = styled(TextField)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-}));
+const CustomTextField = styled(TextField)(({ theme }) => ({ marginBottom: theme.spacing(2) }));
 
 const PassengerCounter = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  border: "1px solid #ccc",
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(1),
-  marginBottom: theme.spacing(2),
+  display: "flex", alignItems: "center", border: "1px solid #ccc",
+  borderRadius: theme.shape.borderRadius, padding: theme.spacing(1), marginBottom: theme.spacing(2)
 }));
 
-const CounterButton = styled(Button)(({ theme }) => ({
-  minWidth: 30,
-  padding: theme.spacing(0.5),
-}));
+const CounterButton = styled(Button)(({ theme }) => ({ minWidth: 30, padding: theme.spacing(0.5) }));
 
 const PassengerInfo = styled(Box)(({ theme }) => ({
-  border: "1px solid #ccc",
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(2),
+  border: "1px solid #ccc", borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(2), marginBottom: theme.spacing(2)
 }));
 
 const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
-  border: "1px solid #ccc",
-  borderRadius: theme.shape.borderRadius,
-  width: "100%",
-  height: '4.5rem',
-  margin: "0 0 8px 0",
-  padding: theme.spacing(1),
+  border: "1px solid #ccc", borderRadius: theme.shape.borderRadius,
+  width: "100%", height: '4.5rem', margin: "0 0 8px 0", padding: theme.spacing(1)
 }));
 
-const ContentContainer = styled(Box)(({ theme }) => ({
-  boxSizing: "border-box",
-}));
+const ContentContainer = styled(Box)(({ theme }) => ({ boxSizing: "border-box" }));
 
 const SummaryBox = styled(Box)(({ theme }) => ({
-  border: "1px solid #ddd",
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  backgroundColor: "#f5f5f5",
+  border: "1px solid #ddd", borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(2), backgroundColor: "#f5f5f5"
 }));
 
-const SummaryTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  marginBottom: theme.spacing(2),
-  textAlign: "center",
-}));
+const SummaryTitle = styled(Typography)(({ theme }) => ({ fontWeight: "bold", marginBottom: theme.spacing(2), textAlign: "center" }));
 
-const SummaryItem = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "space-between",
-  marginBottom: theme.spacing(1),
-}));
+const SummaryItem = styled(Box)(({ theme }) => ({ display: "flex", justifyContent: "space-between", marginBottom: theme.spacing(1) }));
 
-const SummarySubtitle = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  marginTop: theme.spacing(2),
-  marginBottom: theme.spacing(1),
-}));
+const SummarySubtitle = styled(Typography)(({ theme }) => ({ fontWeight: "bold", marginTop: theme.spacing(2), marginBottom: theme.spacing(1) }));
 
 const TotalPrice = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  marginTop: theme.spacing(2),
-  marginBottom: theme.spacing(2),
-  fontSize: "1.2rem",
-  color: theme.palette.primary.main,
+  fontWeight: "bold", marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2), fontSize: "1.2rem", color: theme.palette.primary.main
 }));
 
 const BookTour = () => {
   const { id } = useParams();
   const [bookingData, setBookingData] = useState(null);
+  const [customerInfo, setCustomerInfo] = useState(null);
   const [formData, setFormData] = useState({ fullName: "", email: "", phone: "", address: "", adults: 1, children: 0, infants: 0, note: "", paymentMethod: "" });
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
+      const customer = await getCustomerInfo();
       const data = await getBookingDataById(id);
       setBookingData(data);
+      setCustomerInfo(customer);
     };
     fetchData();
     if (topRef.current) {
@@ -131,16 +79,9 @@ const BookTour = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-    // Clear error when user starts typing
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
     if (errors[name]) {
-      setErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: ''
-      }));
+      setErrors(prevErrors => ({ ...prevErrors, [name]: '' }));
     }
   };
 
@@ -162,9 +103,7 @@ const BookTour = () => {
     const adult = formData.adults * adultPrice;
     const children = formData.children * childPrice;
     const infant = formData.infants * infantPrice;
-    return (
-      adult + children + infant
-    );
+    return ( adult + children + infant );
   };
 
   const validateField = (name, value) => {
@@ -240,7 +179,7 @@ const BookTour = () => {
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
+                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={customerInfo.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
                   {errors.fullName && (
                     <Typography variant="caption" color="error">
                       {errors.fullName}
@@ -248,7 +187,7 @@ const BookTour = () => {
                   )}
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone && "Thông tin bắt buộc"} required />
+                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={customerInfo.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone && "Thông tin bắt buộc"} required />
                   {errors.phone && (
                     <Typography variant="caption" color="error">
                       {errors.phone}
@@ -256,7 +195,7 @@ const BookTour = () => {
                   )}
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Email" name="email" value={formData.email} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.email} helperText={errors.email && "Thông tin bắt buộc"} required />
+                  <CustomTextField fullWidth label="Email" name="email" value={customerInfo.email} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.email} helperText={errors.email && "Thông tin bắt buộc"} required />
                   {errors.email && (
                     <Typography variant="caption" color="error">
                       {errors.email}
@@ -302,7 +241,7 @@ const BookTour = () => {
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
+                      <CustomTextField fullWidth label="Họ tên" name="fullName" value={customerInfo.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
@@ -314,10 +253,10 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name="birthday" value={formData.birthday} onChange={handleInputChange} />
+                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name="birthday" value={customerInfo.birthday} onChange={handleInputChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange}/>
+                      <CustomTextField fullWidth label="Điện thoại" name="phone" value={customerInfo.phone} onChange={handleInputChange} />
                     </Grid>
                   </Grid>
                 </PassengerInfo>
