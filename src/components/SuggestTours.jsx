@@ -37,22 +37,8 @@ const SuggestTours = () => {
               <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'right', mb: 1 }}>
                   {tour.travelCompany}
                 </Typography>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 1,
-                    WebkitBoxOrient: 'vertical',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    '&:hover': {
-                      color: 'primary.main',
-                    }
-                  }}
-                >
+                <Typography variant="h6"gutterBottom
+                  sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.main', } }}>
                   {tour.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

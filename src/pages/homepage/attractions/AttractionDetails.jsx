@@ -26,7 +26,6 @@ const AttractionDetails = () => {
     const fetchAttractionData = async () => {
       try {
         setLoading(true);
-        // Simulating API call with setTimeout
         await new Promise(resolve => setTimeout(resolve, 1000));
         const mockData = getAttractionById(id);
         console.log("a: "+mockData);
@@ -137,27 +136,9 @@ const AttractionDetails = () => {
               {attraction.images.map((image, index) => (
                 <Box
                   key={index}
-                  sx={{
-                    width: 110,
-                    height: 110,
-                    flexShrink: 0,
-                    mr: 3,
-                    borderRadius: 1,
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    border: currentSlide === index ? '2px solid #3572EF' : 'none'
-                  }}
-                  onClick={() => handleThumbnailClick(index)}
-                >
-                  <img
-                    src={image.url}
-                    alt={image.alt}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
+                  sx={{ width: 110, height: 110, flexShrink: 0, mr: 3, borderRadius: 1, overflow: 'hidden', cursor: 'pointer', border: currentSlide === index ? '2px solid #3572EF' : 'none' }}
+                  onClick={() => handleThumbnailClick(index)}>
+                  <img src={image.url} alt={image.alt} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </Box>
               ))}
             </Box>

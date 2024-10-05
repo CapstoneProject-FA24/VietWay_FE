@@ -11,6 +11,7 @@ export const mockTours = [
       infant: 350000
     },
     destinationProvince: "Quảng Ninh",
+    duration: '3N2Đ',
     days: 3,
     totalAcceptedParticipants: 20,
     description: "Tour du lịch Hạ Long 3 ngày 2 đêm, khám phá vịnh Hạ Long xinh đẹp và các hang động kỳ thú. Ngoài ra, tour còn đi sâu vào cuộc sống của người dân địa phương để khám phá văn hóa và ẩm thực đặc trưng. Du khách sẽ được tham gia các hoạt động trải nghiệm như chèo thuyền kayak, thăm làng chài cổ Cửa Vạn và thưởng thức hải sản tươi ngon ngay tại nguồn. Đây là cơ hội tuyệt vời để hòa mình vào thiên nhiên hùng vĩ và tìm hiểu nét đẹp văn hóa của người dân vùng biển.",
@@ -130,6 +131,7 @@ export const mockTours = [
   {
     id: "NDSGN564-047-080824XE-D",
     name: "Du lịch Đà Lạt 4 ngày 3 đêm",
+    duration: '4N3Đ',
     startDate: "2023-08-15",
     endDate: "2023-08-18",
     beginTime: "06:30",
@@ -203,6 +205,7 @@ export const mockTours = [
   {
     id: "NDSGN564-047-090924XE-P",
     name: "Khám phá Phú Quốc 5 ngày 4 đêm",
+    duration: '5N4Đ',
     startDate: "2023-09-10",
     endDate: "2023-09-14",
     beginTime: "08:00",
@@ -267,6 +270,7 @@ export const mockTours = [
   {
     id: "NDSGN564-047-100524XE-S",
     name: "Khám phá Sapa 4 ngày 3 đêm",
+    duration: '4N3Đ',
     startDate: "2023-10-05",
     endDate: "2023-10-08",
     beginTime: "06:00",
@@ -324,6 +328,7 @@ export const mockTours = [
   {
     id: "NDSGN564-047-111124XE-H",
     name: "Khám phá Hội An - Đà Nẵng 5 ngày 4 đêm",
+    duration: '5N4Đ',
     startDate: "2023-11-11",
     endDate: "2023-11-15",
     beginTime: "07:30",
@@ -388,6 +393,7 @@ export const mockTours = [
   {
     id: "NDSGN564-047-120724XE-N",
     name: "Khám phá Nha Trang 3 ngày 2 đêm",
+    duration: '3N2Đ',
     startDate: "2023-12-07",
     endDate: "2023-12-09",
     beginTime: "08:30",
@@ -470,6 +476,7 @@ export const mockTours = [
   {
     id: "NDSGN564-047-140224XE-H",
     name: "Khám phá Huế 3 ngày 2 đêm",
+    duration: '3N2Đ',
     startDate: "2023-12-07",
     endDate: "2023-12-09",
     beginTime: "08:30",
@@ -520,6 +527,7 @@ export const mockTours = [
   {
     id: "NDSGN564-047-150324XE-M",
     name: "Khám phá Mũi Né 3 ngày 2 đêm",
+    duration: '3N2Đ',
     startDate: "2023-12-07",
     endDate: "2023-12-09",
     beginTime: "08:30",
