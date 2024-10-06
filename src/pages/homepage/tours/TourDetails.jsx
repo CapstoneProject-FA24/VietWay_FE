@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Grid, Paper, Button, Collapse, IconButton } from '@mui/material';
+import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
@@ -8,29 +8,29 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import '@styles/Homepage.css'
 import { Link, useParams } from 'react-router-dom';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
+import { fetchToursByTemplateId } from '@services/TourService';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/OtherTours';
 
-const tourDetails = () => {
+const TourDetails = () => {
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const pageTopRef = useRef(null);
   const [expandedDay, setExpandedDay] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedTour, setSelectedTour] = useState('');
+  const [availableMonths, setAvailableMonths] = useState([]);
+  const [availableTours, setAvailableTours] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedTour = await fetchTourTemplateById(id);
-        fetchedTour.startLocation = fetchedTour.StartLocation || '';
-        fetchedTour.startTime = new Date(2024, 1, 1, 14, 30);
-        fetchedTour.startDate = new Date(2024, 1, 1);
-        fetchedTour.endDate = new Date(2024, 3, 1);
-        fetchedTour.price = 1000000;
-        fetchedTour.maxParticipant = 10;
-        fetchedTour.currentParticipant = 1;
-        setTour(fetchedTour);
+        const fetchedTourTemplate = await fetchTourTemplateById(id);
+        const fetchedTours = await fetchToursByTemplateId(id);
+        fetchedTourTemplate.tours = fetchedTours;
+        setTour(fetchedTourTemplate);
       } catch (error) {
         console.error('Error fetching tour:', error);
       } finally {
@@ -38,6 +38,16 @@ const tourDetails = () => {
       }
     };
     fetchData();
+    const currentDate = new Date();
+    const months = [];
+    for (let i = 0; i < 5; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+      months.push({
+        value: `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`,
+        label: date.toLocaleString('vi-VN', { month: 'long', year: 'numeric' })
+      });
+    }
+    setAvailableMonths(months);
   }, [id]);
 
   useEffect(() => {
@@ -46,13 +56,42 @@ const tourDetails = () => {
     }
   }, [tour]);
 
+  useEffect(() => {
+    if (tour && selectedMonth) {
+      const filteredTours = tour.tours.filter(t =>
+        t.startDate.toISOString().startsWith(selectedMonth)
+      );
+      setAvailableTours(filteredTours);
+      setSelectedTour('');
+    }
+  }, [selectedMonth, tour]);
+
   const handleDayClick = (day) => {
     setExpandedDay(expandedDay === day ? null : day);
+  };
+
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
+  };
+
+  const handleTourChange = (event) => {
+    setSelectedTour(event.target.value);
   };
 
   if (!tour) {
     return <Typography sx={{ width: '100vw', textAlign: 'center' }}>Loading...</Typography>;
   }
+
+  const getMinTourPrice = () => {
+    if (tour && tour.tours && tour.tours.length > 0) {
+      return Math.min(...tour.tours.map(t => t.price));
+    }
+    return 0;
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
 
   return (
     <Box className='main' sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
@@ -110,48 +149,24 @@ const tourDetails = () => {
               {tour.schedule.map((s, index, array) => (
                 <Box key={s.dayNumber} sx={{ pl: 6, position: 'relative' }}>
                   {(index === 0 || index === array.length - 1) && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: 0,
-                        top: '18px',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        border: '2px solid #3572EF',
-                        backgroundColor: 'white',
-                        transform: 'translateY(-50%)',
-                        zIndex: 1,
-                      }}
-                    />
+                    <Box sx={{
+                      position: 'absolute', left: 0, top: '18px', width: '24px', height: '24px',
+                      borderRadius: '50%', border: '2px solid #3572EF', backgroundColor: 'white',
+                      transform: 'translateY(-50%)', zIndex: 1,
+                    }} />
                   )}
                   {(index !== 0 && index !== array.length - 1) && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: '4px',
-                        top: '17px',
-                        width: '15px',
-                        height: '15px',
-                        borderRadius: '50%',
-                        backgroundColor: '#3572EF',
-                        transform: 'translateY(-50%)',
-                        zIndex: 1,
-                      }}
-                    />
+                    <Box sx={{
+                      position: 'absolute', left: '4px', top: '17px', width: '15px',
+                      height: '15px', borderRadius: '50%', backgroundColor: '#3572EF',
+                      transform: 'translateY(-50%)', zIndex: 1,
+                    }} />
                   )}
                   {index !== array.length - 1 && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: 10.5,
-                        top: '24px',
-                        bottom: -20,
-                        width: '2px',
-                        backgroundColor: '#3572EF',
-                        zIndex: 0,
-                      }}
-                    />
+                    <Box sx={{
+                      position: 'absolute', left: 10.5, top: '24px', bottom: -20,
+                      width: '2px', backgroundColor: '#3572EF', zIndex: 0,
+                    }} />
                   )}
                   <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', position: 'relative', ml: 1 }} onClick={() => handleDayClick(s.dayNumber)}>
                     <Typography variant="h6" sx={{ fontWeight: '500', mr: 1 }}>
@@ -187,30 +202,93 @@ const tourDetails = () => {
           </Grid>
           <Grid item xs={12} md={4}>
             <Paper elevation={3} sx={{ p: 4, mb: 3, borderRadius: '10px', boxShadow: '1px 1px 10px grey' }}>
+              <Box sx={{ mb: 5 }}>
+                <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.3rem' }}> Chọn ngày đi </Typography>
+                <FormControl fullWidth sx={{ mb: 2, mt: 1 }}>
+                  <InputLabel id="month-select-label">Chọn tháng</InputLabel>
+                  <Select
+                    labelId="month-select-label"
+                    id="month-select"
+                    value={selectedMonth}
+                    label="Chọn tháng"
+                    onChange={handleMonthChange}
+                  >
+                    {availableMonths.map((month) => (
+                      <MenuItem key={month.value} value={month.value}>
+                        {month.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {selectedMonth && (
+                  availableTours.length > 0 ? (
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                      <InputLabel id="tour-select-label">Chọn ngày đi</InputLabel>
+                      <Select
+                        labelId="tour-select-label"
+                        id="tour-select"
+                        value={selectedTour}
+                        label="Chọn ngày đi"
+                        onChange={handleTourChange}
+                      >
+                        {availableTours.map((t) => (
+                          <MenuItem key={t.id} value={t.id}>
+                            {`${new Date(t.startDate).toLocaleDateString('vi-VN')} - ${formatPrice(t.price)}`}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <Typography color="error" sx={{ mb: 2 }}>
+                      Không có tour nào trong tháng này. Vui lòng chọn tháng khác.
+                    </Typography>
+                  )
+                )}
+              </Box>
               <Box sx={{ display: 'flex' }}>
                 <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.5rem' }}> Thông tin tour </Typography>
                 <Typography sx={{ ml: 1, color: 'primary.main', fontWeight: 700, fontSize: '1.5rem' }}>{tour.code}</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <FontAwesomeIcon icon={faLocationDot} style={{ marginRight: '10px', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C' }}>Khởi hành từ: {tour.startLocation}</Typography>
+                <Typography sx={{ color: '#05073C' }}>Khởi hành từ: {availableTours.find(t => t.id === selectedTour)?.startLocation || ''}</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '10px', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C' }}>Thời gian khởi hành: {new Date(tour.startDate).toLocaleDateString('vi-VN')} {(tour.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography>
+                <Typography sx={{ color: '#05073C' }}>
+                  Thời gian khởi hành: {availableTours.find(t => t.id === selectedTour)?.startDate ? new Date(availableTours.find(t => t.id === selectedTour).startDate).toLocaleDateString('vi-VN') : ''} {' '}
+                  {availableTours.find(t => t.id === selectedTour)?.startTime ? new Date(`1970-01-01T${availableTours.find(t => t.id === selectedTour).startTime}`).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '10px', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C' }}>Thời gian kết thúc: {new Date(tour.endDate).toLocaleDateString('vi-VN')}</Typography>
+                <Typography sx={{ color: '#05073C' }}>
+                  Thời gian kết thúc: {availableTours.find(t => t.id === selectedTour)?.endDate ? new Date(availableTours.find(t => t.id === selectedTour).endDate).toLocaleDateString('vi-VN') : ''}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C' }}>Số chỗ còn nhận: {tour.maxParticipant - tour.currentParticipant}</Typography>
+                <Typography sx={{ color: '#05073C' }}>
+                  Số chỗ còn nhận: {
+                    (() => {
+                      const selectedTourData = availableTours.find(t => t.id === selectedTour);
+                      if (selectedTourData) {
+                        return selectedTourData.maxParticipant - selectedTourData.currentParticipant;
+                      }
+                      return '';
+                    })()
+                  }
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <FontAwesomeIcon icon={faTag} style={{ marginRight: '10px', color: '#3572EF' }} />
                 <Typography sx={{ color: '#05073C' }}>Giá:</Typography>
-                <Typography sx={{ ml: 1, color: 'red', fontWeight: 700, fontSize: '1.5rem' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tour.price)}</Typography>
+                <Typography sx={{ ml: 1, color: 'red', fontWeight: 700, fontSize: '1.5rem' }}>
+                  {selectedTour ? 
+                    formatPrice(availableTours.find(t => t.id === selectedTour)?.price || 0) :
+                    `Chỉ từ ${formatPrice(getMinTourPrice())}`
+                  }
+                </Typography>
               </Box>
               <Button component={Link} to={"/dat-tour/" + tour.id} variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -229,4 +307,4 @@ const tourDetails = () => {
   );
 };
 
-export default tourDetails;
+export default TourDetails;
