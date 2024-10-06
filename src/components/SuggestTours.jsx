@@ -61,7 +61,7 @@ const SuggestTours = () => {
                   <Typography variant="h6" color="primary">
                     {tour.price.adult.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                   </Typography>
-                  <StyledButton component={Link} to={`/dat-tour/${tour.id}`} sx={{ color: 'primary', textTransform: 'none', borderRadius: '10px', border: '1px solid #3572EF', height: '50px' }}>Đặt ngay</StyledButton>
+                  <StyledButton component={Link} to={`/tour-du-lich/${tour.id}`} sx={{ color: 'primary', textTransform: 'none', borderRadius: '10px', border: '1px solid #3572EF', height: '50px' }}>Xem chi tiết</StyledButton>
                 </Box>
               </Box>
             </Card>

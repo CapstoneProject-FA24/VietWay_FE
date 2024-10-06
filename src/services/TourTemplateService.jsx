@@ -22,8 +22,8 @@ export const fetchTourTemplates = async (params) => {
         if (params.provinceIds) params.provinceIds.forEach(id => queryParams.append('provinceIds', id));
         if (params.status !== undefined && params.status !== null) queryParams.append('status', params.status);
 
-        const response = await axios.get(`${baseURL}/api/TourTemplate?${queryParams.toString()}`);
-        const items = response.data?.data?.items;
+        const response = await axios.get(`${baseURL}/api/TourTemplate/tours?${queryParams.toString()}`);
+        const items = response.data?.data;
         
         if (!items || !Array.isArray(items)) {
             throw new Error('Invalid response structure: items not found or not an array');
@@ -35,14 +35,12 @@ export const fetchTourTemplates = async (params) => {
             tourName: item.tourName,
             duration: item.duration,
             tourCategory: item.tourCategory,
-            status: item.status,
-            statusName: getStatusText(item.status),
-            createdDate: item.createdDate,
-            creatorName: item.creatorName,
             provinces: item.provinces,
-            imageUrl: item.imageUrl
+            imageUrl: item.imageUrl,
+            minPrice: Math.min(...item.price.map(p => parseFloat(p))),
+            startDates: item.startDate.sort((a, b) => new Date(a) - new Date(b))
         }));
-
+        console.log(templates);
         return ({
             data: templates,
             pageIndex: response.data?.data?.pageIndex,
@@ -64,7 +62,7 @@ export const fetchTourTemplateById = async (id) => {
             code: response.data.data.code,
             tourName: response.data.data.tourName,
             description: response.data.data.description,
-            duration: response.data.data.duration,
+            duration: response.data.data.duration.durationName,
             tourCategoryId: response.data.data.tourCategory.tourCategoryId,
             tourCategoryName: response.data.data.tourCategory.tourCategoryName,
             policy: response.data.data.policy,

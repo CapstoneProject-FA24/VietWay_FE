@@ -3,11 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { getBookingDataById } from "@hooks/MockBookTour";
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import PhoneIcon from '@mui/icons-material/Phone';
-import { getCustomerInfo } from '@services/BookingService'
+import { getCustomerInfo } from '@services/CustomerService';
+import { fetchTourById } from '@services/TourService';
+import { fetchTourTemplateById } from '@services/TourTemplateService';
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -67,9 +68,30 @@ const BookTour = () => {
   useEffect(() => {
     const fetchData = async () => {
       const customer = await getCustomerInfo();
-      const data = await getBookingDataById(id);
+      const tour = await fetchTourById(id);
+      const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
+      const data = {
+        imageUrls: tourTemplate.imageUrls,
+        tourName: tourTemplate.tourName,
+        code: tourTemplate.code,
+        duration: tourTemplate.duration,
+        startLocation: tour.startLocation,
+        startTime: tour.startTime,
+        startDate: tour.startDate,
+        endDate: tour.endDate,
+        price: tour.price,
+        infantPrice: tour.price / 2,
+        childPrice: tour.price * (80/100)
+      }
       setBookingData(data);
       setCustomerInfo(customer);
+      setFormData(prevState => ({
+        ...prevState,
+        fullName: customer.fullName,
+        email: customer.email,
+        phone: customer.phone,
+        address: customer.address || ""
+      }));
     };
     fetchData();
     if (topRef.current) {
@@ -179,28 +201,13 @@ const BookTour = () => {
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={customerInfo.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
-                  {errors.fullName && (
-                    <Typography variant="caption" color="error">
-                      {errors.fullName}
-                    </Typography>
-                  )}
+                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName} required />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={customerInfo.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone && "Thông tin bắt buộc"} required />
-                  {errors.phone && (
-                    <Typography variant="caption" color="error">
-                      {errors.phone}
-                    </Typography>
-                  )}
+                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone} required />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Email" name="email" value={customerInfo.email} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.email} helperText={errors.email && "Thông tin bắt buộc"} required />
-                  {errors.email && (
-                    <Typography variant="caption" color="error">
-                      {errors.email}
-                    </Typography>
-                  )}
+                  <CustomTextField fullWidth label="Email" name="email" value={formData.email} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.email} helperText={errors.email} required />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <CustomTextField fullWidth label="Địa chỉ" name="address" value={formData.address} onChange={handleInputChange} />
@@ -209,25 +216,19 @@ const BookTour = () => {
 
               <SectionTitle variant="h5" style={{ marginTop: 24 }}> HÀNH KHÁCH </SectionTitle>
               <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}>
-                  Người lớn (Từ 12 tuổi)
-                </Typography>
+                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}> Người lớn (Từ 12 tuổi) </Typography>
                 <CounterButton onClick={() => handlePassengerChange("adults", "subtract")}>-</CounterButton>
                 <Typography style={{ margin: "0 20px" }}>{formData.adults}</Typography>
                 <CounterButton onClick={() => handlePassengerChange("adults", "add")}>+</CounterButton>
               </PassengerCounter>
               <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}>
-                  Trẻ em (Từ 2 - 11 tuổi)
-                </Typography>
+                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}> Trẻ em (Từ 2 - 11 tuổi) </Typography>
                 <CounterButton onClick={() => handlePassengerChange("children", "subtract")}>-</CounterButton>
                 <Typography style={{ margin: "0 20px" }}>{formData.children}</Typography>
                 <CounterButton onClick={() => handlePassengerChange("children", "add")}>+</CounterButton>
               </PassengerCounter>
               <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}>
-                  Em bé (Dưới 2 tuổi)
-                </Typography>
+                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}> Em bé (Dưới 2 tuổi) </Typography>
                 <CounterButton onClick={() => handlePassengerChange("infants", "subtract")}>-</CounterButton>
                 <Typography style={{ margin: "0 20px" }}>{formData.infants}</Typography>
                 <CounterButton onClick={() => handlePassengerChange("infants", "add")}>+</CounterButton>
@@ -236,27 +237,25 @@ const BookTour = () => {
               <SectionTitle variant="h5">THÔNG TIN HÀNH KHÁCH</SectionTitle>
               {[...Array(formData.adults)].map((_, index) => (
                 <PassengerInfo key={`adult-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}>
-                    Người lớn (Từ 12 tuổi)
-                  </Typography>
-                  <Grid container spacing={2}>
+                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}> Người lớn (Từ 12 tuổi) </Typography>
+                  <Grid container spacing={2} sx={{ mt: 1 }}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" name="fullName" value={customerInfo.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
+                      <CustomTextField fullWidth label="Họ tên" name={`adultFullName-${index}`} defaultValue={index === 0 ? formData.fullName : ''} onChange={handleInputChange} required />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
                         <InputLabel>Giới tính</InputLabel>
-                        <Select>
+                        <Select name={`adultGender-${index}`} label="Giới tính" defaultValue={customerInfo.gender || ''} onChange={handleInputChange}>
                           <MenuItem value="male">Nam</MenuItem>
                           <MenuItem value="female">Nữ</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name="birthday" value={customerInfo.birthday} onChange={handleInputChange} />
+                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name={`adultBirthday-${index}`} defaultValue={customerInfo.birthday || ''} onChange={handleInputChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Điện thoại" name="phone" value={customerInfo.phone} onChange={handleInputChange} />
+                      <CustomTextField fullWidth label="Điện thoại" name={`adultPhone-${index}`} defaultValue={index === 0 ? formData.phone : ''} onChange={handleInputChange} />
                     </Grid>
                   </Grid>
                 </PassengerInfo>
@@ -264,27 +263,25 @@ const BookTour = () => {
 
               {[...Array(formData.children)].map((_, index) => (
                 <PassengerInfo key={`children-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}>
-                    Trẻ em (Từ 2 - 11 tuổi)
-                  </Typography>
+                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}> Trẻ em (Từ 2 - 11 tuổi) </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" />
+                      <CustomTextField fullWidth label="Họ tên" name={`childFullName-${index}`} onChange={handleInputChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
                         <InputLabel>Giới tính</InputLabel>
-                        <Select>
+                        <Select name={`childGender-${index}`} onChange={handleInputChange}>
                           <MenuItem value="male">Nam</MenuItem>
                           <MenuItem value="female">Nữ</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} />
+                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name={`childBirthday-${index}`} onChange={handleInputChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <FormControlLabel control={<Checkbox />} label="Phòng đơn" />
+                      <FormControlLabel control={<Checkbox name={`childSingleRoom-${index}`} onChange={handleInputChange} />} label="Phòng đơn" />
                     </Grid>
                   </Grid>
                 </PassengerInfo>
@@ -297,22 +294,22 @@ const BookTour = () => {
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" />
+                      <CustomTextField fullWidth label="Họ tên" name={`infantFullName-${index}`} onChange={handleInputChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
                         <InputLabel>Giới tính</InputLabel>
-                        <Select>
+                        <Select name={`infantGender-${index}`} onChange={handleInputChange}>
                           <MenuItem value="male">Nam</MenuItem>
                           <MenuItem value="female">Nữ</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} />
+                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name={`infantBirthday-${index}`} onChange={handleInputChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <FormControlLabel control={<Checkbox />} label="Phòng đơn" />
+                      <FormControlLabel control={<Checkbox name={`infantSingleRoom-${index}`} onChange={handleInputChange} />} label="Phòng đơn" />
                     </Grid>
                   </Grid>
                 </PassengerInfo>
@@ -321,29 +318,14 @@ const BookTour = () => {
               <SectionTitle variant="h5">GHI CHÚ</SectionTitle>
               <TextField fullWidth multiline rows={4} name="note" value={formData.note} onChange={handleInputChange} placeholder="Quý khách có điều gì cần lưu ý, vui lòng để lại cho chúng tôi" />
 
-              <SectionTitle variant="h5" style={{ marginTop: 24 }}>
-                CÁC HÌNH THỨC THANH TOÁN
-              </SectionTitle>
-              <RadioGroup
-                aria-label="payment-method"
-                name="paymentMethod"
-                value={formData.paymentMethod}
-                onChange={handleInputChange}
-              >
+              <SectionTitle variant="h5" style={{ marginTop: 24 }}> CÁC HÌNH THỨC THANH TOÁN </SectionTitle>
+              <RadioGroup aria-label="payment-method" name="paymentMethod" value={formData.paymentMethod} onChange={handleInputChange}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod
-                    value="zalopay"
-                    control={<Radio />}
-                    label="Zalopay"
-                  />
+                  <PaymentMethod value="zalopay" control={<Radio />} label="Zalopay" />
                   <img src="https://cdn.tgdd.vn/2020/04/GameApp/image-180x180.png" alt="Zalopay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod
-                    value="momo"
-                    control={<Radio />}
-                    label="Momo"
-                  />
+                  <PaymentMethod value="momo" control={<Radio />} label="Momo" />
                   <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
                 </Box>
               </RadioGroup>
@@ -354,53 +336,50 @@ const BookTour = () => {
               </SummaryTitle>
               <SummaryBox sx={{ backgroundColor: 'white', border: 'none', boxShadow: '0 0 5px #888888', borderRadius: 2 }}>
                 <Box sx={{ mb: 2 }}>
-                  <img src={bookingData.images?.[0]?.url} alt={bookingData.name} style={{ width: "100%", height: "auto" }} />
+                  <img src={bookingData.imageUrls?.[0]?.url} alt={bookingData.tourName} style={{ width: "100%", height: "auto" }} />
                 </Box>
                 <Typography variant="h5" style={{ fontWeight: "bold" }} gutterBottom>
-                  {bookingData.name}
+                  {bookingData.tourName}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" gutterBottom>
-                  Mã tour: {bookingData.id}
+                  Mã tour: {bookingData.code}
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <SummaryItem>
-                  <Typography variant="body2">Ngày bắt đầu:</Typography>
-                  <Typography variant="body2">{bookingData.startDate}</Typography>
+                  <Typography variant="body2">Thời gian khởi hành:</Typography>
+                  <Typography variant="body2">{bookingData.startDate.toLocaleDateString('vi-VN')} - {new Date(`1970-01-01T${bookingData.startTime}`).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Ngày kết thúc:</Typography>
-                  <Typography variant="body2">{bookingData.endDate}</Typography>
+                  <Typography variant="body2">{bookingData.endDate.toLocaleDateString('vi-VN')}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography variant="body2">Thời gian:</Typography>
-                  <Typography variant="body2">{bookingData.days}N{bookingData.nights}Đ</Typography>
+                  <Typography variant="body2">Thời lượng:</Typography>
+                  <Typography variant="body2">{bookingData.duration}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography variant="body2">Khởi hành:</Typography>
-                  <Typography variant="body2">{bookingData.departurePlace}</Typography>
+                  <Typography variant="body2" sx={{ minWidth: '6rem'}}>Khởi hành từ:</Typography>
+                  <Typography variant="body2">{bookingData.startLocation}</Typography>
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />
                 <SummarySubtitle variant="subtitle2">KHÁCH HÀNG</SummarySubtitle>
                 <SummaryItem>
                   <Typography variant="body2">Người lớn:</Typography>
-                  <Typography variant="body2">{formData.adults} x {bookingData.bookingInfo?.adultPrice?.toLocaleString()} đ</Typography>
+                  <Typography variant="body2">{formData.adults} x {bookingData.price?.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Trẻ em:</Typography>
-                  <Typography variant="body2">{formData.children} x {bookingData.bookingInfo?.childPrice?.toLocaleString()} đ</Typography>
+                  <Typography variant="body2">{formData.children} x {bookingData.childPrice?.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Em bé:</Typography>
-                  <Typography variant="body2">{formData.infants} x {bookingData.bookingInfo?.infantPrice?.toLocaleString()} đ</Typography>
+                  <Typography variant="body2">{formData.infants} x {bookingData.infantPrice?.toLocaleString()} đ</Typography>
                 </SummaryItem>
-
                 <Divider sx={{ my: 1 }} />
                 <TotalPrice variant="h6">
                   Tổng tiền: {calculateTotal().toLocaleString()} đ
                 </TotalPrice>
-                <Button variant="contained" fullWidth>
-                  Đặt Ngay
-                </Button>
+                <Button variant="contained" fullWidth> Đặt Ngay </Button>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
                 <PhoneIcon sx={{ marginRight: '10px' }} />
