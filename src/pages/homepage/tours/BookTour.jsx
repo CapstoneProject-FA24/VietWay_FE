@@ -7,6 +7,8 @@ import { getBookingDataById } from "@hooks/MockBookTour";
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import PhoneIcon from '@mui/icons-material/Phone';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -114,7 +116,7 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
 const BookTour = () => {
   const { id } = useParams();
   const [bookingData, setBookingData] = useState(null);
-  const [formData, setFormData] = useState({ fullName: "", email: "", phone: "", address: "", adults: 1, children: 0, infants: 0, note: "", paymentMethod: "" });
+  const [formData, setFormData] = useState({ fullName: "", email: "", phone: "", address: "", adults: 1, children: 0, infants: 0, note: "", paymentMethod: "", passengers: [{ type: '', name: '', gender: '', birthday: '' }] });
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
 
@@ -157,14 +159,8 @@ const BookTour = () => {
   };
 
   const calculateTotal = () => {
-    if (!bookingData || !bookingData.bookingInfo) return 0;
-    const { adultPrice, childPrice, infantPrice } = bookingData.bookingInfo;
-    const adult = formData.adults * adultPrice;
-    const children = formData.children * childPrice;
-    const infant = formData.infants * infantPrice;
-    return (
-      adult + children + infant
-    );
+    const summary = calculatePassengerSummary();
+    return summary.adult.total + summary.child.total + summary.infant.total;
   };
 
   const validateField = (name, value) => {
@@ -191,6 +187,28 @@ const BookTour = () => {
           error = 'Không đúng định dạng mail';
         }
         break;
+      case 'passengerType':
+        if (!value) {
+          error = 'Vui lòng chọn loại hành khách';
+        }
+        break;
+      case 'passengerName':
+        if (!value.trim()) {
+          error = 'Thông tin bắt buộc';
+        } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value)) {
+          error = 'Họ và tên chỉ được chứa chữ cái';
+        }
+        break;
+      case 'passengerGender':
+        if (!value) {
+          error = 'Vui lòng chọn giới tính';
+        }
+        break;
+      case 'passengerBirthday':
+        if (!value) {
+          error = 'Vui lòng chọn ngày sinh';
+        }
+        break;
       default:
         break;
     }
@@ -206,16 +224,74 @@ const BookTour = () => {
     }));
   };
 
+  const handlePassengerTypeChange = (index, value) => {
+    const newPassengers = [...formData.passengers];
+    newPassengers[index] = { ...newPassengers[index], type: value };
+    setFormData({ ...formData, passengers: newPassengers });
+    validatePassengerField(index, 'passengerType', value);
+  };
+
+  const handlePassengerInfoChange = (index, field, value) => {
+    const newPassengers = [...formData.passengers];
+    newPassengers[index] = { ...newPassengers[index], [field]: value };
+    setFormData({ ...formData, passengers: newPassengers });
+    validatePassengerField(index, field, value);
+  };
+
+  const validatePassengerField = (index, field, value) => {
+    const error = validateField(field, value);
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [`passenger${index}-${field}`]: error
+    }));
+  };
+
+  const handleAddPassenger = () => {
+    setFormData(prevState => ({
+      ...prevState,
+      passengers: [
+        ...prevState.passengers,
+        { type: '', name: '', gender: '', birthday: '' }  // Đặt giá trị mặc định cho gender là ''
+      ]
+    }));
+  };
+
+  const handleRemovePassenger = (index) => {
+    setFormData(prevState => ({
+      ...prevState,
+      passengers: prevState.passengers.filter((_, i) => i !== index)
+    }));
+  };
+
+  const calculatePassengerSummary = () => {
+    const summary = {
+      adult: { count: 0, total: 0 },
+      child: { count: 0, total: 0 },
+      infant: { count: 0, total: 0 }
+    };
+
+    formData.passengers.forEach(passenger => {
+      if (passenger.type) {
+        summary[passenger.type].count += 1;
+        summary[passenger.type].total += bookingData.bookingInfo[`${passenger.type}Price`] || 0;
+      }
+    });
+
+    return summary;
+  };
+
   if (!bookingData) {
     return (
       <>
         <Header />
-        <div style={{ display: "flex", alignItems: "center", height: "80vh" }}>
-          <img src="public/loading.gif" alt="Loading..." />
+        <div style={{ display: 'flex', alignItems: 'center', height: '80vh' }}>
+            <img src="/loading.gif" alt="Loading..." />
         </div>
       </>
     );
   }
+
+  const passengerSummary = calculatePassengerSummary();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }} ref={topRef}>
@@ -240,149 +316,108 @@ const BookTour = () => {
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
-                  {errors.fullName && (
-                    <Typography variant="caption" color="error">
-                      {errors.fullName}
-                    </Typography>
-                  )}
+                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName} required />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone && "Thông tin bắt buộc"} required />
-                  {errors.phone && (
-                    <Typography variant="caption" color="error">
-                      {errors.phone}
-                    </Typography>
-                  )}
+                  <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone} required />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Email" name="email" value={formData.email} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.email} helperText={errors.email && "Thông tin bắt buộc"} required />
-                  {errors.email && (
-                    <Typography variant="caption" color="error">
-                      {errors.email}
-                    </Typography>
-                  )}
+                  <CustomTextField fullWidth label="Email" name="email" value={formData.email} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.email} helperText={errors.email} required />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <CustomTextField fullWidth label="Địa chỉ" name="address" value={formData.address} onChange={handleInputChange} />
                 </Grid>
               </Grid>
 
-              <SectionTitle variant="h5" style={{ marginTop: 24 }}> HÀNH KHÁCH </SectionTitle>
-              <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}>
-                  Người lớn (Từ 12 tuổi)
-                </Typography>
-                <CounterButton onClick={() => handlePassengerChange("adults", "subtract")}>-</CounterButton>
-                <Typography style={{ margin: "0 20px" }}>{formData.adults}</Typography>
-                <CounterButton onClick={() => handlePassengerChange("adults", "add")}>+</CounterButton>
-              </PassengerCounter>
-              <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}>
-                  Trẻ em (Từ 2 - 11 tuổi)
-                </Typography>
-                <CounterButton onClick={() => handlePassengerChange("children", "subtract")}>-</CounterButton>
-                <Typography style={{ margin: "0 20px" }}>{formData.children}</Typography>
-                <CounterButton onClick={() => handlePassengerChange("children", "add")}>+</CounterButton>
-              </PassengerCounter>
-              <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}>
-                  Em bé (Dưới 2 tuổi)
-                </Typography>
-                <CounterButton onClick={() => handlePassengerChange("infants", "subtract")}>-</CounterButton>
-                <Typography style={{ margin: "0 20px" }}>{formData.infants}</Typography>
-                <CounterButton onClick={() => handlePassengerChange("infants", "add")}>+</CounterButton>
-              </PassengerCounter>
-
-              <SectionTitle variant="h5">THÔNG TIN HÀNH KHÁCH</SectionTitle>
-              {[...Array(formData.adults)].map((_, index) => (
-                <PassengerInfo key={`adult-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}>
-                    Người lớn (Từ 12 tuổi)
-                  </Typography>
+              <SectionTitle variant="h5" style={{ marginTop: 24 }}>THÔNG TIN HÀNH KHÁCH</SectionTitle>
+              {formData.passengers.map((passenger, index) => (
+                <PassengerInfo key={`passenger-${index}`}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName && "Thông tin bắt buộc"} required />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth>
-                        <InputLabel>Giới tính</InputLabel>
-                        <Select>
-                          <MenuItem value="male">Nam</MenuItem>
-                          <MenuItem value="female">Nữ</MenuItem>
+                      <FormControl fullWidth error={!!errors[`passenger${index}-passengerType`]}>
+                        <InputLabel>Loại hành khách</InputLabel>
+                        <Select
+                          label="Loại hành khách" name={`passengerType-${index}`} value={passenger.type || ''}
+                          onChange={(e) => handlePassengerTypeChange(index, e.target.value)}
+                          onBlur={() => validatePassengerField(index, 'passengerType', passenger.type)} required
+                        >
+                          <MenuItem value="adult">Người lớn (Từ 12 tuổi) - {bookingData.bookingInfo?.adultPrice?.toLocaleString()} đ</MenuItem>
+                          <MenuItem value="child">Trẻ em (Từ 2 - 11 tuổi) - {bookingData.bookingInfo?.childPrice?.toLocaleString()} đ</MenuItem>
+                          <MenuItem value="infant">Em bé (Dưới 2 tuổi) - {bookingData.bookingInfo?.infantPrice?.toLocaleString()} đ</MenuItem>
                         </Select>
+                        {errors[`passenger${index}-passengerType`] && (
+                          <FormHelperText>{errors[`passenger${index}-passengerType`]}</FormHelperText>
+                        )}
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name="birthday" value={formData.birthday} onChange={handleInputChange} />
+                      <CustomTextField 
+                        fullWidth label="Họ tên" name={`passengerName-${index}`} value={passenger.name || ''}
+                        onChange={(e) => handlePassengerInfoChange(index, 'passengerName', e.target.value)}
+                        onBlur={() => validatePassengerField(index, 'passengerName', passenger.name)}
+                        error={!!errors[`passenger${index}-passengerName`]} helperText={errors[`passenger${index}-passengerName`]} required
+                      />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange}/>
+                      <FormControl fullWidth error={!!errors[`passenger${index}-passengerGender`]}>
+                        <InputLabel>Giới tính</InputLabel>
+                        <Select
+                          label="Giới tính" name={`passengerGender-${index}`} value={passenger.gender}
+                          onChange={(e) => handlePassengerInfoChange(index, 'gender', e.target.value)}
+                          onBlur={() => validatePassengerField(index, 'gender', passenger.gender)} required>
+                          <MenuItem value="male">Nam</MenuItem>
+                          <MenuItem value="female">Nữ</MenuItem>
+                        </Select>
+                        {errors[`passenger${index}-passengerGender`] && (
+                          <FormHelperText>{errors[`passenger${index}-passengerGender`]}</FormHelperText>
+                        )}
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField 
+                        fullWidth label="Ngày sinh" type="date" 
+                        InputLabelProps={{ shrink: true }}
+                        name={`passengerBirthday-${index}`}
+                        value={passenger.birthday || ''}
+                        onChange={(e) => handlePassengerInfoChange(index, 'passengerBirthday', e.target.value)}
+                        onBlur={() => validatePassengerField(index, 'passengerBirthday', passenger.birthday)}
+                        error={!!errors[`passenger${index}-passengerBirthday`]}
+                        helperText={errors[`passenger${index}-passengerBirthday`]}
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        {index > 0 && (
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<RemoveIcon />}
+                            onClick={() => handleRemovePassenger(index)}
+                          >
+                            Loại bỏ
+                          </Button>
+                        )}
+                      </Box>
                     </Grid>
                   </Grid>
                 </PassengerInfo>
               ))}
 
-              {[...Array(formData.children)].map((_, index) => (
-                <PassengerInfo key={`children-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}>
-                    Trẻ em (Từ 2 - 11 tuổi)
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth>
-                        <InputLabel>Giới tính</InputLabel>
-                        <Select>
-                          <MenuItem value="male">Nam</MenuItem>
-                          <MenuItem value="female">Nữ</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControlLabel control={<Checkbox />} label="Phòng đơn" />
-                    </Grid>
-                  </Grid>
-                </PassengerInfo>
-              ))}
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 2 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddPassenger}
+                >
+                  Thêm một hành khách
+                </Button>
+              </Box>
 
-              {[...Array(formData.infants)].map((_, index) => (
-                <PassengerInfo key={`infants-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}>
-                    Em bé (Dưới 2 tuổi)
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth>
-                        <InputLabel>Giới tính</InputLabel>
-                        <Select>
-                          <MenuItem value="male">Nam</MenuItem>
-                          <MenuItem value="female">Nữ</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControlLabel control={<Checkbox />} label="Phòng đơn" />
-                    </Grid>
-                  </Grid>
-                </PassengerInfo>
-              ))}
-
-              <SectionTitle variant="h5">GHI CHÚ</SectionTitle>
+              <SectionTitle variant="h5" style={{ marginTop: 30 }}>GHI CHÚ</SectionTitle>
               <TextField fullWidth multiline rows={4} name="note" value={formData.note} onChange={handleInputChange} placeholder="Quý khách có điều gì cần lưu ý, vui lòng để lại cho chúng tôi" />
 
-              <SectionTitle variant="h5" style={{ marginTop: 24 }}>
+              <SectionTitle variant="h5" style={{ marginTop: 30 }}>
                 CÁC HÌNH THỨC THANH TOÁN
               </SectionTitle>
               <RadioGroup
@@ -392,21 +427,13 @@ const BookTour = () => {
                 onChange={handleInputChange}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod
-                    value="vnpay"
-                    control={<Radio />}
-                    label="VNPay"
-                  />
+                  <PaymentMethod value="vnpay" control={<Radio />} label="VNPay" />
                   <img src="https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg" alt="VNPay" style={{ width: '50px', height: '50px', position: 'absolute', marginRight: 25 }} />
                 </Box>
-                {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod
-                    value="momo"
-                    control={<Radio />}
-                    label="Momo"
-                  />
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                  <PaymentMethod value="momo" control={<Radio />} label="Momo" />
                   <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
-                </Box> */}
+                </Box>
               </RadioGroup>
             </Grid>
             <Grid item xs={12} md={4} sx={{ maxWidth: "100%" }}>
@@ -434,26 +461,38 @@ const BookTour = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Thời gian:</Typography>
-                  <Typography variant="body2">{bookingData.days}N{bookingData.nights}Đ</Typography>
+                  <Typography variant="body2">{bookingData.duration}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Khởi hành:</Typography>
-                  <Typography variant="body2">{bookingData.departurePlace}</Typography>
+                  <Typography variant="body2">{bookingData.destinationProvince}</Typography>
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />
                 <SummarySubtitle variant="subtitle2">KHÁCH HÀNG</SummarySubtitle>
-                <SummaryItem>
-                  <Typography variant="body2">Người lớn:</Typography>
-                  <Typography variant="body2">{formData.adults} x {bookingData.bookingInfo?.adultPrice?.toLocaleString()} đ</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography variant="body2">Trẻ em:</Typography>
-                  <Typography variant="body2">{formData.children} x {bookingData.bookingInfo?.childPrice?.toLocaleString()} đ</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography variant="body2">Em bé:</Typography>
-                  <Typography variant="body2">{formData.infants} x {bookingData.bookingInfo?.infantPrice?.toLocaleString()} đ</Typography>
-                </SummaryItem>
+                {passengerSummary.adult.count > 0 && (
+                  <SummaryItem>
+                    <Typography variant="body2">Người lớn:</Typography>
+                    <Typography variant="body2">
+                      {passengerSummary.adult.count} x {bookingData.bookingInfo?.adultPrice?.toLocaleString()} đ
+                    </Typography>
+                  </SummaryItem>
+                )}
+                {passengerSummary.child.count > 0 && (
+                  <SummaryItem>
+                    <Typography variant="body2">Trẻ em:</Typography>
+                    <Typography variant="body2">
+                      {passengerSummary.child.count} x {bookingData.bookingInfo?.childPrice?.toLocaleString()} đ
+                    </Typography>
+                  </SummaryItem>
+                )}
+                {passengerSummary.infant.count > 0 && (
+                  <SummaryItem>
+                    <Typography variant="body2">Em bé:</Typography>
+                    <Typography variant="body2">
+                      {passengerSummary.infant.count} x {bookingData.bookingInfo?.infantPrice?.toLocaleString()} đ
+                    </Typography>
+                  </SummaryItem>
+                )}
 
                 <Divider sx={{ my: 1 }} />
                 <TotalPrice variant="h6">
