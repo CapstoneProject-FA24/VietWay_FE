@@ -13,7 +13,7 @@ export const fetchToursByTemplateId = async (id) => {
             id: item.tourId,
             tourTemplateId: item.tourTemplateId,
             startLocation: item.startLocation,
-            startTime: item.startTime,
+            startTime: new Date(item.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
             startDate: new Date(item.startDate),
             endDate: new Date(item.endDate),
             price: item.price,
@@ -32,22 +32,50 @@ export const fetchToursByTemplateId = async (id) => {
 export const fetchTourById = async (id) => {
     try {
         const response = await axios.get(`${baseURL}/api/Tour/by-id/${id}`);
+        const item = response.data.data;
         const tours = {
-            id: response.data.data.tourId,
-            tourTemplateId: response.data.data.tourTemplateId,
-            startLocation: response.data.data.startLocation,
-            startTime: response.data.data.startTime,
-            startDate: new Date(response.data.data.startDate),
-            endDate: new Date(response.data.data.endDate),
-            price: response.data.data.price,
-            maxParticipant: response.data.data.maxParticipant,
-            minParticipant: response.data.data.minParticipant,
-            currentParticipant: response.data.data.currentParticipant,
-            status: response.data.data.status
+            id: item.tourId,
+            tourTemplateId: item.tourTemplateId,
+            startLocation: item.startLocation,
+            startTime: new Date(item.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+            startDate: new Date(item.startDate),
+            endDate: new Date(item.endDate),
+            price: item.price,
+            maxParticipant: item.maxParticipant,
+            minParticipant: item.minParticipant,
+            currentParticipant: item.currentParticipant,
+            status: item.status
         };
         return tours;
     } catch (error) {
         console.error('Error fetching tour:', error);
         throw error;
     }
+};
+
+export const createBooking = async (bookingData) => {
+  try {
+    const requestData = {
+      tourId: bookingData.tourId,
+      customerId: "4",
+      numberOfParticipants: bookingData.passengers.length,
+      isPayLater: bookingData.isPayLater,
+      tourParticipants: bookingData.passengers.map(passenger => ({
+        fullName: passenger.fullName,
+        phoneNumber: passenger.phoneNumber,
+        gender: passenger.gender,
+        dateOfBirth: passenger.dateOfBirth
+      })),
+      contactFullName: bookingData.fullName,
+      contactEmail: bookingData.email,
+      contactPhoneNumber: bookingData.phone,
+      contactAddress: bookingData.address
+    };
+    const response = await axios.post(`${baseURL}/api/Booking/BookTour`, requestData);
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    throw error;
+  }
 };

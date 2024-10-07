@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup } from "@mui/material";
+import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import PhoneIcon from '@mui/icons-material/Phone';
 import { getCustomerInfo } from '@services/CustomerService';
-import { fetchTourById } from '@services/TourService';
+import { fetchTourById, createBooking } from '@services/TourService';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -21,13 +23,6 @@ const ArrowIcon = styled("img")({ width: "30px", height: "30px", margin: "0 15px
 const SectionTitle = styled(Typography)(({ theme }) => ({ fontWeight: "bold", marginBottom: theme.spacing(2) }));
 
 const CustomTextField = styled(TextField)(({ theme }) => ({ marginBottom: theme.spacing(2) }));
-
-const PassengerCounter = styled(Box)(({ theme }) => ({
-  display: "flex", alignItems: "center", border: "1px solid #ccc",
-  borderRadius: theme.shape.borderRadius, padding: theme.spacing(1), marginBottom: theme.spacing(2)
-}));
-
-const CounterButton = styled(Button)(({ theme }) => ({ minWidth: 30, padding: theme.spacing(0.5) }));
 
 const PassengerInfo = styled(Box)(({ theme }) => ({
   border: "1px solid #ccc", borderRadius: theme.shape.borderRadius,
@@ -57,11 +52,18 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(2), fontSize: "1.2rem", color: theme.palette.primary.main
 }));
 
+const ErrorText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.error.main,
+  fontSize: '0.75rem',
+  marginTop: theme.spacing(0.5),
+}));
+
 const BookTour = () => {
   const { id } = useParams();
   const [bookingData, setBookingData] = useState(null);
-  const [customerInfo, setCustomerInfo] = useState(null);
-  const [formData, setFormData] = useState({ fullName: "", email: "", phone: "", address: "", adults: 1, children: 0, infants: 0, note: "", paymentMethod: "" });
+  const [formData, setFormData] = useState({
+    fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "",
+    passengers: [{ type: 'adult', name: '', gender: 0, birthday: '' }]});
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
 
@@ -71,27 +73,19 @@ const BookTour = () => {
       const tour = await fetchTourById(id);
       const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
       const data = {
-        tourTemplateId: tour.tourTemplateId,
-        imageUrls: tourTemplate.imageUrls,
-        tourName: tourTemplate.tourName,
-        code: tourTemplate.code,
-        duration: tourTemplate.duration,
-        startLocation: tour.startLocation,
-        startTime: tour.startTime,
-        startDate: tour.startDate,
-        endDate: tour.endDate,
-        price: tour.price,
-        infantPrice: tour.price / 2,
+        tourTemplateId: tour.tourTemplateId, imageUrls: tourTemplate.imageUrls,
+        tourName: tourTemplate.tourName, code: tourTemplate.code,
+        duration: tourTemplate.duration, startLocation: tour.startLocation,
+        startTime: tour.startTime, startDate: tour.startDate,
+        endDate: tour.endDate, price: tour.price, infantPrice: tour.price / 2,
         childPrice: tour.price * (80/100)
       }
       setBookingData(data);
-      setCustomerInfo(customer);
       setFormData(prevState => ({
         ...prevState,
-        fullName: customer.fullName,
-        email: customer.email,
-        phone: customer.phone,
-        address: customer.address || ""
+        fullName: customer.fullName, email: customer.email,
+        phone: customer.phone, address: customer.address || "",
+        passengers: [{ type: 'adult', name: customer.fullName, gender: 0, birthday: '' }]
       }));
     };
     fetchData();
@@ -108,55 +102,146 @@ const BookTour = () => {
     }
   };
 
-  const handlePassengerChange = (type, operation) => {
-    setFormData((prevState) => {
-      let newValue;
-      if (type === "adults") {
-        newValue = operation === "add" ? prevState[type] + 1 : Math.max(1, prevState[type] - 1);
-      } else {
-        newValue = operation === "add" ? prevState[type] + 1 : Math.max(0, prevState[type] - 1);
-      }
-      return { ...prevState, [type]: newValue };
-    });
+  const handlePassengerTypeChange = (index, value) => {
+    const newPassengers = [...formData.passengers];
+    newPassengers[index] = { ...newPassengers[index], type: value };
+    setFormData({ ...formData, passengers: newPassengers });
+    validatePassengerField(index, 'passengerType', value);
   };
 
-  const calculateTotal = () => {
-    if (!bookingData || !bookingData.bookingInfo) return 0;
-    const { adultPrice, childPrice, infantPrice } = bookingData.bookingInfo;
-    const adult = formData.adults * adultPrice;
-    const children = formData.children * childPrice;
-    const infant = formData.infants * infantPrice;
-    return ( adult + children + infant );
+  const handlePassengerInfoChange = (index, field, value) => {
+    const newPassengers = [...formData.passengers];
+    newPassengers[index] = { ...newPassengers[index], [field]: value };
+    setFormData({ ...formData, passengers: newPassengers });
+    validatePassengerField(index, field, value);
   };
 
   const validateField = (name, value) => {
     let error = '';
     switch (name) {
       case 'fullName':
-        if (!value.trim()) {
-          error = 'Thông tin bắt buộc';
-        } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value)) {
-          error = 'Họ và tên chỉ được chứa chữ cái';
-        }
+      case 'name':
+        if (!value.trim()) { error = 'Vui lòng điền họ và tên'; } 
+        else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value)) { error = 'Họ và tên chỉ được chứa chữ cái'; }
         break;
       case 'phone':
-        if (!value) {
-          error = 'Thông tin bắt buộc';
-        } else if (!/^\d{10}$/.test(value)) {
-          error = 'Số điện thoại phải là dãy 10 chữ số';
-        }
+        if (!value) { error = 'Vui lòng điền số điện thoại'; }
         break;
       case 'email':
-        if (!value) {
-          error = 'Thông tin bắt buộc';
-        } else if (!/^\S+@\S+$/.test(value)) {
-          error = 'Không đúng định dạng mail';
+        if (!value) { error = 'Vui lòng điền email'; }
+        break;
+      case 'passengerType':
+        if (!value) { error = 'Vui lòng chọn loại hành khách'; }
+        break;
+      case 'passengerName':
+        if (!value) { error = 'Vui lòng điền tên hành khách'; }
+        break;
+      case 'gender':
+        if (value === '' || value === undefined) {
+          error = 'Vui lòng chọn giới tính';
         }
         break;
-      default:
+      case 'birthday':
+        if (!value) { error = 'Vui lòng chọn ngày sinh'; }
         break;
     }
     return error;
+  };
+
+  const validatePassengerField = (index, field, value) => {
+    const error = validateField(field, value);
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [`passenger${index}-${field}`]: error
+    }));
+  };
+
+  const handleAddPassenger = () => {
+    setFormData(prevState => ({
+      ...prevState,
+      passengers: [
+        ...prevState.passengers,
+        { type: '', name: '', gender: '', birthday: '' }
+      ]
+    }));
+  };
+
+  const handleRemovePassenger = (index) => {
+    setFormData(prevState => ({
+      ...prevState,
+      passengers: prevState.passengers.filter((_, i) => i !== index)
+    }));
+  };
+
+  const calculatePassengerSummary = () => {
+    const summary = {
+      adult: { count: 0, total: 0 },
+      child: { count: 0, total: 0 },
+      infant: { count: 0, total: 0 }
+    };
+
+    formData.passengers.forEach(passenger => {
+      if (passenger.type) {
+        summary[passenger.type].count += 1;
+        summary[passenger.type].total += bookingData.price || 0;
+      }
+    });
+    return summary;
+  };
+
+  const calculateTotal = () => {
+    const summary = calculatePassengerSummary();
+    return summary.adult.total + summary.child.total + summary.infant.total;
+  };
+
+  const validateAllFields = () => {
+    const newErrors = {};
+    ['fullName', 'phone', 'email'].forEach(field => {
+      const error = validateField(field, formData[field]);
+      if (error) newErrors[field] = error;
+    });
+    formData.passengers.forEach((passenger, index) => {
+      ['type', 'name', 'gender', 'birthday'].forEach(field => {
+        const error = validateField(field, passenger[field]);
+        if (error) newErrors[`passenger${index}-${field}`] = error;
+      });
+    });
+    if (!formData.paymentMethod) {
+      newErrors.paymentMethod = 'Vui lòng chọn phương thức thanh toán';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleBooking = async () => {
+    if (validateAllFields()) {
+      try {
+        const bookingData = {
+          tourId: id,
+          customerId: '1', // Replace with actual customer ID
+          passengers: formData.passengers.map(passenger => ({
+            fullName: passenger.name,
+            phoneNumber: formData.phone,
+            gender: parseInt(passenger.gender),
+            dateOfBirth: passenger.birthday
+          })),
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          note: formData.note,
+          isPayLater: true
+        };
+        const response = await createBooking(bookingData);
+        alert('Đặt tour thành công!');
+        window.location.href = `/dat-tour/thanh-toan/${response.data}`;
+      } catch (error) {
+        console.error('Booking failed:', error);
+        alert('Đặt tour thất bại. Vui lòng thử lại sau.');
+      }
+    } else {
+      alert('Vui lòng điền đầy đủ thông tin và sửa các lỗi trước khi đặt tour.');
+    }
   };
 
   const handleBlur = (event) => {
@@ -166,10 +251,6 @@ const BookTour = () => {
       ...prevErrors,
       [name]: error
     }));
-  };
-
-  const handleBooking = () => {
-    window.location.href = '/dat-tour/thanh-toan';
   };
 
   if (!bookingData) {
@@ -195,18 +276,28 @@ const BookTour = () => {
             ĐẶT TOUR
           </Typography>
           <StepBox style={{ marginBottom: 20 }}>
-            <StepItem active style={{ fontSize: 15 }}>NHẬP THÔNG TIN</StepItem>
+            <StepItem active >NHẬP THÔNG TIN</StepItem>
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem style={{ fontSize: 15 }}>THANH TOÁN</StepItem>
+            <StepItem >THANH TOÁN</StepItem>
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem style={{ fontSize: 15 }}>HOÀN TẤT</StepItem>
+            <StepItem>HOÀN TẤT</StepItem>
           </StepBox>
           <Grid container spacing={3} sx={{ maxWidth: "100%" }}>
             <Grid item xs={12} md={8} sx={{ maxWidth: "100%" }}>
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField fullWidth label="Họ và tên" name="fullName" value={formData.fullName} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.fullName} helperText={errors.fullName} required />
+                  <CustomTextField 
+                    fullWidth 
+                    label="Họ và tên" 
+                    name="fullName" 
+                    value={formData.fullName} 
+                    onChange={handleInputChange} 
+                    onBlur={handleBlur} 
+                    error={!!errors.fullName} 
+                    helperText={errors.fullName} 
+                    required 
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <CustomTextField fullWidth label="Điện thoại" name="phone" value={formData.phone} onChange={handleInputChange} onBlur={handleBlur} error={!!errors.phone} helperText={errors.phone} required />
@@ -219,121 +310,125 @@ const BookTour = () => {
                 </Grid>
               </Grid>
 
-              <SectionTitle variant="h5" style={{ marginTop: 24 }}> HÀNH KHÁCH </SectionTitle>
-              <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}> Người lớn (Từ 12 tuổi) </Typography>
-                <CounterButton onClick={() => handlePassengerChange("adults", "subtract")}>-</CounterButton>
-                <Typography style={{ margin: "0 20px" }}>{formData.adults}</Typography>
-                <CounterButton onClick={() => handlePassengerChange("adults", "add")}>+</CounterButton>
-              </PassengerCounter>
-              <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}> Trẻ em (Từ 2 - 11 tuổi) </Typography>
-                <CounterButton onClick={() => handlePassengerChange("children", "subtract")}>-</CounterButton>
-                <Typography style={{ margin: "0 20px" }}>{formData.children}</Typography>
-                <CounterButton onClick={() => handlePassengerChange("children", "add")}>+</CounterButton>
-              </PassengerCounter>
-              <PassengerCounter>
-                <Typography style={{ flexGrow: 1, marginLeft: 10, fontWeight: "bold" }}> Em bé (Dưới 2 tuổi) </Typography>
-                <CounterButton onClick={() => handlePassengerChange("infants", "subtract")}>-</CounterButton>
-                <Typography style={{ margin: "0 20px" }}>{formData.infants}</Typography>
-                <CounterButton onClick={() => handlePassengerChange("infants", "add")}>+</CounterButton>
-              </PassengerCounter>
-
-              <SectionTitle variant="h5">THÔNG TIN HÀNH KHÁCH</SectionTitle>
-              {[...Array(formData.adults)].map((_, index) => (
-                <PassengerInfo key={`adult-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}> Người lớn (Từ 12 tuổi) </Typography>
-                  <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" name={`adultFullName-${index}`} defaultValue={index === 0 ? formData.fullName : ''} onChange={handleInputChange} required />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth>
-                        <InputLabel>Giới tính</InputLabel>
-                        <Select name={`adultGender-${index}`} label="Giới tính" defaultValue={customerInfo.gender || ''} onChange={handleInputChange}>
-                          <MenuItem value="male">Nam</MenuItem>
-                          <MenuItem value="female">Nữ</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name={`adultBirthday-${index}`} defaultValue={customerInfo.birthday || ''} onChange={handleInputChange} />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Điện thoại" name={`adultPhone-${index}`} defaultValue={index === 0 ? formData.phone : ''} onChange={handleInputChange} />
-                    </Grid>
-                  </Grid>
-                </PassengerInfo>
-              ))}
-
-              {[...Array(formData.children)].map((_, index) => (
-                <PassengerInfo key={`children-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}> Trẻ em (Từ 2 - 11 tuổi) </Typography>
+              <SectionTitle variant="h5" style={{ marginTop: 24 }}>THÔNG TIN HÀNH KHÁCH</SectionTitle>
+              {formData.passengers.map((passenger, index) => (
+                <PassengerInfo key={`passenger-${index}`}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" name={`childFullName-${index}`} onChange={handleInputChange} />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth>
-                        <InputLabel>Giới tính</InputLabel>
-                        <Select name={`childGender-${index}`} onChange={handleInputChange}>
-                          <MenuItem value="male">Nam</MenuItem>
-                          <MenuItem value="female">Nữ</MenuItem>
+                      <FormControl fullWidth error={!!errors[`passenger${index}-type`]} required>
+                        <InputLabel>Loại hành khách</InputLabel>
+                        <Select
+                          label="Loại hành khách"
+                          name={`passengerType-${index}`}
+                          value={passenger.type || ''}
+                          onChange={(e) => handlePassengerInfoChange(index, 'type', e.target.value)}
+                          onBlur={() => validatePassengerField(index, 'type', passenger.type)}
+                        >
+                          <MenuItem value="adult">Người lớn (Từ 12 tuổi) - {bookingData.price?.toLocaleString()} đ</MenuItem>
+                          <MenuItem value="child">Trẻ em (Từ 2 - 11 tuổi) - {bookingData.childPrice?.toLocaleString()} đ</MenuItem>
+                          <MenuItem value="infant">Em bé (Dưới 2 tuổi) - {bookingData.infantPrice?.toLocaleString()} đ</MenuItem>
                         </Select>
+                        {errors[`passenger${index}-type`] && (
+                          <FormHelperText>{errors[`passenger${index}-type`]}</FormHelperText>
+                        )}
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name={`childBirthday-${index}`} onChange={handleInputChange} />
+                      <CustomTextField 
+                        fullWidth 
+                        label="Họ tên" 
+                        name={`passengerName-${index}`} 
+                        value={passenger.name || ''}
+                        onChange={(e) => handlePassengerInfoChange(index, 'name', e.target.value)}
+                        onBlur={() => validatePassengerField(index, 'name', passenger.name)}
+                        error={!!errors[`passenger${index}-name`]} 
+                        helperText={errors[`passenger${index}-name`]} 
+                        required
+                      />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <FormControlLabel control={<Checkbox name={`childSingleRoom-${index}`} onChange={handleInputChange} />} label="Phòng đơn" />
+                      <FormControl fullWidth error={!!errors[`passenger${index}-gender`]}>
+                        <InputLabel>Giới tính *</InputLabel>
+                        <Select
+                          label="Giới tính"
+                          name={`passengerGender-${index}`}
+                          value={passenger.gender !== undefined ? passenger.gender : ''}
+                          onChange={(e) => handlePassengerInfoChange(index, 'gender', e.target.value)}
+                          onBlur={() => validatePassengerField(index, 'gender', passenger.gender)}
+                          required
+                        >
+                          <MenuItem value={0}>Nam</MenuItem>
+                          <MenuItem value={1}>Nữ</MenuItem>
+                          <MenuItem value={2}>Khác</MenuItem>
+                        </Select>
+                        {errors[`passenger${index}-gender`] && (
+                          <FormHelperText>{errors[`passenger${index}-gender`]}</FormHelperText>
+                        )}
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField 
+                        fullWidth label="Ngày sinh" type="date" 
+                        InputLabelProps={{ shrink: true }}
+                        name={`passengerBirthday-${index}`}
+                        value={passenger.birthday || ''}
+                        onChange={(e) => handlePassengerInfoChange(index, 'birthday', e.target.value)}
+                        onBlur={() => validatePassengerField(index, 'birthday', passenger.birthday)}
+                        error={!!errors[`passenger${index}-birthday`]}
+                        helperText={errors[`passenger${index}-birthday`]}
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        {index > 0 && (
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<RemoveIcon />}
+                            onClick={() => handleRemovePassenger(index)}
+                          >
+                            Loại bỏ
+                          </Button>
+                        )}
+                      </Box>
                     </Grid>
                   </Grid>
                 </PassengerInfo>
               ))}
 
-              {[...Array(formData.infants)].map((_, index) => (
-                <PassengerInfo key={`infants-${index}`}>
-                  <Typography variant="subtitle1" style={{ fontWeight: "bold" }}>
-                    Em bé (Dưới 2 tuổi)
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Họ tên" name={`infantFullName-${index}`} onChange={handleInputChange} />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth>
-                        <InputLabel>Giới tính</InputLabel>
-                        <Select name={`infantGender-${index}`} onChange={handleInputChange}>
-                          <MenuItem value="male">Nam</MenuItem>
-                          <MenuItem value="female">Nữ</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField fullWidth label="Ngày sinh" type="date" InputLabelProps={{ shrink: true }} name={`infantBirthday-${index}`} onChange={handleInputChange} />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <FormControlLabel control={<Checkbox name={`infantSingleRoom-${index}`} onChange={handleInputChange} />} label="Phòng đơn" />
-                    </Grid>
-                  </Grid>
-                </PassengerInfo>
-              ))}
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 2 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddPassenger}
+                >
+                  Thêm một hành khách
+                </Button>
+              </Box>
 
               <SectionTitle variant="h5">GHI CHÚ</SectionTitle>
               <TextField fullWidth multiline rows={4} name="note" value={formData.note} onChange={handleInputChange} placeholder="Quý khách có điều gì cần lưu ý, vui lòng để lại cho chúng tôi" />
 
-              <SectionTitle variant="h5" style={{ marginTop: 24 }}> CÁC HÌNH THỨC THANH TOÁN </SectionTitle>
-              <RadioGroup aria-label="payment-method" name="paymentMethod" value={formData.paymentMethod} onChange={handleInputChange}>
+              <SectionTitle variant="h5" style={{ marginTop: 30 }}>
+                CÁC HÌNH THỨC THANH TOÁN
+              </SectionTitle>
+              <RadioGroup
+                aria-label="payment-method"
+                name="paymentMethod"
+                value={formData.paymentMethod}
+                onChange={handleInputChange}
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod value="zalopay" control={<Radio />} label="Zalopay" />
-                  <img src="https://cdn.tgdd.vn/2020/04/GameApp/image-180x180.png" alt="Zalopay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
+                  <PaymentMethod value="vnpay" control={<Radio />} label="VNPay" />
+                  <img src="https://vinadesign.org/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg" alt="VNPay" style={{ width: '50px', height: '50px', position: 'absolute', marginRight: 25 }} />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <PaymentMethod value="momo" control={<Radio />} label="Momo" />
                   <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
                 </Box>
               </RadioGroup>
+              {errors.paymentMethod && <ErrorText>{errors.paymentMethod}</ErrorText>}
             </Grid>
             <Grid item xs={12} md={4} sx={{ maxWidth: "100%" }}>
               <SummaryTitle variant="h5" style={{ alignContent: "center" }}>
@@ -368,23 +463,23 @@ const BookTour = () => {
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />
                 <SummarySubtitle variant="subtitle2">KHÁCH HÀNG</SummarySubtitle>
-                <SummaryItem>
-                  <Typography variant="body2">Người lớn:</Typography>
-                  <Typography variant="body2">{formData.adults} x {bookingData.price?.toLocaleString()} đ</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography variant="body2">Trẻ em:</Typography>
-                  <Typography variant="body2">{formData.children} x {bookingData.childPrice?.toLocaleString()} đ</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography variant="body2">Em bé:</Typography>
-                  <Typography variant="body2">{formData.infants} x {bookingData.infantPrice?.toLocaleString()} đ</Typography>
-                </SummaryItem>
+                {Object.entries(calculatePassengerSummary()).map(([type, data]) => (
+                  data.count > 0 && (
+                    <SummaryItem key={type}>
+                      <Typography variant="body2">{type === 'adult' ? 'Người lớn' : type === 'child' ? 'Trẻ em' : 'Em bé'}:</Typography>
+                      <Typography variant="body2">
+                        {data.count} x {bookingData[type === 'adult' ? 'price' : type === 'child' ? 'childPrice' : 'infantPrice']?.toLocaleString()} đ
+                      </Typography>
+                    </SummaryItem>
+                  )
+                ))}
                 <Divider sx={{ my: 1 }} />
                 <TotalPrice variant="h6">
                   Tổng tiền: {calculateTotal().toLocaleString()} đ
                 </TotalPrice>
-                <Button onClick={() => {handleBooking()}} variant="contained" fullWidth> Đặt Ngay </Button>
+                <Button variant="contained" fullWidth onClick={handleBooking}>
+                  Đặt Ngay
+                </Button>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
                 <PhoneIcon sx={{ marginRight: '10px' }} />
