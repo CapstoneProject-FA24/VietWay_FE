@@ -225,15 +225,15 @@ const BookTour = () => {
           <Link to={`/tour-du-lich/${id}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
             <ArrowBackIcon style={{ marginLeft: 8 }} /> Quay lại
           </Link>
-          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 35, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
+          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>
           <StepBox style={{ marginBottom: 20 }}>
-            <StepItem active style={{ fontSize: 15 }}>NHẬP THÔNG TIN</StepItem>
+            <StepItem active style={{ fontSize: 25 }}>NHẬP THÔNG TIN</StepItem>
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem style={{ fontSize: 15 }}>THANH TOÁN</StepItem>
+            <StepItem style={{ fontSize: 25 }}>THANH TOÁN</StepItem>
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem style={{ fontSize: 15 }}>HOÀN TẤT</StepItem>
+            <StepItem style={{ fontSize: 25 }}>HOÀN TẤT</StepItem>
           </StepBox>
           <Grid container spacing={3} sx={{ maxWidth: "100%" }}>
             <Grid item xs={12} md={8} sx={{ maxWidth: "100%" }}>
@@ -393,20 +393,20 @@ const BookTour = () => {
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <PaymentMethod
-                    value="zalopay"
+                    value="vnpay"
                     control={<Radio />}
-                    label="Zalopay"
+                    label="VNPay"
                   />
-                  <img src="https://cdn.tgdd.vn/2020/04/GameApp/image-180x180.png" alt="Zalopay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
+                  <img src="https://vinadesign.vn/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg" alt="VNPay" style={{ width: '50px', height: '50px', position: 'absolute', marginRight: 25 }} />
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <PaymentMethod
                     value="momo"
                     control={<Radio />}
                     label="Momo"
                   />
                   <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
-                </Box>
+                </Box> */}
               </RadioGroup>
             </Grid>
             <Grid item xs={12} md={4} sx={{ maxWidth: "100%" }}>
