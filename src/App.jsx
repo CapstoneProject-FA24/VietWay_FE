@@ -12,6 +12,8 @@ import Payment from "@pages/homepage/tours/Payment.jsx";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
+import PaymentResultPage from "@pages/homepage/tours/PaymentResultPage";
+import BookingDetail from "@pages/homepage/tours/BookingDetail";
 
 const App = () => {
   return (
@@ -31,6 +33,9 @@ const App = () => {
         <Route path="/tai-khoan" element={<Profile />} />
         <Route path="/dat-tour/:id" element={<BookTour />} />
         <Route path="/dat-tour/thanh-toan" element={<Payment />} />
+        <Route path="/dat-tour/thanh-toan/hoan-thanh" element={<BookingDetail />} />
+
+        <Route path="/payment-result" element={<PaymentResultPage />} />
       </Routes>
     </Router>
   );

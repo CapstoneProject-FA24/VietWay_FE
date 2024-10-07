@@ -71,6 +71,7 @@ const BookTour = () => {
       const tour = await fetchTourById(id);
       const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
       const data = {
+        tourTemplateId: tour.tourTemplateId,
         imageUrls: tourTemplate.imageUrls,
         tourName: tourTemplate.tourName,
         code: tourTemplate.code,
@@ -167,6 +168,10 @@ const BookTour = () => {
     }));
   };
 
+  const handleBooking = () => {
+    window.location.href = '/dat-tour/thanh-toan';
+  };
+
   if (!bookingData) {
     return (
       <>
@@ -183,7 +188,7 @@ const BookTour = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Link to={`/tour-du-lich/${id}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
+          <Link to={`/tour-du-lich/${bookingData.tourTemplateId}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
             <ArrowBackIcon style={{ marginLeft: 8 }} /> Quay lại
           </Link>
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 35, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
@@ -379,7 +384,7 @@ const BookTour = () => {
                 <TotalPrice variant="h6">
                   Tổng tiền: {calculateTotal().toLocaleString()} đ
                 </TotalPrice>
-                <Button variant="contained" fullWidth> Đặt Ngay </Button>
+                <Button onClick={() => {handleBooking()}} variant="contained" fullWidth> Đặt Ngay </Button>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
                 <PhoneIcon sx={{ marginRight: '10px' }} />

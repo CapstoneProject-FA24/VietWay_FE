@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, Radio, RadioGroup, FormControlLabel  } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, Radio, RadioGroup, FormControlLabel } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -74,13 +74,16 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
 
 const handlePayment = async () => {
   try {
-    window.location.href = 'https://sandbox.vnpayment.vn/paymentv2/Transaction/PaymentMethod.html?token=ff9e8fa98a144bb5a3af0a693f379c68'; // Điều hướng đến trang thanh toán VNPay
-} catch (error) {
+    const response = await axios.post('https://sandbox.vnpayment.vn/paymentv2/Transaction/PaymentMethod.html?token=ff9e8fa98a144bb5a3af0a693f379c68');
+
+    const vnpayLink = response.data.url;
+    window.location.href = vnpayLink; // Điều hướng đến trang thanh toán VNPay
+  } catch (error) {
     console.error("Lỗi khi lấy link thanh toán VNPay: ", error);
-}
+  }
 }
 
-const PayBooking = () => {
+const BookingDetail = () => {
   const [paymentData, setPaymentData] = useState(null);
 
   useEffect(() => {
@@ -105,8 +108,8 @@ const PayBooking = () => {
             <StepItem active>NHẬP THÔNG TIN</StepItem>
             <ArrowIcon src="/icon/arrow-right-active.png" alt="arrow" />
             <StepItem active>THANH TOÁN</StepItem>
-            <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem>HOÀN TẤT</StepItem>
+            <ArrowIcon src="/icon/arrow-right-active.png" alt="arrow" />
+            <StepItem active>HOÀN TẤT</StepItem>
           </StepBox>
           <Grid container spacing={3}>
             <Grid item xs={12} md={8}>
@@ -151,35 +154,14 @@ const PayBooking = () => {
                   <Typography>Hình thức thanh toán:</Typography>
                   <Typography>{paymentData.bookingDetails.paymentMethod}</Typography>
                 </SummaryItem>
-                <RadioGroup aria-label="payment-method" name="paymentMethod">
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="zalopay" control={<Radio />} label="Zalopay" />
-                    <img src="https://cdn.tgdd.vn/2020/04/GameApp/image-180x180.png" alt="Zalopay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="momo" control={<Radio />} label="Momo" />
-                    <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
-                  </Box>
-                </RadioGroup>
                 <SummaryItem>
                   <Typography>Số tiền đã thanh toán:</Typography>
                   <Typography>{paymentData.bookingDetails.paidAmount.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography>Số tiền còn lại:</Typography>
-                  <Typography>{paymentData.bookingDetails.remainingAmount.toLocaleString()} đ</Typography>
-                </SummaryItem>
-                <SummaryItem>
                   <Typography>Tình trạng:</Typography>
                   <Typography>{paymentData.bookingDetails.status}</Typography>
                 </SummaryItem>
-                {/* <SummaryItem>
-                  <Typography sx={{ width: '12rem' }}>Thời hạn thanh toán:</Typography>
-                  <Box>
-                    <Typography sx={{ width: '12rem' }} color="#FF4836" fontWeight="bold">{paymentData.bookingDetails.paymentDueDate}</Typography>
-                    <Typography fontStyle="italic" fontWeight="bold"> - {paymentData.bookingDetails.paymentDueDateNote}</Typography>
-                  </Box>
-                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
@@ -208,7 +190,7 @@ const PayBooking = () => {
             </Grid>
             <Grid item xs={12} md={4}>
               <SummaryBox>
-                <SummaryTitle variant="h6">PHIẾU XÁC NHẬN BOOKING</SummaryTitle>
+                <SummaryTitle variant="h6">THÔNG TIN BOOKING</SummaryTitle>
                 <Box sx={{ mb: 2 }}>
                   <img src={paymentData.tourInfo.image} alt={paymentData.tourInfo.name} style={{ width: "100%", height: "auto" }} />
                 </Box>
@@ -225,12 +207,6 @@ const PayBooking = () => {
                 <TotalPrice variant="h6">
                   Tổng tiền: {paymentData.totalPrice.toLocaleString()} đ
                 </TotalPrice>
-                <Button onClick={() => {handlePayment()}} variant="contained" fullWidth>
-                  Thanh toán ngay
-                </Button>
-                <Button variant="outlined" fullWidth sx={{ mt: 1 }}>
-                  Thanh toán sau
-                </Button>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
                 <PhoneIcon sx={{ marginRight: '10px' }} />
@@ -245,4 +221,4 @@ const PayBooking = () => {
   );
 };
 
-export default PayBooking;
+export default BookingDetail;
