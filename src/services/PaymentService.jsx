@@ -22,6 +22,7 @@ export const fetchBookingData = async (bookingId) => {
             endDate: new Date(bookingData.endDate),
             tourName: bookingData.tourName,
             imageUrl: bookingData.imageUrl,
+            code: bookingData.code,
             participants: bookingData.participants.map(participant => ({
                 fullName: participant.fullName,
                 phoneNumber: participant.phoneNumber,
