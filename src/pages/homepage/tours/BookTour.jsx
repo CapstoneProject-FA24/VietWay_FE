@@ -484,7 +484,7 @@ const BookTour = () => {
                 onChange={handleInputChange}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod value="VNpay" control={<Radio />} label="VNPay" />
+                  <PaymentMethod value="VNPay" control={<Radio />} label="VNPay" />
                   <img src="/vnpay.jpg" alt="VNPay" style={{ width: '40px', height: '40px', position: 'absolute', marginRight: 25 }} />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
