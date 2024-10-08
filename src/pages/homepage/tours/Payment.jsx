@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, RadioGroup, Radio, FormControlLabel } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, RadioGroup, Radio, FormControlLabel, Snackbar } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams } from "react-router-dom";
-import { fetchBookingData } from "@services/PaymentService";
+import { fetchBookingData, fetchPaymentURL } from "@services/PaymentService";
 import '@styles/Homepage.css'
+import { styled } from "@mui/material/styles";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -76,6 +77,7 @@ const PayBooking = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
@@ -83,8 +85,6 @@ const PayBooking = () => {
       try {
         const data = await fetchBookingData(id);
         setBookingData(data);
-        
-        // Get payment method from session storage
         const storedPaymentMethod = sessionStorage.getItem('paymentMethod');
         if (storedPaymentMethod) {
           setPaymentMethod(storedPaymentMethod);
@@ -98,6 +98,26 @@ const PayBooking = () => {
 
     fetchData();
   }, [id]);
+
+  const handlePayment = async () => {
+    if(paymentMethod !== ''){
+      if(paymentMethod === 'VNPay') {
+        const response = await fetchPaymentURL(id);
+        if(response !== null || response !== ''){
+          window.location.href = response;
+        }
+      }
+    } else {
+      setOpenSnackbar(true);
+    }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   if (loading) {
     return (
@@ -164,8 +184,8 @@ const PayBooking = () => {
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
                   <Typography>
-                    {paymentMethod === 'vnpay' ? 'VNPay' :
-                     paymentMethod === 'momo' ? 'Momo' :
+                    {paymentMethod === 'VNPay' ? 'VNPay' :
+                     paymentMethod === 'Momo' ? 'Momo' :
                      'Thanh toán sau'}
                   </Typography>
                 </SummaryItem>
@@ -176,11 +196,11 @@ const PayBooking = () => {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="vnpay" control={<Radio />} label="VNPay" />
+                    <PaymentMethod value="VNPay" control={<Radio />} label="VNPay" />
                     <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="momo" control={<Radio />} label="Momo" />
+                    <PaymentMethod value="Momo" control={<Radio />} label="Momo" />
                     <img src="/momo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
                   </Box>
                 </RadioGroup>
@@ -236,7 +256,7 @@ const PayBooking = () => {
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
                 </TotalPrice>
-                <Button variant="contained" fullWidth>
+                <Button onClick={() => {handlePayment()}} variant="contained" fullWidth>
                   Thanh toán ngay
                 </Button>
                 <Button variant="outlined" fullWidth sx={{ mt: 1 }}>
@@ -252,6 +272,11 @@ const PayBooking = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={3000} open={openSnackbar} onClose={handleCloseSnackbar}>
+        <MuiAlert onClose={handleCloseSnackbar} severity="warning" sx={{ width: '100%' }}>
+          Vui lòng chọn phương thức thanh toán
+        </MuiAlert>
+      </Snackbar>
     </Box>
   );
 };

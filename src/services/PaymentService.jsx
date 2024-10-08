@@ -4,7 +4,6 @@ import baseURL from '@api/baseURL';
 export const fetchBookingData = async (bookingId) => {
     try {
         const response = await axios.get(`${baseURL}/api/Booking/${bookingId}`);
-        console.log(response);
         const bookingData = response.data.data;
         return {
             bookingId: bookingData.bookingId,
@@ -29,6 +28,17 @@ export const fetchBookingData = async (bookingId) => {
                 dateOfBirth: new Date(participant.dateOfBirth)
             }))
         };
+    } catch (error) {
+        console.error('Error fetching booking data:', error);
+        throw error;
+    }
+};
+
+
+export const fetchPaymentURL = async (bookingId) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/Payment/VnPay/${bookingId}`);
+        return response.data.data;
     } catch (error) {
         console.error('Error fetching booking data:', error);
         throw error;

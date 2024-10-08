@@ -277,13 +277,11 @@ const BookTour = () => {
         sessionStorage.setItem('paymentMethod', formData.paymentMethod);
 
         const response = await createBooking(bookingData);
-        console.log('Booking successful:', response);
         setSnackbarMessage('Đặt tour thành công!');
         setSnackbarSeverity('success');
         setOpenSnackbar(true);
         window.location.href = `/dat-tour/thanh-toan/${response.data}`;
       } catch (error) {
-        console.error('Booking failed:', error);
         setSnackbarMessage('Đặt tour thất bại. Vui lòng thử lại sau.');
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
@@ -486,11 +484,11 @@ const BookTour = () => {
                 onChange={handleInputChange}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod value="vnpay" control={<Radio />} label="VNPay" />
+                  <PaymentMethod value="VNpay" control={<Radio />} label="VNPay" />
                   <img src="/vnpay.jpg" alt="VNPay" style={{ width: '40px', height: '40px', position: 'absolute', marginRight: 25 }} />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod value="momo" control={<Radio />} label="Momo" />
+                  <PaymentMethod value="Momo" control={<Radio />} label="Momo" />
                   <img src="/momo.png" alt="Momo" style={{ width: '35px', height: '35px', position: 'absolute', marginRight: 30 }} />
                 </Box>
               </RadioGroup>
