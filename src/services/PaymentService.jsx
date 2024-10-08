@@ -16,6 +16,7 @@ export const fetchBookingData = async (bookingId) => {
             contactAddress: bookingData.contactAddress,
             totalPrice: bookingData.totalPrice,
             status: bookingData.status,
+            createdOn: bookingData.createdOn,
             startLocation: bookingData.startLocation,
             startDate: new Date(bookingData.startDate),
             endDate: new Date(bookingData.endDate),

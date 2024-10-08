@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { fetchBookingData } from "@services/PaymentService";
+import { getBookingStatusInfo } from "@services/StatusService";
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -70,12 +73,26 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
 const BookingDetail = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const { id } = useParams();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchBookingData(id);
+        const searchParams = new URLSearchParams(location.search);
+        const vnpAmount = searchParams.get('vnp_Amount');
+        const vnpCode = searchParams.get('vnp_ResponseCode');
+        if (vnpCode === "00") {
+          setOpenSnackbar(true);
+        }
+        if (vnpAmount) {
+          const paidAmount = parseInt(vnpAmount) / 100;
+          data.paymentMethod = "VNPay";
+          data.paidAmount = paidAmount;
+        }
+
         setBookingData(data);
       } catch (error) {
         console.error("Error fetching booking details:", error);
@@ -85,7 +102,14 @@ const BookingDetail = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, location]);
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   if (loading) {
     return (
@@ -140,7 +164,7 @@ const BookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Ghi chú:</Typography>
-                  <Typography>{bookingData.note || 'Không có'}</Typography>
+                  <Typography>{bookingData.note || ''}</Typography>
                 </SummaryItem>
               </SummaryBox>
               <SummaryBox>
@@ -150,8 +174,8 @@ const BookingDetail = () => {
                   <Typography>{bookingData.bookingId}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography>Ngày tạo:</Typography>
-                  <Typography>{new Date(bookingData.createdDate).toLocaleDateString()}</Typography>
+                  <Typography>Ngày đặt tour:</Typography>
+                  <Typography>{new Date(bookingData.createdOn).toLocaleDateString()}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
@@ -167,8 +191,12 @@ const BookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Tình trạng:</Typography>
-                  <Typography>{bookingData.status}</Typography>
+                  <Typography sx={{ color: getBookingStatusInfo(bookingData.status).color }}>{getBookingStatusInfo(bookingData.status).text}</Typography>
                 </SummaryItem>
+                {/* <SummaryItem>
+                  <Typography>Số tiền còn lại:</Typography>
+                  <Typography>{(bookingData.totalPrice - bookingData.paidAmount).toLocaleString()} đ</Typography>
+                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
@@ -179,16 +207,16 @@ const BookingDetail = () => {
                       <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography>Ngày sinh:</Typography>
-                      <Typography>{new Date(participant.dateOfBirth).toLocaleDateString()}</Typography>
+                      <Typography>Số điện thoại:</Typography>
+                      <Typography>{participant.phoneNumber}</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Giới tính:</Typography>
                       <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography>Độ tuổi:</Typography>
-                      <Typography>{participant.ageGroup || 'Không xác định'}</Typography>
+                      <Typography>Ngày sinh:</Typography>
+                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
@@ -224,6 +252,22 @@ const BookingDetail = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
+        <MuiAlert 
+          onClose={handleCloseSnackbar} 
+          severity="success" 
+          sx={{  width: '500px', fontSize: '1.5rem', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
+          }}
+          iconMapping={{
+            success: <CheckCircleIcon fontSize="large" />
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
+            Thanh toán thành công!
+          </Box>
+        </MuiAlert>
+      </Snackbar>
     </Box>
   );
 };

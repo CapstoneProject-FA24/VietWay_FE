@@ -9,6 +9,7 @@ import { Link, useParams } from "react-router-dom";
 import { fetchBookingData, fetchPaymentURL } from "@services/PaymentService";
 import '@styles/Homepage.css'
 import { styled } from "@mui/material/styles";
+import { getBookingStatusInfo } from "@services/StatusService";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -206,7 +207,7 @@ const PayBooking = () => {
                 </RadioGroup>
                 <SummaryItem>
                   <Typography>Tình trạng:</Typography>
-                  <Typography>{bookingData.status}</Typography>
+                  <Typography sx={{ color: getBookingStatusInfo(bookingData.status).color }}>{getBookingStatusInfo(bookingData.status).text}</Typography>
                 </SummaryItem>
               </SummaryBox>
               <SummaryBox>
@@ -218,16 +219,16 @@ const PayBooking = () => {
                       <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString()}</Typography>
+                      <Typography>Số điện thoại:</Typography>
+                      <Typography>{participant.phoneNumber}</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Giới tính:</Typography>
                       <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography>Độ tuổi:</Typography>
-                      <Typography>None</Typography>
+                      <Typography>Ngày sinh:</Typography>
+                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
