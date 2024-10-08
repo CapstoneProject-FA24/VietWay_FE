@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, RadioGroup, Radio, FormControlLabel, Snackbar } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
+import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { Link, useParams } from "react-router-dom";
-import { fetchBookingData, fetchPaymentURL } from "@services/PaymentService";
-import '@styles/Homepage.css'
-import { styled } from "@mui/material/styles";
+import { Link, useParams, useLocation } from "react-router-dom";
+import { fetchBookingData } from "@services/PaymentService";
 import { getBookingStatusInfo } from "@services/StatusService";
 
+// Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: "100%",
@@ -69,49 +70,39 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
-const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
-  border: "1px solid #ccc", borderRadius: theme.shape.borderRadius,
-  width: "100%", height: '3rem', margin: "0 0 8px 0", padding: theme.spacing(1)
-}));
-
-const PayBooking = () => {
+const BookingDetail = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const { id } = useParams();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchBookingData(id);
-        setBookingData(data);
-        const storedPaymentMethod = sessionStorage.getItem('paymentMethod');
-        if (storedPaymentMethod) {
-          setPaymentMethod(storedPaymentMethod);
+        const searchParams = new URLSearchParams(location.search);
+        const vnpAmount = searchParams.get('vnp_Amount');
+        const vnpCode = searchParams.get('vnp_ResponseCode');
+        if (vnpCode === "00") {
+          setOpenSnackbar(true);
         }
+        if (vnpAmount) {
+          const paidAmount = parseInt(vnpAmount) / 100;
+          data.paymentMethod = "VNPay";
+          data.paidAmount = paidAmount;
+        }
+
+        setBookingData(data);
       } catch (error) {
-        console.error("Error fetching booking data:", error);
+        console.error("Error fetching booking details:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id]);
-
-  const handlePayment = async () => {
-    if(paymentMethod !== ''){
-      if(paymentMethod === 'VNPay') {
-        const response = await fetchPaymentURL(id);
-        if(response !== null || response !== ''){
-          window.location.href = response;
-        }
-      }
-    } else {
-      setOpenSnackbar(true);
-    }
-  };
+  }, [id, location]);
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
@@ -134,7 +125,7 @@ const PayBooking = () => {
   if (!bookingData) return null;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", width: '89vw' }}>
+    <Box>
       <Header />
       <ContentContainer>
         <StyledBox>
@@ -148,76 +139,71 @@ const PayBooking = () => {
             <StepItem active>NHẬP THÔNG TIN</StepItem>
             <ArrowIcon src="/icon/arrow-right-active.png" alt="arrow" />
             <StepItem active>THANH TOÁN</StepItem>
-            <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
-            <StepItem>HOÀN TẤT</StepItem>
+            <ArrowIcon src="/icon/arrow-right-active.png" alt="arrow" />
+            <StepItem active>HOÀN TẤT</StepItem>
           </StepBox>
           <Grid container spacing={3}>
             <Grid item xs={12} md={8}>
               <SummaryBox>
                 <SummaryTitle variant="h6">THÔNG TIN LIÊN LẠC</SummaryTitle>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Họ Tên:</Typography>
+                  <Typography>Họ Tên:</Typography>
                   <Typography>{bookingData.contactFullName}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Email:</Typography>
+                  <Typography>Email:</Typography>
                   <Typography>{bookingData.contactEmail}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Điện thoại:</Typography>
+                  <Typography>Điện thoại:</Typography>
                   <Typography>{bookingData.contactPhoneNumber}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Địa chỉ:</Typography>
+                  <Typography>Địa chỉ:</Typography>
                   <Typography>{bookingData.contactAddress}</Typography>
+                </SummaryItem>
+                <SummaryItem>
+                  <Typography>Ghi chú:</Typography>
+                  <Typography>{bookingData.note || ''}</Typography>
                 </SummaryItem>
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">CHI TIẾT BOOKING</SummaryTitle>
                 <SummaryItem>
-                  <Typography sx={{ fontWeight: 'bold', color: 'black' }}>Số booking:</Typography>
-                  <Typography sx={{ fontWeight: 'bold', fontSize: '1.2rem', fontStyle: 'italic', color: '#EF3535' }}>
-                    {bookingData.bookingId}
-                  </Typography>
+                  <Typography>Số booking:</Typography>
+                  <Typography>{bookingData.bookingId}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Trị giá booking:</Typography>
+                  <Typography>Ngày đặt tour:</Typography>
+                  <Typography>{new Date(bookingData.createdOn).toLocaleDateString()}</Typography>
+                </SummaryItem>
+                <SummaryItem>
+                  <Typography>Trị giá booking:</Typography>
                   <Typography>{bookingData.totalPrice.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Hình thức thanh toán:</Typography>
-                  <Typography>
-                    {paymentMethod === 'VNPay' ? 'VNPay' :
-                     paymentMethod === 'Momo' ? 'Momo' :
-                     'Thanh toán sau'}
-                  </Typography>
+                  <Typography>Hình thức thanh toán:</Typography>
+                  <Typography>{bookingData.paymentMethod}</Typography>
                 </SummaryItem>
-                <RadioGroup 
-                  aria-label="payment-method" 
-                  name="paymentMethod"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="VNPay" control={<Radio />} label="VNPay" />
-                    <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="Momo" control={<Radio />} label="Momo" />
-                    <img src="/momo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
-                  </Box>
-                </RadioGroup>
+                <SummaryItem>
+                  <Typography>Số tiền đã thanh toán:</Typography>
+                  <Typography>{bookingData.paidAmount.toLocaleString()} đ</Typography>
+                </SummaryItem>
                 <SummaryItem>
                   <Typography>Tình trạng:</Typography>
                   <Typography sx={{ color: getBookingStatusInfo(bookingData.status).color }}>{getBookingStatusInfo(bookingData.status).text}</Typography>
                 </SummaryItem>
+                {/* <SummaryItem>
+                  <Typography>Số tiền còn lại:</Typography>
+                  <Typography>{(bookingData.totalPrice - bookingData.paidAmount).toLocaleString()} đ</Typography>
+                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
                 {bookingData.participants.map((participant, index) => (
                   <Box key={index} mb={2}>
-                    <SummaryItem sx={{fontWeight: 'bold'}}>
-                      <Typography sx={{fontWeight: 'bold'}}>Họ tên:</Typography>
+                    <SummaryItem>
+                      <Typography>Họ tên:</Typography>
                       <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
@@ -225,7 +211,7 @@ const PayBooking = () => {
                       <Typography>{participant.phoneNumber}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography sx={{fontWeight: 'bold'}}>Giới tính:</Typography>
+                      <Typography>Giới tính:</Typography>
                       <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
@@ -239,42 +225,23 @@ const PayBooking = () => {
             </Grid>
             <Grid item xs={12} md={4}>
               <SummaryBox>
-                <SummaryTitle variant="h6">PHIẾU XÁC NHẬN BOOKING</SummaryTitle>
+                <SummaryTitle variant="h6">THÔNG TIN BOOKING</SummaryTitle>
                 <Box sx={{ mb: 2 }}>
                   <img src={bookingData.imageUrl} alt={bookingData.tourName} style={{ width: "100%", height: "auto" }} />
                 </Box>
                 <Typography variant="h6" style={{ fontWeight: "bold" }} gutterBottom>
                   {bookingData.tourName}
                 </Typography>
-                <Typography variant="body1" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Số booking:</span>
-                  <span style={{ color: '#EF3535', fontWeight: 'bold', fontSize: '1.2rem', fontStyle: 'italic' }}>{bookingData.bookingId}</span>
+                <Typography variant="body1" color="textSecondary" gutterBottom>
+                  Số booking: {bookingData.bookingId}
                 </Typography>
                 <Divider sx={{ my: 1 }} />
-                <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Mã Tour:</span>
-                  {bookingData.tourId}
+                <Typography variant="body1" color="textPrimary" gutterBottom>
+                  MÃ TOUR: {bookingData.tourCode}
                 </Typography>
-                <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString()}
-                </Typography>
-                <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {bookingData.endDate.toLocaleDateString()}
-                </Typography>
-                <TotalPrice variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền:</span>
-                  <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem'}}>
-                    {bookingData.totalPrice.toLocaleString()} đ
-                  </span>
+                <TotalPrice variant="h6">
+                  Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
                 </TotalPrice>
-                <Button onClick={() => {handlePayment()}} variant="contained" fullWidth>
-                  Thanh toán ngay
-                </Button>
-                <Button variant="outlined" fullWidth sx={{ mt: 1 }}>
-                  Thanh toán sau
-                </Button>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
                 <PhoneIcon sx={{ marginRight: '10px' }} />
@@ -285,13 +252,24 @@ const PayBooking = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={3000} open={openSnackbar} onClose={handleCloseSnackbar}>
-        <MuiAlert onClose={handleCloseSnackbar} severity="warning" sx={{ width: '100%' }}>
-          Vui lòng chọn phương thức thanh toán
+      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
+        <MuiAlert 
+          onClose={handleCloseSnackbar} 
+          severity="success" 
+          sx={{  width: '500px', fontSize: '1.5rem', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
+          }}
+          iconMapping={{
+            success: <CheckCircleIcon fontSize="large" />
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
+            Thanh toán thành công!
+          </Box>
         </MuiAlert>
       </Snackbar>
     </Box>
   );
 };
 
-export default PayBooking;
+export default BookingDetail;

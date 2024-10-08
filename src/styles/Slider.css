@@ -52,3 +52,23 @@
   width: 100%;
   height: 3000px;
 }
+
+.slider-start-date{
+  margin-left: 10%;
+  width: 90%;
+}
+
+.custom-arrows .slick-prev,
+.custom-arrows .slick-next {
+  color: #6b6b6b; /* Change this to your desired color */
+}
+
+.custom-arrows .slick-prev:hover,
+.custom-arrows .slick-next:hover {
+  color: #5f5f5f; /* Change this to your desired hover color */
+}
+
+.custom-arrows .slick-prev:before,
+.custom-arrows .slick-next:before {
+  color: currentColor;
+}
