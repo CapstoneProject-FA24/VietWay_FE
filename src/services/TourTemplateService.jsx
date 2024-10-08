@@ -22,8 +22,9 @@ export const fetchTourTemplates = async (params) => {
         if (params.provinceIds) params.provinceIds.forEach(id => queryParams.append('provinceIds', id));
         if (params.status !== undefined && params.status !== null) queryParams.append('status', params.status);
 
-        const response = await axios.get(`${baseURL}/api/TourTemplate/tours?${queryParams.toString()}`);
-        const items = response.data?.data;
+        const response = await axios.get(`${baseURL}/api/TourTemplate?${queryParams.toString()}`);
+        const items = response.data?.data.items;
+        console.log(items);
         
         if (!items || !Array.isArray(items)) {
             throw new Error('Invalid response structure: items not found or not an array');
@@ -37,7 +38,7 @@ export const fetchTourTemplates = async (params) => {
             tourCategory: item.tourCategory,
             provinces: item.provinces,
             imageUrl: item.imageUrl,
-            minPrice: Math.min(...item.price.map(p => parseFloat(p))),
+            minPrice: item.minPrice,
             startDates: item.startDate.sort((a, b) => new Date(a) - new Date(b))
         }));
         console.log(templates);

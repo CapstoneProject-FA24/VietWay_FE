@@ -3,13 +3,8 @@ import baseURL from '@api/baseURL';
 
 export const fetchToursByTemplateId = async (id) => {
     try {
-        const response = await axios.get(`${baseURL}/api/Tour/by-template-ids/${id}`, {
-            params: {
-                pageSize: 10,
-                pageIndex: 1
-            }
-        });
-        const tours = response.data.data.items.map(item => ({
+        const response = await axios.get(`${baseURL}/api/Tour?tourTemplateId=${id}`);
+        const tours = response.data.data.map(item => ({
             id: item.tourId,
             tourTemplateId: item.tourTemplateId,
             startLocation: item.startLocation,
@@ -31,7 +26,7 @@ export const fetchToursByTemplateId = async (id) => {
 
 export const fetchTourById = async (id) => {
     try {
-        const response = await axios.get(`${baseURL}/api/Tour/by-id/${id}`);
+        const response = await axios.get(`${baseURL}/api/Tour/${id}`);
         const item = response.data.data;
         const tours = {
             id: item.tourId,
