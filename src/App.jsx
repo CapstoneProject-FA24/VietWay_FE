@@ -12,7 +12,6 @@ import Payment from "@pages/homepage/tours/Payment.jsx";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
-import PaymentResultPage from "@pages/homepage/tours/PaymentResultPage";
 import BookingDetail from "@pages/homepage/tours/BookingDetail";
 
 const App = () => {
