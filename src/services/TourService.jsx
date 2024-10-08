@@ -59,7 +59,6 @@ export const createBooking = async (bookingData) => {
       tourId: bookingData.tourId,
       customerId: "4",
       numberOfParticipants: bookingData.passengers.length,
-      isPayLater: bookingData.isPayLater,
       tourParticipants: bookingData.passengers.map(passenger => ({
         fullName: passenger.fullName,
         phoneNumber: passenger.phoneNumber,
@@ -69,7 +68,8 @@ export const createBooking = async (bookingData) => {
       contactFullName: bookingData.fullName,
       contactEmail: bookingData.email,
       contactPhoneNumber: bookingData.phone,
-      contactAddress: bookingData.address
+      contactAddress: bookingData.address,
+      note: bookingData.note,
     };
     const response = await axios.post(`${baseURL}/api/Booking/BookTour`, requestData);
 

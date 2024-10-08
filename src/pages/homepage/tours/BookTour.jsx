@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText } from "@mui/material";
+import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText, Snackbar, Alert } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Header from "@layouts/Header";
@@ -67,6 +67,9 @@ const BookTour = () => {
     passengers: [{ type: 'adult', name: '', gender: 0, birthday: '' }]});
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('error');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -230,19 +233,27 @@ const BookTour = () => {
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
-          note: formData.note,
-          isPayLater: true
+          note: formData.note
         };
-        const response = await createBooking(bookingData);
-        alert('Đặt tour thành công!');
+
         sessionStorage.setItem('paymentMethod', formData.paymentMethod);
+
+        const response = await createBooking(bookingData);
+        console.log('Booking successful:', response);
+        setSnackbarMessage('Đặt tour thành công!');
+        setSnackbarSeverity('success');
+        setOpenSnackbar(true);
         window.location.href = `/dat-tour/thanh-toan/${response.data}`;
       } catch (error) {
         console.error('Booking failed:', error);
-        alert('Đặt tour thất bại. Vui lòng thử lại sau.');
+        setSnackbarMessage('Đặt tour thất bại. Vui lòng thử lại sau.');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
       }
     } else {
-      alert('Vui lòng điền đầy đủ thông tin và sửa các lỗi trước khi đặt tour.');
+      setSnackbarMessage('Vui lòng điền đầy đủ thông tin trước khi đặt tour.');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
     }
   };
 
@@ -253,6 +264,13 @@ const BookTour = () => {
       ...prevErrors,
       [name]: error
     }));
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   if (!bookingData) {
@@ -492,6 +510,16 @@ const BookTour = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        open={openSnackbar}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} variant="filled" severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
