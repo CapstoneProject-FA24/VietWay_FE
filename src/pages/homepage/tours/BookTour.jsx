@@ -85,7 +85,7 @@ const BookTour = () => {
         ...prevState,
         fullName: customer.fullName, email: customer.email,
         phone: customer.phone, address: customer.address || "",
-        passengers: [{ type: 'adult', name: customer.fullName, gender: 0, birthday: '' }]
+        passengers: [{ type: 'adult', name: customer.fullName, gender: 0, birthday: '2001-09-11' }]
       }));
     };
     fetchData();
@@ -234,6 +234,7 @@ const BookTour = () => {
         };
         const response = await createBooking(bookingData);
         alert('Đặt tour thành công!');
+        sessionStorage.setItem('paymentMethod', formData.paymentMethod);
         window.location.href = `/dat-tour/thanh-toan/${response.data}`;
       } catch (error) {
         console.error('Booking failed:', error);
@@ -421,11 +422,11 @@ const BookTour = () => {
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <PaymentMethod value="vnpay" control={<Radio />} label="VNPay" />
-                  <img src="https://vinadesign.org/uploads/thumbnails/800/2023/05/vnpay-logo-vinadesign-25-12-59-16.jpg" alt="VNPay" style={{ width: '50px', height: '50px', position: 'absolute', marginRight: 25 }} />
+                  <img src="/vnpay.jpg" alt="VNPay" style={{ width: '40px', height: '40px', position: 'absolute', marginRight: 25 }} />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <PaymentMethod value="momo" control={<Radio />} label="Momo" />
-                  <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25 }} />
+                  <img src="/momo.png" alt="Momo" style={{ width: '35px', height: '35px', position: 'absolute', marginRight: 30 }} />
                 </Box>
               </RadioGroup>
               {errors.paymentMethod && <ErrorText>{errors.paymentMethod}</ErrorText>}

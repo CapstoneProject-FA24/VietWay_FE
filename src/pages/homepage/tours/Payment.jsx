@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, RadioGroup, Radio, FormControlLabel } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -66,9 +66,15 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.main,
 }));
 
+const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
+  border: "1px solid #ccc", borderRadius: theme.shape.borderRadius,
+  width: "100%", height: '3rem', margin: "0 0 8px 0", padding: theme.spacing(1)
+}));
+
 const PayBooking = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState('');
   const { id } = useParams();
 
   useEffect(() => {
@@ -76,6 +82,12 @@ const PayBooking = () => {
       try {
         const data = await fetchBookingData(id);
         setBookingData(data);
+        
+        // Get payment method from session storage
+        const storedPaymentMethod = sessionStorage.getItem('paymentMethod');
+        if (storedPaymentMethod) {
+          setPaymentMethod(storedPaymentMethod);
+        }
       } catch (error) {
         console.error("Error fetching booking data:", error);
       } finally {
@@ -150,11 +162,27 @@ const PayBooking = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
-                  <Typography>None</Typography>
+                  <Typography>
+                    {paymentMethod === 'vnpay' ? 'VNPay' :
+                     paymentMethod === 'momo' ? 'Momo' :
+                     'Thanh toán sau'}
+                  </Typography>
                 </SummaryItem>
-                <Link to={`/trang-chu`} style={{ color: "#3572EF", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
-                    - Thay đổi hình thức thanh toán
-                  </Link>
+                <RadioGroup 
+                  aria-label="payment-method" 
+                  name="paymentMethod"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                    <PaymentMethod value="vnpay" control={<Radio />} label="VNPay" />
+                    <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                    <PaymentMethod value="momo" control={<Radio />} label="Momo" />
+                    <img src="/momo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
+                  </Box>
+                </RadioGroup>
                 <SummaryItem>
                   <Typography>Tình trạng:</Typography>
                   <Typography>{bookingData.status}</Typography>
