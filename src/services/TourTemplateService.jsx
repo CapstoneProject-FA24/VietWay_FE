@@ -1,5 +1,5 @@
 import axios from 'axios';
-import baseURL from '@api/baseURL';
+import baseURL from '@api/BaseURL';
 
 const getStatusText = (status) => {
     switch (status) {

@@ -1,4 +1,4 @@
-import baseURL from '@api/baseURL';
+import baseURL from '@api/BaseURL';
 import axios from 'axios';
 
 const login = async (credentials) => {
