@@ -81,15 +81,16 @@ const BookTour = () => {
         tourName: tourTemplate.tourName, code: tourTemplate.code,
         duration: tourTemplate.duration, startLocation: tour.startLocation,
         startTime: tour.startTime, startDate: tour.startDate,
-        endDate: tour.endDate, price: tour.price, infantPrice: tour.price / 2,
-        childPrice: tour.price * (80/100)
+        endDate: tour.endDate, price: tour.price, 
+        infantPrice: tour.price / 10,
+        childPrice: tour.price * (70/100)
       }
       setBookingData(data);
       setFormData(prevState => ({
         ...prevState,
         fullName: customer.fullName, email: customer.email,
         phone: customer.phone, address: customer.address || "",
-        passengers: [{ type: 'adult', name: customer.fullName, gender: 0, birthday: '2001-09-11' }]
+        passengers: [{ type: 'adult', name: customer.fullName, gender: 0, birthday: new Date(customer.birthday).toISOString().slice(0, 10)}]
       }));
     };
     fetchData();
@@ -108,19 +109,26 @@ const BookTour = () => {
 
   const handlePassengerTypeChange = (index, value) => {
     const newPassengers = [...formData.passengers];
-    newPassengers[index] = { ...newPassengers[index], type: value };
+    newPassengers[index] = { ...newPassengers[index], type: value, birthday: '' };
     setFormData({ ...formData, passengers: newPassengers });
     validatePassengerField(index, 'passengerType', value);
   };
 
   const handlePassengerInfoChange = (index, field, value) => {
+    if (index === 0 && field === 'type' && value !== 'adult') {
+      setSnackbarMessage('Hành khách đầu tiên phải là người lớn');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+      return;
+    }
+    
     const newPassengers = [...formData.passengers];
     newPassengers[index] = { ...newPassengers[index], [field]: value };
     setFormData({ ...formData, passengers: newPassengers });
     validatePassengerField(index, field, value);
   };
 
-  const validateField = (name, value) => {
+  const validateField = (name, value, passengerType) => {
     let error = '';
     switch (name) {
       case 'fullName':
@@ -146,14 +154,44 @@ const BookTour = () => {
         }
         break;
       case 'birthday':
-        if (!value) { error = 'Vui lòng chọn ngày sinh'; }
+        if (!value) { 
+          error = 'Vui lòng chọn ngày sinh'; 
+        } else {
+          const birthDate = new Date(value);
+          const today = new Date();
+          const age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+
+          switch (passengerType) {
+            case 'adult':
+              if (age < 12) {
+                error = 'Người lớn phải từ 12 tuổi trở lên';
+              }
+              break;
+            case 'child':
+              if (age < 2 || age >= 12) {
+                error = 'Trẻ em phải từ 2 đến 11 tuổi';
+              }
+              break;
+            case 'infant':
+              if (age >= 2) {
+                error = 'Em bé phải dưới 2 tuổi';
+              }
+              break;
+          }
+        }
         break;
     }
     return error;
   };
 
   const validatePassengerField = (index, field, value) => {
-    const error = validateField(field, value);
+    const passengerType = formData.passengers[index].type;
+    const error = validateField(field, value, passengerType);
     setErrors(prevErrors => ({
       ...prevErrors,
       [`passenger${index}-${field}`]: error
@@ -397,6 +435,14 @@ const BookTour = () => {
                         error={!!errors[`passenger${index}-birthday`]}
                         helperText={errors[`passenger${index}-birthday`]}
                         required
+                        inputProps={{
+                          max: new Date().toISOString().split('T')[0],
+                          min: passenger.type === 'adult' 
+                            ? new Date(new Date().setFullYear(new Date().getFullYear() - 100)).toISOString().split('T')[0]
+                            : passenger.type === 'child'
+                            ? new Date(new Date().setFullYear(new Date().getFullYear() - 11)).toISOString().split('T')[0]
+                            : new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0]
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12}>
