@@ -15,6 +15,8 @@ const Tours = () => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState('startDate');
   const [filters, setFilters] = useState({
     destinationProvince: '',
@@ -33,7 +35,6 @@ const Tours = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
-  const [pageSize, setPageSize] = useState(10);
 
   const provinces = [
     'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Quảng Ninh', 'Lâm Đồng',
@@ -62,10 +63,17 @@ const Tours = () => {
   const fetchTours = async () => {
     try {
       setLoading(true);
-      const params = { pageSize: pageSize, pageIndex: page, searchTerm: searchTerm, status: 2 };
+      const params = {
+        pageSize: pageSize,
+        pageIndex: page,
+        searchTerm: searchTerm,
+        status: 2,
+        // Add other filter parameters here
+      };
       const response = await fetchTourTemplates(params);
       setTours(response.data);
       setTotalItems(response.total);
+      setTotalPages(Math.ceil(response.total / pageSize));
     } catch (error) {
       console.error("Error fetching tours:", error);
     } finally {
@@ -251,12 +259,12 @@ const Tours = () => {
             </Box>
             <Grid container spacing={1}>
               {tours.map((tour) => (
-                <TourCard tour={tour} />
+                <TourCard key={tour.tourTemplateId} tour={tour} />
               ))}
             </Grid>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
               <Pagination
-                count={Math.ceil(totalItems / pageSize)}
+                count={totalPages}
                 page={page}
                 onChange={handlePageChange}
                 color="primary"
