@@ -11,6 +11,7 @@ import { fetchTourById, createBooking } from '@services/TourService';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import '@styles/Homepage.css'
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 

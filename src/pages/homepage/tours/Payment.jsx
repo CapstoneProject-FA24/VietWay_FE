@@ -7,6 +7,7 @@ import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams } from "react-router-dom";
 import { fetchBookingData } from "@services/PaymentService";
+import '@styles/Homepage.css'
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -112,7 +113,7 @@ const PayBooking = () => {
   if (!bookingData) return null;
 
   return (
-    <Box>
+    <Box sx={{ display: "flex", flexDirection: "column", width: '89vw' }}>
       <Header />
       <ContentContainer>
         <StyledBox>

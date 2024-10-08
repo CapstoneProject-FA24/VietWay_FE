@@ -129,7 +129,7 @@ const TourDetails = () => {
   };
 
   return (
-    <Box className='main' sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
       <Helmet>
         <title>Chi tiết tour mẫu</title>
       </Helmet>
