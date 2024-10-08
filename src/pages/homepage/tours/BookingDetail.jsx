@@ -237,7 +237,7 @@ const BookingDetail = () => {
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="body1" color="textPrimary" gutterBottom>
-                  MÃ TOUR: {bookingData.tourCode}
+                  Mã tour: {bookingData.code}
                 </Typography>
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
