@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { Link } from "react-router-dom";
-import { getMockPaymentData } from "@hooks/MockPayment";
+import { Link, useParams } from "react-router-dom";
+import { fetchBookingData } from "@services/PaymentService";
 
-// Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: "100%",
@@ -68,14 +67,37 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
 }));
 
 const PayBooking = () => {
-  const [paymentData, setPaymentData] = useState(null);
+  const [bookingData, setBookingData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
 
   useEffect(() => {
-    const data = getMockPaymentData();
-    setPaymentData(data);
-  }, []);
+    const fetchData = async () => {
+      try {
+        const data = await fetchBookingData(id);
+        setBookingData(data);
+      } catch (error) {
+        console.error("Error fetching booking data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!paymentData) return null;
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box>
+        <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </Box>
+      </Box>
+    );
+  }
+
+  if (!bookingData) return null;
 
   return (
     <Box>
@@ -101,85 +123,64 @@ const PayBooking = () => {
                 <SummaryTitle variant="h6">THÔNG TIN LIÊN LẠC</SummaryTitle>
                 <SummaryItem>
                   <Typography>Họ Tên:</Typography>
-                  <Typography>{paymentData.bookingInfo.fullName}</Typography>
+                  <Typography>{bookingData.contactFullName}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Email:</Typography>
-                  <Typography>{paymentData.bookingInfo.email}</Typography>
+                  <Typography>{bookingData.contactEmail}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Điện thoại:</Typography>
-                  <Typography>{paymentData.bookingInfo.phone}</Typography>
+                  <Typography>{bookingData.contactPhoneNumber}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Địa chỉ:</Typography>
-                  <Typography>{paymentData.bookingInfo.address}</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography>Ghi chú:</Typography>
-                  <Typography>{paymentData.bookingInfo.note}</Typography>
+                  <Typography>{bookingData.contactAddress}</Typography>
                 </SummaryItem>
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">CHI TIẾT BOOKING</SummaryTitle>
                 <SummaryItem>
                   <Typography>Số booking:</Typography>
-                  <Typography>{paymentData.bookingDetails.bookingId}</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography>Ngày tạo:</Typography>
-                  <Typography>{paymentData.bookingDetails.createdDate}</Typography>
+                  <Typography>{bookingData.bookingId}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
-                  <Typography>{paymentData.bookingDetails.totalAmount.toLocaleString()} đ</Typography>
+                  <Typography>{bookingData.totalPrice.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
-                  <Typography>{paymentData.bookingDetails.paymentMethod}</Typography>
+                  <Typography>None</Typography>
                 </SummaryItem>
                 <Link to={`/trang-chu`} style={{ color: "#3572EF", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
                     - Thay đổi hình thức thanh toán
                   </Link>
                 <SummaryItem>
-                  <Typography>Số tiền đã thanh toán:</Typography>
-                  <Typography>{paymentData.bookingDetails.paidAmount.toLocaleString()} đ</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography>Số tiền còn lại:</Typography>
-                  <Typography>{paymentData.bookingDetails.remainingAmount.toLocaleString()} đ</Typography>
-                </SummaryItem>
-                <SummaryItem>
                   <Typography>Tình trạng:</Typography>
-                  <Typography>{paymentData.bookingDetails.status}</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography>Thời hạn thanh toán:</Typography>
-                  <Typography color="#FF4836" fontWeight="bold">{paymentData.bookingDetails.paymentDueDate}</Typography>
-                  <Typography fontStyle="italic" fontWeight="bold"> - {paymentData.bookingDetails.paymentDueDateNote}</Typography>
+                  <Typography>{bookingData.status}</Typography>
                 </SummaryItem>
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
-                {paymentData.passengers.map((passenger, index) => (
+                {bookingData.participants.map((participant, index) => (
                   <Box key={index} mb={2}>
                     <SummaryItem>
                       <Typography>Họ tên:</Typography>
-                      <Typography>{passenger.fullName}</Typography>
+                      <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Ngày sinh:</Typography>
-                      <Typography>{passenger.birthDate}</Typography>
+                      <Typography>{participant.dateOfBirth.toLocaleDateString()}</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Giới tính:</Typography>
-                      <Typography>{passenger.gender}</Typography>
+                      <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Độ tuổi:</Typography>
-                      <Typography>{passenger.ageGroup}</Typography>
+                      <Typography>None</Typography>
                     </SummaryItem>
-                    {index < paymentData.passengers.length - 1 && <Divider sx={{ my: 1 }} />}
+                    {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
                 ))}
               </SummaryBox>
@@ -188,20 +189,23 @@ const PayBooking = () => {
               <SummaryBox>
                 <SummaryTitle variant="h6">PHIẾU XÁC NHẬN BOOKING</SummaryTitle>
                 <Box sx={{ mb: 2 }}>
-                  <img src={paymentData.tourInfo.image} alt={paymentData.tourInfo.name} style={{ width: "100%", height: "auto" }} />
+                  <img src={bookingData.imageUrl} alt={bookingData.tourName} style={{ width: "100%", height: "auto" }} />
                 </Box>
                 <Typography variant="h6" style={{ fontWeight: "bold" }} gutterBottom>
-                  {paymentData.tourInfo.name}
+                  {bookingData.tourName}
                 </Typography>
                 <Typography variant="body1" color="textSecondary" gutterBottom>
-                  Số booking: {paymentData.tourInfo.bookingId}
+                  Số booking: {bookingData.bookingId}
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="body1" color="textPrimary" gutterBottom>
-                  MÃ TOUR: {paymentData.tourInfo.tourCode}
+                  Ngày bắt đầu: {bookingData.startDate.toLocaleDateString()}
+                </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom>
+                  Ngày kết thúc: {bookingData.endDate.toLocaleDateString()}
                 </Typography>
                 <TotalPrice variant="h6">
-                  Tổng tiền: {paymentData.totalPrice.toLocaleString()} đ
+                  Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
                 </TotalPrice>
                 <Button variant="contained" fullWidth>
                   Thanh toán ngay

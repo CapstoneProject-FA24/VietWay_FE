@@ -1,0 +1,36 @@
+import axios from 'axios';
+import baseURL from '@api/baseURL';
+
+export const fetchBookingData = async (bookingId) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/Booking/${bookingId}`);
+        console.log(response);
+        const bookingData = response.data.data;
+        return {
+            bookingId: bookingData.bookingId,
+            tourId: bookingData.tourId,
+            customerId: bookingData.customerId,
+            numberOfParticipants: bookingData.numberOfParticipants,
+            contactFullName: bookingData.contactFullName,
+            contactEmail: bookingData.contactEmail,
+            contactPhoneNumber: bookingData.contactPhoneNumber,
+            contactAddress: bookingData.contactAddress,
+            totalPrice: bookingData.totalPrice,
+            status: bookingData.status,
+            startLocation: bookingData.startLocation,
+            startDate: new Date(bookingData.startDate),
+            endDate: new Date(bookingData.endDate),
+            tourName: bookingData.tourName,
+            imageUrl: bookingData.imageUrl,
+            participants: bookingData.participants.map(participant => ({
+                fullName: participant.fullName,
+                phoneNumber: participant.phoneNumber,
+                gender: participant.gender,
+                dateOfBirth: new Date(participant.dateOfBirth)
+            }))
+        };
+    } catch (error) {
+        console.error('Error fetching booking data:', error);
+        throw error;
+    }
+};

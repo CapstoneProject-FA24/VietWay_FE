@@ -137,7 +137,6 @@ const BookTour = () => {
       ...prevState,
       [name]: value,
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prevErrors => ({
         ...prevErrors,
@@ -251,7 +250,7 @@ const BookTour = () => {
       ...prevState,
       passengers: [
         ...prevState.passengers,
-        { type: '', name: '', gender: '', birthday: '' }  // Đặt giá trị mặc định cho gender là ''
+        { type: '', name: '', gender: '', birthday: '' }
       ]
     }));
   };
