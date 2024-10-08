@@ -58,18 +58,18 @@ const SuggestTours = () => {
               />
               <Box sx={{ p: 2 }}>
                 <Typography variant="h6" gutterBottom
-                  sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.main', } }}>
-                  {tour.name}
+                  sx={{marginBottom: '5px', fontWeight: 'bold', fontSize: '1.5rem', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.main', } }}>
+                  {tour.tourName}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <SubtitlesOutlinedIcon sx={{ marginRight: '8px' }} />
+                  <SubtitlesOutlinedIcon sx={{marginBottom: '5px', marginRight: '8px' }} />
                   Mã tour: {tour.code}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Typography variant="body1" color="text.secondary" sx={{marginBottom: '5px', display: 'flex', alignItems: 'center', mb: 1 }}>
                   <MapOutlinedIcon sx={{ marginRight: '8px' }} />
                   Điểm đến: {tour.provinces.join(', ')}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Typography variant="body1" color="text.secondary" sx={{marginBottom: '5px', display: 'flex', alignItems: 'center', mb: 1 }}>
                   <AccessTimeIcon sx={{ marginRight: '8px' }} />
                   Thời lượng: {tour.duration}
                 </Typography>
@@ -106,7 +106,8 @@ const SuggestTours = () => {
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, mt: 4 }}>
-                  <Typography variant="h6" color="red" sx={{ fontSize: '1.8rem' }}>
+                  <Typography variant="h6" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Chỉ từ:</Typography>
+                  <Typography variant="h6" color="red" sx={{ fontSize: '1.5rem', fontWeight: 'bold', marginLeft: '-60px' }}>
                     {tour.minPrice.toLocaleString()} đ
                   </Typography>
                   <StyledButton component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`} sx={{ color: 'primary', textTransform: 'none', borderRadius: '10px', border: '1px solid #3572EF', height: '50px' }}>Xem chi tiết</StyledButton>

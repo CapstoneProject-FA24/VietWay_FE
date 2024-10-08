@@ -281,7 +281,7 @@ const TourDetails = () => {
                   )
                 )}
               </Box>
-              <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.5rem' }}> Thông tin tour </Typography>
+              <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.6rem',marginBottom: '10px' }}> Thông tin tour </Typography>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
                 <FontAwesomeIcon icon={faQrcode} style={{ marginRight: '10px', color: '#3572EF' }} />
                 Mã tour: 
