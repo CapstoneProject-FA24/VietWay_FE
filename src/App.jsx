@@ -34,8 +34,6 @@ const App = () => {
         <Route path="/dat-tour/:id" element={<BookTour />} />
         <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
         <Route path="/dat-tour/thanh-toan/hoan-thanh" element={<BookingDetail />} />
-
-        <Route path="/payment-result" element={<PaymentResultPage />} />
       </Routes>
     </Router>
   );
