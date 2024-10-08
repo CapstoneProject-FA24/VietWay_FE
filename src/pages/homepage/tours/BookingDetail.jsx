@@ -6,7 +6,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams } from "react-router-dom";
-import { fetchBookingDetails } from "@services/PaymentService";
+import { fetchBookingData } from "@services/PaymentService";
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -35,11 +35,6 @@ const ArrowIcon = styled("img")({
   height: "30px",
   margin: "0 15px",
 });
-
-const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
-  border: "1px solid #ccc", borderRadius: theme.shape.borderRadius,
-  width: "100%", height: '3rem', margin: "0 0 8px 0", padding: theme.spacing(1)
-}));
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   boxSizing: "border-box",
@@ -80,7 +75,7 @@ const BookingDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchBookingDetails(id);
+        const data = await fetchBookingData(id);
         setBookingData(data);
       } catch (error) {
         console.error("Error fetching booking details:", error);
