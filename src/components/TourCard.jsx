@@ -33,9 +33,8 @@ const TourCard = ({ tour }) => {
         <Chip  label={tour.tourCategory}  size="small" 
           sx={{ alignSelf: 'flex-start', mb: 1, fontSize: '1rem', pt: 1.8, pb: 1.8, pl: 0.5, pr: 0.5 }} />
         <Typography variant="h5"  component={Link}  to={`/tour-du-lich/${tour.tourTemplateId}`} gutterBottom 
-          sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', WebkitLineClamp: 2,  
-            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', wordSpacing: -1, lineHeight: 1.1, height: '3.5rem', 
-          }}>
+          sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', lineHeight: 1.2, height: '2.4em' }}>
           {tour.tourName}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
