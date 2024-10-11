@@ -24,7 +24,6 @@ export const fetchTourTemplates = async (params) => {
 
         const response = await axios.get(`${baseURL}/api/TourTemplate?${queryParams.toString()}`);
         const items = response.data?.data.items;
-        console.log(items);
         
         if (!items || !Array.isArray(items)) {
             throw new Error('Invalid response structure: items not found or not an array');
@@ -41,7 +40,7 @@ export const fetchTourTemplates = async (params) => {
             minPrice: item.minPrice,
             startDates: item.startDate.sort((a, b) => new Date(a) - new Date(b))
         }));
-        console.log(templates);
+        
         return ({
             data: templates,
             pageIndex: response.data?.data?.pageIndex,

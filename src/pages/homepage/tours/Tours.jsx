@@ -67,8 +67,6 @@ const Tours = () => {
         pageSize: pageSize,
         pageIndex: page,
         searchTerm: searchTerm,
-        status: 2,
-        // Add other filter parameters here
       };
       const response = await fetchTourTemplates(params);
       setTours(response.data);

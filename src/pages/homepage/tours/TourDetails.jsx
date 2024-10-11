@@ -338,7 +338,7 @@ const TourDetails = () => {
         </Grid>
       </Box>
       <Box sx={{ width: '100%' }}>
-        <OtherTours />
+      <OtherTours pros={tour.provinces.map(province => province.provinceId.toString())} tourId={tour.tourTemplateId} />
       </Box>
       <Footer />
       <Snackbar
