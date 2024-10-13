@@ -5,7 +5,7 @@ export const mockCardData = [
     description: "Bãi biển đẹp nhất Vũng Tàu với cát trắng mịn và nước biển trong xanh."
   },
   {
-    image: "https://sodl.baria-vungtau.gov.vn/portal/widget/widget_133366762102229738.jpg",
+    image: "https://vcdn1-dulich.vnecdn.net/2022/06/17/bienvungtau-1655459711-1655459-7127-3875-1655460215.jpg",
     title: "Núi Lớn",
     description: "Điểm du lịch nổi tiếng với tượng Chúa Kitô khổng lồ và view toàn cảnh thành phố."
   },

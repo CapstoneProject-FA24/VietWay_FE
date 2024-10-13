@@ -2,6 +2,8 @@ import React from 'react';
 import { Grid, Typography, Container, Box } from '@mui/material';
 import ProvincePagesCard from '@components/ProvincePagesCard';
 import { mockProvinceData } from '@hooks/MockProvincePage';
+import Header from '@layouts/Header';
+import Footer from '@layouts/Footer';
 
 const ProvincePages = () => {
   const renderCards = (data) => {
@@ -17,10 +19,11 @@ const ProvincePages = () => {
 
   return (
     <Box>
+      <Header/>
       <Box 
         sx={{ backgroundImage: `url(${mockProvinceData.coverImage})`, 
         backgroundSize: 'cover', backgroundPosition: 'center', height: '400px', display: 'flex', 
-        alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: 4 }}>
+        alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: 4, marginTop: 5, borderRadius: 2 }}>
       </Box>
       <Typography variant="h2" component="h1" sx={{ textAlign: 'center', marginBottom: 4, fontWeight: 'bold'
        }}>
@@ -55,6 +58,7 @@ const ProvincePages = () => {
           {renderCards(mockProvinceData.discover)}
         </Grid>
       </Container>
+      <Footer/>
     </Box>
   );
 };
