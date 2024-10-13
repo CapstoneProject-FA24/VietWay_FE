@@ -123,12 +123,12 @@ const Attractions = () => {
           &gt; <strong>Điểm tham quan</strong>
         </Typography>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={5}>
+          <Grid item xs={12} md={6}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
               Khám phá các điểm tham quan
             </Typography>
           </Grid>
-          <Grid item xs={12} md={7}>
+          <Grid item xs={12} md={6}>
             <TextField
               fullWidth
               variant="outlined"

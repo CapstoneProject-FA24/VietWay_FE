@@ -49,7 +49,7 @@ const AttractionCard = ({ attraction }) => {
                             {attraction.address}
                         </Typography>
                     </Box>
-                    <Box sx={{ width: '28%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Box sx={{ width: '28%', display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 1 }}>
                         <StyledButton
                             component={Link}
                             to={`/diem-tham-quan/${attraction.attractionId}`}
