@@ -114,7 +114,9 @@ const TourDetails = () => {
   };
 
   if (!tour) {
-    return <Typography sx={{ width: '100vw', textAlign: 'center' }}>Loading...</Typography>;
+    return <Typography sx={{ width: '100vw', textAlign: 'center' }}>
+      <img src="/loading.gif" alt="Loading..." />
+    </Typography>;
   }
 
   const getMinTourPrice = () => {

@@ -13,6 +13,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
 import BookingDetail from "@pages/homepage/tours/BookingDetail";
+import ProvincePages from "@pages/homepage/attractions/ProvincePages";
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/" element={<Navigate to="/trang-chu" />} />
         <Route path="*" element={<Navigate to="/trang-chu" />} />
         <Route path="/diem-tham-quan" element={<Attractions />} />
+        <Route path="/vung-tau" element={<ProvincePages />} />
         <Route path="/diem-tham-quan/:id" element={<AttractionDetails />} />
         <Route path="/dang-nhap" element={<Login />} />
         <Route path="/dang-ky" element={<Register />} />

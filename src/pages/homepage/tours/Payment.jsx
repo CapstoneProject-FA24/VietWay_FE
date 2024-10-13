@@ -125,7 +125,7 @@ const PayBooking = () => {
       <Box>
         <Header />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <CircularProgress />
+          <img src="/loading.gif" alt="Loading..." />
         </Box>
       </Box>
     );
@@ -221,7 +221,7 @@ const PayBooking = () => {
                       <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography>Số điện thoại:</Typography>
+                      <Typography sx={{fontWeight: 'bold'}}>Số điện thoại:</Typography>
                       <Typography>{participant.phoneNumber}</Typography>
                     </SummaryItem>
                     <SummaryItem>
@@ -229,7 +229,7 @@ const PayBooking = () => {
                       <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography>Ngày sinh:</Typography>
+                      <Typography sx={{fontWeight: 'bold'}}>Ngày sinh:</Typography>
                       <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}

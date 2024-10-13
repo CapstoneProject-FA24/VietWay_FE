@@ -152,7 +152,7 @@ const Tours = () => {
         <Helmet> <title>Tour du lịch</title> </Helmet>
         <Header />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <CircularProgress />
+          <img src="/loading.gif" alt="Loading..." />
         </Box>
       </>
     );
