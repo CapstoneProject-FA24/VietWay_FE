@@ -1,35 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid, Typography, Container, Box } from '@mui/material';
-import ProvincePagesCard from '@components/ProvincePagesCard';
+import ProvincePagesCard from '@components/ProvincePages/ProvincePagesCard';
+import ImageGallery from '@components/ProvincePages/ImageGallery';
 import { mockProvinceData } from '@hooks/MockProvincePage';
+import CategoryFilter from '@components/ProvincePages/CategoryFilter';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
+import { PostsGrid } from '@components/ProvincePages/PostsCard';
 
 const ProvincePages = () => {
+  const categories = ['Essentials', 'Events', 'Discover'];
+  const [discoverCategory, setDiscoverCategory] = useState('Essentials');
+  const [highlightsCategory, setHighlightsCategory] = useState('Essentials');
+  const [eventsCategory, setEventsCategory] = useState('Essentials');
+
   const renderCards = (data) => {
     if (!data || !Array.isArray(data)) {
       return null;
     }
     return data.slice(0, 6).map((item, index) => (
-      <Grid item xs={12} sm={6} md={4} key={index}>
+      <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
         <ProvincePagesCard {...item} />
       </Grid>
     ));
   };
 
   return (
-    <Box>
+    <Box sx={{ marginTop: 5 }}>
       <Header/>
-      <Box 
-        sx={{ backgroundImage: `url(${mockProvinceData.coverImage})`, 
-        backgroundSize: 'cover', backgroundPosition: 'center', height: '400px', display: 'flex', 
-        alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: 4, marginTop: 5, borderRadius: 2 }}>
-      </Box>
-      <Typography variant="h2" component="h1" sx={{ textAlign: 'center', marginBottom: 4, fontWeight: 'bold'
-       }}>
+      <ImageGallery 
+        images={mockProvinceData.galleryImages} 
+        author="HaiDang Travel"
+      />
+      <Typography variant="h2" component="h1" sx={{ textAlign: 'center', marginY: 4, fontWeight: 'bold' }}>
         {mockProvinceData.name}
       </Typography>
-      <Container>
+      <Container maxWidth="xl">
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
           Về {mockProvinceData.name}
         </Typography>
@@ -37,26 +43,31 @@ const ProvincePages = () => {
           {mockProvinceData.description}
         </Typography>
 
-        <Typography variant="h5" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
+        <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
           Điểm đến nổi bật
         </Typography>
-        <Grid container spacing={3}>
+        <CategoryFilter categories={categories} selectedCategory={highlightsCategory} onCategoryChange={setHighlightsCategory} />
+        <Grid container spacing={2}>
           {renderCards(mockProvinceData.highlights)}
         </Grid>
 
-        <Typography variant="h5" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
+        <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
           Sự kiện
         </Typography>
-        <Grid container spacing={3}>
+        <CategoryFilter categories={categories} selectedCategory={eventsCategory} onCategoryChange={setEventsCategory} />
+        <Grid container spacing={2}>
           {renderCards(mockProvinceData.events)}
         </Grid>
 
-        <Typography variant="h5" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
-          Khám phá {mockProvinceData.name}
+        <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
+          Khám phá {mockProvinceData.name} qua các bài viết
         </Typography>
-        <Grid container spacing={3}>
-          {renderCards(mockProvinceData.discover)}
-        </Grid>
+        <CategoryFilter 
+          categories={categories} 
+          selectedCategory={discoverCategory} 
+          onCategoryChange={setDiscoverCategory} 
+        />
+        <PostsGrid posts={mockProvinceData.discover} />
       </Container>
       <Footer/>
     </Box>
