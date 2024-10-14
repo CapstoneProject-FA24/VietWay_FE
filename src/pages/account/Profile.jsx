@@ -7,14 +7,21 @@ import { mockProfiles } from '@hooks/MockProfile';
 import { mockTours } from '@hooks/MockTours';
 import ProfileDetail from '@components/profile/ProfileDetail';
 import BookedTour from '@components/profile/BookedTour';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
     const [profile, setProfile] = useState({});
     const [tabValue, setTabValue] = useState(0);
     const [statusTab, setStatusTab] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        console.log(token);
+        if(!token){
+            navigate('/');
+        }
         setProfile(mockProfiles[0]);
     }, []);
 
