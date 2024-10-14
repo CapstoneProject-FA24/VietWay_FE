@@ -28,6 +28,7 @@ const TourDetails = () => {
   const tourSelectRef = useRef(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +73,8 @@ const TourDetails = () => {
 
   useEffect(() => {
     if (tour && selectedMonth) {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token);
       const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
       setAvailableTours(filteredTours);
 
@@ -97,7 +100,12 @@ const TourDetails = () => {
   };
 
   const handleBooking = () => {
-    if (!selectedTour) {
+    if(!isLoggedIn){
+      setAlertMessage('Bạn chưa đăng nhập. Vui lòng đăng nhập để đặt tour.');
+      setOpenSnackbar(true);
+      tourSelectRef.current?.focus();
+    }
+    else if (!selectedTour) {
       setAlertMessage('Vui lòng chọn tour trước khi đặt.');
       setOpenSnackbar(true);
       tourSelectRef.current?.focus();

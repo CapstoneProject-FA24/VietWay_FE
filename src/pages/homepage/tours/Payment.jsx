@@ -6,7 +6,8 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams } from "react-router-dom";
-import { fetchBookingData, fetchPaymentURL } from "@services/PaymentService";
+import { fetchBookingData } from "@services/BookingService";
+import { fetchPaymentURL } from "@services/PaymentService";
 import '@styles/Homepage.css'
 import { styled } from "@mui/material/styles";
 import { getBookingStatusInfo } from "@services/StatusService";

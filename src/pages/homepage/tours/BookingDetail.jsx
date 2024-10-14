@@ -8,7 +8,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { fetchBookingData } from "@services/PaymentService";
+import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 
 // Styled components (reuse from BookTour)
