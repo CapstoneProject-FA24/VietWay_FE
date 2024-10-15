@@ -47,30 +47,3 @@ export const fetchTourById = async (id) => {
         throw error;
     }
 };
-
-export const createBooking = async (bookingData) => {
-  try {
-    const requestData = {
-      tourId: bookingData.tourId,
-      customerId: "4",
-      numberOfParticipants: bookingData.passengers.length,
-      tourParticipants: bookingData.passengers.map(passenger => ({
-        fullName: passenger.fullName,
-        phoneNumber: passenger.phoneNumber,
-        gender: passenger.gender,
-        dateOfBirth: passenger.dateOfBirth
-      })),
-      contactFullName: bookingData.fullName,
-      contactEmail: bookingData.email,
-      contactPhoneNumber: bookingData.phone,
-      contactAddress: bookingData.address,
-      note: bookingData.note,
-    };
-    const response = await axios.post(`${baseURL}/api/Booking/BookTour`, requestData);
-
-    return response.data;
-  } catch (error) {
-    console.error('Error creating booking:', error);
-    throw error;
-  }
-};

@@ -7,8 +7,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { Link, useParams, useLocation } from "react-router-dom";
-import { fetchBookingData } from "@services/PaymentService";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
+import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 
 // Styled components (reuse from BookTour)
@@ -76,6 +76,14 @@ const BookingDetail = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -253,10 +261,11 @@ const BookingDetail = () => {
       </ContentContainer>
       <Footer />
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
-        <MuiAlert 
-          onClose={handleCloseSnackbar} 
-          severity="success" 
-          sx={{  width: '500px', fontSize: '1.5rem', display: 'flex',
+        <MuiAlert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{
+            width: '500px', fontSize: '1.5rem', display: 'flex',
             alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
           }}
           iconMapping={{

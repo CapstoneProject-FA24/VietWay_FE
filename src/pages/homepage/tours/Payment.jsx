@@ -5,8 +5,9 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { Link, useParams } from "react-router-dom";
-import { fetchBookingData, fetchPaymentURL } from "@services/PaymentService";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { fetchBookingData } from "@services/BookingService";
+import { fetchPaymentURL } from "@services/PaymentService";
 import '@styles/Homepage.css'
 import { styled } from "@mui/material/styles";
 import { getBookingStatusInfo } from "@services/StatusService";
@@ -80,6 +81,14 @@ const PayBooking = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,10 +110,10 @@ const PayBooking = () => {
   }, [id]);
 
   const handlePayment = async () => {
-    if(paymentMethod !== ''){
-      if(paymentMethod === 'VNPay') {
+    if (paymentMethod !== '') {
+      if (paymentMethod === 'VNPay') {
         const response = await fetchPaymentURL(id);
-        if(response !== null || response !== ''){
+        if (response !== null || response !== '') {
           window.location.href = response;
         }
       }
@@ -156,19 +165,19 @@ const PayBooking = () => {
               <SummaryBox>
                 <SummaryTitle variant="h6">THÔNG TIN LIÊN LẠC</SummaryTitle>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Họ Tên:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>Họ Tên:</Typography>
                   <Typography>{bookingData.contactFullName}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Email:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>Email:</Typography>
                   <Typography>{bookingData.contactEmail}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Điện thoại:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>Điện thoại:</Typography>
                   <Typography>{bookingData.contactPhoneNumber}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Địa chỉ:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>Địa chỉ:</Typography>
                   <Typography>{bookingData.contactAddress}</Typography>
                 </SummaryItem>
               </SummaryBox>
@@ -181,19 +190,19 @@ const PayBooking = () => {
                   </Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Trị giá booking:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>Trị giá booking:</Typography>
                   <Typography>{bookingData.totalPrice.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography sx={{fontWeight: 'bold'}}>Hình thức thanh toán:</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>Hình thức thanh toán:</Typography>
                   <Typography>
                     {paymentMethod === 'VNPay' ? 'VNPay' :
-                     paymentMethod === 'Momo' ? 'Momo' :
-                     'Thanh toán sau'}
+                      paymentMethod === 'Momo' ? 'Momo' :
+                        'Thanh toán sau'}
                   </Typography>
                 </SummaryItem>
-                <RadioGroup 
-                  aria-label="payment-method" 
+                <RadioGroup
+                  aria-label="payment-method"
                   name="paymentMethod"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
@@ -216,8 +225,8 @@ const PayBooking = () => {
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
                 {bookingData.participants.map((participant, index) => (
                   <Box key={index} mb={2}>
-                    <SummaryItem sx={{fontWeight: 'bold'}}>
-                      <Typography sx={{fontWeight: 'bold'}}>Họ tên:</Typography>
+                    <SummaryItem sx={{ fontWeight: 'bold' }}>
+                      <Typography sx={{ fontWeight: 'bold' }}>Họ tên:</Typography>
                       <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
@@ -225,7 +234,7 @@ const PayBooking = () => {
                       <Typography>{participant.phoneNumber}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography sx={{fontWeight: 'bold'}}>Giới tính:</Typography>
+                      <Typography sx={{ fontWeight: 'bold' }}>Giới tính:</Typography>
                       <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
@@ -265,11 +274,11 @@ const PayBooking = () => {
                 </Typography>
                 <TotalPrice variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền:</span>
-                  <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem'}}>
+                  <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem' }}>
                     {bookingData.totalPrice.toLocaleString()} đ
                   </span>
                 </TotalPrice>
-                <Button onClick={() => {handlePayment()}} variant="contained" fullWidth>
+                <Button onClick={() => { handlePayment() }} variant="contained" fullWidth>
                   Thanh toán ngay
                 </Button>
                 <Button variant="outlined" fullWidth sx={{ mt: 1 }}>

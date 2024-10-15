@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress, Card, CardMedia, Pagination, Select, MenuItem, FormControl, Button, TextField, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
+import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { styled } from '@mui/material/styles';
-import TourCard from '@components/TourCard'
+import TourCard from '@components/TourCard';
 import { fetchTourTemplates } from '@services/TourTemplateService';
+import { fetchProvinces } from '@services/ProvinceService';
+import { fetchTourCategory } from '@services/TourCategoryService';
 import SearchIcon from '@mui/icons-material/Search';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
 
 const Tours = () => {
   const [tours, setTours] = useState([]);
@@ -17,59 +16,58 @@ const Tours = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortBy, setSortBy] = useState('startDate');
-  const [filters, setFilters] = useState({
-    destinationProvince: '',
-    priceRange: [],
-    startDate: null,
-    endDate: null,
-    totalDays: [],
-  });
-  const [tempFilters, setTempFilters] = useState({
-    destinationProvince: '',
-    priceRange: [],
-    startDate: null,
-    endDate: null,
-    totalDays: [],
-  });
   const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  const provinces = [
-    'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Quảng Ninh', 'Lâm Đồng',
-    // Add more provinces as needed
+  const [startDate, setStartDate] = useState('');
+  const [priceRange, setPriceRange] = useState('all');
+  const [selectedProvince, setSelectedProvince] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [duration, setDuration] = useState('all');
+  const [provinces, setProvinces] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  const priceRanges = [
+    { value: '0,1000000', label: 'Dưới 1 triệu' },
+    { value: '1000000,5000000', label: '1-5 triệu' },
+    { value: '5000000,10000000', label: '5-10 triệu' },
+    { value: '10000000,', label: 'Trên 10 triệu' },
   ];
 
-  const totalDaysOptions = [
-    'Trong ngày',
-    '2-3 ngày',
-    '4-7 ngày',
-    '7+ ngày'
-  ];
-
-  const priceOptions = [
-    { value: [0, 1000000], label: 'Dưới 1 triệu' },
-    { value: [1000000, 5000000], label: '1-5 triệu' },
-    { value: [5000000, 10000000], label: '5-10 triệu' },
-    { value: [10000000, 20000000], label: 'Trên 10 triệu' },
+  const durationOptions = [
+    { value: 'all', label: 'Tất cả' },
+    { value: '1', label: 'Trong ngày' },
+    { value: '2,3', label: '2-3 ngày' },
+    { value: '4,5,6,7', label: '4-7 ngày' },
+    { value: '8,9,10,11,12,13,14', label: '8+ ngày' },
   ];
 
   useEffect(() => {
     fetchTours();
-    window.scrollTo(0, 0);
-  }, [sortBy, page, pageSize, filters, searchTerm]);
+    fetchProvinceData();
+    fetchCategoryData();
+  }, [page, pageSize, searchTerm]);
 
   const fetchTours = async () => {
     try {
       setLoading(true);
       const params = {
-        pageSize: pageSize,
+        pageSize,
         pageIndex: page,
         searchTerm: searchTerm,
-        status: 2,
-        // Add other filter parameters here
+        startDateFrom: startDate,
+        provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+        templateCategoryIds: selectedCategory !== 'all' ? [selectedCategory] : [],
+        numberOfDay: duration !== 'all' ? duration.split(',').map(Number) : [],
       };
+
+      if (priceRange !== 'all' && priceRange) {
+        const [min, max] = priceRange.split(',');
+        params.minPrice = min;
+        params.maxPrice = max;
+      }
+
       const response = await fetchTourTemplates(params);
       setTours(response.data);
       setTotalItems(response.total);
@@ -81,54 +79,32 @@ const Tours = () => {
     }
   };
 
+  const fetchProvinceData = async () => {
+    try {
+      const fetchedProvinces = await fetchProvinces();
+      setProvinces(fetchedProvinces);
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+    }
+  };
+
+  const fetchCategoryData = async () => {
+    try {
+      const fetchedCategories = await fetchTourCategory();
+      setCategories(fetchedCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
   const handlePageChange = (event, value) => {
     setPage(value);
     window.scrollTo(0, 0);
   };
 
-  const handleSortChange = (event) => {
-    setSortBy(event.target.value);
-    window.scrollTo(0, 0);
-  };
-
-  const handleFilterChange = (event) => {
-    const { name, value } = event.target;
-    if (name === 'totalDays') {
-      const newTotalDays = tempFilters.totalDays.includes(value)
-        ? tempFilters.totalDays.filter(day => day !== value)
-        : [...tempFilters.totalDays, value];
-      setTempFilters({ ...tempFilters, totalDays: newTotalDays });
-    } else if (name === 'priceRange') {
-      const newPriceRange = tempFilters.priceRange.some(range => range[0] === value[0] && range[1] === value[1])
-        ? tempFilters.priceRange.filter(range => range[0] !== value[0] || range[1] !== value[1])
-        : [...tempFilters.priceRange, value];
-      setTempFilters({ ...tempFilters, priceRange: newPriceRange });
-    } else {
-      setTempFilters({ ...tempFilters, [name]: value });
-    }
-  };
-
-  const handleDateChange = (name, event) => {
-    setTempFilters({ ...tempFilters, [name]: event.target.value });
-  };
-
-  const handleSubmitFilters = () => {
-    setFilters(tempFilters);
-    window.scrollTo(0, 0);
-  };
-
-  const StyledButton = styled(Button)(({ theme }) => ({
-    fontFamily: 'Inter, sans-serif',
-    fontSize: '16px',
-  }));
-
-  function valuetext(value) {
-    return `${value.toLocaleString()} VNĐ`;
-  }
-
   const handleSearch = () => {
     setSearchTerm(searchInput);
-    setPage(1); // Reset to first page when searching
+    setPage(1);
   };
 
   const handleKeyPress = (event) => {
@@ -144,6 +120,11 @@ const Tours = () => {
   const handlePageSizeChange = (event) => {
     setPageSize(parseInt(event.target.value));
     setPage(1);
+  };
+
+  const handleApplyFilters = () => {
+    setPage(1);
+    fetchTours();
   };
 
   if (loading) {
@@ -169,13 +150,18 @@ const Tours = () => {
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={5}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C'}}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
               Khám phá các tour
             </Typography>
           </Grid>
           <Grid item xs={12} md={7}>
-            <TextField fullWidth variant="outlined" placeholder="Tìm kiếm tour..." value={searchInput}
-              onChange={handleSearchInputChange} onKeyPress={handleKeyPress}
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Tìm kiếm tour..."
+              value={searchInput}
+              onChange={handleSearchInputChange}
+              onKeyPress={handleKeyPress}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -183,7 +169,8 @@ const Tours = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }} />
+              sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
+            />
           </Grid>
           <Grid item xs={12} md={3.5}>
             <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
@@ -191,50 +178,77 @@ const Tours = () => {
               <Box sx={{ p: 1 }}>
                 <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
                   <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Tỉnh thành</Typography>
-                  <Select value={tempFilters.destinationProvince}
-                    onChange={handleFilterChange} name="destinationProvince"
-                    sx={{ height: '40px' }} >
-                    <MenuItem value="">Tất cả</MenuItem>
+                  <Select
+                    value={selectedProvince}
+                    onChange={(e) => setSelectedProvince(e.target.value)}
+                    sx={{ height: '40px' }}
+                  >
+                    <MenuItem value="all">Tất cả</MenuItem>
                     {provinces.map((province) => (
-                      <MenuItem key={province} value={province}> {province} </MenuItem>
+                      <MenuItem key={province.provinceId} value={province.provinceId}>{province.provinceName}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: -1, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Giá tour</Typography>
-                  <FormGroup row>
-                    {priceOptions.map((option, index) => (
-                      <FormControlLabel key={index} sx={{ width: '48%' }}
-                        control={
-                          <Checkbox checked={tempFilters.priceRange.some(range => range[0] === option.value[0] && range[1] === option.value[1])}
-                            onChange={(event) => handleFilterChange({ target: { name: 'priceRange', value: option.value } })} name="priceRange" />
-                        }
-                        label={option.label} />
+                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Danh mục</Typography>
+                  <Select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    sx={{ height: '40px' }}
+                  >
+                    <MenuItem value="all">Tất cả</MenuItem>
+                    {categories.map((category) => (
+                      <MenuItem key={category.tourCategoryId} value={category.tourCategoryId}>{category.tourCategoryName}</MenuItem>
                     ))}
-                  </FormGroup>
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Giá tour</Typography>
+                  <Select
+                    value={priceRange}
+                    onChange={(e) => setPriceRange(e.target.value)}
+                    sx={{ height: '40px' }}
+                  >
+                    <MenuItem value="all">Tất cả</MenuItem>
+                    {priceRanges.map((range) => (
+                      <MenuItem key={range.value} value={range.value}>{range.label}</MenuItem>
+                    ))}
+                  </Select>
                 </FormControl>
                 <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
                   <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Ngày bắt đầu</Typography>
-                  <TextField type="date" value={tempFilters.startDate || ''}
-                    onChange={(event) => handleDateChange('startDate', event)}
+                  <TextField
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
                     InputLabelProps={{ shrink: true }}
-                    sx={{ '& .MuiInputBase-input': { height: '30px', padding: '8px' } }} />
+                    sx={{ '& .MuiInputBase-input': { height: '30px', padding: '8px' } }}
+                  />
                 </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: -1, mt: 2 }}>
+                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
                   <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Số ngày</Typography>
-                  <FormGroup row>
-                    {totalDaysOptions.map((option, index) => (
-                      <FormControlLabel key={option} sx={{ width: '48%' }}
-                        control={
-                          <Checkbox checked={tempFilters.totalDays.includes(option)}
-                            onChange={handleFilterChange} name="totalDays" value={option} />
-                        }
-                        label={option} />
+                  <Select
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    sx={{ height: '40px' }}
+                  >
+                    {durationOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
                     ))}
-                  </FormGroup>
+                  </Select>
                 </FormControl>
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, pl: 2, pr: 2 }}>
-                  <Button variant="contained" color="primary" onClick={handleSubmitFilters} sx={{ width: '100%', height: '50px', borderRadius: '5px' }}>
+                <Box sx={{ pl: 2, pr: 2, mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={handleApplyFilters}
+                    sx={{
+                      backgroundColor: '#3572EF',
+                      '&:hover': { backgroundColor: '#1C3F94' }
+                    }}
+                  >
                     Áp dụng bộ lọc
                   </Button>
                 </Box>
@@ -244,23 +258,24 @@ const Tours = () => {
           <Grid item xs={12} md={8.5}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
-                {tours.length} kết quả
+                {totalItems} kết quả
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography sx={{ textAlign: 'left', color: 'black', mr: 2 }}>Sắp xếp theo:</Typography>
-                <FormControl sx={{ minWidth: 120 }}>
-                  <Select value={sortBy} onChange={handleSortChange} size="small" sx={{ height: '40px' }} >
-                    <MenuItem value="price">Giá</MenuItem>
-                    <MenuItem value="duration">Thời gian</MenuItem>
-                    <MenuItem value="startDate">Ngày khởi hành</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
             </Box>
             <Grid container spacing={1}>
-              {tours.map((tour) => (
-                <TourCard key={tour.tourTemplateId} tour={tour} />
-              ))}
+              {tours.length > 0 ? (
+                tours.map((tour) => (
+                  <TourCard key={tour.tourTemplateId} tour={tour} />
+                ))
+              ) : (
+                <Box sx={{ minHeight: '30rem', width: '100%' }}>
+                  <Typography sx={{ fontSize: '2rem', textAlign: 'center', width: '100%', p: 5 }}>
+                    Không tìm thấy tour nào!
+                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
+                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }}/>
+                  </Box>
+                </Box>
+              )}
             </Grid>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
               <Pagination

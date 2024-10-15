@@ -1,8 +1,9 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, InputBase, Box, IconButton } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Button, InputBase, Box, IconButton, Menu, MenuItem } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { styled, alpha } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 /* const Search = styled('div')(({ theme }) => ({
   position: 'relative', borderRadius: theme.shape.borderRadius * 3,
@@ -35,6 +36,35 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const Header = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    handleClose();
+    navigate('/trang-chu');
+  };
+
+  const handleAccount = () => {
+    handleClose();
+    navigate('/tai-khoan');
+  };
+
   return (
     <AppBar position="fixed" sx={{ backgroundColor: 'white', boxShadow: 1, width: '100%' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -118,8 +148,44 @@ const Header = () => {
         </Box>
         
         <Box sx={{ display: 'flex', marginLeft: 1 }}>
-          <StyledButton color="inherit" component={Link} to="/dang-ky" sx={{ color: 'text.primary', textTransform: 'none' }}>Đăng ký</StyledButton>
-          <StyledButton color="inherit" component={Link} to="/dang-nhap" sx={{ color: 'white', textTransform: 'none', backgroundColor: '#3572EF', borderRadius: '100px', padding: '9px 14px', marginLeft: '10px', '&:hover': { backgroundColor: '#CAECFF' } }}>Đăng nhập</StyledButton>
+          {isLoggedIn ? (
+            <>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="main.grey"
+                sx={{ border: '3px solid grey' }}
+              >
+                <AccountCircleIcon/>
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleAccount}>Tài khoản</MenuItem>
+                <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <StyledButton color="inherit" component={Link} to="/dang-ky" sx={{ color: 'text.primary', textTransform: 'none' }}>Đăng ký</StyledButton>
+              <StyledButton color="inherit" component={Link} to="/dang-nhap" sx={{ color: 'white', textTransform: 'none', backgroundColor: '#3572EF', borderRadius: '100px', padding: '9px 14px', marginLeft: '10px', '&:hover': { backgroundColor: '#CAECFF' } }}>Đăng nhập</StyledButton>
+            </>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
