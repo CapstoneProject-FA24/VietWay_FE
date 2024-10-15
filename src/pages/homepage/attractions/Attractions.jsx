@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Card, CardMedia, Pagination, Select, MenuItem, FormControl, Checkbox, FormGroup, FormControlLabel, OutlinedInput, Button } from '@mui/material';
 import Header from '@layouts/Header';
+import Footer from '@layouts/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getFilteredAttractions } from '@hooks/MockAttractions';
@@ -51,7 +51,6 @@ const Attractions = () => {
     const fetchAttractions = async () => {
       try {
         setLoading(true);
-        // Simulating API call with setTimeout
         await new Promise(resolve => setTimeout(resolve, 1000));
         const mockData = getFilteredAttractions(filters, sortBy);
         setAttractions(mockData);
@@ -96,7 +95,7 @@ const Attractions = () => {
         </Helmet>
         <Header />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <CircularProgress />
+          <img src="/loading.gif" alt="Loading..." />
         </Box>
       </>
     );
