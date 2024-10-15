@@ -9,10 +9,13 @@ import Footer from '@layouts/Footer';
 import { PostsGrid } from '@components/ProvincePages/PostsCard';
 
 const ProvincePages = () => {
-  const categories = ['Essentials', 'Events', 'Discover'];
-  const [discoverCategory, setDiscoverCategory] = useState('Essentials');
-  const [highlightsCategory, setHighlightsCategory] = useState('Essentials');
-  const [eventsCategory, setEventsCategory] = useState('Essentials');
+  const highlightCategories = ['Tất cả', 'Bảo tàng', 'Công viên', 'Di tích lịch sử', 'Công trình tôn giáo', 'Khu bảo tồn thiên nhiên'];
+  const eventCategories = ['Tất cả', 'Đang diễn ra', 'Sắp đến'];
+  const discoverCategories = ['Tất cả', 'Văn hóa', 'Ẩm thực', 'Hoạt động', 'Nơi lưu trú'];
+
+  const [highlightsCategory, setHighlightsCategory] = useState('Tất cả');
+  const [eventsCategory, setEventsCategory] = useState('Tất cả');
+  const [discoverCategory, setDiscoverCategory] = useState('Tất cả');
 
   const renderCards = (data) => {
     if (!data || !Array.isArray(data)) {
@@ -46,7 +49,18 @@ const ProvincePages = () => {
         <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
           Điểm đến nổi bật
         </Typography>
-        <CategoryFilter categories={categories} selectedCategory={highlightsCategory} onCategoryChange={setHighlightsCategory} />
+        <Box sx={{ position: 'relative', mb: 2 }}>
+          <CategoryFilter 
+            categories={highlightCategories} 
+            selectedCategory={highlightsCategory} 
+            onCategoryChange={setHighlightsCategory} />
+          <Typography 
+            variant="body2" 
+            sx={{ fontStyle: 800, textDecoration: 'underline', marginBottom: 2, fontSize: 16, position: 'absolute', right: 0, bottom: -24, color: '#000', 
+                  cursor: 'pointer', '&:hover': { textDecoration: 'underline', }, }}>
+            Xem thêm
+          </Typography>
+        </Box>
         <Grid container spacing={2}>
           {renderCards(mockProvinceData.highlights)}
         </Grid>
@@ -54,7 +68,19 @@ const ProvincePages = () => {
         <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
           Sự kiện
         </Typography>
-        <CategoryFilter categories={categories} selectedCategory={eventsCategory} onCategoryChange={setEventsCategory} />
+        <Box sx={{ position: 'relative', mb: 2 }}>
+          <CategoryFilter 
+            categories={eventCategories} 
+            selectedCategory={eventsCategory} 
+            onCategoryChange={setEventsCategory} 
+          />
+          <Typography 
+            variant="body2" 
+            sx={{ fontStyle: 800, textDecoration: 'underline', marginBottom: 2, fontSize: 16, position: 'absolute', right: 0, bottom: -24, color: '#000', 
+                  cursor: 'pointer', '&:hover': { textDecoration: 'underline', }, }}>
+            Xem thêm
+          </Typography>
+        </Box>
         <Grid container spacing={2}>
           {renderCards(mockProvinceData.events)}
         </Grid>
@@ -62,11 +88,19 @@ const ProvincePages = () => {
         <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
           Khám phá {mockProvinceData.name} qua các bài viết
         </Typography>
-        <CategoryFilter 
-          categories={categories} 
-          selectedCategory={discoverCategory} 
-          onCategoryChange={setDiscoverCategory} 
-        />
+        <Box sx={{ position: 'relative', mb: 2 }}>
+          <CategoryFilter 
+            categories={discoverCategories} 
+            selectedCategory={discoverCategory} 
+            onCategoryChange={setDiscoverCategory} 
+          />
+          <Typography 
+            variant="body2" 
+            sx={{ fontStyle: 800, textDecoration: 'underline', marginBottom: 2, fontSize: 16, position: 'absolute', right: 0, bottom: -24, color: '#000', 
+                  cursor: 'pointer', '&:hover': { textDecoration: 'underline', }, }}>
+            Xem thêm
+          </Typography>
+        </Box>
         <PostsGrid posts={mockProvinceData.discover} />
       </Container>
       <Footer/>

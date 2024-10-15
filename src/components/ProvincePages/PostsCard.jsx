@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Box, Avatar } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid } from '@mui/material';
 
-const PostCard = ({ title, description, image, category, author, date }) => (
+const PostCard = ({ title, description, image, category }) => (
   <Card sx={{ 
     height: '100%', 
     display: 'flex', 
@@ -10,20 +10,15 @@ const PostCard = ({ title, description, image, category, author, date }) => (
     boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
     overflow: 'hidden'
   }}>
-    <CardMedia
-      component="img"
-      height="200"
-      image={image}
-      alt={title}
-    />
+    <CardMedia component="img" height="220" image={image} alt={title} />
     <CardContent sx={{ flexGrow: 1, p: 3 }}>
-      <Typography variant="subtitle1" color="primary" gutterBottom fontWeight="bold">
+      <Typography variant="subtitle1" color="primary" fontWeight="bold">
         {category}
       </Typography>
-      <Typography variant="h5" component="div" gutterBottom fontWeight="bold">
+      <Typography variant="h5" component="div" fontWeight="bold">
         {title}
       </Typography>
-      <Typography variant="body2" color="text.secondary" mb={2}>
+      <Typography variant="body2" color="text.secondary" mb={2} sx={{ marginTop: 1 }}>
         {description}
       </Typography>
     </CardContent>

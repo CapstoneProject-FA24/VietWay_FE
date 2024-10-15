@@ -8,7 +8,9 @@ export const mockProvinceData = {
     "https://ittpa.baria-vungtau.gov.vn/portal/editor/images/Anh%20tin%20du%20lich/shhj123456wtrwwrwwrw1212.jpg",
     "https://dulichconvoi.com/wp-content/uploads/2023/07/bach-dinh-vung-tau-bieu-tuong-lich-su-va-nhung-ly-do-khien-gioi-tre-da-den-vung-tau-deu-khong-the-bo-qua-1633543157.jpg",
     "https://bazantravel.com/cdn/medias/uploads/82/82559-kien-truc-tai-thich-ca-phat-dai-700x525.jpg",
-    "https://homaypark.com/wp-content/uploads/sites/109/2023/12/cap-treo-vung-tau-duong-len-tien-canh-ho-may-park.png"
+    "https://homaypark.com/wp-content/uploads/sites/109/2023/12/cap-treo-vung-tau-duong-len-tien-canh-ho-may-park.png",
+    "https://vntravel.org.vn/uploads/images/2024/03/16/419257093-754920120074997-7158977836238136303-n-1710564765.jpg",
+    "https://baotangphunu.com/wp-content/uploads/2022/06/R637127776440606368-scaled.jpg"
   ],
   highlights: [
     {
