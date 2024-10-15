@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Button, CssBaseline, TextField, Link, Box, Grid, Typography, InputAdornment, IconButton, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Button, CssBaseline, TextField, Link, Box, Grid, Typography, InputAdornment, IconButton, MenuItem, Select, FormControl, InputLabel, Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 import { Visibility, VisibilityOff, ArrowBackIosNew as ArrowBackIosNewIcon } from '@mui/icons-material';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
@@ -14,6 +15,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { register } from '@services/AuthenService';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export default function Register() {
     const settingRegister = {
@@ -42,6 +47,11 @@ export default function Register() {
     const [dob, setDob] = React.useState(null);
     const [errors, setErrors] = React.useState({});
     const navigate = useNavigate();
+    const [snackbar, setSnackbar] = React.useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
     React.useEffect(() => {
         const getProvinces = async () => {
@@ -124,12 +134,21 @@ export default function Register() {
                 };
 
                 const response = await register(userData);
-                console.log('Registration successful:', response);
-                alert('Đăng ký thành công!');
-                navigate('/dang-nhap');
+                setSnackbar({
+                    open: true,
+                    message: 'Đăng ký thành công!',
+                    severity: 'success'
+                });
+                setTimeout(() => {
+                    navigate('/dang-nhap');
+                }, 2000);
             } catch (error) {
                 console.error('Registration failed:', error);
-                alert('Đăng ký thất bại. Vui lòng thử lại.');
+                setSnackbar({
+                    open: true,
+                    message: 'Đăng ký thất bại. Vui lòng thử lại.',
+                    severity: 'error'
+                });
             }
         } else {
             setErrors(newErrors);
@@ -142,6 +161,13 @@ export default function Register() {
 
     const handleBackClick = () => {
         navigate('/');
+    };
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbar({ ...snackbar, open: false });
     };
 
     return (
@@ -340,6 +366,11 @@ export default function Register() {
                     </Box>
                 </Grid>
             </Grid>
+            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </>
     );
 }
