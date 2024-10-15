@@ -7,12 +7,13 @@ import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { Gender } from '../../hooks/Statuses';
-import { fetchProvinces } from '../../services/ProvinceService';
+import { Gender } from '@hooks/Statuses';
+import { fetchProvinces } from '@services/ProvinceService';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import { register } from '@services/AuthenService';
 
 export default function Register() {
     const settingRegister = {
@@ -40,6 +41,7 @@ export default function Register() {
     const [selectedProvince, setSelectedProvince] = React.useState('');
     const [dob, setDob] = React.useState(null);
     const [errors, setErrors] = React.useState({});
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         const getProvinces = async () => {
@@ -69,7 +71,7 @@ export default function Register() {
         return age >= 12;
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         const newErrors = {};
@@ -92,30 +94,51 @@ export default function Register() {
         }
 
         if (!selectedProvince) newErrors.province = 'Tỉnh/Thành phố là bắt buộc';
-        if (!gender) newErrors.gender = 'Giới tính là bắt buộc';
+        if (!gender && gender !== 0) newErrors.gender = 'Giới tính là bắt buộc';
 
-        console.log(dob);
         if (!dob) {
             newErrors.dob = 'Ngày sinh là bắt buộc';
         } else if (!validateAge(dob)) {
             newErrors.dob = 'Bạn phải từ 12 tuổi trở lên';
         }
 
-        if (!data.get('password')) newErrors.password = 'Mật khẩu là bắt buộc';
-        if (!data.get('passwordConfirm')) newErrors.passwordConfirm = 'Xác nhận mật khẩu là bắt buộc';
+        const password = data.get('password');
+        const passwordConfirm = data.get('passwordConfirm');
+
+        if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+        if (!passwordConfirm) newErrors.passwordConfirm = 'Xác nhận mật khẩu là bắt buộc';
+        if (password !== passwordConfirm) newErrors.passwordConfirm = 'Mật khẩu không khớp';
 
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
-            console.log('Form is valid');
+            try {
+                const userData = {
+                    email: data.get('email'),
+                    phoneNumber: data.get('phone'),
+                    password: data.get('password'),
+                    fullName: `${data.get('lastName')} ${data.get('firstName')}`,
+                    dateOfBirth: dob.format('YYYY-MM-DD'),
+                    gender: gender,
+                    provinceId: selectedProvince
+                };
+
+                const response = await register(userData);
+                console.log('Registration successful:', response);
+                alert('Đăng ký thành công!');
+                navigate('/dang-nhap');
+            } catch (error) {
+                console.error('Registration failed:', error);
+                alert('Đăng ký thất bại. Vui lòng thử lại.');
+            }
+        } else {
+            setErrors(newErrors);
         }
     };
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
     };
-
-    const navigate = useNavigate();
 
     const handleBackClick = () => {
         navigate('/');

@@ -18,3 +18,23 @@ export const login = async (credentials) => {
         throw error;
     }
 };
+
+export const register = async (userData) => {
+    try {
+        const registerRequest = {
+            email: userData.email,
+            phoneNumber: userData.phoneNumber,
+            password: userData.password,
+            fullName: userData.fullName,
+            dateOfBirth: userData.dateOfBirth,
+            gender: userData.gender,
+            provinceId: userData.provinceId
+        };
+        const response = await axios.post(`${baseURL}/api/Account/CreateCustomerAccount`, registerRequest);
+        const data = response.data;
+        return data;
+    } catch (error) {
+        console.error('Registration failed:', error);
+        throw error;
+    }
+};
