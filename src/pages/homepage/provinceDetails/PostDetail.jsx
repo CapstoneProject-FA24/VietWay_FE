@@ -10,7 +10,6 @@ import Footer from '@layouts/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faTag } from '@fortawesome/free-solid-svg-icons';
 
-// Function to extract headings from HTML content
 const extractHeadings = (content) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
@@ -22,7 +21,6 @@ const extractHeadings = (content) => {
     }));
 };
 
-// Table of Contents component
 const TableOfContents = ({ headings }) => (
     <Paper elevation={3} sx={{ p: 3, position: 'sticky', top: 80, maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', height: 'calc(100vh - 5rem)'}}>
         <Typography variant="h4" gutterBottom>Mục lục</Typography>
@@ -51,25 +49,8 @@ const TableOfContents = ({ headings }) => (
             }, [heading.id]);
 
             return (
-                <Link
-                    key={heading.id}
-                    href={`#${heading.id}`}
-                    underline="hover"
-                    sx={{
-                        display: 'block',
-                        ml: (heading.level - 1) * 2,
-                        mb: 1,
-                        color: isActive ? 'primary.main' : 'text.primary',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        maxWidth: '100%',
-                        fontWeight: isActive ? 'bold' : 'normal',
-                        '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                        },
-                    }}
-                >
+                <Link key={heading.id} href={`#${heading.id}`} underline="hover"
+                    sx={{ display: 'block', ml: (heading.level - 1) * 2, mb: 1, color: isActive ? 'primary.main' : 'text.primary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', fontWeight: isActive ? 'bold' : 'normal', '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)', }, }}>   
                     {heading.text.length > 100 ? `${heading.text.substring(0, 30)}...` : heading.text}
                 </Link>
             );
@@ -132,22 +113,14 @@ export default function PostDetail() {
             <Box sx={{ p: 3, flexGrow: 1, mt: 5, maxWidth: '1200px', margin: '0 auto' }}>
                 <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '10px', textAlign: 'left' }}>
                     <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</Link> 
-                    &gt; 
-                    <Link to={`/tinh/${post.provinceId}`} style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>{post.provinceName}</Link> 
-                    &gt; <strong>{post.title}</strong>
+                    &gt; <Link to={`/tinh/${post.provinceId}`} style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>{post.provinceName}</Link> &gt; <strong>{post.title}</strong>
                 </Typography>
 
                 <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
                     {post.title}
                 </Typography>
 
-                <CardMedia
-                    component="img"
-                    height="400"
-                    image={post.imageUrl}
-                    alt={post.title}
-                    sx={{ mb: 2, borderRadius: 2 }}
-                />
+                <CardMedia component="img" height="400" image={post.imageUrl} alt={post.title} sx={{ mb: 2, borderRadius: 2 }} />
 
                 <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                     <FontAwesomeIcon icon={faTag} style={{ marginRight: '10px', color: '#3572EF' }} />
