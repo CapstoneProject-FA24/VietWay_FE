@@ -105,6 +105,7 @@ const Header = () => {
               color: 'text.primary',
               textTransform: 'none',
               fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal'
+            }}
           >
             Tỉnh thành
           </StyledButton>
