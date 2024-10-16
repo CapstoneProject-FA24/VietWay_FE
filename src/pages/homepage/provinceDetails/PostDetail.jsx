@@ -114,7 +114,6 @@ export default function PostDetail() {
         return <Typography>Post not found</Typography>;
     }
 
-    // Function to add IDs to headings in the content
     const addIdsToHeadings = (content) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(content, 'text/html');

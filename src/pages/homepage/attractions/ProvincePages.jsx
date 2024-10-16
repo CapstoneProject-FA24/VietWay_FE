@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Grid, Typography, Container, Box } from '@mui/material';
-import ProvincePagesCard from '@components/ProvincePages/ProvincePagesCard';
-import ImageGallery from '@components/ProvincePages/ImageGallery';
+import ProvincePagesCard from '@components/provincePages/ProvincePagesCard';
+import ImageGallery from '@components/provincePages/ImageGallery';
 import { mockProvinceData } from '@hooks/MockProvincePage';
-import CategoryFilter from '@components/ProvincePages/CategoryFilter';
+import CategoryFilter from '@components/provincePages/CategoryFilter';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
-import { PostsGrid } from '@components/ProvincePages/PostsCard';
+import { PostsGrid } from '@components/provincePages/PostsCard';
 
 const ProvincePages = () => {
   const highlightCategories = ['Tất cả', 'Bảo tàng', 'Công viên', 'Di tích lịch sử', 'Công trình tôn giáo', 'Khu bảo tồn thiên nhiên'];
@@ -27,6 +27,10 @@ const ProvincePages = () => {
       </Grid>
     ));
   };
+
+  const filteredDiscoverPosts = discoverCategory === 'Tất cả'
+    ? mockProvinceData.discover
+    : mockProvinceData.discover.filter(post => post.category === discoverCategory);
 
   return (
     <Box sx={{ marginTop: 5 }}>
@@ -101,7 +105,7 @@ const ProvincePages = () => {
             Xem thêm
           </Typography>
         </Box>
-        <PostsGrid posts={mockProvinceData.discover} />
+        <PostsGrid posts={filteredDiscoverPosts} />
       </Container>
       <Footer/>
     </Box>
