@@ -115,7 +115,13 @@ export default function Register() {
         const password = data.get('password');
         const passwordConfirm = data.get('passwordConfirm');
 
-        if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+        if (!password) {
+            newErrors.password = 'Mật khẩu là bắt buộc';
+        } else if (password.length < 8) {
+            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?])/.test(password)) {
+            newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt';
+        }
         if (!passwordConfirm) newErrors.passwordConfirm = 'Xác nhận mật khẩu là bắt buộc';
         if (password !== passwordConfirm) newErrors.passwordConfirm = 'Mật khẩu không khớp';
 
