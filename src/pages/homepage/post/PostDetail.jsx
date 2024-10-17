@@ -120,7 +120,7 @@ export default function PostDetail() {
                     {post.title}
                 </Typography>
 
-                <CardMedia component="img" height="400" image={post.imageUrl} alt={post.title} sx={{ mb: 2, borderRadius: 2 }} />
+                <CardMedia component="img" height="400" image={post.image} alt={post.title} sx={{ mb: 2, borderRadius: 2 }} />
 
                 <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                     <FontAwesomeIcon icon={faTag} style={{ marginRight: '10px', color: '#3572EF' }} />

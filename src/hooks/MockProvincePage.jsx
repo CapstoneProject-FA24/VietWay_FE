@@ -80,41 +80,42 @@ export const mockProvinceData = {
     {
       image: "https://bizweb.dktcdn.net/100/410/190/files/tour-du-lich-phu-quoc-1-ngay-lan-bien-ngam-san-ho-cau-ca-1.jpg",
       title: "Khám phá đại dương tại Vũng Tàu",
-      postDate: "2024-05-01",
+      createDate: "2024-05-01",
       description: "Trải nghiệm lặn biển tuyệt vời và khám phá đời sống sinh vật biển phong phú tại Hòn Bà, một trong những điểm đến hấp dẫn của Vũng Tàu.",
       category: "Hoạt động"
     },
     {
       image: "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2022/1/30/1000121/Cho-6.jpg",
       title: "Chợ đêm Vũng Tàu - Thiên đường ẩm thực",
-      postDate: "2024-05-01",
+      createDate: "2024-05-01",
       description: "Đắm chìm trong không khí sôi động và thưởng thức ẩm thực đường phố đặc sắc tại chợ đêm nổi tiếng của thành phố biển Vũng Tàu.",
       category: "Ẩm thực"
     },
     {
       image: "https://image.vietgoing.com/destination/large/vietgoing_cmi2106017229.webp",
       title: "Làng chài Hàm Tiến - Nét đẹp bình dị",
-      postDate: "2024-05-01",
+      createDate: "2024-05-01",
       description: "Khám phá cuộc sống của ngư dân và thưởng thức hải sản tươi ngon tại làng chài Hàm Tiến, một điểm đến không thể bỏ qua ở Bà Rịa - Vũng Tàu.",
       category: "Văn hóa"
     },
     {
       image: "https://vielimousine.com/wp-content/uploads/2022/06/binh-minh-o-vung-tau-luc-may-gio.jpg",
       title: "Bãi Sau - Thiên đường nghỉ dưỡng",
-      postDate: "2024-05-01",
+      createDate: "2024-05-01",
       description: "Tận hưởng không gian thoáng đãng tại Bãi Sau, địa điểm lý tưởng để picnic, thể dục và ngắm hoàng hôn tuyệt đẹp ở Vũng Tàu.",
       category: "Hoạt động"
     },
     {
       image: "https://media.loveitopcdn.com/33377/khu-vui-choi-o-ho-tram-3.jpg",
       title: "Khu du lịch Hồ Tràm - Thiên đường nghỉ dưỡng",
+      createDate: "2024-05-01",
       description: "Trải nghiệm dịch vụ đẳng cấp tại khu resort cao cấp Hồ Tràm với casino, sân golf và bãi biển riêng, nơi nghỉ dưỡng lý tưởng ở Bà Rịa - Vũng Tàu.",
       category: "Nơi lưu trú"
     },
     {
       image: "https://vungtautour.com.vn/Uploads/images/2024/8/Hinh%20-16_1118.jpg",
       title: "Đảo Gò Găng - Vẻ đẹp hoang sơ",
-      postDate: "2024-05-01",
+      createDate: "2024-05-01",
       description: "Khám phá vẻ đẹp nguyên sơ của đảo Gò Găng với bãi biển tuyệt đẹp và làng chài yên bình, một điểm đến mới nổi của Bà Rịa - Vũng Tàu.",
       category: "Hoạt động"
     }

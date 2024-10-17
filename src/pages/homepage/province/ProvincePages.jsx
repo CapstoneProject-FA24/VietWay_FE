@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Typography, Container, Box } from '@mui/material';
 import ProvincePagesCard from '@components/provincePages/ProvincePagesCard';
 import ImageGallery from '@components/provincePages/ImageGallery';
@@ -17,6 +17,12 @@ const ProvincePages = () => {
   const [eventsCategory, setEventsCategory] = useState('Tất cả');
   const [discoverCategory, setDiscoverCategory] = useState('Tất cả');
 
+  const [discoverPosts, setDiscoverPosts] = useState([]);
+
+  useEffect(() => {
+    setDiscoverPosts(mockProvinceData.discover);
+  }, []);
+
   const renderCards = (data) => {
     if (!data || !Array.isArray(data)) {
       return null;
@@ -29,8 +35,8 @@ const ProvincePages = () => {
   };
 
   const filteredDiscoverPosts = discoverCategory === 'Tất cả'
-    ? mockProvinceData.discover
-    : mockProvinceData.discover.filter(post => post.category === discoverCategory);
+    ? discoverPosts
+    : discoverPosts.filter(post => post.category === discoverCategory);
 
   return (
     <Box sx={{ marginTop: 5 }}>
@@ -105,7 +111,7 @@ const ProvincePages = () => {
             Xem thêm
           </Typography>
         </Box>
-        <PostsGrid posts={filteredDiscoverPosts} />
+        <PostsGrid posts={filteredDiscoverPosts} maxPosts={6} />
       </Container>
       <Footer/>
     </Box>
