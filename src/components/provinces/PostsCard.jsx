@@ -6,7 +6,7 @@ export default function PostCard({ post }) {
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: '16px', 
                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-      <CardActionArea component={Link} to={`/post/${post.id}`}>
+      <CardActionArea component={Link} to={`/bai-viet/${post.id}`}>
         <CardMedia component="img" height="220" image={post.image} alt={post.title} />
         <CardContent sx={{ flexGrow: 1, p: 3 }}>
           <Chip label={post.category} color="primary" size="small" sx={{ mb: 1 }} />

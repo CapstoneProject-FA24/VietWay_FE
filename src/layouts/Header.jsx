@@ -99,8 +99,6 @@ const Header = () => {
               fontWeight: location.pathname === '/tinh-thanh' ? 'bold' : 'normal'
             }}
           >
-          <StyledButton color="inherit" component={Link} to="/tour-du-lich" sx={{ color: 'text.primary', textTransform: 'none',
-              fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal' }}>
             Tỉnh thành
           </StyledButton>
           <StyledButton

@@ -14,10 +14,8 @@ import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
 import BookingDetail from "@pages/homepage/tours/BookingDetail";
 import PostDetail from "@pages/homepage/posts/PostDetail";
-import ProvincePages from "@pages/homepage/attractions/ProvincePages";
+import ProvinceDetail from "@pages/homepage/provinces/ProvinceDetail";
 import Provinces from "@pages/homepage/provinces/Provinces.jsx";
-import PostDetail from "@pages/homepage/post/PostDetail";
-import ProvincePages from "@pages/homepage/province/ProvincePages";
 
 const App = () => {
   return (
@@ -27,7 +25,7 @@ const App = () => {
         <Route path="/" element={<Navigate to="/trang-chu" />} />
         <Route path="*" element={<Navigate to="/trang-chu" />} />
         <Route path="/diem-tham-quan" element={<Attractions />} />
-        <Route path="/vung-tau" element={<ProvincePages />} />
+        <Route path="/tinh-thanh/:id" element={<ProvinceDetail />} />
         <Route path="/diem-tham-quan/:id" element={<AttractionDetails />} />
         <Route path="/dang-nhap" element={<Login />} />
         <Route path="/dang-ky" element={<Register />} />
