@@ -8,7 +8,7 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 
 const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
-  const [activeIndex, setActiveIndex] = useState(0); // State to track the current active category index
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const getCategoryIcon = (category) => {
     switch (category.toLowerCase()) {
@@ -39,26 +39,15 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
     <Box sx={{ mb: 2, marginTop: 3, marginBottom: 3 }}>
       <ScrollMenu>
         {categories.map((category, index) => (
-          <Chip
-            key={category}
-            icon={getCategoryIcon(category)}
-            label={
+          <Chip key={category} icon={getCategoryIcon(category)} label={
               <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
                 {category}
               </Typography>
             }
             onClick={() => handleDotClick(index)}
-            sx={{
-              m: 0.5,
-              p: 2,
-              borderRadius: '20px',
-              backgroundColor: 'white',
-              border: activeIndex === index ? '2px solid #000' : '1px solid #ccc',
-              '&:hover': { backgroundColor: '#e0e0e0' },
-              transition: 'all 0.3s',
-              '& .MuiChip-icon': { fontSize: '1.5rem', marginRight: '8px' },
-            }}
-          />
+            sx={{ m: 0.5, p: 2, borderRadius: '20px', backgroundColor: 'white', border: activeIndex === index ? '2px solid #000' : '1px solid #ccc',
+              '&:hover': { backgroundColor: '#e0e0e0' },transition: 'all 0.3s', '& .MuiChip-icon': { fontSize: '1.5rem', marginRight: '8px' }
+            }}/>
         ))}
       </ScrollMenu>
     </Box>

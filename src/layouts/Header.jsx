@@ -85,16 +85,8 @@ const Header = () => {
         </Box> */}
         
         <Box sx={{ display: 'flex', marginLeft: 3, marginRight: 3 }}>
-          <StyledButton
-            color="inherit"
-            component={Link}
-            to="/trang-chu"
-            sx={{
-              color: 'text.primary',
-              textTransform: 'none',
-              fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal'
-            }}
-          >
+          <StyledButton color="inherit" component={Link} to="/trang-chu" sx={{ color: 'text.primary', textTransform: 'none',
+              fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal' }}>
             Trang chủ
           </StyledButton>
           <StyledButton
@@ -107,6 +99,8 @@ const Header = () => {
               fontWeight: location.pathname === '/tinh-thanh' ? 'bold' : 'normal'
             }}
           >
+          <StyledButton color="inherit" component={Link} to="/tour-du-lich" sx={{ color: 'text.primary', textTransform: 'none',
+              fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal' }}>
             Tỉnh thành
           </StyledButton>
           <StyledButton

@@ -1,33 +1,47 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Chip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Chip, CardActionArea } from '@mui/material';
+import { Link } from 'react-router-dom';
 
-const PostCard = ({ title, description, image, category, postDate }) => (
-  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: '16px', 
-              boxShadow: '0 4px 8px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-    <CardMedia component="img" height="220" image={image} alt={title} />
-    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-      <Chip label={category} color="primary" size="small" sx={{ mb: 1 }} />
-      <Typography variant="h5" component="div" fontWeight="bold" gutterBottom>
-        {title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {description}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ marginTop: 2 }}>
-        {postDate}
-      </Typography>
-    </CardContent>
-  </Card>
-);
+export default function PostCard({ post }) {
+  return (
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: '16px', 
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+      <CardActionArea component={Link} to={`/post/${post.id}`}>
+        <CardMedia component="img" height="220" image={post.image} alt={post.title} />
+        <CardContent sx={{ flexGrow: 1, p: 3 }}>
+          <Chip label={post.category} color="primary" size="small" sx={{ mb: 1 }} />
+          <Typography variant="h5" component="div" fontWeight="bold" gutterBottom>
+            {post.title}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {post.description}
+          </Typography>
+          {post.createDate && (
+            <Typography variant="body2" color="text.secondary" sx={{ marginTop: 2 }}>
+              {new Date(post.createDate).toLocaleDateString('vi-VN')}
+            </Typography>
+          )}
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+}
 
-const PostsGrid = ({ posts }) => (
-  <Grid container spacing={3}>
-    {posts.slice(0, 4).map((post, index) => (
-      <Grid item xs={12} sm={6} md={3} key={index}>
-        <PostCard {...post} />
+export function PostsGrid({ posts, title }) {
+  return (
+    <>
+      {title && (
+        <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
+          {title}
+        </Typography>
+      )}
+      <Grid container spacing={3}>
+        {posts.slice(0, 4).map((post, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <PostCard post={post} />
+          </Grid>
+        ))}
       </Grid>
-    ))}
-  </Grid>
-);
-
-export { PostCard, PostsGrid };
+    </>
+  );
+}

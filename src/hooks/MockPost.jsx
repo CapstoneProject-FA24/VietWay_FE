@@ -3,6 +3,7 @@ const mockPosts = [
         id: '1',
         title: 'Lễ hội Hoa Đà Lạt',
         content: '<p>Lễ hội Hoa Đà Lạt là một sự kiện văn hóa đặc sắc...</p>',
+        description: 'Khám phá vẻ đẹp rực rỡ của Lễ hội Hoa Đà Lạt, sự kiện văn hóa đặc sắc thu hút hàng nghìn du khách mỗi năm.',
         createDate: '2023-12-01',
         category: 'Sự kiện',
         provinceId: '2',
@@ -10,12 +11,14 @@ const mockPosts = [
         isEvent: true,
         startDate: '2023-12-20',
         endDate: '2023-12-24',
-        imageUrl: 'https://s-aicmscdn.vietnamhoinhap.vn/vnhn-media/22/12/18/z3970311337005_2a6948ffa7793d3a968262371f264613.jpg'
+        imageUrl: 'https://s-aicmscdn.vietnamhoinhap.vn/vnhn-media/22/12/18/z3970311337005_2a6948ffa7793d3a968262371f264613.jpg',
+        image: 'https://s-aicmscdn.vietnamhoinhap.vn/vnhn-media/22/12/18/z3970311337005_2a6948ffa7793d3a968262371f264613.jpg'
     },
     {
         id: '3',
         title: 'Lễ hội Hoa Đà Lạt',
         content: '<p>Lễ hội Hoa Đà Lạt là một sự kiện văn hóa đặc sắc...</p>',
+        description: 'Trải nghiệm không khí lễ hội tuyệt vời tại Đà Lạt với hàng triệu bông hoa đua nở trong Lễ hội Hoa thường niên.',
         createDate: '2023-12-01',
         category: 'Sự kiện',
         provinceId: '2',
@@ -23,18 +26,31 @@ const mockPosts = [
         isEvent: true,
         startDate: '2023-12-20',
         endDate: '2023-12-24',
-        imageUrl: 'https://s-aicmscdn.vietnamhoinhap.vn/vnhn-media/22/12/18/z3970311337005_2a6948ffa7793d3a968262371f264613.jpg'
+        image: 'https://s-aicmscdn.vietnamhoinhap.vn/vnhn-media/22/12/18/z3970311337005_2a6948ffa7793d3a968262371f264613.jpg',
     },
     {
         id: '4',
         title: 'Ẩm thực đường phố Việt Nam',
         content: "",
+        description: 'Khám phá hương vị đa dạng của ẩm thực đường phố Việt Nam, từ phở nóng hổi đến bánh mì giòn tan.',
         createDate: '2023-11-15',
         category: 'Ẩm thực',
         provinceId: '2',
         provinceName: 'Hà Nội',
         isEvent: false,
-        imageUrl: 'https://www.vietnamvisa.org.vn/wp-content/uploads/2024/08/Hanoi-street-food-guide.jpg'
+        image: 'https://www.vietnamvisa.org.vn/wp-content/uploads/2024/08/Hanoi-street-food-guide.jpg',
+    },
+    {
+        id: '5',
+        title: 'Ẩm thực đường phố Việt Nam',
+        content: "",
+        description: 'Khám phá hương vị đa dạng của ẩm thực đường phố Việt Nam, từ phở nóng hổi đến bánh mì giòn tan.',
+        createDate: '2023-11-15',
+        category: 'Ẩm thực',
+        provinceId: '2',
+        provinceName: 'Hà Nội',
+        isEvent: false,
+        image: 'https://www.vietnamvisa.org.vn/wp-content/uploads/2024/08/Hanoi-street-food-guide.jpg',
     },
     {
         id: '2',
@@ -122,14 +138,14 @@ const mockPosts = [
     Không chỉ có các món ăn nổi tiếng, ẩm thực đường phố Hà Nội còn mang đến cho du khách những trải nghiệm ẩm thực độc đáo và khó quên.
 </p>
 `,
+        description: 'Hòa mình vào không khí nhộn nhịp của Hà Nội và thưởng thức những món ăn đường phố ngon tuyệt như phở, bún chả và bánh cuốn.',
         createDate: '2023-11-15',
         category: 'Ẩm thực',
         provinceId: '2',
         provinceName: 'Hà Nội',
         isEvent: false,
-        imageUrl: 'https://www.vietnamvisa.org.vn/wp-content/uploads/2024/08/Hanoi-street-food-guide.jpg'
+        image: 'https://www.vietnamvisa.org.vn/wp-content/uploads/2024/08/Hanoi-street-food-guide.jpg',
     },
-    // Add more mock posts as needed
 ];
 
 export const fetchPostById = async (id) => {
