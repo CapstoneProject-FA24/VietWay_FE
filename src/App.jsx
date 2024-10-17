@@ -13,6 +13,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
 import BookingDetail from "@pages/homepage/tours/BookingDetail";
+import PostDetail from "@pages/homepage/posts/PostDetail";
+import ProvincePages from "@pages/homepage/attractions/ProvincePages";
+import Provinces from "@pages/homepage/provinces/Provinces.jsx";
 import PostDetail from "@pages/homepage/post/PostDetail";
 import ProvincePages from "@pages/homepage/province/ProvincePages";
 
@@ -37,6 +40,7 @@ const App = () => {
         <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
         <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />
         <Route path="/bai-viet/:id" element={<PostDetail />} />
+        <Route path="/tinh-thanh" element={<Provinces />} />
       </Routes>
     </Router>
   );

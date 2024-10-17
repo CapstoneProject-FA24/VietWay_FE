@@ -89,6 +89,16 @@ const Header = () => {
               fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal' }}>
             Trang chủ
           </StyledButton>
+          <StyledButton
+            color="inherit"
+            component={Link}
+            to="/tinh-thanh"
+            sx={{
+              color: 'text.primary',
+              textTransform: 'none',
+              fontWeight: location.pathname === '/tinh-thanh' ? 'bold' : 'normal'
+            }}
+          >
           <StyledButton color="inherit" component={Link} to="/tour-du-lich" sx={{ color: 'text.primary', textTransform: 'none',
               fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal' }}>
             Tỉnh thành
@@ -120,16 +130,16 @@ const Header = () => {
           <StyledButton
             color="inherit"
             component={Link}
-            to="/tour-du-lich"
+            to="/bai-viet"
             sx={{
               color: 'text.primary',
               textTransform: 'none',
-              fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal'
+              fontWeight: location.pathname === '/bai-viet' ? 'bold' : 'normal'
             }}
           >
             Bài viết
           </StyledButton>
-          <StyledButton
+          {/* <StyledButton
             color="inherit"
             component={Link}
             to="/lien-he"
@@ -140,7 +150,7 @@ const Header = () => {
             }}
           >
             Liên hệ
-          </StyledButton> 
+          </StyledButton>  */}
         </Box>
         
         <Box sx={{ display: 'flex', marginLeft: 1 }}>
