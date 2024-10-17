@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box } from '@mui/material';
 import { fetchRelatedPosts } from '@hooks/MockPost';
-import { PostsGrid } from '@components/provincePages/PostsCard';
+import { PostsGrid } from '@components/provinces/PostsCard';
 
 export default function RelatedPosts({ provinceId, currentPostId }) {
     const [relatedPosts, setRelatedPosts] = useState([]);

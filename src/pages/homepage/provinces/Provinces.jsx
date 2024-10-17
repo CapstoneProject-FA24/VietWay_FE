@@ -104,21 +104,32 @@ const Provinces = () => {
             {filteredProvinces.length} kết quả
           </Typography>
         </Box>
-        <Grid container spacing={2}>
-          {filteredProvinces.slice((page - 1) * pageSize, page * pageSize).map(province => (
-            <Grid item xs={12} sm={6} md={6} key={province.id}>
-              <ProvinceCard province={province} />
+        {filteredProvinces.length > 0 ? (
+          <>
+            <Grid container spacing={2}>
+              {filteredProvinces.slice((page - 1) * pageSize, page * pageSize).map(province => (
+                <Grid item xs={12} sm={6} md={6} key={province.id}>
+                  <ProvinceCard province={province} />
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-          <Pagination 
-            count={Math.ceil(filteredProvinces.length / pageSize)} 
-            page={page} 
-            onChange={handlePageChange} 
-            color="primary"
-          />
-        </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+              <Pagination 
+                count={Math.ceil(filteredProvinces.length / pageSize)} 
+                page={page} 
+                onChange={handlePageChange} 
+                color="primary"
+              />
+            </Box>
+          </>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+            <img src="/location-not-found.png" alt="Location not found" style={{ width: '20rem', height: 'auto', marginBottom: '16px' }} />
+            <Typography variant="h6" sx={{ color: 'text.secondary' }}>
+              Không tìm thấy tỉnh thành phù hợp
+            </Typography>
+          </Box>
+        )}
       </Box>
       <Footer />
     </Box>

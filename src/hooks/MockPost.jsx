@@ -1,6 +1,6 @@
 const mockPosts = [
     {
-        id: '1',
+        id: '7',
         title: 'Lễ hội Hoa Đà Lạt',
         content: '<p>Lễ hội Hoa Đà Lạt là một sự kiện văn hóa đặc sắc...</p>',
         description: 'Khám phá vẻ đẹp rực rỡ của Lễ hội Hoa Đà Lạt, sự kiện văn hóa đặc sắc thu hút hàng nghìn du khách mỗi năm.',
@@ -15,7 +15,7 @@ const mockPosts = [
         image: 'https://s-aicmscdn.vietnamhoinhap.vn/vnhn-media/22/12/18/z3970311337005_2a6948ffa7793d3a968262371f264613.jpg'
     },
     {
-        id: '3',
+        id: '8',
         title: 'Lễ hội Hoa Đà Lạt',
         content: '<p>Lễ hội Hoa Đà Lạt là một sự kiện văn hóa đặc sắc...</p>',
         description: 'Trải nghiệm không khí lễ hội tuyệt vời tại Đà Lạt với hàng triệu bông hoa đua nở trong Lễ hội Hoa thường niên.',
@@ -29,7 +29,7 @@ const mockPosts = [
         image: 'https://s-aicmscdn.vietnamhoinhap.vn/vnhn-media/22/12/18/z3970311337005_2a6948ffa7793d3a968262371f264613.jpg',
     },
     {
-        id: '4',
+        id: '9',
         title: 'Ẩm thực đường phố Việt Nam',
         content: "",
         description: 'Khám phá hương vị đa dạng của ẩm thực đường phố Việt Nam, từ phở nóng hổi đến bánh mì giòn tan.',
@@ -41,7 +41,7 @@ const mockPosts = [
         image: 'https://www.vietnamvisa.org.vn/wp-content/uploads/2024/08/Hanoi-street-food-guide.jpg',
     },
     {
-        id: '5',
+        id: '10',
         title: 'Ẩm thực đường phố Việt Nam',
         content: "",
         description: 'Khám phá hương vị đa dạng của ẩm thực đường phố Việt Nam, từ phở nóng hổi đến bánh mì giòn tan.',
@@ -53,7 +53,7 @@ const mockPosts = [
         image: 'https://www.vietnamvisa.org.vn/wp-content/uploads/2024/08/Hanoi-street-food-guide.jpg',
     },
     {
-        id: '2',
+        id: '11',
         title: 'Ẩm thực đường phố Hà Nội',
         content: `
 <h1 style="text-align: center; font-size: 35px;">Khám Phá Ẩm Thực Đường Phố Hà Nội</h2>
