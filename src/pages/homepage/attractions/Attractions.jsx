@@ -1,227 +1,239 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress, Card, CardMedia, Pagination, Select, MenuItem, FormControl, Checkbox, FormGroup, FormControlLabel, OutlinedInput, Button } from '@mui/material';
+import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { getFilteredAttractions } from '@hooks/MockAttractions';
-import { styled, alpha } from '@mui/material/styles';
+import { Link } from 'react-router-dom';
+import AttractionCard from '@components/AttractionCard';
+import { fetchAttractions } from '@services/AttractionService';
+import { fetchProvinces } from '@services/ProvinceService';
+import { fetchAttractionType } from '@services/AttractionTypeService';
+import SearchIcon from '@mui/icons-material/Search';
 
 const Attractions = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [attractions, setAttractions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState('popularity');
-  const [filters, setFilters] = useState({
-    museum: false,
-    park: false,
-    historical: false,
-    religious: false,
-    natureReserve: false,
-    province: '',
-  });
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchInput, setSearchInput] = useState('');
 
-  const provinces = [
-    'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ',
-    'An Giang', 'Bà Rịa - Vũng Tàu', 'Bắc Giang', 'Bắc Kạn',
-    'Bạc Liêu', 'Bắc Ninh', 'Bến Tre', 'Bình Định', 'Bình Dương',
-    'Bình Phước', 'Bình Thuận', 'Cà Mau', 'Cao Bằng', 'Đắk Lắk',
-    'Đắk Nông', 'Điện Biên', 'Đồng Nai', 'Đồng Tháp', 'Gia Lai',
-    'Hà Giang', 'Hà Nam', 'Hà Tĩnh', 'Hải Dương', 'Hậu Giang',
-    'Hòa Bình', 'Hưng Yên', 'Khánh Hòa', 'Kiên Giang', 'Kon Tum',
-    'Lai Châu', 'Lâm Đồng', 'Lạng Sơn', 'Lào Cai', 'Long An',
-    'Nam Định', 'Nghệ An', 'Ninh Bình', 'Ninh Thuận', 'Phú Thọ',
-    'Quảng Bình', 'Quảng Nam', 'Quảng Ngãi', 'Quảng Ninh',
-    'Quảng Trị', 'Sóc Trăng', 'Sơn La', 'Tây Ninh', 'Thái Bình',
-    'Thái Nguyên', 'Thanh Hóa', 'Thừa Thiên Huế', 'Tiền Giang',
-    'Trà Vinh', 'Tuyên Quang', 'Vĩnh Long', 'Vĩnh Phúc', 'Yên Bái'
-  ];
+  const [selectedProvince, setSelectedProvince] = useState('all');
+  const [selectedAttractionType, setSelectedAttractionType] = useState('all');
+  const [provinces, setProvinces] = useState([]);
+  const [attractionTypes, setAttractionTypes] = useState([]);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const province = searchParams.get('tinh') || '';
-    setFilters((prevFilters) => ({ ...prevFilters, province }));
-  }, [location.search]);
+    fetchAttractionData();
+    fetchProvinceData();
+    fetchAttractionTypeData();
+  }, [page, pageSize, searchTerm]);
 
-  useEffect(() => {
-    const fetchAttractions = async () => {
-      try {
-        setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const mockData = getFilteredAttractions(filters, sortBy);
-        setAttractions(mockData);
-      } catch (error) {
-        console.error("Error fetching attractions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAttractionData = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        pageSize,
+        pageIndex: page,
+        searchTerm: searchTerm,
+        provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+        attractionTypeIds: selectedAttractionType !== 'all' ? [selectedAttractionType] : [],
+      };
 
-    fetchAttractions();
-  }, [sortBy, filters]);
+      const response = await fetchAttractions(params);
+      setAttractions(response.data);
+      setTotalItems(response.total);
+      setTotalPages(Math.ceil(response.total / pageSize));
+    } catch (error) {
+      console.error("Error fetching attractions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProvinceData = async () => {
+    try {
+      const fetchedProvinces = await fetchProvinces();
+      setProvinces(fetchedProvinces);
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+    }
+  };
+
+  const fetchAttractionTypeData = async () => {
+    try {
+      const fetchedAttractionTypes = await fetchAttractionType();
+      setAttractionTypes(fetchedAttractionTypes);
+    } catch (error) {
+      console.error('Error fetching attraction types:', error);
+    }
+  };
 
   const handlePageChange = (event, value) => {
     setPage(value);
+    window.scrollTo(0, 0);
   };
 
-  const handleSortChange = (event) => {
-    setSortBy(event.target.value);
+  const handleSearch = () => {
+    setSearchTerm(searchInput);
+    setPage(1);
   };
 
-  const handleFilterChange = (event) => {
-    setFilters({ ...filters, [event.target.name]: event.target.checked });
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
   };
 
-  const handleProvinceChange = (event) => {
-    const newProvince = event.target.value;
-    setFilters({ ...filters, province: newProvince });
-    navigate(`/diem-tham-quan?tinh=${newProvince}`, { replace: true });
+  const handleSearchInputChange = (event) => {
+    setSearchInput(event.target.value);
   };
 
-  const StyledButton = styled(Button)(({ theme }) => ({
-    fontFamily: 'Inter, sans-serif',
-    fontSize: '16px',
-  }));
+  const handlePageSizeChange = (event) => {
+    setPageSize(parseInt(event.target.value));
+    setPage(1);
+  };
+
+  const handleApplyFilters = () => {
+    setPage(1);
+    fetchAttractionData();
+  };
 
   if (loading) {
     return (
       <>
-        <Helmet>
-          <title>Điểm tham quan</title>
-        </Helmet>
+        <Helmet> <title>Điểm tham quan</title> </Helmet>
         <Header />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
+          <CircularProgress />
         </Box>
       </>
     );
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Helmet>
-        <title>Điểm tham quan</title>
-      </Helmet>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', ml: 1, mr: 1 }}>
+      <Helmet><title>Điểm tham quan</title></Helmet>
       <Header />
-      <Box sx={{ flexGrow: 1, padding: '40px' }}>
-        <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '16px', textAlign: 'left' }}>
-          <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</Link> 
+      <Box sx={{ flexGrow: 1, mt: 8 }}>
+        <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', textAlign: 'left', mb: 2 }}>
+          <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</Link>
           &gt; <strong>Điểm tham quan</strong>
         </Typography>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', mt: 5 }}>
-          Khám phá các địa điểm du lịch
-        </Typography>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
-            <Paper elevation={3} sx={{ borderRadius: '10px' }}>
-              <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 2, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
-              <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', ml: 2, mb: -2, fontSize: '18px' }}>Loại điểm đến</Typography>
-              <FormGroup sx={{ p: 2 }}>
-                <FormControlLabel control={<Checkbox checked={filters.museum} onChange={handleFilterChange} name="museum" />} label="Bảo tàng" />
-                <FormControlLabel control={<Checkbox checked={filters.park} onChange={handleFilterChange} name="park" />} label="Công viên" />
-                <FormControlLabel control={<Checkbox checked={filters.historical} onChange={handleFilterChange} name="historical" />} label="Di tích lịch sử" />
-                <FormControlLabel control={<Checkbox checked={filters.religious} onChange={handleFilterChange} name="religious" />} label="Công trình tôn giáo" />
-                <FormControlLabel control={<Checkbox checked={filters.natureReserve} onChange={handleFilterChange} name="natureReserve" />} label="Khu bảo tồn thiên nhiên" />
-              </FormGroup>
-              <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', ml: 2, mb: -2, fontSize: '18px' }}>Tỉnh thành</Typography>
-              <FormControl fullWidth sx={{ mt: 2, p: 2 }}>
-                <Select
-                  labelId="province-select-label"
-                  id="province-select"
-                  value={filters.province || "Tất cả"}
-                  onChange={(e) => handleProvinceChange({ target: { value: e.target.value === "Tất cả" ? "" : e.target.value } })}
-                  input={<OutlinedInput/>}
-                >
-                  <MenuItem value="Tất cả">
-                    <em>Tất cả</em>
-                  </MenuItem>
-                  {provinces.map((province) => (
-                    <MenuItem key={province} value={province}>
-                      {province}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Paper>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
+              Khám phá các điểm tham quan
+            </Typography>
           </Grid>
-          <Grid item xs={12} md={9}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
-              <Typography sx={{ textAlign: 'left', color: 'black' }}>
-                {attractions.length} kết quả
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography sx={{ textAlign: 'left', color: 'black', mr: 2 }}>Sắp xếp theo:</Typography>
-                <FormControl sx={{ minWidth: 120 }}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Tìm kiếm điểm tham quan..."
+              value={searchInput}
+              onChange={handleSearchInputChange}
+              onKeyPress={handleKeyPress}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleSearch} edge="end"> <SearchIcon /> </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
+            />
+          </Grid>
+          <Grid item xs={12} md={3.5}>
+            <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 2, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
+              <Box sx={{ p: 1 }}>
+                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Tỉnh thành</Typography>
                   <Select
-                    labelId="sort-select-label"
-                    value={sortBy}
-                    onChange={handleSortChange}
-                    size="small"
+                    value={selectedProvince}
+                    onChange={(e) => setSelectedProvince(e.target.value)}
+                    sx={{ height: '40px' }}
                   >
-                    <MenuItem value="popularity">Phổ biến</MenuItem>
-                    <MenuItem value="rating">Đánh giá</MenuItem>
-                    <MenuItem value="name">Tên</MenuItem>
+                    <MenuItem value="all">Tất cả</MenuItem>
+                    {provinces.map((province) => (
+                      <MenuItem key={province.provinceId} value={province.provinceId}>{province.provinceName}</MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
+                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Loại điểm tham quan</Typography>
+                  <Select
+                    value={selectedAttractionType}
+                    onChange={(e) => setSelectedAttractionType(e.target.value)}
+                    sx={{ height: '40px' }}
+                  >
+                    <MenuItem value="all">Tất cả</MenuItem>
+                    {attractionTypes.map((type) => (
+                      <MenuItem key={type.attractionTypeId} value={type.attractionTypeId}>{type.attractionTypeName}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Box sx={{ pl: 2, pr: 2, mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={handleApplyFilters}
+                    sx={{
+                      backgroundColor: '#3572EF',
+                      '&:hover': { backgroundColor: '#1C3F94' }
+                    }}
+                  >
+                    Áp dụng bộ lọc
+                  </Button>
+                </Box>
               </Box>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={8.5}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
+              <Typography sx={{ textAlign: 'left', color: 'black' }}>
+                {totalItems} kết quả
+              </Typography>
             </Box>
-            <Grid container spacing={3}>
-              {attractions.map((attraction) => (
-                <Grid item xs={12} key={attraction.id}>
-                  <Card sx={{ display: 'flex', height: '200px', textAlign: 'left', borderRadius: '7px' }}>
-                    <CardMedia
-                      component="img"
-                      sx={{ width: '30%', objectFit: 'cover', margin: '7px', borderRadius: '7px' }}
-                      image={attraction.images[0].url}
-                      alt={attraction.images[0].alt}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '50%', p: 2 }}>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        {attraction.province}
-                      </Typography>
-                      <Typography 
-                        variant="h5" 
-                        component={Link} 
-                        to={`/diem-tham-quan/${attraction.id}?province=${filters.province}`}
-                        gutterBottom 
-                        sx={{ 
-                          overflow: 'hidden', 
-                          textOverflow: 'ellipsis', 
-                          display: '-webkit-box', 
-                          WebkitLineClamp: 1, 
-                          WebkitBoxOrient: 'vertical',
-                          textDecoration: 'none',
-                          color: 'inherit',
-                          '&:hover': {
-                            color: 'primary.main',
-                          }
-                        }}
-                      >
-                        {attraction.name}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <FontAwesomeIcon icon={faStar} style={{ color: '#FFD700', marginRight: '8px' }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {attraction.rating.rate} ({attraction.rating.vote})
-                        </Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
-                        {attraction.description}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', width: '20%', p: '0px 15px 15px 0px' }}>
-                        <StyledButton component={Link} to={`/diem-tham-quan/${attraction.id}?province=${filters.province}`} sx={{ color: 'primary', textTransform: 'none', alignSelf: 'flex-end', borderRadius: '10px', border: '1px solid #3572EF', height: '50px', width: '80%' }}>Xem chi tiết</StyledButton>
-                    </Box>
-                  </Card>
-                </Grid>
-              ))}
+            <Grid container spacing={1}>
+              {attractions.length > 0 ? (
+                attractions.map((attraction) => (
+                  <Grid item xs={12} key={attraction.attractionId}>
+                    <AttractionCard attraction={attraction} />
+                  </Grid>
+                ))
+              ) : (
+                <Box sx={{ minHeight: '30rem', width: '100%' }}>
+                  <Typography sx={{ fontSize: '2rem', textAlign: 'center', width: '100%', p: 5 }}>
+                    Không tìm thấy điểm tham quan nào!
+                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
+                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }}/>
+                  </Box>
+                </Box>
+              )}
             </Grid>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-              <Pagination count={10} page={page} onChange={handlePageChange} />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="primary"
+                sx={{ m: '0 auto' }}
+              />
+              <Select
+                value={pageSize}
+                onChange={handlePageSizeChange}
+                variant="outlined"
+                sx={{ height: '40px' }}
+              >
+                <MenuItem value={5}>5 / trang</MenuItem>
+                <MenuItem value={10}>10 / trang</MenuItem>
+                <MenuItem value={20}>20 / trang</MenuItem>
+              </Select>
             </Box>
           </Grid>
         </Grid>
