@@ -76,11 +76,11 @@ const Homepage = () => {
           <Typography variant="h1" sx={{ fontSize: '4.7rem', mb: 2, color: 'white' }}>Niềm vui quanh ta</Typography>
           <Typography variant="h7" sx={{ width: "40%", color: 'white' }}>Từ những chuyến đi gần đến những cuộc phiêu lưu xa xôi, hãy tìm thấy điều làm bạn hạnh phúc mỗi lúc, mọi nơi</Typography>
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
-        <Container maxWidth="lg" sx={{ position: 'absolute', zIndex: 5, top: 450 }}>
-            <FilterBar sx={{ backgroundColor: 'white', boxShadow: 3, borderRadius: 2, marginBottom: '2rem' }} />
-          </Container>
         </Box>
       </Box>
+      <Container maxWidth="lg" sx={{ position: 'absolute', zIndex: 5, top: 450, ml: 15 }}>
+        <FilterBar sx={{ backgroundColor: 'white', boxShadow: 3, borderRadius: 2, marginBottom: '2rem' }} />
+      </Container>
       <Box>
         <Box component="section" className="why-choose-us">
           <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>
