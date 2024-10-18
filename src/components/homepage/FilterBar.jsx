@@ -52,45 +52,38 @@ const FilterBar = () => {
           <Tab icon={<WorkIcon />} label="Combo" />
         </Tabs>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <Select
+          <TextField
+            placeholder="Bạn muốn đi đâu?"
             value={selectedDestination}
             onChange={(e) => setSelectedDestination(e.target.value)}
-            displayEmpty
             sx={{ width: '25%' }}
-          >
-            <TextField
-              placeholder="Bạn muốn đi đâu?"
-              value={selectedDestination}
-              onChange={(e) => setSelectedDestination(e.target.value)}
-              fullWidth
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton>
-                      <SearchIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            {selectedDestination && (
-              <List>
-                {destinations
-                  .filter((dest) =>
-                    dest.name.toLowerCase().includes(selectedDestination.toLowerCase())
-                  )
-                  .map((dest) => (
-                    <ListItem
-                      key={dest.id}
-                      button
-                      onClick={() => setSelectedDestination(dest.name)}
-                    >
-                      <ListItemText primary={dest.name} />
-                    </ListItem>
-                  ))}
-              </List>
-            )}
-          </Select>
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton>
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          {selectedDestination && (
+            <List sx={{ position: 'absolute', zIndex: 1, bgcolor: 'background.paper', width: '25%', maxHeight: 200, overflow: 'auto' }}>
+              {destinations
+                .filter((dest) =>
+                  dest.name.toLowerCase().includes(selectedDestination.toLowerCase())
+                )
+                .map((dest) => (
+                  <ListItem
+                    key={dest.id}
+                    button
+                    onClick={() => setSelectedDestination(dest.name)}
+                  >
+                    <ListItemText primary={dest.name} />
+                  </ListItem>
+                ))}
+            </List>
+          )}
           <DatePicker
             label="Ngày đi"
             value={departureDate}

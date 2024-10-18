@@ -78,8 +78,8 @@ const Homepage = () => {
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
-      <Container maxWidth="lg" sx={{ position: 'absolute', zIndex: 5, top: 450, ml: 15 }}>
-        <FilterBar sx={{ backgroundColor: 'white', boxShadow: 3, borderRadius: 2, marginBottom: '2rem' }} />
+      <Container maxWidth="lg" sx={{ position: 'absolute', zIndex: 5, top: 450}}>
+        <FilterBar sx={{ backgroundColor: 'white', boxShadow: 3, borderRadius: 2, marginBottom: '2rem', width: '100vw' }} />
       </Container>
       <Box>
         <Box component="section" className="why-choose-us">
