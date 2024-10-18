@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
 import SuggestTours from '@components/SuggestTours'
 import SuggestTourByProvince from '@components/SuggestTourByProvince';
+import FilterBar from '@components/homepage/FilterBar';
 
 const Homepage = () => {
   const [popularDestinations, setPopularDestinations] = useState([]);
@@ -62,7 +63,7 @@ const Homepage = () => {
   return (
     <Box className="homepage" >
       <Header />
-      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5 }} >
+      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5, mb: 10 }} >
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.3)', zIndex: 1 }} />
         <Slider {...sliderSettings}>
           <img src="hero.jpg" alt="Hero 1" className="hero-image" />
@@ -75,6 +76,9 @@ const Homepage = () => {
           <Typography variant="h1" sx={{ fontSize: '4.7rem', mb: 2, color: 'white' }}>Niềm vui quanh ta</Typography>
           <Typography variant="h7" sx={{ width: "40%", color: 'white' }}>Từ những chuyến đi gần đến những cuộc phiêu lưu xa xôi, hãy tìm thấy điều làm bạn hạnh phúc mỗi lúc, mọi nơi</Typography>
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
+        <Container maxWidth="lg" sx={{ position: 'absolute', zIndex: 5, top: 450 }}>
+            <FilterBar sx={{ backgroundColor: 'white', boxShadow: 3, borderRadius: 2, marginBottom: '2rem' }} />
+          </Container>
         </Box>
       </Box>
       <Box>
