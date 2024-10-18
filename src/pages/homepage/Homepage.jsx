@@ -61,7 +61,7 @@ const Homepage = () => {
   };
 
   return (
-    <Box className="homepage" >
+    <Box className="homepage" sx={{ width: '100%' }}>
       <Header />
       <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5, mb: 10 }} >
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.3)', zIndex: 1 }} />
@@ -78,9 +78,9 @@ const Homepage = () => {
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
-      <Container maxWidth="lg" sx={{ position: 'absolute', zIndex: 5, top: 450}}>
-        <FilterBar sx={{ backgroundColor: 'white', boxShadow: 3, borderRadius: 2, marginBottom: '2rem', width: '100vw' }} />
-      </Container>
+      <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '70%' }}>
+        <FilterBar />
+      </Box>
       <Box>
         <Box component="section" className="why-choose-us">
           <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>

@@ -43,7 +43,7 @@ const FilterBar = () => {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%'}}>
       <Box sx={{ width: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1 }}>
         <Tabs value={value} onChange={handleChange} centered>
           <Tab icon={<DirectionsBusIcon />} label="Tour trọn gói" />
