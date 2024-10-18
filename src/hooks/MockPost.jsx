@@ -5,7 +5,7 @@ const mockPosts = [
         content: '<p>Lễ hội Hoa Đà Lạt là một sự kiện văn hóa đặc sắc...</p>',
         description: 'Khám phá vẻ đẹp rực rỡ của Lễ hội Hoa Đà Lạt, sự kiện văn hóa đặc sắc thu hút hàng nghìn du khách mỗi năm.',
         createDate: '2023-12-01',
-        category: 'Sự kiện',
+        category: 'Văn hóa',
         provinceId: '2',
         provinceName: 'Lâm Đồng',
         isEvent: true,
@@ -20,7 +20,7 @@ const mockPosts = [
         content: '<p>Lễ hội Hoa Đà Lạt là một sự kiện văn hóa đặc sắc...</p>',
         description: 'Trải nghiệm không khí lễ hội tuyệt vời tại Đà Lạt với hàng triệu bông hoa đua nở trong Lễ hội Hoa thường niên.',
         createDate: '2023-12-01',
-        category: 'Sự kiện',
+        category: 'Văn hóa',
         provinceId: '2',
         provinceName: 'Lâm Đồng',
         isEvent: true,
@@ -162,6 +162,16 @@ export const fetchRelatedPosts = async (provinceId, currentPostId) => {
         setTimeout(() => {
             const related = mockPosts.filter(p => p.provinceId === provinceId && p.id !== currentPostId);
             resolve(related);
+        }, 500);
+    });
+};
+
+// Add this new function
+export const fetchEvents = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const events = mockPosts.filter(post => post.isEvent);
+            resolve(events);
         }, 500);
     });
 };
