@@ -90,27 +90,17 @@ const Header = () => {
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Typography variant="h6" component={Link} to="/trang-chu" sx={{ color: 'text.primary' }}>
           <img src={location.pathname === '/trang-chu' && scrollY === 0 ? "/logo2.png" : "/logo2_color.png"} alt="Logo" style={{ height: '55px', marginTop: '15px' }} />
-        </Typography>
-        
-        {/* <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-          <Search sx={{ flexGrow: 1 }}>
-            <StyledInputBase placeholder="Tìm kiếm..." inputProps={{ 'aria-label': 'search' }} />
-          </Search>
-          <IconButton sx={{ p: '10px', marginTop: '10px', marginLeft: '-15px' }} aria-label="search">
-            <SearchIcon />
-          </IconButton>
-        </Box> */}
-        
-        <Box sx={{ display: 'flex', marginLeft: 3, marginRight: 3 }}>
+        </Typography>    
+        <Box sx={{ display: 'flex', ml: 5 }}>
           <StyledButton color="inherit" component={Link} to="/trang-chu" sx={{ color: 'text.primary', textTransform: 'none',
-              fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal', 
+              fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal', ml: 2, mr: 2,
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black' }}>
             Trang chủ
           </StyledButton>
           <StyledButton
             color="inherit" component={Link} to="/tinh-thanh"
             sx={{
-              color: 'text.primary', textTransform: 'none',
+              color: 'text.primary', textTransform: 'none', ml: 2, mr: 2,
               fontWeight: location.pathname === '/tinh-thanh' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
@@ -120,7 +110,7 @@ const Header = () => {
           <StyledButton
             color="inherit" component={Link} to="/diem-tham-quan"
             sx={{
-              color: 'text.primary', textTransform: 'none',
+              color: 'text.primary', textTransform: 'none', ml: 2, mr: 2,
               fontWeight: location.pathname === '/diem-tham-quan' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
@@ -130,7 +120,7 @@ const Header = () => {
           <StyledButton
             color="inherit" component={Link} to="/tour-du-lich"
             sx={{
-              color: 'text.primary', textTransform: 'none',
+              color: 'text.primary', textTransform: 'none', ml: 2, mr: 2,
               fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
@@ -139,7 +129,7 @@ const Header = () => {
           </StyledButton>
           <StyledButton
             color="inherit" component={Link} to="/bai-viet"
-            sx={{ color: 'text.primary', textTransform: 'none',
+            sx={{ color: 'text.primary', textTransform: 'none', ml: 2, mr: 2,
               fontWeight: location.pathname === '/bai-viet' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
@@ -148,25 +138,16 @@ const Header = () => {
           </StyledButton>
           <StyledButton
             color="inherit" component={Link} to="/su-kien"
-            sx={{ color: 'text.primary', textTransform: 'none',
+            sx={{ color: 'text.primary', textTransform: 'none', ml: 2, mr: 2,
               fontWeight: location.pathname === '/su-kien' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
           >
             Sự kiện
           </StyledButton>
-          {/* <StyledButton
-            color="inherit" component={Link} to="/lien-he"
-            sx={{
-              color: 'text.primary', textTransform: 'none',
-              fontWeight: location.pathname === '/lien-he' ? 'bold' : 'normal'
-            }}
-          >
-            Liên hệ
-          </StyledButton>  */}
         </Box>
         
-        <Box sx={{ display: 'flex', marginLeft: 1 }}>
+        <Box sx={{ display: 'flex', ml: 1 }}>
           {isLoggedIn ? (
             <>
               <IconButton
@@ -188,7 +169,7 @@ const Header = () => {
             </>
           ) : (
             <>
-              <StyledButton color="inherit" component={Link} to="/dang-ky" sx={{ color: 'text.primary', textTransform: 'none' }}>Đăng ký</StyledButton>
+              <StyledButton color="inherit" component={Link} to="/dang-ky" sx={{ color: location.pathname === '/trang-chu' && scrollY === 0  ? "white" : "black", textTransform: 'none' }}>Đăng ký</StyledButton>
               <StyledButton color="inherit" component={Link} to="/dang-nhap" sx={{ color: 'white', textTransform: 'none', backgroundColor: '#3572EF', borderRadius: '100px', padding: '9px 14px', marginLeft: '10px', '&:hover': { backgroundColor: '#CAECFF' } }}>Đăng nhập</StyledButton>
             </>
           )}
