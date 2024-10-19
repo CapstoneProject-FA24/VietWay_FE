@@ -18,6 +18,7 @@ import Posts from "@pages/homepage/posts/Posts";
 import ProvinceDetail from "@pages/homepage/provinces/ProvinceDetail";
 import Provinces from "@pages/homepage/provinces/Provinces.jsx";
 import Events from "@pages/homepage/events/Events.jsx";
+import PaymentDetail from '@pages/account/PaymentDetail';
 
 const App = () => {
   return (
@@ -35,7 +36,8 @@ const App = () => {
         <Route path="/dat-lai-mat-khau" element={<ResetPass />} />
         <Route path="/tour-du-lich" element={<Tours />} />
         <Route path="/tour-du-lich/:id" element={<TourDetails />} />
-        <Route path="/tai-khoan" element={<Profile />} />
+        <Route path="/tai-khoan/*" element={<Profile />} />
+        <Route path="/tai-khoan/thanh-toan/:paymentId" element={<PaymentDetail />} />
         <Route path="/dat-tour/:id" element={<BookTour />} />
         <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
         <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />

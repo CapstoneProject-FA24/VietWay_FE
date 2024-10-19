@@ -7,10 +7,12 @@ import { mockProfiles } from '@hooks/MockProfile';
 import { mockTours } from '@hooks/MockTours';
 import ProfileDetail from '@components/profile/ProfileDetail';
 import BookedTour from '@components/profile/BookedTour';
-import { useNavigate } from 'react-router-dom';
+import PaymentHistory from '@components/profile/PaymentHistory';
+import { useNavigate, Route, Routes } from 'react-router-dom';
 
 const Profile = () => {
     const [profile, setProfile] = useState({});
+    const [payments, setPayments] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [statusTab, setStatusTab] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,10 +20,31 @@ const Profile = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if(!token){
+        if (!token) {
             navigate('/');
         }
         setProfile(mockProfiles[0]);
+    }, []);
+
+    useEffect(() => {
+        setPayments([
+            {
+                paymentId: 'PAY-123456', bookingId: 'BOOK-789012', tourName: 'Đà Lạt - Thung Lũng Tình Yêu - Nhà thờ con gà - 2 ngày 1 đêm',
+                amount: 1500000, bankName: 'VNPay', payTime: '2024-03-15T10:35:00', status: 'Thành công'
+            },
+            {
+                paymentId: 'PAY-123434', bookingId: 'BOOK-789245', tourName: 'Hà Nội -Sa Pa - 4 ngày 3 đêm',
+                amount: 1500000, bankName: 'VNPay', payTime: '2024-03-15T10:35:00', status: 'Thành công'
+            },
+            {
+                paymentId: 'PAY-123434', bookingId: 'BOOK-789245', tourName: 'Hà Nội -Sa Pa - 4 ngày 3 đêm',
+                amount: 1500000, bankName: 'VNPay', payTime: '2024-03-15T10:35:00', status: 'Thành công'
+            },
+            {
+                paymentId: 'PAY-123434', bookingId: 'BOOK-789245', tourName: 'Hà Nội -Sa Pa - 4 ngày 3 đêm',
+                amount: 1500000, bankName: 'VNPay', payTime: '2024-03-15T10:35:00', status: 'Thất bại'
+            },
+        ]);
     }, []);
 
     const handleTabChange = (event, newValue) => {
@@ -36,7 +59,7 @@ const Profile = () => {
         setSearchTerm(event.target.value);
     };
 
-    const filteredTours = mockTours.filter(tour => 
+    const filteredTours = mockTours.filter(tour =>
         tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         tour.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -51,9 +74,9 @@ const Profile = () => {
                     <Typography variant="h5" sx={{ width: "40%", zIndex: 2, color: 'white' }}>{profile.email}</Typography>
                     <img src="account-background.jpg" alt="Wave" style={{ width: "100%", height: "100%", bottom: 0, left: 0, position: "absolute", zIndex: -1 }} />
                 </Box>
-                
+
             </Box>
-            <Container sx={{ my: 2, mt: -25, position: "relative", zIndex: 1}}>
+            <Container sx={{ my: 2, mt: -25, position: "relative", zIndex: 1 }}>
                 <Tabs value={tabValue} onChange={handleTabChange} centered indicatorColor="secondary">
                     <Tab label="Tài khoản" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                     <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
@@ -61,23 +84,23 @@ const Profile = () => {
                     <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
                     <Tab label="Lịch Sử Thanh Toán" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                 </Tabs>
-                {tabValue === 0 && (
-                    <ProfileDetail profile={profile} />
-                )}
-                {tabValue === 2 && (
-                    <BookedTour 
-                        statusTab={statusTab}
-                        handleStatusTabChange={handleStatusTabChange}
-                        searchTerm={searchTerm}
-                        handleSearchChange={handleSearchChange}
-                        filteredTours={filteredTours}
-                    />
-                )}
-                {tabValue === 4 && (
-                    <Box sx={{ mt: 2 }}>
-                    {/* Nội dung cho tab "Lịch Sử Thanh Toán" */}
-                    </Box>
-                )}
+                <Routes>
+                    <Route path="/" element={
+                        <>
+                            {tabValue === 0 && <ProfileDetail profile={profile} />}
+                            {tabValue === 2 && (
+                                <BookedTour
+                                    statusTab={statusTab}
+                                    handleStatusTabChange={handleStatusTabChange}
+                                    searchTerm={searchTerm}
+                                    handleSearchChange={handleSearchChange}
+                                    filteredTours={filteredTours}
+                                />
+                            )}
+                            {tabValue === 4 && <PaymentHistory payments={payments} />}
+                        </>
+                    } />
+                </Routes>
             </Container>
             <Footer />
         </Box>
