@@ -13,6 +13,11 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
 import BookingDetail from "@pages/homepage/tours/BookingDetail";
+import PostDetail from "@pages/homepage/posts/PostDetail";
+import Posts from "@pages/homepage/posts/Posts";
+import ProvinceDetail from "@pages/homepage/provinces/ProvinceDetail";
+import Provinces from "@pages/homepage/provinces/Provinces.jsx";
+import Events from "@pages/homepage/events/Events.jsx";
 
 const App = () => {
   return (
@@ -22,6 +27,7 @@ const App = () => {
         <Route path="/" element={<Navigate to="/trang-chu" />} />
         <Route path="*" element={<Navigate to="/trang-chu" />} />
         <Route path="/diem-tham-quan" element={<Attractions />} />
+        <Route path="/tinh-thanh/:id" element={<ProvinceDetail />} />
         <Route path="/diem-tham-quan/:id" element={<AttractionDetails />} />
         <Route path="/dang-nhap" element={<Login />} />
         <Route path="/dang-ky" element={<Register />} />
@@ -33,6 +39,10 @@ const App = () => {
         <Route path="/dat-tour/:id" element={<BookTour />} />
         <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
         <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />
+        <Route path="/bai-viet/:id" element={<PostDetail />} />
+        <Route path="/bai-viet" element={<Posts />} />
+        <Route path="/tinh-thanh" element={<Provinces />} />
+        <Route path="/su-kien" element={<Events />} />
       </Routes>
     </Router>
   );

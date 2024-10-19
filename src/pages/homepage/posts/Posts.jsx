@@ -1,58 +1,66 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
+import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton, List, ListItem, ListItemText, ListItemAvatar } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import AttractionCard from '@components/AttractionCard';
-import { fetchAttractions } from '@services/AttractionService';
+import PostCard from '@components/post/PostCard';
+import { fetchPostById } from '@hooks/MockPost';
 import { fetchProvinces } from '@services/ProvinceService';
-import { fetchAttractionType } from '@services/AttractionTypeService';
 import SearchIcon from '@mui/icons-material/Search';
 
-const Attractions = () => {
-  const [attractions, setAttractions] = useState([]);
+const Posts = () => {
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalItems, setTotalItems] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
   const [selectedProvince, setSelectedProvince] = useState('all');
-  const [selectedAttractionType, setSelectedAttractionType] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [provinces, setProvinces] = useState([]);
-  const [attractionTypes, setAttractionTypes] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({
     province: 'all',
-    attractionType: 'all'
+    category: 'all'
   });
 
   useEffect(() => {
-    fetchAttractionData();
+    fetchPostData();
     fetchProvinceData();
-    fetchAttractionTypeData();
+    // Simulating fetching categories
+    setCategories([
+      { categoryId: '1', categoryName: 'Du lịch' },
+      { categoryId: '2', categoryName: 'Ẩm thực' },
+      // Add more categories as needed
+    ]);
   }, [page, pageSize, searchTerm, appliedFilters]);
 
-  const fetchAttractionData = async () => {
+  const fetchPostData = async () => {
     try {
       setLoading(true);
-      const params = {
-        pageSize,
-        pageIndex: page,
-        searchTerm: searchTerm,
-        provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
-        attractionTypeIds: appliedFilters.attractionType !== 'all' ? [appliedFilters.attractionType] : [],
-      };
-      const response = await fetchAttractions(params);
-      setAttractions(response.data);
-      setTotalItems(response.total);
-      setTotalPages(Math.ceil(response.total / pageSize));
+      const allPosts = [];
+      const promises = [];
+
+      for (let i = 1; i <= 11; i++) {
+        promises.push(fetchPostById(i.toString()));
+      }
+
+      const results = await Promise.all(promises);
+      results.forEach(post => {
+        if (post && !post.isEvent) {
+          allPosts.push(post);
+        }
+      });
+
+      setPosts(allPosts);
+      setTotalItems(allPosts.length);
+      setLoading(false);
     } catch (error) {
-      console.error("Error fetching attractions:", error);
-    } finally {
+      console.error("Error fetching posts:", error);
       setLoading(false);
     }
   };
@@ -63,15 +71,6 @@ const Attractions = () => {
       setProvinces(fetchedProvinces);
     } catch (error) {
       console.error('Error fetching provinces:', error);
-    }
-  };
-
-  const fetchAttractionTypeData = async () => {
-    try {
-      const fetchedAttractionTypes = await fetchAttractionType();
-      setAttractionTypes(fetchedAttractionTypes);
-    } catch (error) {
-      console.error('Error fetching attraction types:', error);
     }
   };
 
@@ -103,7 +102,7 @@ const Attractions = () => {
   const handleApplyFilters = () => {
     setAppliedFilters({
       province: selectedProvince,
-      attractionType: selectedAttractionType
+      category: selectedCategory
     });
     setPage(1);
   };
@@ -127,14 +126,13 @@ const Attractions = () => {
   };
 
   const handleProvinceSelect = (provinceId) => {
-    console.log(provinceId);
     setSelectedProvince(provinceId === 'all' ? 'all' : provinceId);
   };
 
   if (loading) {
     return (
       <>
-        <Helmet> <title>Điểm tham quan</title> </Helmet>
+        <Helmet> <title>Bài viết</title> </Helmet>
         <Header />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
           <CircularProgress />
@@ -145,24 +143,24 @@ const Attractions = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', ml: 1, mr: 1 }}>
-      <Helmet><title>Điểm tham quan</title></Helmet>
+      <Helmet><title>Bài viết</title></Helmet>
       <Header />
       <Box sx={{ flexGrow: 1, mt: 8 }}>
         <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', textAlign: 'left', mb: 2 }}>
           <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</Link>
-          &gt; <strong>Điểm tham quan</strong>
+          &gt; <strong>Bài viết</strong>
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
-              Khám phá các điểm tham quan
+              Khám phá các bài viết
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
               variant="outlined"
-              placeholder="Tìm kiếm điểm tham quan..."
+              placeholder="Tìm kiếm bài viết..."
               value={searchInput}
               onChange={handleSearchInputChange}
               onKeyPress={handleKeyPress}
@@ -182,15 +180,15 @@ const Attractions = () => {
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
                 <Box sx={{ p: 1 }}>
                   <FormControl fullWidth sx={{ pl: 2, pr: 2 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.2, fontSize: '16px' }}>Loại điểm tham quan</Typography>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.2, fontSize: '16px' }}>Danh mục</Typography>
                     <Select
-                      value={selectedAttractionType}
-                      onChange={(e) => setSelectedAttractionType(e.target.value)}
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
                       sx={{ height: '40px' }}
                     >
                       <MenuItem value="all">Tất cả</MenuItem>
-                      {attractionTypes.map((type) => (
-                        <MenuItem key={type.attractionTypeId} value={type.attractionTypeId}>{type.attractionTypeName}</MenuItem>
+                      {categories.map((category) => (
+                        <MenuItem key={category.categoryId} value={category.categoryId}>{category.categoryName}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
@@ -274,26 +272,26 @@ const Attractions = () => {
               </Typography>
             </Box>
             <Grid container spacing={1}>
-              {attractions.length > 0 ? (
-                attractions.map((attraction) => (
-                  <Grid item xs={12} key={attraction.attractionId}>
-                    <AttractionCard attraction={attraction} />
+              {posts.length > 0 ? (
+                posts.map((post) => (
+                  <Grid item xs={12} key={post.id}>
+                    <PostCard post={post} />
                   </Grid>
                 ))
               ) : (
                 <Box sx={{ minHeight: '30rem', width: '100%' }}>
                   <Typography sx={{ fontSize: '2rem', textAlign: 'center', width: '100%', p: 5 }}>
-                    Không tìm thấy điểm tham quan nào!
+                    Không tìm thấy bài viết nào!
                   </Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
-                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }} />
+                    <img src="/post-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }} />
                   </Box>
                 </Box>
               )}
             </Grid>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
               <Pagination
-                count={totalPages}
+                count={Math.ceil(totalItems / pageSize)}
                 page={page}
                 onChange={handlePageChange}
                 color="primary"
@@ -318,4 +316,4 @@ const Attractions = () => {
   );
 };
 
-export default Attractions;
+export default Posts;

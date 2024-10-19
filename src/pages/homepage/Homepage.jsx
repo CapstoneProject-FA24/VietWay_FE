@@ -52,7 +52,7 @@ const Homepage = () => {
   const sliderSettings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 1000,
     slidesToShow: 1,
     slidesToScroll: 1,
     className: 'slider-homepage',
@@ -62,7 +62,8 @@ const Homepage = () => {
   return (
     <Box className="homepage" >
       <Header />
-      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px" }} >
+      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5 }} >
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.3)', zIndex: 1 }} />
         <Slider {...sliderSettings}>
           <img src="hero.jpg" alt="Hero 1" className="hero-image" />
           <img src="vung_tau.jpg" alt="Hero 2" className="hero-image"/>
@@ -70,9 +71,9 @@ const Homepage = () => {
           <img src="https://honthom.sunworld.vn/wp-content/uploads/2020/07/shutterstock_1662998491-720x270.jpg" alt="Hero 4" className="hero-image" />
           <img src="https://media.tacdn.com/media/attractions-content--1x-1/12/19/ce/12.jpg" alt="Hero 5" className="hero-image" />
         </Slider>
-        <Box className="hero-text" sx={{ width: "100%", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <Typography variant="h1" sx={{ fontSize: '4.7rem', mb: 2 }}>Niềm vui quanh ta</Typography>
-          <Typography variant="h7" sx={{ width: "40%" }}>Từ những chuyến đi gần đến những cuộc phiêu lưu xa xôi, hãy tìm thấy điều làm bạn hạnh phúc mỗi lúc, mọi nơi</Typography>
+        <Box className="hero-text" sx={{ width: "100%", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', zIndex: 2 }}>
+          <Typography variant="h1" sx={{ fontSize: '4.7rem', mb: 2, color: 'white' }}>Niềm vui quanh ta</Typography>
+          <Typography variant="h7" sx={{ width: "40%", color: 'white' }}>Từ những chuyến đi gần đến những cuộc phiêu lưu xa xôi, hãy tìm thấy điều làm bạn hạnh phúc mỗi lúc, mọi nơi</Typography>
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
