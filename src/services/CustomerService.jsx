@@ -19,6 +19,8 @@ export const getCustomerInfo = async () => {
             birthday: response.data.data.dateOfBirth,
             genderId: response.data.data.gender,
             genderName: getGender(response.data.data.gender),
+            provinceId: response.data.data.provinceId,
+            provinceName: response.data.data.provinceName
         }
     } catch (error) {
         console.error('Get customer information failed:', error);

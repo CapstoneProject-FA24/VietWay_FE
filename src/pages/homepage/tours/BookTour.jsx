@@ -101,7 +101,7 @@ const BookTour = () => {
         ...prevState,
         fullName: customer.fullName, email: customer.email,
         phone: customer.phone, address: customer.address || "",
-        passengers: [{ type: 'adult', name: customer.fullName, gender: 0, birthday: new Date(customer.birthday).toISOString().slice(0, 10) }]
+        passengers: [{ type: 'adult', name: customer.fullName, gender: customer.genderId, birthday: new Date(customer.birthday).toISOString().slice(0, 10) }]
       }));
     };
     fetchData();

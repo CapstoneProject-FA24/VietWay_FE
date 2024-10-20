@@ -37,7 +37,7 @@ const App = () => {
         <Route path="/tour-du-lich" element={<Tours />} />
         <Route path="/tour-du-lich/:id" element={<TourDetails />} />
         <Route path="/tai-khoan/*" element={<Profile />} />
-        <Route path="/tai-khoan/thanh-toan/:paymentId" element={<PaymentDetail />} />
+        <Route path="/tai-khoan/thanh-toan/:id" element={<PaymentDetail />} />
         <Route path="/dat-tour/:id" element={<BookTour />} />
         <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
         <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />

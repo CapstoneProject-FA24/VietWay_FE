@@ -24,25 +24,25 @@ const PaymentHistory = ({ payments }) => {
                 return <CheckCircleIcon sx={{ color: 'success.main' }} />;
             case 'thất bại':
                 return <ErrorIcon sx={{ color: 'error.main' }} />;
+            case 'đã hoàn tiền':
+                return <CheckCircleIcon sx={{ color: 'info.main' }} />;
             default:
                 return <PendingIcon sx={{ color: 'warning.main' }} />;
         }
     };
 
     return (
-        <Box sx={{ my: 5 }}>
+        <Box sx={{ my: 3 }}>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3, color: 'white' }}>Lịch Sử Thanh Toán</Typography>
             <TableContainer component={Paper} elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 <Table sx={{ minWidth: 650 }} aria-label="payment history table">
                     <TableHead>
                         <TableRow sx={{ backgroundColor: '#f5f5f5', width: '30%' }}>
-                            <TableCell sx={{ fontWeight: 'bold', width: '12%' }}>Mã Giao Dịch</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold', width: '12%' }}>Mã Booking</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold', width: '23%' }}>Tên Tour</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 'bold', width: '15%' }}>Số Tiền</TableCell>
-                            <TableCell sx={{ fontWeight: 'bold', width: '10%' }}>Ngân Hàng</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 'bold', width: '5%' }}>Trạng Thái</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 'bold', width: '12%' }}>Thời Gian Thanh Toán</TableCell>
+                            <TableCell sx={{ fontWeight: 'bold', width: '15%' }}>Mã Giao Dịch</TableCell>
+                            <TableCell sx={{ fontWeight: 'bold', width: '15%' }}>Mã Booking</TableCell>
+                            <TableCell align="left" sx={{ fontWeight: 'bold', width: '15%' }}>Số Tiền</TableCell>
+                            <TableCell align="center" sx={{ fontWeight: 'bold', width: '10%' }}>Trạng Thái</TableCell>
+                            <TableCell align="center" sx={{ fontWeight: 'bold', width: '20%' }}>Thời Gian Thanh Toán</TableCell>
                             <TableCell sx={{ width: '10%' }}></TableCell>
                         </TableRow>
                     </TableHead>
@@ -56,13 +56,11 @@ const PaymentHistory = ({ payments }) => {
                                 >
                                     <TableCell>{payment.paymentId}</TableCell>
                                     <TableCell>{payment.bookingId}</TableCell>
-                                    <TableCell>{payment.tourName}</TableCell>
-                                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>{payment.amount.toLocaleString()} VND</TableCell>
-                                    <TableCell align="center">{payment.bankName}</TableCell>
+                                    <TableCell align="left" sx={{ fontWeight: 'bold', color: 'primary.main' }}>{payment.amount.toLocaleString()} VND</TableCell>
                                     <TableCell align="center">
                                         <Chip
                                             icon={getStatusIcon(payment.status)} label={payment.status}
-                                            color={payment.status.toLowerCase() === 'thành công' ? 'success' : 'error'}
+                                            color={payment.status.toLowerCase() === 'thành công' ? 'success' : payment.status.toLowerCase() === 'thất bại' ? 'error' : 'info'}
                                             variant="outlined" size="small"
                                         />
                                     </TableCell>
@@ -86,6 +84,8 @@ const PaymentHistory = ({ payments }) => {
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]} component="div" count={payments.length} rowsPerPage={rowsPerPage}
                 page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} sx={{ mt: 2 }}
+                labelRowsPerPage="Thanh toán/trang:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} trên ${count}`}
             />
         </Box>
     );
