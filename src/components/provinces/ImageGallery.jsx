@@ -103,7 +103,7 @@ const ImageGallery = ({ images, author }) => {
           alignItems: 'flex-end',
         }}
       >
-        <Typography variant="body2">Đăng bởi {author}</Typography>
+        <Typography variant="body2"></Typography>
         <Box
           sx={{
             position: 'relative',

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, TextField, Paper, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import TourStatusTab from '@components/TourStatusTab';
-import RegisteredTourCard from '@components/profile/RegisteredTourCard';
+import TourStatusTab from '@components/profiles/TourStatusTab';
+import RegisteredTourCard from '@components/profiles/RegisteredTourCard';
 
 const BookedTour = ({ statusTab, handleStatusTabChange, searchTerm, handleSearchChange, filteredTours }) => {
     const getStatusLabel = (index) => {

@@ -7,11 +7,11 @@ import axios from 'axios';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
-import SuggestProvinces from '@components/SuggestProvices';
+import SuggestProvinces from '@components/homepage/SuggestProvices';
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
-import SuggestTours from '@components/SuggestTours'
-import SuggestTourByProvince from '@components/SuggestTourByProvince';
+import SuggestTours from '@components/homepage/SuggestTours'
+import SuggestTourByProvince from '@components/homepage/SuggestTourByProvince';
 import FilterBar from '@components/homepage/FilterBar';
 
 const Homepage = () => {
@@ -151,7 +151,7 @@ const Homepage = () => {
         <Box component="section" className="featured-destinations">
           <Box className="section-header">
             <Typography variant="h4" className="section-title" sx={{ mb: 1, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem'  }}>Điểm đến yêu thích</Typography>
-            <Button className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
+            <Button component={Link} to={"/tinh-thanh"}  className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestTourByProvince/>
         </Box>

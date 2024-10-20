@@ -76,7 +76,6 @@ const ProvinceDetail = () => {
         <>
           <ImageGallery
             images={provinceData.galleryImages}
-            author="HaiDang Travel"
           />
           <Typography variant="h2" component="h1" sx={{ textAlign: 'center', marginY: 4, fontWeight: 'bold' }}>
             {provinceData.name}

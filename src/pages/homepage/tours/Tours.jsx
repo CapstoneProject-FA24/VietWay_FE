@@ -4,7 +4,7 @@ import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import TourCard from '@components/TourCard';
+import TourCard from '@components/tours/TourCard';
 import { fetchTourTemplates } from '@services/TourTemplateService';
 import { fetchProvinces } from '@services/ProvinceService';
 import { fetchTourCategory } from '@services/TourCategoryService';

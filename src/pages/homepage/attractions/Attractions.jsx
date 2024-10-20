@@ -4,7 +4,7 @@ import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import AttractionCard from '@components/AttractionCard';
+import AttractionCard from '@components/attractions/AttractionCard';
 import { fetchAttractions } from '@services/AttractionService';
 import { fetchProvinces } from '@services/ProvinceService';
 import { fetchAttractionType } from '@services/AttractionTypeService';

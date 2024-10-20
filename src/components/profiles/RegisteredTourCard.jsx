@@ -4,7 +4,7 @@ import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import FeedbackPopup from '@components/profile/FeedbackPopup';
+import FeedbackPopup from '@components/profiles/FeedbackPopup';
 
 const RegisteredTourCard = ({ tour }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);

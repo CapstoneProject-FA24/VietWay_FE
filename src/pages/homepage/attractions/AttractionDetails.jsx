@@ -6,12 +6,12 @@ import "slick-carousel/slick/slick-theme.css";
 import Header from '@layouts/Header';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import OtherAttractions from '@components/OtherAttractions';
+import OtherAttractions from '@components/attractions/OtherAttractions';
 import Footer from '@layouts/Footer';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { getAttractionById } from '@hooks/MockAttractions';
-import ToursVisitAttraction from '@components/ToursVisitAttraction';
+import ToursVisitAttraction from '@components/attractions/ToursVisitAttraction';
 
 
 const AttractionDetails = () => {

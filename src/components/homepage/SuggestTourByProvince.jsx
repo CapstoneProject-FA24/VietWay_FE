@@ -6,15 +6,15 @@ import { useNavigate } from 'react-router-dom';
 const SuggestTourByProvince = () => {
     const navigate = useNavigate();
 
-    const handleCardClick = (provinceName) => {
-        navigate(`/tour-du-lich?province=${provinceName}`);
+    const handleCardClick = (id) => {
+        navigate(`/tinh-thanh/${id}`);
     };
 
     return (
         <Grid container spacing={2}>
             <Grid item xs={3}>
                 <Card sx={{ position: 'relative' }}>
-                    <CardActionArea onClick={() => handleCardClick(provinces[0].name)}>
+                    <CardActionArea onClick={() => handleCardClick(provinces[0].id)}>
                         <CardMedia
                             component="img"
                             height="200"
@@ -49,7 +49,7 @@ const SuggestTourByProvince = () => {
                 </Card>
 
                 <Card sx={{ position: 'relative', mt: 2.3 }}>
-                    <CardActionArea onClick={() => handleCardClick(provinces[1].name)}>
+                    <CardActionArea onClick={() => handleCardClick(provinces[1].id)}>
                         <CardMedia
                             component="img"
                             height="200"
@@ -85,7 +85,7 @@ const SuggestTourByProvince = () => {
             </Grid>
             <Grid item xs={3.5}>
                 <Card sx={{ position: 'relative' }}>
-                    <CardActionArea onClick={() => handleCardClick(provinces[2].name)}>
+                    <CardActionArea onClick={() => handleCardClick(provinces[2].id)}>
                         <CardMedia
                             component="img"
                             height="419"
@@ -121,7 +121,7 @@ const SuggestTourByProvince = () => {
             </Grid>
             <Grid item xs={3} sm={5.5}>
                 <Card sx={{ position: 'relative' }}>
-                    <CardActionArea onClick={() => handleCardClick(provinces[3].name)}>
+                    <CardActionArea onClick={() => handleCardClick(provinces[3].id)}>
                         <CardMedia
                             component="img"
                             height="200"
@@ -157,7 +157,7 @@ const SuggestTourByProvince = () => {
                 <Grid container spacing={2} mt={0.3}>
                     <Grid item xs={3} sm={6}>
                         <Card sx={{ position: 'relative' }}>
-                            <CardActionArea onClick={() => handleCardClick(provinces[4].name)}>
+                            <CardActionArea onClick={() => handleCardClick(provinces[4].id)}>
                                 <CardMedia
                                     component="img"
                                     height="200"
@@ -193,7 +193,7 @@ const SuggestTourByProvince = () => {
                     </Grid>
                     <Grid item xs={3} sm={6}>
                         <Card sx={{ position: 'relative' }}>
-                            <CardActionArea onClick={() => handleCardClick(provinces[5].name)}>
+                            <CardActionArea onClick={() => handleCardClick(provinces[5].id)}>
                                 <CardMedia
                                     component="img"
                                     height="200"

@@ -11,7 +11,7 @@ import { fetchTourTemplateById } from '@services/TourTemplateService';
 import { fetchToursByTemplateId } from '@services/TourService';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
-import OtherTours from '@components/OtherTours';
+import OtherTours from '@components/tours/OtherTours';
 import FeedbackList from '@components/tours/FeedbackList';
 
 const TourDetails = () => {

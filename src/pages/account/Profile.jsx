@@ -5,9 +5,9 @@ import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
 import { mockPayments } from '@hooks/MockProfile';
 import { mockTours } from '@hooks/MockTours';
-import ProfileDetail from '@components/profile/ProfileDetail';
-import BookedTour from '@components/profile/BookedTour';
-import PaymentHistory from '@components/profile/PaymentHistory';
+import ProfileDetail from '@components/profiles/ProfileDetail';
+import BookedTour from '@components/profiles/BookedTour';
+import PaymentHistory from '@components/profiles/PaymentHistory';
 import { useNavigate, Route, Routes } from 'react-router-dom';
 import { getCustomerInfo } from '@services/CustomerService';
 
