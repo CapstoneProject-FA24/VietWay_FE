@@ -12,6 +12,7 @@ import { fetchToursByTemplateId } from '@services/TourService';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/OtherTours';
+import FeedbackList from '@components/tours/FeedbackList';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -100,7 +101,7 @@ const TourDetails = () => {
   };
 
   const handleBooking = () => {
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       setAlertMessage('Bạn chưa đăng nhập. Vui lòng đăng nhập để đặt tour.');
       setOpenSnackbar(true);
       tourSelectRef.current?.focus();
@@ -291,10 +292,10 @@ const TourDetails = () => {
                   )
                 )}
               </Box>
-              <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.6rem',marginBottom: '10px' }}> Thông tin tour </Typography>
+              <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.6rem', marginBottom: '10px' }}> Thông tin tour </Typography>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
                 <FontAwesomeIcon icon={faQrcode} style={{ marginRight: '10px', color: '#3572EF' }} />
-                Mã tour: 
+                Mã tour:
                 <Typography sx={{ ml: 1, color: 'primary.main', fontWeight: 700, fontSize: '1.1rem' }}>{tour.code}</Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
@@ -348,7 +349,8 @@ const TourDetails = () => {
         </Grid>
       </Box>
       <Box sx={{ width: '100%' }}>
-      <OtherTours pros={tour.provinces.map(province => province.provinceId.toString())} tourId={tour.tourTemplateId} />
+        <FeedbackList tourTemplateId={tour.tourTemplateId} />
+        <OtherTours pros={tour.provinces.map(province => province.provinceId.toString())} tourId={tour.tourTemplateId} />
       </Box>
       <Footer />
       <Snackbar
