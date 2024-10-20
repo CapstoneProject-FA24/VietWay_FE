@@ -1,7 +1,7 @@
 export const mockProvinceData = [
   {
     id: 1,
-    name: "Tỉnh Bà Rịa - Vũng Tàu",
+    name: "Bà Rịa - Vũng Tàu",
     description: "Thành phố biển xinh đẹp với nhiều điểm du lịch hấp dẫn",
     coverImage: "https://sodl.baria-vungtau.gov.vn/portal/widget/widget_133366762102229738.jpg",
     galleryImages: [

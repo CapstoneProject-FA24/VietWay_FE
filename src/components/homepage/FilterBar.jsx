@@ -47,17 +47,12 @@ const FilterBar = () => {
       <Box sx={{ width: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1 }}>
         <Tabs value={value} onChange={handleChange} centered>
           <Tab icon={<DirectionsBusIcon />} label="Tour trọn gói" />
-          <Tab icon={<HotelIcon />} label="Khách sạn" />
-          <Tab icon={<FlightIcon />} label="Vé máy bay" />
-          <Tab icon={<WorkIcon />} label="Combo" />
+          <Tab icon={<HotelIcon />} label="Địa điểm tham quan" />
+          <Tab icon={<FlightIcon />} label="Bài viết" />
+          <Tab icon={<WorkIcon />} label="Sự kiện" />
         </Tabs>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <TextField
-            placeholder="Bạn muốn đi đâu?"
-            value={selectedDestination}
-            onChange={(e) => setSelectedDestination(e.target.value)}
-            sx={{ width: '25%' }}
-            InputProps={{
+          <TextField placeholder="Bạn muốn đi đâu?" value={selectedDestination} onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '25%' }} InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton>

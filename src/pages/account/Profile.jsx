@@ -15,6 +15,7 @@ const Profile = () => {
     const [statusTab, setStatusTab] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
+    const [filteredTours, setFilteredTours] = useState(mockTours);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -22,6 +23,7 @@ const Profile = () => {
             navigate('/');
         }
         setProfile(mockProfiles[0]);
+        setFilteredTours(mockTours);
     }, []);
 
     const handleTabChange = (event, newValue) => {
@@ -36,10 +38,13 @@ const Profile = () => {
         setSearchTerm(event.target.value);
     };
 
-    const filteredTours = mockTours.filter(tour => 
-        tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tour.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    useEffect(() => {
+        const filtered = mockTours.filter(tour => 
+            tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tour.id.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredTours(filtered);
+    }, [searchTerm]);
 
     return (
         <Box>

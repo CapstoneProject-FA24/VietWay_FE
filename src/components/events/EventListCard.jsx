@@ -10,7 +10,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
     fontSize: '16px',
 }));
 
-const EventCard = ({ event }) => {
+const EventListCard = ({ event }) => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
@@ -89,4 +89,4 @@ const EventCard = ({ event }) => {
     );
 };
 
-export default EventCard;
+export default EventListCard;

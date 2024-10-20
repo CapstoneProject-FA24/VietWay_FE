@@ -126,7 +126,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Đồ uống"],
     pickupPoints: ["Hà Nội", "Hải Phòng"],
     attractions: [6, 1, 5], // Vịnh Hạ Long, Dinh Độc Lập, Bưu điện Trung tâm Sài Gòn
-    travelCompany: "Amazing Tours"
+    travelCompany: "Amazing Tours",
+    bookedTourStatus: "Đã hoàn tất"
   },
   {
     id: "NDSGN564-047-080824XE-D",
@@ -200,7 +201,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Các bữa ăn ngoài chương trình"],
     pickupPoints: ["TP.HCM", "Biên Hòa"],
     attractions: [7, 2, 4], // Hồ Xuân Hương, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Amazing Tours"
+    travelCompany: "Amazing Tours",
+    bookedTourStatus: "Đã hoàn tất"
   },
   {
     id: "NDSGN564-047-090924XE-P",
@@ -265,7 +267,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Dịch vụ spa"],
     pickupPoints: ["TP.HCM", "Cần Thơ"],
     attractions: [8, 1, 5], // Bãi Sao, Dinh Độc Lập, Bưu điện Trung tâm Sài Gòn
-    travelCompany: "Amazing Tours"
+    travelCompany: "Amazing Tours",
+    bookedTourStatus: "Chờ thanh toán"
   },
   {
     id: "NDSGN564-047-100524XE-S",
@@ -323,7 +326,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé cáp treo Fansipan"],
     pickupPoints: ["Hà Nội", "Lào Cai"],
     attractions: [9, 2, 4], // Bản Cát Cát, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Amazing Tours"
+    travelCompany: "Amazing Tours",
+    bookedTourStatus: "Chờ thanh toán"
   },
   {
     id: "NDSGN564-047-111124XE-H",
@@ -388,7 +392,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Các bữa ăn ngoài chương trình"],
     pickupPoints: ["TP.HCM", "Đà Nẵng"],
     attractions: [10, 1, 2, 4], // Phố cổ Hội An, Dinh Độc Lập, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Viet Tours"
+    travelCompany: "Viet Tours",
+    bookedTourStatus: "Đã hủy"
   },
   {
     id: "NDSGN564-047-120724XE-N",
@@ -421,7 +426,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [3, 5], // Bưu điện Trung tâm Sài Gòn, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Amazing Tours"
+    travelCompany: "Amazing Tours",
+    bookedTourStatus: "Quá hạn thanh toán"
   },
   {
     id: "NDSGN564-047-130124XE-B",
@@ -471,7 +477,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [1, 4], // Dinh Độc Lập, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Amazing Tours"
+    travelCompany: "Amazing Tours",
+    bookedTourStatus: "Đã thanh toán"
   },
   {
     id: "NDSGN564-047-140224XE-H",
@@ -522,7 +529,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [2, 3, 5], // Nhà thờ Đức Bà, Bưu điện Trung tâm Sài Gòn, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Viet Tours"
+    travelCompany: "Viet Tours",
+    bookedTourStatus: "Đã thanh toán"
   },
   {
     id: "NDSGN564-047-150324XE-M",
@@ -573,7 +581,8 @@ export const mockTours = [
     notIncluded: ["Chi phí cá nhân", "Vé Vinpearl Land"],
     pickupPoints: ["TP.HCM", "Nha Trang"],
     attractions: [1, 2, 4], // Dinh Độc Lập, Nhà thờ Đức Bà, Bảo tàng Chứng tích Chiến tranh
-    travelCompany: "Viet Tours"
+    travelCompany: "Viet Tours",
+    bookedTourStatus: "Chờ thanh toán"
   },
 ];
 
