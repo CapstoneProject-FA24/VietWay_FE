@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardMedia, Box, Typography, Button, Chip } from '@mui/material';
 import { Link } from 'react-router-dom';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CategoryIcon from '@mui/icons-material/Category';
 import { styled } from '@mui/material/styles';
 
@@ -51,8 +51,8 @@ const PostCard = ({ post }) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: '100%' }}>
                     <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1, fontSize: '1.1rem' }}>
-                            <CalendarTodayIcon sx={{ marginRight: '8px' }} />
-                            {formatDate(post.createDate)}
+                            <LocationOnIcon sx={{ marginRight: '8px' }} />
+                            {post.provinceName}
                         </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>

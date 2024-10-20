@@ -4,7 +4,7 @@ import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import EventCard from '@components/events/EventCard';
+import EventListCard from '@components/events/EventListCard';
 import { fetchEvents } from '@hooks/MockPost';
 import { fetchProvinces } from '@services/ProvinceService';
 import SearchIcon from '@mui/icons-material/Search';
@@ -264,7 +264,7 @@ const Events = () => {
               {events.length > 0 ? (
                 events.map((event) => (
                   <Grid item xs={12} key={event.id}>
-                    <EventCard event={event} />
+                    <EventListCard event={event} />
                   </Grid>
                 ))
               ) : (

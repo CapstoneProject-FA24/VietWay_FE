@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom';
 import { Grid, Typography, Container, Box } from '@mui/material';
 import ProvincePagesCard from '@components/provinces/ProvincePagesCard';
 import ImageGallery from '@components/provinces/ImageGallery';
-import { mockProvinceData } from '@hooks/MockProvincePage';
 import CategoryFilter from '@components/provinces/CategoryFilter';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { PostsGrid } from '@components/provinces/PostsCard';
 import { Link } from 'react-router-dom';
+import { mockProvinceData } from '@hooks/MockProvincePage';
+import { mockEvents } from '@hooks/MockEvent';
+import EventCard from '@components/provinces/EventCard';
 
 const ProvinceDetail = () => {
   const { id } = useParams();
@@ -23,12 +25,16 @@ const ProvinceDetail = () => {
   const [discoverCategory, setDiscoverCategory] = useState('Tất cả');
 
   const [discoverPosts, setDiscoverPosts] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
   useEffect(() => {
     const province = mockProvinceData.find(p => p.id === parseInt(id));
     if (province) {
+      console.log('Province:', province.name);
       setProvinceData(province);
       setDiscoverPosts(province.discover);
+      const provinceEvents = mockEvents.filter(event => event.provinceName === province.name);
+      setFilteredEvents(provinceEvents);
     }
   }, [id]);
 
@@ -46,6 +52,22 @@ const ProvinceDetail = () => {
   const filteredDiscoverPosts = discoverCategory === 'Tất cả'
     ? discoverPosts
     : discoverPosts.filter(post => post.category === discoverCategory);
+
+  const handleEventCategoryChange = (category) => {
+    console.log('Selected category:', category);
+    setEventsCategory(category);
+    if (category === 'Tất cả') {
+      setFilteredEvents(mockEvents.filter(event => event.provinceName === provinceData.name));
+    } else {
+      setFilteredEvents(mockEvents.filter(event => 
+        event.provinceName === provinceData.name && event.status === category
+      ));
+    }
+    console.log('Updated filteredEvents:', updatedFilteredEvents);
+    setFilteredEvents(updatedFilteredEvents);
+  };
+
+  console.log('filteredEvents:', filteredEvents);
 
   return (
     <Box sx={{ marginTop: 5 }}>
@@ -95,7 +117,7 @@ const ProvinceDetail = () => {
               <CategoryFilter
                 categories={eventCategories}
                 selectedCategory={eventsCategory}
-                onCategoryChange={setEventsCategory}
+                onCategoryChange={handleEventCategoryChange}
               />
               <Typography
                 variant="body2" component={Link} to={`/su-kien`}
@@ -107,7 +129,20 @@ const ProvinceDetail = () => {
               </Typography>
             </Box>
             <Grid container spacing={2}>
-              {renderCards(provinceData.events)}
+              {filteredEvents.slice(0, 6).map((event) => (
+                <Grid item xs={12} sm={6} md={4} key={event.eventId}>
+                  <EventCard
+                    image={event.image}
+                    title={event.title}
+                    description={event.description}
+                    eventType={event.eventType}
+                    startDate={event.startDate}
+                    endDate={event.endDate}
+                    provinceName={event.provinceName}
+                    address={event.address}
+                  />
+                </Grid>
+              ))}
             </Grid>
 
             <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>

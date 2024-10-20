@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
 import SuggestTours from '@components/SuggestTours'
 import SuggestTourByProvince from '@components/SuggestTourByProvince';
+import FilterBar from '@components/homepage/FilterBar';
 
 const Homepage = () => {
   const [popularDestinations, setPopularDestinations] = useState([]);
@@ -60,9 +61,9 @@ const Homepage = () => {
   };
 
   return (
-    <Box className="homepage" >
+    <Box className="homepage" sx={{ width: '100%' }}>
       <Header />
-      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5 }} >
+      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5, mb: 10 }} >
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.3)', zIndex: 1 }} />
         <Slider {...sliderSettings}>
           <img src="hero.jpg" alt="Hero 1" className="hero-image" />
@@ -77,8 +78,14 @@ const Homepage = () => {
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
+      <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '60%' }}>
+        <FilterBar />
+      </Box>
       <Box>
         <Box component="section" className="why-choose-us">
+          <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '70%' }}>
+            <FilterBar />
+          </Box>
           <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>
             Tại sao nên tin dùng Vietway Tour
           </Typography>
