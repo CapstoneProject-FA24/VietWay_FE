@@ -80,12 +80,12 @@ const Provinces = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '80vw' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89.5vw' }}>
       <Helmet>
         <title>Tỉnh thành</title>
       </Helmet>
       <Header />
-      <Box sx={{ flexGrow: 1, mt: 8 }}>
+      <Box sx={{ flexGrow: 1, mt: 8, ml: 10, mr: 10 }}>
         <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', textAlign: 'left', mb: 2 }}>
           <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none' }}>Trang chủ </Link>
           &gt; <strong>Tỉnh thành</strong>
