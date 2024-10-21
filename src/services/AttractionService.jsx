@@ -19,7 +19,7 @@ export const fetchAttractions = async (params) => {
 
         if (params.status !== undefined && params.status !== null) queryParams.append('status', params.status);
 
-        const response = await axios.get(`https://localhost:7144/api/Attraction?${queryParams.toString()}`);
+        const response = await axios.get(`${baseURL}/api/attractions?${queryParams.toString()}`);
         const items = response.data?.data?.items;
 
         if (!items || !Array.isArray(items)) {

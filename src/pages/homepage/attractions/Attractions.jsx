@@ -190,7 +190,7 @@ const Attractions = () => {
                     >
                       <MenuItem value="all">Tất cả</MenuItem>
                       {attractionTypes.map((type) => (
-                        <MenuItem key={type.attractionTypeId} value={type.attractionTypeId}>{type.attractionTypeName}</MenuItem>
+                        <MenuItem key={type.attractionCategoryId} value={type.attractionCategoryId}>{type.name}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>

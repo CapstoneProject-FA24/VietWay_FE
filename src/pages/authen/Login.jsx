@@ -84,7 +84,7 @@ export default function Login() {
     try {
       if (email && password) {
         const response = await login({ email, password });
-        if (response.token) {
+        if (response.data) {
           navigate('/');
         } else {
           setError('Đã xảy ra lỗi. Vui lòng thử lại.');

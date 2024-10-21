@@ -39,7 +39,7 @@ export const fetchTourTemplates = async (params) => {
         
         if (params.status !== undefined && params.status !== null) queryParams.append('status', params.status);
 
-        const response = await axios.get(`${baseURL}/api/TourTemplate?${queryParams.toString()}`);
+        const response = await axios.get(`${baseURL}/api/tour-templates?${queryParams.toString()}`);
         const items = response.data?.data.items;
         
         if (!items || !Array.isArray(items)) {
@@ -73,7 +73,8 @@ export const fetchTourTemplates = async (params) => {
 
 export const fetchTourTemplateById = async (id) => {
     try {
-        const response = await axios.get(`${baseURL}/api/TourTemplate/${id}`);
+        const response = await axios.get(`${baseURL}/api/tour-templates/${id}`);
+        console.log(response);
         return {
             tourTemplateId: response.data.data.tourTemplateId,
             code: response.data.data.code,

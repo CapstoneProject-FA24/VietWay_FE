@@ -3,7 +3,7 @@ import baseURL from '@api/BaseURL';
 
 export const fetchToursByTemplateId = async (id) => {
     try {
-        const response = await axios.get(`${baseURL}/api/Tour?tourTemplateId=${id}`);
+        const response = await axios.get(`${baseURL}/api/tours?tourTemplateId=${id}`);
         const tours = response.data.data.map(item => ({
             id: item.tourId,
             tourTemplateId: item.tourTemplateId,
@@ -26,7 +26,7 @@ export const fetchToursByTemplateId = async (id) => {
 
 export const fetchTourById = async (id) => {
     try {
-        const response = await axios.get(`${baseURL}/api/Tour/${id}`);
+        const response = await axios.get(`${baseURL}/api/tours/${id}`);
         const item = response.data.data;
         const tours = {
             id: item.tourId,

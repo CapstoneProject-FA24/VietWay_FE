@@ -3,7 +3,7 @@ import baseURL from '@api/BaseURL';
 
 export const fetchBookingData = async (bookingId) => {
     try {
-        const response = await axios.get(`${baseURL}/api/Booking/${bookingId}`);
+        const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`);
         const bookingData = response.data.data;
         return {
             bookingId: bookingData.bookingId,
@@ -40,7 +40,7 @@ export const createBooking = async (bookingData) => {
     try {
         const requestData = {
             tourId: bookingData.tourId,
-            customerId: "4",
+            customerId: "1297800538728955904",
             numberOfParticipants: bookingData.passengers.length,
             tourParticipants: bookingData.passengers.map(passenger => ({
                 fullName: passenger.fullName,
@@ -54,7 +54,7 @@ export const createBooking = async (bookingData) => {
             contactAddress: bookingData.address,
             note: bookingData.note,
         };
-        const response = await axios.post(`${baseURL}/api/Booking/BookTour`, requestData);
+        const response = await axios.post(`${baseURL}/api/bookings`, requestData);
 
         return response.data;
     } catch (error) {

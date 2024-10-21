@@ -3,7 +3,7 @@ import baseURL from '@api/BaseURL';
 
 export const fetchPaymentURL = async (bookingId) => {
     try {
-        const response = await axios.get(`${baseURL}/api/Payment/VnPay/${bookingId}`);
+        const response = await axios.get(`${baseURL}/api/payments/${bookingId}/vnpay`);
         return response.data.data;
     } catch (error) {
         console.error('Error fetching booking data:', error);

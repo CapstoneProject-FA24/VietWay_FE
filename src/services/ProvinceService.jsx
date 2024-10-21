@@ -3,8 +3,13 @@ import axios from 'axios';
 
 export const fetchProvinces = async () => {
     try {
-        const response = await axios.get(`https://localhost:7144/api/Province`);
-        return response.data.data;
+        const response = await axios.get(`${baseURL}/api/provinces`);
+        const provinces = response.data.data.map(province => ({
+            provinceId: province.provinceId,
+            provinceName: province.provinceName,
+            imageURL: province.imageUrl
+        }));
+        return provinces;
     } catch (error) {
         console.error('Error fetching tour templates:', error);
         throw error;

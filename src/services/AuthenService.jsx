@@ -4,13 +4,14 @@ import axios from 'axios';
 export const login = async (credentials) => {
     try {
         const loginRequest = {
-            email: credentials.email,
+            emailOrPhone: credentials.email,
             password: credentials.password
         };
-        const response = await axios.post(`${baseURL}/api/Account/Login`, loginRequest);
+        const response = await axios.post(`${baseURL}/api/account/login`, loginRequest);
         const data = response.data;
-        if (data.token) {
-            localStorage.setItem('token', data.token);
+        console.log(data);
+        if (data.data) {
+            localStorage.setItem('token', data.data);
         }
         return data;
     } catch (error) {
@@ -30,7 +31,7 @@ export const register = async (userData) => {
             gender: userData.gender,
             provinceId: userData.provinceId
         };
-        const response = await axios.post(`${baseURL}/api/Account/CreateCustomerAccount`, registerRequest);
+        const response = await axios.post(`${baseURL}/api/account/register`, registerRequest);
         const data = response.data;
         return data;
     } catch (error) {

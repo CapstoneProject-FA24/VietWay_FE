@@ -11,7 +11,13 @@ const getGender = (gender) => {
 
 export const getCustomerInfo = async () => {
     try {
-        const response = await axios.get(`${baseURL}/api/Customer`);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${baseURL}/api/Customer`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        console.log(response.data.data);
         return {
             phone: response.data.data.phoneNumber,
             email: response.data.data.email,
@@ -24,5 +30,6 @@ export const getCustomerInfo = async () => {
         }
     } catch (error) {
         console.error('Get customer information failed:', error);
+        throw error;
     }
 };
