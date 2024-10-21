@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Pagination, TextField, InputAdornment, IconButton } from '@mui/material';
+import { Box, Typography, Grid, Pagination, TextField, InputAdornment, IconButton, Select, MenuItem } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
@@ -7,25 +7,38 @@ import { Link } from 'react-router-dom';
 import { provinces } from '@hooks/MockProvinces';
 import SearchIcon from '@mui/icons-material/Search';
 import ProvinceCard from '@components/provinces/ProvinceCard';
+import { fetchProvinceWithCountDetails } from '@services/ProvinceService'; // Import the fetch function
 
 const Provinces = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [pageSize, setPageSize] = useState(12);
+  const [pageSize, setPageSize] = useState(10);
+  const [provinces, setProvinces] = useState([]);
+  const [totalProvinces, setTotalProvinces] = useState(0);
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    loadProvinces();
+  }, [page, pageSize, searchTerm]);
 
-  const filteredProvinces = provinces.filter(province =>
-    province.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const loadProvinces = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        pageIndex: page,
+        pageSize: pageSize,
+        searchTerm: searchTerm
+      };
+      const result = await fetchProvinceWithCountDetails(params);
+      setProvinces(result.data);
+      setTotalProvinces(result.total);
+    } catch (error) {
+      console.error('Failed to fetch provinces:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -33,8 +46,8 @@ const Provinces = () => {
   };
 
   const handleSearch = () => {
-    setSearchTerm(searchInput);
     setPage(1);
+    setSearchTerm(searchInput);
   };
 
   const handleKeyPress = (event) => {
@@ -45,6 +58,11 @@ const Provinces = () => {
 
   const handleSearchInputChange = (event) => {
     setSearchInput(event.target.value);
+  };
+
+  const handlePageSizeChange = (event) => {
+    setPageSize(parseInt(event.target.value));
+    setPage(1);
   };
 
   if (loading) {
@@ -69,7 +87,7 @@ const Provinces = () => {
       <Header />
       <Box sx={{ flexGrow: 1, mt: 8 }}>
         <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', textAlign: 'left', mb: 2 }}>
-          <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none' }}>Trang chủ </Link> 
+          <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none' }}>Trang chủ </Link>
           &gt; <strong>Tỉnh thành</strong>
         </Typography>
         <Grid container spacing={3}>
@@ -101,25 +119,34 @@ const Provinces = () => {
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
           <Typography sx={{ textAlign: 'left', color: 'black' }}>
-            {filteredProvinces.length} kết quả
+            {totalProvinces} kết quả
           </Typography>
         </Box>
-        {filteredProvinces.length > 0 ? (
+        {provinces.length > 0 ? (
           <>
             <Grid container spacing={2}>
-              {filteredProvinces.slice((page - 1) * pageSize, page * pageSize).map(province => (
-                <Grid item xs={12} sm={6} md={6} key={province.id}>
+              {provinces.map(province => (
+                <Grid item xs={12} sm={6} md={6} key={province.provinceId}>
                   <ProvinceCard province={province} />
                 </Grid>
               ))}
             </Grid>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-              <Pagination 
-                count={Math.ceil(filteredProvinces.length / pageSize)} 
-                page={page} 
-                onChange={handlePageChange} 
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+              <Box sx={{ ml: '10%' }} />
+              <Pagination
+                count={Math.ceil(totalProvinces / pageSize)}
+                page={page}
+                onChange={handlePageChange}
                 color="primary"
               />
+              <Select
+                value={pageSize}
+                onChange={handlePageSizeChange}
+              >
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={20}>20</MenuItem>
+                <MenuItem value={30}>30</MenuItem>
+              </Select>
             </Box>
           </>
         ) : (

@@ -27,8 +27,8 @@ const ProvinceCard = ({ province }) => {
                     transition: 'transform 0.3s ease-in-out',
                     transform: isHovered ? 'scale(1.05)' : 'scale(1)',
                 }}
-                image={province.image}
-                alt={province.name}
+                image={province.imageURL}
+                alt={province.provinceName}
             />
             <Box sx={{
                 position: 'absolute',
@@ -52,7 +52,7 @@ const ProvinceCard = ({ province }) => {
                         color: 'white',
                         textShadow: '1px 1px 2px rgba(0,0,0,1)',
                     }}>
-                        {province.name}
+                        {province.provinceName}
                     </Typography>
                 </Box>
 
@@ -68,19 +68,19 @@ const ProvinceCard = ({ province }) => {
                 }}>
                     <img src="/province-detail.png" alt="Province detail" style={{ width: '13.5rem', height: '13.5rem', marginTop: 15 }} />
                     <Box sx={{ position: 'absolute', right: 85, top: 5 }}>
-                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.attractions}</Typography>
+                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.attractionsCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }} >Điểm đến</Typography>
                     </Box>
                     <Box sx={{ position: 'absolute', right: -25, top: 68 }}>
-                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.tours}</Typography>
+                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.toursCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }} >Tour</Typography>
                     </Box>
                     <Box sx={{ position: 'absolute', right: -10, bottom: 15 }}>
-                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.posts}</Typography>
+                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.postsCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }}>Bài viết</Typography>
                     </Box>
                     <Box sx={{ position: 'absolute', right: 222, bottom: 33, textAlign: 'right' }}>
-                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.events}</Typography>
+                        <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.eventsCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }} >Sự kiện</Typography>
                     </Box>
                 </Box>
@@ -92,7 +92,7 @@ const ProvinceCard = ({ province }) => {
                     transform: isHovered ? 'translateY(0)' : 'translateY(20px)',
                     transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out', */
                 }}>
-                    <Link to={`/tinh-thanh/${province.id}`} style={{ textDecoration: 'none' }}>
+                    <Link to={`/tinh-thanh/${province.provinceId}`} style={{ textDecoration: 'none' }}>
                         <Typography variant="button" sx={{
                             color: 'white',
                             fontWeight: 'bold',
