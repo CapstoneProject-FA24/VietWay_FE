@@ -93,8 +93,8 @@ const StatusChip = ({ status }) => (
     }
     sx={{
       position: 'absolute',
-      top: 8,
-      right: 8,
+      top: 20,
+      right: 15,
       zIndex: 1,
       fontSize: '0.75rem',
       height: '24px'
