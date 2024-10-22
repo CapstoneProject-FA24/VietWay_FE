@@ -1,48 +1,34 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Grid, Paper, Button } from '@mui/material';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Header from '@layouts/Header';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
-import OtherAttractions from '@components/attractions/OtherAttractions';
-import Footer from '@layouts/Footer';
-import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import ToursVisitAttraction from '@components/attractions/ToursVisitAttraction';
+import '@styles/AttractionDetails.css'
+import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import { Link, useParams } from 'react-router-dom';
 import { getAttractionById } from '@services/AttractionService';
 
-const AttractionDetails = () => {
-  const [attraction, setAttraction] = useState(null);
-  const [loading, setLoading] = useState(true);
+const AttractionDetail = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderRef, setSliderRef] = useState(null);
+  const [attraction, setAttraction] = useState(null);
+  const [error, setError] = useState(null);
   const { id } = useParams();
-  const pageTopRef = useRef(null);
 
   useEffect(() => {
-    const fetchAttractionData = async () => {
+    const fetchAttraction = async () => {
       try {
-        setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const response = await getAttractionById(id);
-        setAttraction(response);
+        const fetchedAttraction = await getAttractionById(id);
+        console.log(fetchedAttraction);
+        setAttraction(fetchedAttraction);
       } catch (error) {
-        console.error("Error fetching attraction data:", error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching attraction:', error);
+        setError(error.message || 'An error occurred while fetching data');
       }
     };
-
-    fetchAttractionData();
+    fetchAttraction();
   }, [id]);
-
-  useEffect(() => {
-    if (pageTopRef.current) {
-      pageTopRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [attraction]);
 
   const settings = {
     dots: true,
@@ -56,7 +42,6 @@ const AttractionDetails = () => {
     slidesToScroll: 1,
     autoplay: true,
     className: 'attraction-slider',
-    afterChange: (current) => setCurrentSlide(current)
   };
 
   const handleThumbnailClick = (index) => {
@@ -66,48 +51,33 @@ const AttractionDetails = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <Helmet>
-          <title>Chi tiết điểm tham quan</title>
-        </Helmet>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
-      </>
-    );
+  if (error) {
+    return <Typography color="error">Error: {error}</Typography>;
   }
 
   if (!attraction) {
-    return (
-      <>
-        <Header />
-        <Helmet>
-          <title>Không tìm thấy điểm tham quan</title>
-        </Helmet>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h4">Không tìm thấy thông tin điểm tham quan</Typography>
-        </Box>
-      </>
-    );
+    return <Typography>Loading...</Typography>;
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
+    <Box className='main' sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '98vw' }}>
       <Helmet>
-        <title>{attraction.name}</title>
+        <title>Chi tiết điểm tham quan</title>
       </Helmet>
-      <Header />
-      <Box sx={{ p: 3, flexGrow: 1, mt: 5 }}>
-        <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '10px', textAlign: 'left' }}>
-          <a href="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</a>
-          &gt;
-          <a href="/diem-tham-quan" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Điểm tham quan</a>
-          &gt; <strong>{attraction.name}</strong>
+      <Box sx={{ m: '-60px', boxShadow: 2, pt: 4, pl: 4, pr: 4, pb: 1, mb: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Button
+          component={Link}
+          to="/nhan-vien/diem-tham-quan"
+          variant="contained"
+          startIcon={<ArrowBackIosNewOutlinedIcon />}
+          sx={{ height: '55px', backgroundColor: 'transparent', boxShadow: 0, color: 'gray', mt: -1, ":hover": { backgroundColor: 'transparent', boxShadow: 0, color: 'black', fontWeight: 700 } }}>
+          Quay lại
+        </Button>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'center', color: '#05073C', flexGrow: 1, ml: -15 }}>
+          Chi tiết điểm tham quan
         </Typography>
-        <ToursVisitAttraction />
+      </Box>
+      <Box sx={{ p: 3, flexGrow: 1, mt: 5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="body1" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'gray', fontSize: '1.2rem' }}>
             {attraction.attractionTypeName}
@@ -170,15 +140,28 @@ const AttractionDetails = () => {
               <Typography variant="h4" sx={{ mt: 4, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>Thông tin liên hệ</Typography>
               <div dangerouslySetInnerHTML={{ __html: attraction.contactInfo }} />
             </Paper>
+            <Paper elevation={3} sx={{ p: 4, mb: 3, borderRadius: '10px' }}>
+              <Typography variant="h4" sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '20px', mb: 2 }}>
+                Thông tin tạo điểm tham quan
+              </Typography>
+              <Box sx={{ display: 'flex', width: '100%' }}>
+                <Typography sx={{ fontWeight: 700 }}>Mã: </Typography>
+                <Typography sx={{ mb: 1, ml: 1, color: 'primary.main' }}>{attraction.attractionId}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', width: '100%' }}>
+                <Typography sx={{ fontWeight: 700 }}>Ngày tạo: </Typography>
+                <Typography sx={{ mb: 1, ml: 1 }}>{new Date(attraction.createdDate).toLocaleDateString('en-GB')}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', width: '100%' }}>
+                <Typography sx={{ fontWeight: 700 }}>Tạo bởi: </Typography>
+                <Typography sx={{ mb: 1, ml: 1 }}>{attraction.creatorName}</Typography>
+              </Box>
+            </Paper>
           </Grid>
         </Grid>
       </Box>
-      <Box sx={{ width: '100%' }}>
-        <OtherAttractions provinceId={attraction.provinceId} attractionId={attraction.attractionId} />
-      </Box>
-      <Footer />
     </Box>
   );
 };
 
-export default AttractionDetails;
+export default AttractionDetail;

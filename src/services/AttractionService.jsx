@@ -50,3 +50,32 @@ export const fetchAttractions = async (params) => {
         throw error;
     }
 };
+
+export const getAttractionById = async (id) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/attractions/${id}`);
+        const data = response.data.data;
+        const attraction = {
+            attractionId: data.attractionId,
+            name: data.name,
+            address: data.address,
+            contactInfo: data.contactInfo,
+            website: data.website,
+            description: data.description,
+            googlePlaceId: data.googlePlaceId,
+            provinceId: data.province.provinceId,
+            provinceName: data.province.provinceName,
+            attractionTypeId: data.attractionType.attractionCategoryId,
+            attractionTypeName: data.attractionType.name,
+            images: data.images.map(image => ({
+                imageId: image.imageId,
+                url: image.url
+            }))
+        };
+        return attraction;
+    } catch (error) {
+        console.error('Error fetching attraction:', error);
+        throw error;
+    }
+};
+

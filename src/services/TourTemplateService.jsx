@@ -98,3 +98,26 @@ export const fetchTourTemplateById = async (id) => {
         throw error;
     }
 };
+
+export const fetchToursByAttractionId = async (attractionId, previewCount) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/attractions/${attractionId}/tour-templates?previewCount=${previewCount}`);
+        const items = response.data.data;
+        if (!Array.isArray(items)) {
+            throw new Error('Invalid response structure: tourTemplates not found or not an array');
+        }
+        const templates = items.map(item => ({
+            tourTemplateId: item.tourTemplateId,
+            code: item.code,
+            tourName: item.tourName,
+            duration: item.duration,
+            tourCategory: item.tourCategory,
+            provinces: item.provinces,
+            imageUrl: item.imageUrl,
+        }));
+        return templates;
+    } catch (error) {
+        console.error('Error fetching tour templates by attraction ID:', error);
+        throw error;
+    }
+};
