@@ -37,7 +37,7 @@ const RegisteredTourCard = ({ tour }) => {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={5.8}>
                 <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã booking" value={tour.bookingId} />
                 <InfoItem icon={<MapOutlinedIcon />} label="Ngày đặt" value={formatDate(tour.bookingDate)} />
                 <InfoItem icon={<CalendarMonthOutlinedIcon />} label="Số lượng khách" value={tour.totalParticipants} />
@@ -50,7 +50,7 @@ const RegisteredTourCard = ({ tour }) => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={6.2}>
                 <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã tour" value={tour.code} />
                 <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />
                 <InfoItem icon={<AccessTimeIcon />} label="Thời gian tour" value={`${formatDate(tour.startDate)} - ${formatDate(tour.endDate)}`} />
