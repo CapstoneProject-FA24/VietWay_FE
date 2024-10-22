@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider } from '@mui/material';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
@@ -9,105 +9,127 @@ import FeedbackPopup from '@components/profiles/FeedbackPopup';
 const RegisteredTourCard = ({ tour }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
-  const handleFeedbackOpen = () => {
-    setIsFeedbackOpen(true);
-  };
-
-  const handleFeedbackClose = () => {
-    setIsFeedbackOpen(false);
-  };
+  const handleFeedbackOpen = () => setIsFeedbackOpen(true);
+  const handleFeedbackClose = () => setIsFeedbackOpen(false);
 
   return (
-    <Card sx={{ mb: 2, borderRadius: '8px', overflow: 'hidden', boxShadow: 3 }}>
+    <Card sx={{ mb: 2, borderRadius: '12px', overflow: 'hidden', boxShadow: 3, position: 'relative' }}>
+      <StatusChip status={tour.bookedTourStatus} />
       <Grid container spacing={2}>
         <Grid item xs={12} sm={3} md={3}>
-          <CardMedia component="img" sx={{ margin: '6px', borderRadius: '10px', width: '100%', height: '180px', objectFit: 'cover' }} image={tour.image} alt={tour.name} />
+          <CardMedia
+            component="img"
+            sx={{
+              margin: '12px',
+              borderRadius: '8px',
+              width: 'calc(100% - 24px)',
+              height: '200px',
+              objectFit: 'cover'
+            }}
+            image={tour.image}
+            alt={tour.name}
+          />
         </Grid>
         <Grid item xs={12} md={7}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-            {tour.name}
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={5.5}>
-              <CardContent>
-                <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <SubtitlesOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
-                  Mã booking: {tour.bookingId}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <MapOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
-                  Ngày đặt: {new Date(tour.bookingDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <CalendarMonthOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
-                  Số lượng khách: {tour.totalParticipants}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', mr: 1 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+              {tour.name}
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã booking" value={tour.bookingId} />
+                <InfoItem icon={<MapOutlinedIcon />} label="Ngày đặt" value={formatDate(tour.bookingDate)} />
+                <InfoItem icon={<CalendarMonthOutlinedIcon />} label="Số lượng khách" value={tour.totalParticipants} />
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
                     Tổng tiền:
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', display: 'inline', ml: 1 }}>
                     {tour.totalPrice.toLocaleString()} đ
                   </Typography>
                 </Box>
-              </CardContent>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã tour" value={tour.code} />
+                <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />
+                <InfoItem icon={<AccessTimeIcon />} label="Thời gian tour" value={`${formatDate(tour.startDate)} - ${formatDate(tour.endDate)}`} />
+              </Grid>
             </Grid>
-            <Grid item xs={6} md={6.5} sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <SubtitlesOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
-                Mã tour: {tour.code}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <MapOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
-                Khởi hành từ: {tour.startProvince}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <CalendarMonthOutlinedIcon sx={{ marginRight: '8px', fontSize: 'small' }} />
-                Thời gian tour: {new Date(tour.startDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })} - {new Date(tour.endDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              </Typography>
-            </Grid>
-          </Grid>
+          </CardContent>
         </Grid>
-
-
-        <Grid item xs={6} sm={1.6} md={1.6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          {tour.bookedTourStatus === "Đã hoàn tất" ? (
-            <>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ mb: 2, width: '100%', height: '50px', borderRadius: '10px' }}
-                onClick={handleFeedbackOpen}
-              >
-                Đánh giá
-              </Button>
-              <Button variant="outlined" color="primary" sx={{ width: '100%', height: '50px', borderRadius: '10px' }}>
-                Đặt Lại
-              </Button>
-            </>
-          ) : tour.bookedTourStatus === "Đã thanh toán" ? (
-            <Button variant="outlined" color="primary" sx={{ width: '100%', height: '50px', borderRadius: '10px' }}>
-              Hủy Đặt
-            </Button>
-          ) : tour.bookedTourStatus === "Đã hủy" || tour.bookedTourStatus === "Quá hạn thanh toán" ? (
-            <Button variant="contained" color="primary" sx={{ width: '100%', height: '50px', borderRadius: '10px' }}>
-              Đặt Lại
-            </Button>
-          ) : (
-            <>
-              <Button variant="contained" color="error" sx={{ mb: 2, width: '100%', height: '50px', borderRadius: '10px' }}>
-                Thanh Toán
-              </Button>
-              <Button variant="outlined" color="primary" sx={{ width: '100%', height: '50px', borderRadius: '10px' }}>
-                Hủy Đặt
-              </Button>
-            </>
-          )}
+        <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
+          {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen)}
         </Grid>
       </Grid>
       {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
-    </Card >
+    </Card>
   );
 };
+
+const InfoItem = ({ icon, label, value }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+    {React.cloneElement(icon, { sx: { mr: 1, fontSize: '1.5rem' } })}
+    <Typography variant="body2" color="text.primary">
+      <strong>{label}:</strong>
+    </Typography>
+    <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
+      {value}
+    </Typography>
+  </Box>
+);
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+const StatusChip = ({ status }) => (
+  <Chip
+    label={status}
+    color={
+      status === "Đã hoàn tất" ? "success" :
+      status === "Đã thanh toán" ? "primary" :
+      status === "Đã hủy" || status === "Quá hạn thanh toán" ? "error" : "warning"
+    }
+    sx={{
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      zIndex: 1,
+      fontSize: '0.75rem',
+      height: '24px'
+    }}
+  />
+);
+
+const renderActionButtons = (status, handleFeedbackOpen) => {
+  switch (status) {
+    case "Đã hoàn tất":
+      return (
+        <>
+          <ActionButton onClick={handleFeedbackOpen} variant="contained" color="primary">Đánh giá</ActionButton>
+          <ActionButton variant="outlined" color="primary">Đặt Lại</ActionButton>
+        </>
+      );
+    case "Đã thanh toán":
+      return <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>;
+    case "Đã hủy":
+    case "Quá hạn thanh toán":
+      return <ActionButton variant="contained" color="primary">Đặt Lại</ActionButton>;
+    default:
+      return (
+        <>
+          <ActionButton variant="contained" color="error">Thanh Toán</ActionButton>
+          <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>
+        </>
+      );
+  }
+};
+
+const ActionButton = ({ children, ...props }) => (
+  <Button {...props} sx={{ mb: 1, width: '100%', height: '40px', borderRadius: '8px' }}>
+    {children}
+  </Button>
+);
 
 export default RegisteredTourCard;
