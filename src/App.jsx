@@ -20,6 +20,7 @@ import Provinces from "@pages/homepage/provinces/Provinces.jsx";
 import Events from "@pages/homepage/events/Events.jsx";
 import PaymentDetail from '@pages/account/PaymentDetail';
 import ProfileBookingDetail from "@pages/account/ProfileBookingDetail";
+import BookingDetailPayLater from "@pages/homepage/tours/BookingDetailPayLater";
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
         <Route path="/dat-tour/:id" element={<BookTour />} />
         <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
         <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />
+        <Route path="/dat-tour/hoan-thanh/:id" element={<BookingDetailPayLater />} />
         <Route path="/bai-viet/:id" element={<PostDetail />} />
         <Route path="/bai-viet" element={<Posts />} />
         <Route path="/tinh-thanh" element={<Provinces />} />
