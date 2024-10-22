@@ -7,11 +7,12 @@ import axios from 'axios';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
-import SuggestProvinces from '@components/SuggestProvices';
+import SuggestAttractionByProvinces from '@components/homepage/SuggestAttractionByProvinces';
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
-import SuggestTours from '@components/SuggestTours'
-import SuggestTourByProvince from '@components/SuggestTourByProvince';
+import SuggestTours from '@components/homepage/SuggestTours'
+import SuggestProvinces from '@components/homepage/SuggestProvinces';
+import FilterBar from '@components/homepage/FilterBar';
 
 const Homepage = () => {
   const [popularDestinations, setPopularDestinations] = useState([]);
@@ -52,7 +53,7 @@ const Homepage = () => {
   const sliderSettings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 1000,
     slidesToShow: 1,
     slidesToScroll: 1,
     className: 'slider-homepage',
@@ -60,9 +61,10 @@ const Homepage = () => {
   };
 
   return (
-    <Box className="homepage" >
+    <Box className="homepage" sx={{ width: '100%' }}>
       <Header />
-      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px" }} >
+      <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5, mb: 10 }} >
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.3)', zIndex: 1 }} />
         <Slider {...sliderSettings}>
           <img src="hero.jpg" alt="Hero 1" className="hero-image" />
           <img src="vung_tau.jpg" alt="Hero 2" className="hero-image"/>
@@ -70,14 +72,20 @@ const Homepage = () => {
           <img src="https://honthom.sunworld.vn/wp-content/uploads/2020/07/shutterstock_1662998491-720x270.jpg" alt="Hero 4" className="hero-image" />
           <img src="https://media.tacdn.com/media/attractions-content--1x-1/12/19/ce/12.jpg" alt="Hero 5" className="hero-image" />
         </Slider>
-        <Box className="hero-text" sx={{ width: "100%", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <Typography variant="h1" sx={{ fontSize: '4.7rem', mb: 2 }}>Niềm vui quanh ta</Typography>
-          <Typography variant="h7" sx={{ width: "40%" }}>Từ những chuyến đi gần đến những cuộc phiêu lưu xa xôi, hãy tìm thấy điều làm bạn hạnh phúc mỗi lúc, mọi nơi</Typography>
+        <Box className="hero-text" sx={{ width: "100%", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', zIndex: 2 }}>
+          <Typography variant="h1" sx={{ fontSize: '4.7rem', mb: 2, color: 'white' }}>Niềm vui quanh ta</Typography>
+          <Typography variant="h7" sx={{ width: "40%", color: 'white' }}>Từ những chuyến đi gần đến những cuộc phiêu lưu xa xôi, hãy tìm thấy điều làm bạn hạnh phúc mỗi lúc, mọi nơi</Typography>
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
+      <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '60%' }}>
+        <FilterBar />
+      </Box>
       <Box>
         <Box component="section" className="why-choose-us">
+          <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '70%' }}>
+            <FilterBar />
+          </Box>
           <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>
             Tại sao nên tin dùng Vietway Tour
           </Typography>
@@ -118,7 +126,7 @@ const Homepage = () => {
             <Typography variant="h4" className="section-title" sx={{ mb: 2, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>Khám phá các điểm tham quan</Typography>
             <Button component={Link} to="/diem-tham-quan" className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
-          <SuggestProvinces />
+          <SuggestAttractionByProvinces />
           <Box className="destination-cards">
             {popularDestinations.map((destination) => (
               <Box className="destination-card" key={destination.id}>
@@ -143,9 +151,9 @@ const Homepage = () => {
         <Box component="section" className="featured-destinations">
           <Box className="section-header">
             <Typography variant="h4" className="section-title" sx={{ mb: 1, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem'  }}>Điểm đến yêu thích</Typography>
-            <Button className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
+            <Button component={Link} to={"/tinh-thanh"}  className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
-          <SuggestTourByProvince/>
+          <SuggestProvinces/>
         </Box>
       </Box>
       <Footer />

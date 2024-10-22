@@ -1,24 +1,13 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import React, { useState } from 'react';
+import { Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Box, Grid, Typography, InputAdornment, IconButton, CircularProgress } from '@mui/material';
+import { Visibility, VisibilityOff, ArrowBackIosNew as ArrowBackIosNewIcon } from '@mui/icons-material';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { login } from '@services/AuthenService';
 
 export default function Login() {
   const settingLogin = {
@@ -47,20 +36,13 @@ export default function Login() {
     },
   ];
 
-  const [showPassword, setShowPassword] = React.useState(false);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
-
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const navigate = useNavigate();
 
@@ -68,32 +50,77 @@ export default function Login() {
     navigate('/');
   };
 
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const validateEmailOrPhone = (input) => {
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const phoneRegex = /^\d{10}$/;
+    return emailRegex.test(String(input).toLowerCase()) || phoneRegex.test(input);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
+    setEmailError('');
+    setPasswordError('');
+
+    if (!email) {
+      setEmailError('Email hoặc số điện thoại không được để trống');
+      setLoading(false);
+    }
+
+    if (email && !validateEmailOrPhone(email)) {
+      setEmailError('Email hoặc số điện thoại không hợp lệ');
+      setLoading(false);
+    }
+
+    if (!password) {
+      setPasswordError('Mật khẩu không được để trống');
+      setLoading(false);
+    }
+
+    try {
+      if (email && password) {
+        const response = await login({ email, password });
+        if (response.data) {
+          navigate('/');
+        } else {
+          setError('Đã xảy ra lỗi. Vui lòng thử lại.');
+        }
+      }
+    } catch (error) {
+      if (error.response.data.statusCode === 401 && error.response.data.message === 'Email or password is incorrect') {
+        setError('Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại');
+      }
+      else {
+        setError('Đã xảy ra lỗi. Vui lòng thử lại.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Helmet>
         <title>Đăng nhập</title>
       </Helmet>
-      <Grid component="main" sx={{ width: '150vh', mt: -5}}>
+      <Grid component="main" sx={{ width: '150vh', mt: -5 }}>
         <CssBaseline />
         <Grid item square md={12} sx={{ display: 'flex ' }}>
           <Box
             sx={{
-              my: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'left',
-              textAlign: 'left',
-              width: '47%',
-              marginRight: 10,
-              marginLeft: -6
+              my: 1, display: 'flex', flexDirection: 'column', alignItems: 'left',
+              textAlign: 'left', width: '47%', marginRight: 10, marginLeft: -6
             }}
           >
             <img style={{ width: 90, marginBottom: 20 }} src='/logo1_color.png' alt="Logo" />
             <Button
-              variant="text"
-              startIcon={<ArrowBackIosNewIcon/>}
-              onClick={handleBackClick}
-              sx={{color: '#4B4B4B', marginBottom: 1, justifyContent: 'flex-start'}}
+              variant="text" startIcon={<ArrowBackIosNewIcon />} onClick={handleBackClick}
+              sx={{ color: '#4B4B4B', marginBottom: 1, justifyContent: 'flex-start' }}
             >
               Quay lại
             </Button>
@@ -105,32 +132,23 @@ export default function Login() {
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email"
-                name="email"
-                autoComplete="email"
-                autoFocus
+                margin="normal" required fullWidth id="email" label="Email hoặc số điện thoại"
+                name="email" autoComplete="email" autoFocus value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={!!emailError}
+                helperText={emailError}
               />
               <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Mật khẩu"
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                autoComplete="current-password"
+                margin="normal" required fullWidth name="password" label="Mật khẩu"
+                type={showPassword ? 'text' : 'password'} id="password"
+                autoComplete="current-password" value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={!!passwordError}
+                helperText={passwordError}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        edge="end"
-                      >
+                      <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword} edge="end" >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
@@ -138,24 +156,19 @@ export default function Login() {
                 }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Lưu mật khẩu"
-                />
+                <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Lưu mật khẩu" />
                 <Grid item>
                   <Link href="/quen-mat-khau" variant="body2" color="#FF8682" sx={{ textDecoration: 'none' }}>
                     Quên mật khẩu?
                   </Link>
                 </Grid>
               </div>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 2, mb: 1, height: 45 }}
-              >
-                Đăng nhập
+              <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 1, height: 45 }} disabled={loading} >
+                {loading ? <CircularProgress size={24} /> : 'Đăng nhập'}
               </Button>
+              {error && (
+                <Typography color="error" align="center" sx={{ mt: 2 }}>  {error} </Typography>
+              )}
               <Grid container>
                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                   Chưa có tài khoản?
@@ -173,14 +186,8 @@ export default function Login() {
                   fullWidth
                   variant="contained"
                   sx={{
-                    mt: 2,
-                    height: 45,
-                    backgroundColor: 'transparent',
-                    border: '1px solid #BDBDBD ',
-                    '&:hover': {
-                      backgroundColor: 'lightgray',
-                      border: '1px solid #BDBDBD ',
-                    },
+                    mt: 2, height: 45, backgroundColor: 'transparent', border: '1px solid #BDBDBD ',
+                    '&:hover': { backgroundColor: 'lightgray', border: '1px solid #BDBDBD ', },
                   }}
                 >
                   <img style={{ width: 20 }} src='/Logo-google-icon-PNG.png' alt="Logo" />
@@ -192,7 +199,7 @@ export default function Login() {
             <Slider {...settingLogin}>
               {imgs.map((img, index) => (
                 <div key={index}>
-                  <img src={img.url} class='slideImg' />
+                  <img src={img.url} className='slideImg' alt={`Login slide ${index + 1}`} />
                 </div>
               ))}
             </Slider>

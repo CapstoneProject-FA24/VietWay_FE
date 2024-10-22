@@ -7,11 +7,13 @@ import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import PhoneIcon from '@mui/icons-material/Phone';
 import { getCustomerInfo } from '@services/CustomerService';
-import { fetchTourById, createBooking } from '@services/TourService';
+import { fetchTourById } from '@services/TourService';
+import { createBooking } from '@services/BookingService';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import '@styles/Homepage.css'
+import { useNavigate } from 'react-router-dom';
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -64,12 +66,21 @@ const BookTour = () => {
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({
     fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "",
-    passengers: [{ type: 'adult', name: '', gender: 0, birthday: '' }]});
+    passengers: [{ type: 'adult', name: '', gender: 0, birthday: '' }]
+  });
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('error');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,16 +92,16 @@ const BookTour = () => {
         tourName: tourTemplate.tourName, code: tourTemplate.code,
         duration: tourTemplate.duration, startLocation: tour.startLocation,
         startTime: tour.startTime, startDate: tour.startDate,
-        endDate: tour.endDate, price: tour.price, 
+        endDate: tour.endDate, price: tour.price,
         infantPrice: tour.price / 10,
-        childPrice: tour.price * (70/100)
+        childPrice: tour.price * (70 / 100)
       }
       setBookingData(data);
       setFormData(prevState => ({
         ...prevState,
         fullName: customer.fullName, email: customer.email,
         phone: customer.phone, address: customer.address || "",
-        passengers: [{ type: 'adult', name: customer.fullName, gender: 0, birthday: new Date(customer.birthday).toISOString().slice(0, 10)}]
+        passengers: [{ type: 'adult', name: customer.fullName, gender: customer.genderId, birthday: new Date(customer.birthday).toISOString().slice(0, 10) }]
       }));
     };
     fetchData();
@@ -121,7 +132,7 @@ const BookTour = () => {
       setOpenSnackbar(true);
       return;
     }
-    
+
     const newPassengers = [...formData.passengers];
     newPassengers[index] = { ...newPassengers[index], [field]: value };
     setFormData({ ...formData, passengers: newPassengers });
@@ -133,7 +144,7 @@ const BookTour = () => {
     switch (name) {
       case 'fullName':
       case 'name':
-        if (!value.trim()) { error = 'Vui lòng điền họ và tên'; } 
+        if (!value.trim()) { error = 'Vui lòng điền họ và tên'; }
         else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value)) { error = 'Họ và tên chỉ được chứa chữ cái'; }
         break;
       case 'phone':
@@ -154,14 +165,14 @@ const BookTour = () => {
         }
         break;
       case 'birthday':
-        if (!value) { 
-          error = 'Vui lòng chọn ngày sinh'; 
+        if (!value) {
+          error = 'Vui lòng chọn ngày sinh';
         } else {
           const birthDate = new Date(value);
           const today = new Date();
           let age = today.getFullYear() - birthDate.getFullYear();
           const monthDiff = today.getMonth() - birthDate.getMonth();
-          
+
           if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
             age--;
           }
@@ -343,16 +354,16 @@ const BookTour = () => {
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <CustomTextField 
-                    fullWidth 
-                    label="Họ và tên" 
-                    name="fullName" 
-                    value={formData.fullName} 
-                    onChange={handleInputChange} 
-                    onBlur={handleBlur} 
-                    error={!!errors.fullName} 
-                    helperText={errors.fullName} 
-                    required 
+                  <CustomTextField
+                    fullWidth
+                    label="Họ và tên"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
+                    error={!!errors.fullName}
+                    helperText={errors.fullName}
+                    required
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -390,15 +401,15 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField 
-                        fullWidth 
-                        label="Họ tên" 
-                        name={`passengerName-${index}`} 
+                      <CustomTextField
+                        fullWidth
+                        label="Họ tên"
+                        name={`passengerName-${index}`}
                         value={passenger.name || ''}
                         onChange={(e) => handlePassengerInfoChange(index, 'name', e.target.value)}
                         onBlur={() => validatePassengerField(index, 'name', passenger.name)}
-                        error={!!errors[`passenger${index}-name`]} 
-                        helperText={errors[`passenger${index}-name`]} 
+                        error={!!errors[`passenger${index}-name`]}
+                        helperText={errors[`passenger${index}-name`]}
                         required
                       />
                     </Grid>
@@ -423,8 +434,8 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField 
-                        fullWidth label="Ngày sinh" type="date" 
+                      <CustomTextField
+                        fullWidth label="Ngày sinh" type="date"
                         InputLabelProps={{ shrink: true }}
                         name={`passengerBirthday-${index}`}
                         value={passenger.birthday || ''}
@@ -435,11 +446,11 @@ const BookTour = () => {
                         required
                         inputProps={{
                           max: new Date().toISOString().split('T')[0],
-                          min: passenger.type === 'adult' 
+                          min: passenger.type === 'adult'
                             ? new Date(new Date().setFullYear(new Date().getFullYear() - 100)).toISOString().split('T')[0]
                             : passenger.type === 'child'
-                            ? new Date(new Date().setFullYear(new Date().getFullYear() - 11)).toISOString().split('T')[0]
-                            : new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0]
+                              ? new Date(new Date().setFullYear(new Date().getFullYear() - 11)).toISOString().split('T')[0]
+                              : new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0]
                         }}
                       />
                     </Grid>
@@ -522,7 +533,7 @@ const BookTour = () => {
                   <Typography variant="body2">{bookingData.duration}</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography variant="body2" sx={{ minWidth: '6rem'}}>Khởi hành từ:</Typography>
+                  <Typography variant="body2" sx={{ minWidth: '6rem' }}>Khởi hành từ:</Typography>
                   <Typography variant="body2">{bookingData.startLocation}</Typography>
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />

@@ -13,6 +13,14 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
 import BookingDetail from "@pages/homepage/tours/BookingDetail";
+import PostDetail from "@pages/homepage/posts/PostDetail";
+import Posts from "@pages/homepage/posts/Posts";
+import ProvinceDetail from "@pages/homepage/provinces/ProvinceDetail";
+import Provinces from "@pages/homepage/provinces/Provinces.jsx";
+import Events from "@pages/homepage/events/Events.jsx";
+import PaymentDetail from '@pages/account/PaymentDetail';
+import ProfileBookingDetail from "@pages/account/ProfileBookingDetail";
+import BookingDetailPayLater from "@pages/homepage/tours/BookingDetailPayLater";
 
 const App = () => {
   return (
@@ -22,6 +30,7 @@ const App = () => {
         <Route path="/" element={<Navigate to="/trang-chu" />} />
         <Route path="*" element={<Navigate to="/trang-chu" />} />
         <Route path="/diem-tham-quan" element={<Attractions />} />
+        <Route path="/tinh-thanh/:id" element={<ProvinceDetail />} />
         <Route path="/diem-tham-quan/:id" element={<AttractionDetails />} />
         <Route path="/dang-nhap" element={<Login />} />
         <Route path="/dang-ky" element={<Register />} />
@@ -29,10 +38,17 @@ const App = () => {
         <Route path="/dat-lai-mat-khau" element={<ResetPass />} />
         <Route path="/tour-du-lich" element={<Tours />} />
         <Route path="/tour-du-lich/:id" element={<TourDetails />} />
-        <Route path="/tai-khoan" element={<Profile />} />
+        <Route path="/tai-khoan/*" element={<Profile />} />
+        <Route path="/tai-khoan/thanh-toan/:id" element={<PaymentDetail />} />
         <Route path="/dat-tour/:id" element={<BookTour />} />
         <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
         <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />
+        <Route path="/dat-tour/hoan-thanh/:id" element={<BookingDetailPayLater />} />
+        <Route path="/bai-viet/:id" element={<PostDetail />} />
+        <Route path="/bai-viet" element={<Posts />} />
+        <Route path="/tinh-thanh" element={<Provinces />} />
+        <Route path="/su-kien" element={<Events />} />
+        <Route path="/booking/:id" element={<ProfileBookingDetail />} />
       </Routes>
     </Router>
   );

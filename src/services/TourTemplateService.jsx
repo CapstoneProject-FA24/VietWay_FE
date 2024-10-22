@@ -14,17 +14,33 @@ const getStatusText = (status) => {
 export const fetchTourTemplates = async (params) => {
     try {
         const queryParams = new URLSearchParams();
-        queryParams.append('pageSize', params.pageSize);
-        queryParams.append('pageIndex', params.pageIndex);
+        
+        if (params.pageSize) queryParams.append('pageSize', params.pageSize);
+        if (params.pageIndex) queryParams.append('pageIndex', params.pageIndex);
         if (params.searchTerm) queryParams.append('nameSearch', params.searchTerm);
-        if (params.templateCategoryIds) params.templateCategoryIds.forEach(id => queryParams.append('templateCategoryIds', id));
-        if (params.durationIds) params.durationIds.forEach(id => queryParams.append('durationIds', id));
-        if (params.provinceIds) params.provinceIds.forEach(id => queryParams.append('provinceIds', id));
+        
+        if (params.templateCategoryIds && params.templateCategoryIds.length > 0) {
+            params.templateCategoryIds.forEach(id => queryParams.append('templateCategoryIds', id));
+        }
+        
+        if (params.provinceIds && params.provinceIds.length > 0) {
+            params.provinceIds.forEach(id => queryParams.append('provinceIds', id));
+        }
+        
+        if (params.numberOfDay && params.numberOfDay.length > 0) {
+            params.numberOfDay.forEach(day => queryParams.append('numberOfDay', day));
+        }
+        
+        if (params.startDateFrom) queryParams.append('startDateFrom', params.startDateFrom);
+        if (params.startDateTo) queryParams.append('startDateTo', params.startDateTo);
+        
+        if (params.minPrice) queryParams.append('minPrice', params.minPrice);
+        if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice);
+        
         if (params.status !== undefined && params.status !== null) queryParams.append('status', params.status);
 
-        const response = await axios.get(`${baseURL}/api/TourTemplate?${queryParams.toString()}`);
+        const response = await axios.get(`${baseURL}/api/tour-templates?${queryParams.toString()}`);
         const items = response.data?.data.items;
-        console.log(items);
         
         if (!items || !Array.isArray(items)) {
             throw new Error('Invalid response structure: items not found or not an array');
@@ -41,7 +57,7 @@ export const fetchTourTemplates = async (params) => {
             minPrice: item.minPrice,
             startDates: item.startDate.sort((a, b) => new Date(a) - new Date(b))
         }));
-        console.log(templates);
+        
         return ({
             data: templates,
             pageIndex: response.data?.data?.pageIndex,
@@ -57,7 +73,8 @@ export const fetchTourTemplates = async (params) => {
 
 export const fetchTourTemplateById = async (id) => {
     try {
-        const response = await axios.get(`${baseURL}/api/TourTemplate/${id}`);
+        const response = await axios.get(`${baseURL}/api/tour-templates/${id}`);
+        console.log(response);
         return {
             tourTemplateId: response.data.data.tourTemplateId,
             code: response.data.data.code,
@@ -78,6 +95,29 @@ export const fetchTourTemplateById = async (id) => {
         };
     } catch (error) {
         console.error('Error fetching tour template:', error);
+        throw error;
+    }
+};
+
+export const fetchToursByAttractionId = async (attractionId, previewCount) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/attractions/${attractionId}/tour-templates?previewCount=${previewCount}`);
+        const items = response.data.data;
+        if (!Array.isArray(items)) {
+            throw new Error('Invalid response structure: tourTemplates not found or not an array');
+        }
+        const templates = items.map(item => ({
+            tourTemplateId: item.tourTemplateId,
+            code: item.code,
+            tourName: item.tourName,
+            duration: item.duration,
+            tourCategory: item.tourCategory,
+            provinces: item.provinces,
+            imageUrl: item.imageUrl,
+        }));
+        return templates;
+    } catch (error) {
+        console.error('Error fetching tour templates by attraction ID:', error);
         throw error;
     }
 };

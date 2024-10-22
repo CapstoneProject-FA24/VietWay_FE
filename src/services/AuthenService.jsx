@@ -1,14 +1,41 @@
 import baseURL from '@api/BaseURL';
 import axios from 'axios';
 
-const login = async (credentials) => {
+export const login = async (credentials) => {
     try {
-        const response = await axios.get(`${baseURL}/Account/login`);
-        const data = await response.json();
-        if (data.token) {
-            localStorage.setItem('token', data.token); // Save token to local storage or session storage
+        const loginRequest = {
+            emailOrPhone: credentials.email,
+            password: credentials.password
+        };
+        const response = await axios.post(`${baseURL}/api/account/login`, loginRequest);
+        const data = response.data;
+        console.log(data);
+        if (data.data) {
+            localStorage.setItem('token', data.data);
         }
+        return data;
     } catch (error) {
         console.error('Login failed:', error);
+        throw error;
+    }
+};
+
+export const register = async (userData) => {
+    try {
+        const registerRequest = {
+            email: userData.email,
+            phoneNumber: userData.phoneNumber,
+            password: userData.password,
+            fullName: userData.fullName,
+            dateOfBirth: userData.dateOfBirth,
+            gender: userData.gender,
+            provinceId: userData.provinceId
+        };
+        const response = await axios.post(`${baseURL}/api/account/register`, registerRequest);
+        const data = response.data;
+        return data;
+    } catch (error) {
+        console.error('Registration failed:', error);
+        throw error;
     }
 };
