@@ -7,11 +7,11 @@ import axios from 'axios';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
-import SuggestProvinces from '@components/homepage/SuggestProvices';
+import SuggestAttractionByProvinces from '@components/homepage/SuggestAttractionByProvinces';
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
 import SuggestTours from '@components/homepage/SuggestTours'
-import SuggestTourByProvince from '@components/homepage/SuggestTourByProvince';
+import SuggestProvinces from '@components/homepage/SuggestProvinces';
 import FilterBar from '@components/homepage/FilterBar';
 
 const Homepage = () => {
@@ -126,7 +126,7 @@ const Homepage = () => {
             <Typography variant="h4" className="section-title" sx={{ mb: 2, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>Khám phá các điểm tham quan</Typography>
             <Button component={Link} to="/diem-tham-quan" className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
-          <SuggestProvinces />
+          <SuggestAttractionByProvinces />
           <Box className="destination-cards">
             {popularDestinations.map((destination) => (
               <Box className="destination-card" key={destination.id}>
@@ -153,7 +153,7 @@ const Homepage = () => {
             <Typography variant="h4" className="section-title" sx={{ mb: 1, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem'  }}>Điểm đến yêu thích</Typography>
             <Button component={Link} to={"/tinh-thanh"}  className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
-          <SuggestTourByProvince/>
+          <SuggestProvinces/>
         </Box>
       </Box>
       <Footer />

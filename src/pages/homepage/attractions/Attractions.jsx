@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import AttractionCard from '@components/attractions/AttractionCard';
 import { fetchAttractions } from '@services/AttractionService';
 import { fetchProvinces } from '@services/ProvinceService';
@@ -27,22 +27,32 @@ const Attractions = () => {
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({
     province: 'all',
-    attractionType: 'all'
+    attractionType: 'all',
+    searchTerm: '',
   });
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const location = useLocation();
 
   useEffect(() => {
-    fetchAttractionData();
-    fetchProvinceData();
-    fetchAttractionTypeData();
-  }, [page, pageSize, searchTerm, appliedFilters]);
+    const searchParams = new URLSearchParams(location.search);
+    const provinceId = searchParams.get('tinh');
+    if (provinceId) {
+      setSelectedProvince(provinceId);
+      setAppliedFilters(prev => ({ ...prev, province: provinceId }));
+    }
+    setIsInitialized(true);
+  }, [location]);
 
-  const fetchAttractionData = async () => {
+  const fetchAttractionData = useCallback(async () => {
+    if (!isInitialized) return;
+    
     try {
       setLoading(true);
       const params = {
         pageSize,
         pageIndex: page,
-        searchTerm: searchTerm,
+        searchTerm: appliedFilters.searchTerm,
         provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
         attractionTypeIds: appliedFilters.attractionType !== 'all' ? [appliedFilters.attractionType] : [],
       };
@@ -55,7 +65,18 @@ const Attractions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isInitialized, appliedFilters, page, pageSize]);
+
+  useEffect(() => {
+    fetchAttractionData();
+  }, [fetchAttractionData]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      fetchProvinceData();
+      fetchAttractionTypeData();
+    }
+  }, [isInitialized]);
 
   const fetchProvinceData = async () => {
     try {
@@ -103,7 +124,8 @@ const Attractions = () => {
   const handleApplyFilters = () => {
     setAppliedFilters({
       province: selectedProvince,
-      attractionType: selectedAttractionType
+      attractionType: selectedAttractionType,
+      searchTerm: searchInput,
     });
     setPage(1);
   };

@@ -3,7 +3,7 @@ import { Grid, Card, CardMedia, Typography, Box, CardActionArea } from '@mui/mat
 import { provinces } from '@hooks/Provinces';
 import { useNavigate } from 'react-router-dom';
 
-const SuggestTourByProvince = () => {
+const SuggestProvinces = () => {
     const navigate = useNavigate();
 
     const handleCardClick = (id) => {
@@ -233,4 +233,4 @@ const SuggestTourByProvince = () => {
     );
 };
 
-export default SuggestTourByProvince;
+export default SuggestProvinces;
