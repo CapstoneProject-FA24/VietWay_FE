@@ -61,7 +61,7 @@ export const mockTours = [
     totalParticipants: 15,
     bookingDate: "2023-12-30",
     totalPrice: 2500000,
-    image: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/vuon-trai-cay-ben-tre.jpg",
+    image: "https://thamhiemmekong.com/wp-content/uploads/2019/04/ben-tre-4.jpg",
     bookedTourStatus: "Đã hủy"
   },
   {
@@ -74,7 +74,7 @@ export const mockTours = [
     totalParticipants: 20,
     bookingDate: "2024-01-30",
     totalPrice: 4500000,
-    image: "https://statics.vinpearl.com/du-lich-hue-1_1624024966.jpg",
+    image: "https://dulichconvoi.com/wp-content/uploads/2019/10/hinh-anh-hue-1-1.jpg",
     bookedTourStatus: "Chờ thanh toán"
   },
   {
@@ -87,7 +87,7 @@ export const mockTours = [
     totalParticipants: 25,
     bookingDate: "2024-02-28",
     totalPrice: 3800000,
-    image: "https://ik.imagekit.io/tvlk/blog/2022/11/bai-da-ong-dia-1.jpg?tr=dpr-2,w-675",
+    image: "https://happytourvn.com/public/userfiles/tour/29/MUI-NE-KOVER-5524-1544670379-6577-1545735577.jpg",
     bookedTourStatus: "Đã thanh toán"
   }
 ];
