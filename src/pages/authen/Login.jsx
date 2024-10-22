@@ -54,9 +54,10 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const validateEmail = (email) => {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
+  const validateEmailOrPhone = (input) => {
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const phoneRegex = /^\d{10}$/;
+    return emailRegex.test(String(input).toLowerCase()) || phoneRegex.test(input);
   };
 
   const handleSubmit = async (event) => {
@@ -67,12 +68,12 @@ export default function Login() {
     setPasswordError('');
 
     if (!email) {
-      setEmailError('Email không được để trống');
+      setEmailError('Email hoặc số điện thoại không được để trống');
       setLoading(false);
     }
 
-    if (email && !validateEmail(email)) {
-      setEmailError('Email không hợp lệ');
+    if (email && !validateEmailOrPhone(email)) {
+      setEmailError('Email hoặc số điện thoại không hợp lệ');
       setLoading(false);
     }
 
@@ -91,8 +92,8 @@ export default function Login() {
         }
       }
     } catch (error) {
-      if (error.status === 401 && error.response.data === 'Invalid email or password') {
-        setError('Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại');
+      if (error.response.data.statusCode === 401 && error.response.data.message === 'Email or password is incorrect') {
+        setError('Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại');
       }
       else {
         setError('Đã xảy ra lỗi. Vui lòng thử lại.');
@@ -131,7 +132,7 @@ export default function Login() {
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
-                margin="normal" required fullWidth id="email" label="Email"
+                margin="normal" required fullWidth id="email" label="Email hoặc số điện thoại"
                 name="email" autoComplete="email" autoFocus value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 error={!!emailError}

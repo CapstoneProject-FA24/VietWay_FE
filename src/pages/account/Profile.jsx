@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Tabs, Tab } from '@mui/material';
+import { Box, Container, Typography, Tabs, Tab, Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
@@ -11,12 +12,17 @@ import PaymentHistory from '@components/profiles/PaymentHistory';
 import { useNavigate, Route, Routes } from 'react-router-dom';
 import { getCustomerInfo } from '@services/CustomerService';
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 const Profile = () => {
     const [profile, setProfile] = useState({});
     const [payments, setPayments] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [statusTab, setStatusTab] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,6 +41,18 @@ const Profile = () => {
         } catch (error) {
             console.error('Failed to fetch customer info:', error);
         }
+    };
+
+    const handleProfileUpdate = (updatedProfile) => {
+        setProfile(updatedProfile);
+        setSnackbar({ open: true, message: 'Thông tin tài khoản đã được cập nhật', severity: 'success' });
+    };
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbar({ ...snackbar, open: false });
     };
 
     const handleTabChange = (event, newValue) => {
@@ -76,7 +94,7 @@ const Profile = () => {
                 <Routes>
                     <Route path="/" element={
                         <>
-                            {tabValue === 0 && <ProfileDetail profile={profile} />}
+                            {tabValue === 0 && <ProfileDetail profile={profile} onProfileUpdate={handleProfileUpdate} />}
                             {tabValue === 2 && (
                                 <BookedTour
                                     statusTab={statusTab}
@@ -92,6 +110,11 @@ const Profile = () => {
                 </Routes>
             </Container>
             <Footer />
+            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

@@ -19,6 +19,7 @@ import ProvinceDetail from "@pages/homepage/provinces/ProvinceDetail";
 import Provinces from "@pages/homepage/provinces/Provinces.jsx";
 import Events from "@pages/homepage/events/Events.jsx";
 import PaymentDetail from '@pages/account/PaymentDetail';
+import ProfileBookingDetail from "@pages/account/ProfileBookingDetail";
 
 const App = () => {
   return (
@@ -45,6 +46,7 @@ const App = () => {
         <Route path="/bai-viet" element={<Posts />} />
         <Route path="/tinh-thanh" element={<Provinces />} />
         <Route path="/su-kien" element={<Events />} />
+        <Route path="/booking/:id" element={<ProfileBookingDetail />} />
       </Routes>
     </Router>
   );

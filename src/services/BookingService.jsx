@@ -1,9 +1,14 @@
 import axios from 'axios';
 import baseURL from '@api/BaseURL';
+const token = localStorage.getItem('token');
 
 export const fetchBookingData = async (bookingId) => {
     try {
-        const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`);
+        const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         const bookingData = response.data.data;
         return {
             bookingId: bookingData.bookingId,
@@ -40,7 +45,7 @@ export const createBooking = async (bookingData) => {
     try {
         const requestData = {
             tourId: bookingData.tourId,
-            customerId: "1297800538728955904",
+            customerId: "1298280622971682816",
             numberOfParticipants: bookingData.passengers.length,
             tourParticipants: bookingData.passengers.map(passenger => ({
                 fullName: passenger.fullName,
@@ -54,11 +59,51 @@ export const createBooking = async (bookingData) => {
             contactAddress: bookingData.address,
             note: bookingData.note,
         };
-        const response = await axios.post(`${baseURL}/api/bookings`, requestData);
+        const response = await axios.post(`${baseURL}/api/bookings`, requestData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
         return response.data;
     } catch (error) {
         console.error('Error creating booking:', error);
+        throw error;
+    }
+};
+
+export const fetchBookingList = async (pageCount = 100, pageIndex = 1) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/bookings`, {
+            params: {
+                pageCount,
+                pageIndex
+            },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const bookingListData = response.data.data;
+        return {
+            total: bookingListData.total,
+            pageSize: bookingListData.pageSize,
+            pageIndex: bookingListData.pageIndex,
+            items: bookingListData.items.map(booking => ({
+                bookingId: booking.bookingId,
+                tourId: booking.tourId,
+                customerId: booking.customerId,
+                numberOfParticipants: booking.numberOfParticipants,
+                totalPrice: booking.totalPrice,
+                status: booking.status,
+                bookingDate: booking.createdOn,
+                tourName: booking.tourName,
+                imageUrl: booking.imageUrl,
+                code: booking.code
+            }))
+        };
+    } catch (error) {
+        console.error('Error fetching booking list:', error);
         throw error;
     }
 };
