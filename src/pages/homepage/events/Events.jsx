@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import EventListCard from '@components/events/EventListCard';
 import { fetchEvents } from '@hooks/MockPost';
 import { fetchProvinces } from '@services/ProvinceService';
+import { fetchEventCategory } from '@services/EventCategoryService';
 import SearchIcon from '@mui/icons-material/Search';
 
 const Events = () => {
@@ -31,12 +32,7 @@ const Events = () => {
   useEffect(() => {
     fetchEventData();
     fetchProvinceData();
-    // Simulating fetching categories
-    setCategories([
-      { categoryId: '1', categoryName: 'Lễ hội' },
-      { categoryId: '2', categoryName: 'Triển lãm' },
-      // Add more categories as needed
-    ]);
+    fetchCategoryData();
   }, [page, pageSize, searchTerm, appliedFilters]);
 
   const fetchEventData = async () => {
@@ -58,6 +54,15 @@ const Events = () => {
       setProvinces(fetchedProvinces);
     } catch (error) {
       console.error('Error fetching provinces:', error);
+    }
+  };
+
+  const fetchCategoryData = async () => {
+    try {
+      const fetchedCategories = await fetchEventCategory();
+      setCategories(fetchedCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -177,7 +182,9 @@ const Events = () => {
                     >
                       <MenuItem value="all">Tất cả</MenuItem>
                       {categories.map((category) => (
-                        <MenuItem key={category.categoryId} value={category.categoryId}>{category.categoryName}</MenuItem>
+                        <MenuItem key={category.eventCategoryId} value={category.eventCategoryId}>
+                          {category.name}
+                        </MenuItem>
                       ))}
                     </Select>
                   </FormControl>

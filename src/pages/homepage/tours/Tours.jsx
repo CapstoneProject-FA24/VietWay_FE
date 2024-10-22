@@ -190,7 +190,7 @@ const Tours = () => {
                   </Select>
                 </FormControl>
                 <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Danh mục</Typography>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Loại tour</Typography>
                   <Select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
