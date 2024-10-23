@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Box, Tabs, Tab, TextField, Select, MenuItem, Button, List, ListItem, ListItemText, IconButton, InputAdornment } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -11,6 +10,8 @@ import FlightIcon from '@mui/icons-material/Flight';
 import WorkIcon from '@mui/icons-material/Work';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
+import { useNavigate } from 'react-router-dom';
+import { fetchProvinces } from '@services/ProvinceService';
 
 dayjs.locale('vi');
 
@@ -20,17 +21,22 @@ const FilterBar = () => {
   const [selectedDestination, setSelectedDestination] = useState('');
   const [departureDate, setDepartureDate] = useState(dayjs());
   const [budget, setBudget] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState('');
+  const [provinces, setProvinces] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchDestinations();
+    fetchProvinceData();
   }, []);
 
-  const fetchDestinations = async () => {
+  const fetchProvinceData = async () => {
     try {
-      const response = await axios.get('API_URL_FOR_DESTINATIONS');
-      setDestinations(response.data);
+      const fetchedProvinces = await fetchProvinces();
+      setProvinces(fetchedProvinces);
     } catch (error) {
-      console.error('Error fetching destinations:', error);
+      console.error('Error fetching provinces:', error);
     }
   };
 
@@ -39,67 +45,152 @@ const FilterBar = () => {
   };
 
   const handleSearch = () => {
-    console.log('Search with:', { selectedDestination, departureDate, budget });
+    let searchParams = {};
+    switch (value) {
+      case 0: // Tour du lịch
+        searchParams = new URLSearchParams({
+          name: selectedDestination,
+          startDate: departureDate ? dayjs(departureDate).format('YYYY-MM-DD') : '',
+          priceRange: budget
+        }).toString();
+        navigate(`/tour-du-lich?${searchParams}`);
+        break;
+      case 1:
+        searchParams = new URLSearchParams({
+          name: selectedDestination,
+          provinceId: selectedProvince
+        }).toString();
+        navigate(`/diem-tham-quan?${searchParams}`);
+        break;
+      case 2:
+        searchParams = new URLSearchParams({
+          name: selectedDestination,
+          provinceId: selectedProvince
+        }).toString();
+        navigate(`/bai-viet?${searchParams}`);
+        break;
+      case 3: // Sự kiện
+        searchParams = new URLSearchParams({
+          name: selectedDestination,
+          provinceId: selectedProvince,
+          startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : '',
+          endDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : ''
+        }).toString();
+        navigate(`/su-kien?${searchParams}`);
+        break;
+    }
+  };
+
+  const renderFilterFields = () => {
+    switch (value) {
+      case 0: // Tour du lịch
+        return (
+          <>
+            <TextField
+              placeholder="Bạn muốn đi đâu?" value={selectedDestination}
+              onChange={(e) => setSelectedDestination(e.target.value)}
+              sx={{ width: '30%' }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton> <SearchIcon /> </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <DatePicker
+              label="Ngày đi" value={departureDate}
+              onChange={(newValue) => setDepartureDate(newValue)}
+              format="DD/MM/YYYY" sx={{ width: '23%' }}
+            />
+            <Select
+              value={budget} onChange={(e) => setBudget(e.target.value)}
+              displayEmpty sx={{ width: '23%' }}
+            >
+              <MenuItem value="" disabled>
+                Chọn khoảng giá
+              </MenuItem>
+              <MenuItem value="0,1000000">Dưới 1 triệu</MenuItem>
+              <MenuItem value="1000000,5000000">1-5 triệu</MenuItem>
+              <MenuItem value="5000000,10000000">5-10 triệu</MenuItem>
+              <MenuItem value="10000000,">Trên 10 triệu</MenuItem>
+            </Select>
+          </>
+        );
+      case 1: // Điểm tham quan
+      case 2: // Bài viết
+        return (
+          <>
+            <TextField
+              placeholder={value === 1 ? "Tên điểm tham quan" : "Tên bài viết"}
+              value={selectedDestination}
+              onChange={(e) => setSelectedDestination(e.target.value)}
+              sx={{ width: '50%' }}
+            />
+            <Select
+              value={selectedProvince}
+              onChange={(e) => setSelectedProvince(e.target.value)}
+              displayEmpty
+              sx={{ width: '30%' }}
+            >
+              <MenuItem value="" disabled>
+                Chọn tỉnh thành
+              </MenuItem>
+              {provinces.map((province) => (
+                <MenuItem key={province.provinceId} value={province.provinceId}>
+                  {province.provinceName}
+                </MenuItem>
+              ))}
+            </Select>
+          </>
+        );
+      case 3: // Sự kiện
+        return (
+          <>
+            <TextField
+              placeholder="Tên sự kiện"
+              value={selectedDestination}
+              onChange={(e) => setSelectedDestination(e.target.value)}
+              sx={{ width: '30%' }}
+            />
+            <Select
+              value={selectedProvince}
+              onChange={(e) => setSelectedProvince(e.target.value)}
+              displayEmpty
+              sx={{ width: '25%' }}
+            >
+              <MenuItem value="" disabled>
+                Chọn tỉnh thành
+              </MenuItem>
+              {provinces.map((province) => (
+                <MenuItem key={province.provinceId} value={province.provinceId}>
+                  {province.provinceName}
+                </MenuItem>
+              ))}
+            </Select>
+            <DatePicker
+              label="Ngày bắt đầu"
+              value={startDate}
+              onChange={(newValue) => setStartDate(newValue)}
+              format="DD/MM/YYYY"
+              sx={{ width: '23%' }}
+            />
+          </>
+        );
+    }
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%'}}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%' }}>
       <Box sx={{ width: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1 }}>
-        <Tabs value={value} onChange={handleChange} variant="fullWidth">
-          <Tab icon={<DirectionsBusIcon />} label="Tour trọn gói" />
-          <Tab icon={<HotelIcon />} label="Địa điểm tham quan" />
-          <Tab icon={<FlightIcon />} label="Bài viết" />
-          <Tab icon={<WorkIcon />} label="Sự kiện" />
+        <Tabs value={value} onChange={handleChange} sx={{ width: '100%' }}>
+          <Tab icon={<DirectionsBusIcon />} label="Tour trọn gói" iconPosition="start" sx={{ width: '28%' }}/>
+          <Tab icon={<HotelIcon />} label="Địa điểm tham quan" iconPosition="start" sx={{ width: '31%' }}/>
+          <Tab icon={<FlightIcon />} label="Bài viết" iconPosition="start" sx={{ width: '20%' }}/>
+          <Tab icon={<WorkIcon />} label="Sự kiện" iconPosition="start" sx={{ width: '21%' }}/>
         </Tabs>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <TextField placeholder="Bạn muốn đi đâu?" value={selectedDestination} onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '25%' }} InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          {selectedDestination && (
-            <List sx={{ position: 'absolute', zIndex: 1, bgcolor: 'background.paper', width: '25%', maxHeight: 200, overflow: 'auto' }}>
-              {destinations
-                .filter((dest) =>
-                  dest.name.toLowerCase().includes(selectedDestination.toLowerCase())
-                )
-                .map((dest) => (
-                  <ListItem
-                    key={dest.id}
-                    button
-                    onClick={() => setSelectedDestination(dest.name)}
-                  >
-                    <ListItemText primary={dest.name} />
-                  </ListItem>
-                ))}
-            </List>
-          )}
-          <DatePicker
-            label="Ngày đi"
-            value={departureDate}
-            onChange={(newValue) => setDepartureDate(newValue)}
-            format="DD/MM/YYYY"
-            sx={{ width: '25%' }}
-          />
-          <Select
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            displayEmpty
-            sx={{ width: '25%' }}
-          >
-            <MenuItem value="" disabled>
-              Ngân sách
-            </MenuItem>
-            <MenuItem value="0-5">Dưới 5 triệu</MenuItem>
-            <MenuItem value="5-10">5-10 triệu</MenuItem>
-            <MenuItem value="10-20">10-20 triệu</MenuItem>
-            <MenuItem value="20+">Trên 20 triệu</MenuItem>
-          </Select>
+          {renderFilterFields()}
           <Button
             variant="contained"
             color="primary"

@@ -5,7 +5,7 @@ export const fetchAttractionType = async () => {
     try {
         const response = await axios.get(`${baseURL}/api/attraction-types`);
         const attractionTypes = response.data.data.map(item => ({
-            attractionTypeId: item.tourTemplateId,
+            attractionTypeId: item.attractionCategoryId,
             name: item.name,
             description: item.description,
         }));
