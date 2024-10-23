@@ -10,6 +10,7 @@ import Footer from "@layouts/Footer";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
+import { fetchCreatePayment } from "@services/PaymentService";
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -88,11 +89,12 @@ const BookingDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchBookingData(id);
         const searchParams = new URLSearchParams(location.search);
+        const vnPayIPN = `VnPayIPN?vnp_TmnCode=${searchParams.get('vnp_TmnCode')}&vnp_Amount=${searchParams.get('vnp_Amount')}&vnp_BankCode=${searchParams.get('vnp_BankCode')}&vnp_OrderInfo=${searchParams.get('vnp_OrderInfo')}&vnp_TransactionNo=${searchParams.get('vnp_TransactionNo')}&vnp_ResponseCode=${searchParams.get('vnp_ResponseCode')}&vnp_TransactionStatus=${searchParams.get('vnp_TransactionStatus')}&vnp_TxnRef=${searchParams.get('vnp_TxnRef')}&vnp_SecureHash=${searchParams.get('vnp_SecureHash')}`;
+        const response = await fetchCreatePayment(vnPayIPN);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
-        if (vnpCode === "00") {
+        if (response.rspCode === '00') {
           setOpenSnackbar(true);
         }
         if (vnpAmount) {
@@ -100,7 +102,7 @@ const BookingDetail = () => {
           data.paymentMethod = "VNPay";
           data.paidAmount = paidAmount;
         }
-
+        const data = await fetchBookingData(id);
         setBookingData(data);
       } catch (error) {
         console.error("Error fetching booking details:", error);

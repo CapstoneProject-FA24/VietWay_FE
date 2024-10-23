@@ -149,9 +149,11 @@ const BookTour = () => {
         break;
       case 'phone':
         if (!value) { error = 'Vui lòng điền số điện thoại'; }
+        else if (!/^[0-9]{10}$/.test(value)) { error = 'Số điện thoại không hợp lệ'; }
         break;
       case 'email':
         if (!value) { error = 'Vui lòng điền email'; }
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { error = 'Email không hợp lệ'; }
         break;
       case 'passengerType':
         if (!value) { error = 'Vui lòng chọn loại hành khách'; }
@@ -255,7 +257,7 @@ const BookTour = () => {
     });
     formData.passengers.forEach((passenger, index) => {
       ['type', 'name', 'gender', 'birthday'].forEach(field => {
-        const error = validateField(field, passenger[field]);
+        const error = validateField(field, passenger[field], passenger.type);
         if (error) newErrors[`passenger${index}-${field}`] = error;
       });
     });
@@ -298,7 +300,7 @@ const BookTour = () => {
         setOpenSnackbar(true);
       }
     } else {
-      setSnackbarMessage('Vui lòng điền đầy đủ thông tin trước khi đặt tour.');
+      setSnackbarMessage('Thông tin đặt tour không chính xác. Vui lòng kiểm tra lại trước khi đặt tour.');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
     }

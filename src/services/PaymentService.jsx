@@ -14,3 +14,14 @@ export const fetchPaymentURL = async (bookingId) => {
         throw error;
     }
 };
+
+
+export const fetchCreatePayment = async (url) => {
+    try {
+        const response = await axios.get(`https://localhost:7144/api/BookingPayment/${url}` );
+        return response.data;
+    } catch (error) {
+        console.error('Error processing VnPay IPN:', error);
+        throw error;
+    }
+};
