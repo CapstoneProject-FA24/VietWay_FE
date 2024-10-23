@@ -45,7 +45,7 @@ const FilterBar = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%'}}>
       <Box sx={{ width: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1 }}>
-        <Tabs value={value} onChange={handleChange} centered>
+        <Tabs value={value} onChange={handleChange} variant="fullWidth">
           <Tab icon={<DirectionsBusIcon />} label="Tour trọn gói" />
           <Tab icon={<HotelIcon />} label="Địa điểm tham quan" />
           <Tab icon={<FlightIcon />} label="Bài viết" />
@@ -104,7 +104,7 @@ const FilterBar = () => {
             variant="contained"
             color="primary"
             onClick={handleSearch}
-            sx={{ width: '15%' }}
+            sx={{ width: '15%', height: '100%' }}
           >
             Tìm kiếm
           </Button>
