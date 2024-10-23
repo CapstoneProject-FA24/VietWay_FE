@@ -36,17 +36,30 @@ const Attractions = () => {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const provinceId = searchParams.get('tinh');
+    const name = searchParams.get('name');
+    const provinceId = searchParams.get('provinceId');
+    const attractionTypeId = searchParams.get('attractionTypeId');
+
+    const newFilters = { ...appliedFilters };
+
+    if (name) {
+      setSearchInput(name);
+      newFilters.searchTerm = name;
+    }
     if (provinceId) {
       setSelectedProvince(provinceId);
-      setAppliedFilters(prev => ({ ...prev, province: provinceId }));
+      newFilters.province = provinceId;
     }
+    if (attractionTypeId) {
+      setSelectedAttractionType(attractionTypeId);
+      newFilters.attractionType = attractionTypeId;
+    }
+
+    setAppliedFilters(newFilters);
     setIsInitialized(true);
   }, [location]);
 
   const fetchAttractionData = useCallback(async () => {
-    if (!isInitialized) return;
-    
     try {
       setLoading(true);
       const params = {
@@ -65,11 +78,11 @@ const Attractions = () => {
     } finally {
       setLoading(false);
     }
-  }, [isInitialized, appliedFilters, page, pageSize]);
+  }, [appliedFilters, page, pageSize]);
 
   useEffect(() => {
     fetchAttractionData();
-  }, [fetchAttractionData]);
+  }, [appliedFilters, page, pageSize]);
 
   useEffect(() => {
     if (isInitialized) {
@@ -102,7 +115,10 @@ const Attractions = () => {
   };
 
   const handleSearch = () => {
-    setSearchTerm(searchInput);
+    setAppliedFilters(prev => ({
+      ...prev,
+      searchTerm: searchInput
+    }));
     setPage(1);
   };
 
@@ -212,7 +228,7 @@ const Attractions = () => {
                     >
                       <MenuItem value="all">Tất cả</MenuItem>
                       {attractionTypes.map((type) => (
-                        <MenuItem key={type.attractionCategoryId} value={type.attractionCategoryId}>{type.name}</MenuItem>
+                        <MenuItem key={type.attractionTypeId} value={type.attractionTypeId}>{type.name}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
