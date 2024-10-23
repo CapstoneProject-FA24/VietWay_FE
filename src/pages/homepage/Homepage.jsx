@@ -15,26 +15,13 @@ import SuggestProvinces from '@components/homepage/SuggestProvinces';
 import FilterBar from '@components/homepage/FilterBar';
 
 const Homepage = () => {
-  const [popularDestinations, setPopularDestinations] = useState([]);
-  const [popularTours, setPopularTours] = useState([]);
-  const [favoriteDestinations, setFavoriteDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [destinationsRes, toursRes, favoritesRes] = await Promise.all([
-          axios.get('https://api.example.com/popular-destinations'), // Thay thế bằng URL thực của bạn
-          axios.get('https://api.example.com/popular-tours'), // Thay thế bằng URL thực của bạn
-          axios.get('https://api.example.com/favorite-destinations') // Thay thế bằng URL thực của bạn
-        ]);
-
-        setPopularDestinations(destinationsRes.data || []);
-        setPopularTours(toursRes.data || []);
-        setFavoriteDestinations(favoritesRes.data || []);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
         setLoading(false);
       }
     };
@@ -127,17 +114,6 @@ const Homepage = () => {
             <Button component={Link} to="/diem-tham-quan" className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestAttractionByProvinces />
-          <Box className="destination-cards">
-            {popularDestinations.map((destination) => (
-              <Box className="destination-card" key={destination.id}>
-                <img src={destination.image} alt={destination.name} className="destination-image" />
-                <Box className="destination-content">
-                  <Typography variant="h6">{destination.name}</Typography>
-                  <Typography>{destination.description}</Typography>
-                </Box>
-              </Box>
-            ))}
-          </Box>
         </Box>
 
         <Box component="section" className="popular-tours">
