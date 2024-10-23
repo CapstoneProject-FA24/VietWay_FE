@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Box, Grid, Typography, InputAdornment, IconButton, CircularProgress } from '@mui/material';
 import { Visibility, VisibilityOff, ArrowBackIosNew as ArrowBackIosNewIcon } from '@mui/icons-material';
 import Slider from 'react-slick';
@@ -6,8 +6,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '@services/AuthenService';
+import { getPreviousPage, clearNavigationHistory } from '@utils/NavigationHistory';
 
 export default function Login() {
   const settingLogin = {
@@ -45,9 +46,16 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [previousPage, setPreviousPage] = useState('/');
+
+  useEffect(() => {
+    const prevPage = location.state?.previousPage || getPreviousPage();
+    setPreviousPage(prevPage);
+  }, [location]);
 
   const handleBackClick = () => {
-    navigate('/');
+    navigate(previousPage);
   };
 
   const handleClickShowPassword = () => {
@@ -86,7 +94,8 @@ export default function Login() {
       if (email && password) {
         const response = await login({ email, password });
         if (response.data) {
-          navigate('/');
+          clearNavigationHistory();
+          navigate(previousPage);
         } else {
           setError('Đã xảy ra lỗi. Vui lòng thử lại.');
         }
@@ -172,7 +181,12 @@ export default function Login() {
               <Grid container>
                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                   Chưa có tài khoản?
-                  <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-ky" variant="body2" color='#FF8682'>
+                  <Link 
+                    sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} 
+                    onClick={() => navigate('/dang-ky', { state: { previousPage } })}
+                    variant="body2" 
+                    color='#FF8682'
+                  >
                     {"Đăng ký ngay"}
                   </Link>
                 </Grid>

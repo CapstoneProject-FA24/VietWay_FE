@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Gender } from '@hooks/Statuses';
 import { fetchProvinces } from '@services/ProvinceService';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,6 +15,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { register } from '@services/AuthenService';
+import { getPreviousPage } from '@utils/NavigationHistory';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -47,11 +48,18 @@ export default function Register() {
     const [dob, setDob] = React.useState(null);
     const [errors, setErrors] = React.useState({});
     const navigate = useNavigate();
+    const location = useLocation();
+    const [previousPage, setPreviousPage] = React.useState('/');
     const [snackbar, setSnackbar] = React.useState({
         open: false,
         message: '',
         severity: 'success'
     });
+
+    React.useEffect(() => {
+        const prevPage = location.state?.previousPage || getPreviousPage();
+        setPreviousPage(prevPage);
+    }, [location]);
 
     React.useEffect(() => {
         const getProvinces = async () => {
@@ -146,7 +154,7 @@ export default function Register() {
                     severity: 'success'
                 });
                 setTimeout(() => {
-                    navigate('/dang-nhap');
+                    navigate('/dang-nhap', { state: { previousPage } });
                 }, 2000);
             } catch (error) {
                 console.error('Registration failed:', error);
@@ -166,7 +174,7 @@ export default function Register() {
     };
 
     const handleBackClick = () => {
-        navigate('/');
+        navigate(previousPage);
     };
 
     const handleCloseSnackbar = (event, reason) => {
