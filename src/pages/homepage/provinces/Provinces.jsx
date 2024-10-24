@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { provinces } from '@hooks/MockProvinces';
 import SearchIcon from '@mui/icons-material/Search';
 import ProvinceCard from '@components/provinces/ProvinceCard';
-import { fetchProvinceWithCountDetails } from '@services/ProvinceService'; // Import the fetch function
+import { fetchProvinceWithCountDetails } from '@services/ProvinceService';
 
 const Provinces = () => {
   const [searchTerm, setSearchTerm] = useState('');

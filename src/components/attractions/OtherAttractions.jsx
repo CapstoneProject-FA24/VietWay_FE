@@ -46,9 +46,9 @@ const OtherAttractions = ({ provinceId, attractionId }) => {
       <Box sx={{ overflowX: 'auto', display: 'flex', pb: 2, width: '100%', position: 'relative' }}>
         <Grid container spacing={2} sx={{ flexWrap: 'nowrap', width: 'max-content', margin: '0 auto' }}>
           {attractions.map((attraction) => (
-            <Grid item key={attraction.id}>
+            <Grid item key={attraction.attractionId}>
               <Card sx={{ width: 300, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardActionArea component={Link} to={`/diem-tham-quan/${attraction.id}`}>
+                <CardActionArea component={Link} to={`/diem-tham-quan/${attraction.attractionId}`}>
                   <CardMedia
                     component="img"
                     height="200"
