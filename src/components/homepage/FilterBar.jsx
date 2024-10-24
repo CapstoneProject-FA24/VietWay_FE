@@ -19,7 +19,7 @@ const FilterBar = () => {
   const [value, setValue] = useState(0);
   const [destinations, setDestinations] = useState([]);
   const [selectedDestination, setSelectedDestination] = useState('');
-  const [departureDate, setDepartureDate] = useState(dayjs());
+  const [departureDate, setDepartureDate] = useState(null);
   const [budget, setBudget] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
   const [provinces, setProvinces] = useState([]);
@@ -51,7 +51,9 @@ const FilterBar = () => {
         searchParams = new URLSearchParams({
           name: selectedDestination,
           startDate: departureDate ? dayjs(departureDate).format('YYYY-MM-DD') : '',
-          priceRange: budget
+          priceRange: budget || 'all',
+          provinceId: selectedProvince || 'all',
+          applySearch: 'true'
         }).toString();
         navigate(`/tour-du-lich?${searchParams}`);
         break;
@@ -110,6 +112,7 @@ const FilterBar = () => {
               <MenuItem value="" disabled>
                 Chọn khoảng giá
               </MenuItem>
+              <MenuItem value="all">Tất cả</MenuItem>
               <MenuItem value="0,1000000">Dưới 1 triệu</MenuItem>
               <MenuItem value="1000000,5000000">1-5 triệu</MenuItem>
               <MenuItem value="5000000,10000000">5-10 triệu</MenuItem>

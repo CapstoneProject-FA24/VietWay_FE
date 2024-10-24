@@ -3,7 +3,7 @@ import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, Men
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import TourCard from '@components/tours/TourCard';
 import { fetchTourTemplates } from '@services/TourTemplateService';
 import { fetchProvinces } from '@services/ProvinceService';
@@ -28,6 +28,9 @@ const Tours = () => {
   const [provinces, setProvinces] = useState([]);
   const [categories, setCategories] = useState([]);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const priceRanges = [
     { value: '0,1000000', label: 'Dưới 1 triệu' },
     { value: '1000000,5000000', label: '1-5 triệu' },
@@ -44,30 +47,64 @@ const Tours = () => {
   ];
 
   useEffect(() => {
-    fetchTours();
+    const searchParams = new URLSearchParams(location.search);
+    const name = searchParams.get('name');
+    const startDate = searchParams.get('startDate');
+    const priceRange = searchParams.get('priceRange');
+    const provinceId = searchParams.get('provinceId');
+    const applySearch = searchParams.get('applySearch');
+    
+    if (applySearch === 'true') {
+      setSearchInput(name || '');
+      setStartDate(startDate || '');
+      setPriceRange(priceRange || 'all');
+      setSelectedProvince(provinceId || 'all');
+      setSearchTerm(name || '');
+      setPage(1);
+      
+      // Remove 'applySearch' from URL
+      searchParams.delete('applySearch');
+      navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+      
+      // Fetch tours with the new parameters
+      fetchTours({
+        searchTerm: name || '',
+        startDateFrom: startDate || '',
+        priceRange: priceRange || 'all',
+        provinceIds: provinceId !== 'all' ? [provinceId] : [],
+      });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (!location.search.includes('applySearch=true')) {
+      fetchTours();
+    }
     fetchProvinceData();
     fetchCategoryData();
-  }, [page, pageSize, searchTerm]);
+  }, [page, pageSize, searchTerm, startDate, priceRange, selectedProvince, selectedCategory, duration]);
 
-  const fetchTours = async () => {
+  const fetchTours = async (overrideParams = {}) => {
     try {
       setLoading(true);
+      let min = null;
+      let max = null;
+      if (overrideParams.priceRange !== 'all' && overrideParams.priceRange) {
+        [min, max] = overrideParams.priceRange.split(',');
+      } else if (priceRange !== 'all' && priceRange) {
+        [min, max] = priceRange.split(',');
+      }
       const params = {
         pageSize,
         pageIndex: page,
-        searchTerm: searchTerm,
-        startDateFrom: startDate,
-        provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+        searchTerm: overrideParams.searchTerm || searchTerm,
+        startDateFrom: overrideParams.startDateFrom || startDate,
+        provinceIds: overrideParams.provinceIds || (selectedProvince !== 'all' ? [selectedProvince] : []),
         templateCategoryIds: selectedCategory !== 'all' ? [selectedCategory] : [],
         numberOfDay: duration !== 'all' ? duration.split(',').map(Number) : [],
+        minPrice: min ? parseInt(min) : undefined,
+        maxPrice: max ? parseInt(max) : undefined
       };
-
-      if (priceRange !== 'all' && priceRange) {
-        const [min, max] = priceRange.split(',');
-        params.minPrice = min;
-        params.maxPrice = max;
-      }
-
       const response = await fetchTourTemplates(params);
       setTours(response.data);
       setTotalItems(response.total);
@@ -124,6 +161,7 @@ const Tours = () => {
 
   const handleApplyFilters = () => {
     setPage(1);
+    setSearchTerm(searchInput);
     fetchTours();
   };
 
