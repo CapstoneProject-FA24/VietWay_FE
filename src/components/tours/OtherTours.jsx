@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Card, CardContent, CardMedia, Grid, CardActionArea } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { fetchTourTemplates } from '@services/TourTemplateService';
 
 const OtherTours = ({ pros, tourId }) => {
   const [tours, setTours] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     const loadSuggestedTours = async () => {
@@ -33,7 +34,7 @@ const OtherTours = ({ pros, tourId }) => {
     };
 
     loadSuggestedTours();
-  }, []);
+  }, [pros, tourId, location.pathname]);
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -41,11 +42,11 @@ const OtherTours = ({ pros, tourId }) => {
         Các tour du lịch khác
       </Typography>
       <Box sx={{ overflowX: 'auto', display: 'flex', pb: 2, width: '100%', position: 'relative' }}>
-        <Grid container spacing={2} sx={{ flexWrap: 'nowrap', width: 'max-content', margin: '0 auto' }}>
+        <Grid container spacing={2} sx={{ flexWrap: 'nowrap', width: 'max-content' }}>
           {tours.map((tour) => (
             <Grid item key={tour.id}>
               <Card sx={{ width: 290, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardActionArea component={Link} to={`/tour-du-lich/${tour.id}`}>
+                <CardActionArea component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`}>
                   <CardMedia
                     component="img"
                     height="210"

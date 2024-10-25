@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Box, Grid, Typography, InputAdornment, IconButton, CircularProgress } from '@mui/material';
 import { Visibility, VisibilityOff, ArrowBackIosNew as ArrowBackIosNewIcon } from '@mui/icons-material';
 import Slider from 'react-slick';
@@ -6,8 +6,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '@services/AuthenService';
+import { getPreviousPage, clearNavigationHistory } from '@utils/NavigationHistory';
 
 export default function Login() {
   const settingLogin = {
@@ -45,18 +46,26 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [previousPage, setPreviousPage] = useState('/');
+
+  useEffect(() => {
+    const prevPage = location.state?.previousPage || getPreviousPage();
+    setPreviousPage(prevPage);
+  }, [location]);
 
   const handleBackClick = () => {
-    navigate('/');
+    navigate(previousPage);
   };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const validateEmail = (email) => {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
+  const validateEmailOrPhone = (input) => {
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const phoneRegex = /^\d{10}$/;
+    return emailRegex.test(String(input).toLowerCase()) || phoneRegex.test(input);
   };
 
   const handleSubmit = async (event) => {
@@ -67,12 +76,12 @@ export default function Login() {
     setPasswordError('');
 
     if (!email) {
-      setEmailError('Email không được để trống');
+      setEmailError('Email hoặc số điện thoại không được để trống');
       setLoading(false);
     }
 
-    if (email && !validateEmail(email)) {
-      setEmailError('Email không hợp lệ');
+    if (email && !validateEmailOrPhone(email)) {
+      setEmailError('Email hoặc số điện thoại không hợp lệ');
       setLoading(false);
     }
 
@@ -85,14 +94,15 @@ export default function Login() {
       if (email && password) {
         const response = await login({ email, password });
         if (response.data) {
-          navigate('/');
+          clearNavigationHistory();
+          navigate(previousPage);
         } else {
           setError('Đã xảy ra lỗi. Vui lòng thử lại.');
         }
       }
     } catch (error) {
-      if (error.status === 401 && error.response.data === 'Invalid email or password') {
-        setError('Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại');
+      if (error.response.data.statusCode === 401 && error.response.data.message === 'Email or password is incorrect') {
+        setError('Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại');
       }
       else {
         setError('Đã xảy ra lỗi. Vui lòng thử lại.');
@@ -131,7 +141,7 @@ export default function Login() {
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
-                margin="normal" required fullWidth id="email" label="Email"
+                margin="normal" required fullWidth id="email" label="Email hoặc số điện thoại"
                 name="email" autoComplete="email" autoFocus value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 error={!!emailError}
@@ -171,7 +181,12 @@ export default function Login() {
               <Grid container>
                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                   Chưa có tài khoản?
-                  <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-ky" variant="body2" color='#FF8682'>
+                  <Link 
+                    sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} 
+                    onClick={() => navigate('/dang-ky', { state: { previousPage } })}
+                    variant="body2" 
+                    color='#FF8682'
+                  >
                     {"Đăng ký ngay"}
                   </Link>
                 </Grid>

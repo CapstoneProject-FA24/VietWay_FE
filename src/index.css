@@ -21,6 +21,7 @@ a {
 
 a:hover {
   color: #3572EF;
+  border-radius: 12px;
 }
 
 body {
@@ -49,6 +50,7 @@ button {
 
 button:hover {
   border-color: #3572EF;
+  border-radius: 12px;
 }
 
 button:focus,
@@ -64,6 +66,7 @@ button:focus-visible {
 
   a:hover {
     color: #3572EF;
+    border-radius: 12px;
   }
 
   button {

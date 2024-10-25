@@ -11,10 +11,16 @@ import { Link } from 'react-router-dom';
 import { mockProvinceData } from '@hooks/MockProvincePage';
 import { mockEvents } from '@hooks/MockEvent';
 import EventCard from '@components/provinces/EventCard';
+import { fetchProvinceInfo } from '@services/ProvinceService';
+import { fetchAttractions } from '@services/AttractionService';
+import { fetchEvents } from '@services/EventService';
 
 const ProvinceDetail = () => {
   const { id } = useParams();
   const [provinceData, setProvinceData] = useState(null);
+  const [province, setProvince] = useState();
+  const [attractions, setAttractions] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const highlightCategories = ['Tất cả', 'Bảo tàng', 'Công viên', 'Di tích lịch sử', 'Công trình tôn giáo', 'Khu bảo tồn thiên nhiên'];
   const eventCategories = ['Tất cả', 'Đang diễn ra', 'Sắp đến'];
@@ -28,23 +34,72 @@ const ProvinceDetail = () => {
   const [filteredEvents, setFilteredEvents] = useState([]);
 
   useEffect(() => {
-    const province = mockProvinceData.find(p => p.id === parseInt(id));
-    if (province) {
-      console.log('Province:', province.name);
-      setProvinceData(province);
-      setDiscoverPosts(province.discover);
-      const provinceEvents = mockEvents.filter(event => event.provinceName === province.name);
-      setFilteredEvents(provinceEvents);
+    loadProvince();
+    loadAttractions();
+    loadEvents();
+    const pro = mockProvinceData.find(p => p.id === parseInt(id));
+    if (pro) {
+      setProvinceData(pro);
+      setDiscoverPosts(pro.discover);
+      setFilteredEvents(events);
     }
   }, [id]);
 
-  const renderCards = (data) => {
+  const loadProvince = async () => {
+    try {
+      const response = await fetchProvinceInfo(id);
+      setProvince(response);
+    } catch (error) {
+      console.error('Failed to fetch province info:', error);
+    }
+  };
+
+  const loadAttractions = async () => {
+    try {
+      const params = {
+        pageSize: 6,
+        pageIndex: 1,
+        provinceIds: [id]
+      };
+      const response = await fetchAttractions(params);
+      setAttractions(response.data);
+    } catch (error) {
+      console.error('Failed to fetch province info:', error);
+    }
+  };
+
+  const loadEvents = async () => {
+    try {
+      const params = {
+        pageSize: 6,
+        pageIndex: 1,
+        provinceIds: [id]
+      };
+      const response = await fetchEvents(params);
+      setEvents(response.data);
+    } catch (error) {
+      console.error('Failed to fetch province info:', error);
+    }
+  };
+
+  const renderAttractionCards = (data) => {
     if (!data || !Array.isArray(data)) {
       return null;
     }
-    return data.slice(0, 6).map((item, index) => (
+    return data.slice(0, 6).map((attraction, index) => (
       <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
-        <ProvincePagesCard {...item} />
+        <ProvincePagesCard attraction={attraction} />
+      </Grid>
+    ));
+  };
+
+  const renderEventCards = (data) => {
+    if (!data || !Array.isArray(data)) {
+      return null;
+    }
+    return data.slice(0, 6).map((event, index) => (
+      <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
+        <EventCard event={event} />
       </Grid>
     ));
   };
@@ -56,36 +111,31 @@ const ProvinceDetail = () => {
   const handleEventCategoryChange = (category) => {
     console.log('Selected category:', category);
     setEventsCategory(category);
-    if (category === 'Tất cả') {
-      setFilteredEvents(mockEvents.filter(event => event.provinceName === provinceData.name));
-    } else {
-      setFilteredEvents(mockEvents.filter(event => 
-        event.provinceName === provinceData.name && event.status === category
-      ));
+    if (category !== 'Tất cả') {
+      setEvents(events.filter(event => event.eventCategory === category));
     }
-    console.log('Updated filteredEvents:', updatedFilteredEvents);
-    setFilteredEvents(updatedFilteredEvents);
   };
 
-  console.log('filteredEvents:', filteredEvents);
+  const formatDate = (date) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(date).toLocaleDateString(undefined, options);
+  };
 
   return (
     <Box sx={{ marginTop: 5 }}>
       <Header />
-      {provinceData && (
+      {province && (
         <>
-          <ImageGallery
-            images={provinceData.galleryImages}
-          />
+          <ImageGallery images={province.imageUrls} />
           <Typography variant="h2" component="h1" sx={{ textAlign: 'center', marginY: 4, fontWeight: 'bold' }}>
-            {provinceData.name}
+            {province.provinceName}
           </Typography>
           <Container maxWidth="xl">
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Về {provinceData.name}
+              Về {province.provinceName}
             </Typography>
             <Typography variant="body1" paragraph>
-              {provinceData.description}
+              Miêu tả về {province.provinceName}
             </Typography>
 
             <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
@@ -106,7 +156,7 @@ const ProvinceDetail = () => {
               </Typography>
             </Box>
             <Grid container spacing={2}>
-              {renderCards(provinceData.highlights)}
+              {renderAttractionCards(attractions)}
             </Grid>
 
             <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
@@ -128,20 +178,7 @@ const ProvinceDetail = () => {
               </Typography>
             </Box>
             <Grid container spacing={2}>
-              {filteredEvents.slice(0, 6).map((event) => (
-                <Grid item xs={12} sm={6} md={4} key={event.eventId}>
-                  <EventCard
-                    image={event.image}
-                    title={event.title}
-                    description={event.description}
-                    eventType={event.eventType}
-                    startDate={event.startDate}
-                    endDate={event.endDate}
-                    provinceName={event.provinceName}
-                    address={event.address}
-                  />
-                </Grid>
-              ))}
+              {renderEventCards(events)}
             </Grid>
 
             <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>

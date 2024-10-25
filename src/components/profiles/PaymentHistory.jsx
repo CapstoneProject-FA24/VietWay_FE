@@ -71,7 +71,7 @@ const PaymentHistory = ({ payments }) => {
                                             to={`/tai-khoan/thanh-toan/${payment.paymentId}`}
                                             variant="contained"
                                             size="small"
-                                            sx={{ borderRadius: 20 }}
+                                            sx={{ borderRadius: 20, '&:hover': { backgroundColor: 'primary.dark', color: 'white' } }}
                                         >
                                             Chi tiết
                                         </Button>

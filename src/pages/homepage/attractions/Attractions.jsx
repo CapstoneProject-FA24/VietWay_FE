@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import AttractionCard from '@components/attractions/AttractionCard';
 import { fetchAttractions } from '@services/AttractionService';
 import { fetchProvinces } from '@services/ProvinceService';
@@ -27,22 +27,45 @@ const Attractions = () => {
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
   const [appliedFilters, setAppliedFilters] = useState({
     province: 'all',
-    attractionType: 'all'
+    attractionType: 'all',
+    searchTerm: '',
   });
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const location = useLocation();
 
   useEffect(() => {
-    fetchAttractionData();
-    fetchProvinceData();
-    fetchAttractionTypeData();
-  }, [page, pageSize, searchTerm, appliedFilters]);
+    const searchParams = new URLSearchParams(location.search);
+    const name = searchParams.get('name');
+    const provinceId = searchParams.get('provinceId');
+    const attractionTypeId = searchParams.get('attractionTypeId');
 
-  const fetchAttractionData = async () => {
+    const newFilters = { ...appliedFilters };
+
+    if (name) {
+      setSearchInput(name);
+      newFilters.searchTerm = name;
+    }
+    if (provinceId) {
+      setSelectedProvince(provinceId);
+      newFilters.province = provinceId;
+    }
+    if (attractionTypeId) {
+      setSelectedAttractionType(attractionTypeId);
+      newFilters.attractionType = attractionTypeId;
+    }
+
+    setAppliedFilters(newFilters);
+    setIsInitialized(true);
+  }, [location]);
+
+  const fetchAttractionData = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
         pageSize,
         pageIndex: page,
-        searchTerm: searchTerm,
+        searchTerm: appliedFilters.searchTerm,
         provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
         attractionTypeIds: appliedFilters.attractionType !== 'all' ? [appliedFilters.attractionType] : [],
       };
@@ -55,7 +78,18 @@ const Attractions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [appliedFilters, page, pageSize]);
+
+  useEffect(() => {
+    fetchAttractionData();
+  }, [appliedFilters, page, pageSize]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      fetchProvinceData();
+      fetchAttractionTypeData();
+    }
+  }, [isInitialized]);
 
   const fetchProvinceData = async () => {
     try {
@@ -81,7 +115,10 @@ const Attractions = () => {
   };
 
   const handleSearch = () => {
-    setSearchTerm(searchInput);
+    setAppliedFilters(prev => ({
+      ...prev,
+      searchTerm: searchInput
+    }));
     setPage(1);
   };
 
@@ -103,7 +140,8 @@ const Attractions = () => {
   const handleApplyFilters = () => {
     setAppliedFilters({
       province: selectedProvince,
-      attractionType: selectedAttractionType
+      attractionType: selectedAttractionType,
+      searchTerm: searchInput,
     });
     setPage(1);
   };
@@ -190,7 +228,7 @@ const Attractions = () => {
                     >
                       <MenuItem value="all">Tất cả</MenuItem>
                       {attractionTypes.map((type) => (
-                        <MenuItem key={type.attractionCategoryId} value={type.attractionCategoryId}>{type.name}</MenuItem>
+                        <MenuItem key={type.attractionTypeId} value={type.attractionTypeId}>{type.name}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>

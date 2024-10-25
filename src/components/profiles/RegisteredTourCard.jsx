@@ -1,69 +1,79 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider } from '@mui/material';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
-import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
+import { Link } from 'react-router-dom';
 
 const RegisteredTourCard = ({ tour }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
-
+  console.log(tour);
   return (
-    <Card sx={{ mb: 2, borderRadius: '12px', overflow: 'hidden', boxShadow: 3, position: 'relative' }}>
-      <StatusChip status={tour.bookedTourStatus} />
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={3} md={3}>
-          <CardMedia
-            component="img"
-            sx={{
-              margin: '12px',
-              borderRadius: '8px',
-              width: 'calc(100% - 24px)',
-              height: '200px',
-              objectFit: 'cover'
-            }}
-            image={tour.image}
-            alt={tour.name}
-          />
-        </Grid>
-        <Grid item xs={12} md={7}>
-          <CardContent>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
-              {tour.name}
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã booking" value={tour.bookingId} />
-                <InfoItem icon={<MapOutlinedIcon />} label="Ngày đặt" value={formatDate(tour.bookingDate)} />
-                <InfoItem icon={<CalendarMonthOutlinedIcon />} label="Số lượng khách" value={tour.totalParticipants} />
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
-                    Tổng tiền:
-                  </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', display: 'inline', ml: 1 }}>
-                    {tour.totalPrice.toLocaleString()} đ
-                  </Typography>
-                </Box>
+    <Box sx={{ 
+      p: 0.5, // Padding around the card
+      mb: 2, // Margin bottom to create space between cards
+      bgcolor: 'background.paper', // Background color from theme
+      borderRadius: '16px', // Rounded corners for the box
+      boxShadow: 2, // Add some shadow to the box
+    }}>
+      <Card component={Link} to={`/booking/${tour.bookingId}`}
+        sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'none', position: 'relative' }}>
+        <StatusChip status={tour.bookedTourStatus} />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={3} md={3}>
+            <CardMedia
+              component="img"
+              sx={{
+                margin: '12px',
+                borderRadius: '8px',
+                width: '100%',
+                height: '200px',
+                objectFit: 'cover'
+              }}
+              image={tour.imageUrl}
+              alt={tour.name}
+            />
+          </Grid>
+          <Grid item xs={12} md={7}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+                {tour.name}
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã booking" value={tour.bookingId} />
+                  <InfoItem icon={<TourOutlinedIcon />} label="Mã tour" value={tour.code} />
+                  <InfoItem icon={<CalendarMonthOutlinedIcon />} label="Ngày đặt" value={formatDate(tour.bookingDate)} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <InfoItem icon={<GroupOutlinedIcon />} label="Số lượng khách" value={tour.numberOfParticipants} />
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
+                      Tổng tiền:
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', display: 'inline', ml: 1 }}>
+                      {tour.totalPrice.toLocaleString()} đ
+                    </Typography>
+                  </Box>
+                  {/* <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />
+                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian tour" value={`${formatDate(tour.startDate)} - ${formatDate(tour.endDate)}`} /> */}
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã tour" value={tour.code} />
-                <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />
-                <InfoItem icon={<AccessTimeIcon />} label="Thời gian tour" value={`${formatDate(tour.startDate)} - ${formatDate(tour.endDate)}`} />
-              </Grid>
-            </Grid>
-          </CardContent>
+            </CardContent>
+          </Grid>
+          <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
+            {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen)}
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
-          {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen)}
-        </Grid>
-      </Grid>
-      {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
-    </Card>
+        {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
+      </Card>
+    </Box>
   );
 };
 
@@ -88,13 +98,13 @@ const StatusChip = ({ status }) => (
     label={status}
     color={
       status === "Đã hoàn tất" ? "success" :
-      status === "Đã thanh toán" ? "primary" :
-      status === "Đã hủy" || status === "Quá hạn thanh toán" ? "error" : "warning"
+        status === "Đã thanh toán" ? "primary" :
+          status === "Đã hủy" || status === "Quá hạn thanh toán" ? "error" : "warning"
     }
     sx={{
       position: 'absolute',
-      top: 8,
-      right: 8,
+      top: 20,
+      right: 15,
       zIndex: 1,
       fontSize: '0.75rem',
       height: '24px'

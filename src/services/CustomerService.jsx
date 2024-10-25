@@ -12,12 +12,11 @@ const getGender = (gender) => {
 export const getCustomerInfo = async () => {
     try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${baseURL}/api/Customer`, {
+        const response = await axios.get(`${baseURL}/api/Customer/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        console.log(response.data.data);
         return {
             phone: response.data.data.phoneNumber,
             email: response.data.data.email,
@@ -30,6 +29,28 @@ export const getCustomerInfo = async () => {
         }
     } catch (error) {
         console.error('Get customer information failed:', error);
+        throw error;
+    }
+};
+
+export const updateCustomerInfo = async (customerData) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.put(`${baseURL}/api/Customer/profile`, {
+            fullName: customerData.fullName,
+            dateOfBirth: customerData.birthday,
+            provinceId: customerData.provinceId,
+            gender: customerData.genderId,
+            email: customerData.email
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Update customer information failed:', error);
         throw error;
     }
 };

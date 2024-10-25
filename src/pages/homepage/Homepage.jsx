@@ -7,34 +7,21 @@ import axios from 'axios';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
-import SuggestProvinces from '@components/homepage/SuggestProvices';
+import SuggestAttractionByProvinces from '@components/homepage/SuggestAttractionByProvinces';
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
 import SuggestTours from '@components/homepage/SuggestTours'
-import SuggestTourByProvince from '@components/homepage/SuggestTourByProvince';
+import SuggestProvinces from '@components/homepage/SuggestProvinces';
 import FilterBar from '@components/homepage/FilterBar';
 
 const Homepage = () => {
-  const [popularDestinations, setPopularDestinations] = useState([]);
-  const [popularTours, setPopularTours] = useState([]);
-  const [favoriteDestinations, setFavoriteDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [destinationsRes, toursRes, favoritesRes] = await Promise.all([
-          axios.get('https://api.example.com/popular-destinations'), // Thay thế bằng URL thực của bạn
-          axios.get('https://api.example.com/popular-tours'), // Thay thế bằng URL thực của bạn
-          axios.get('https://api.example.com/favorite-destinations') // Thay thế bằng URL thực của bạn
-        ]);
-
-        setPopularDestinations(destinationsRes.data || []);
-        setPopularTours(toursRes.data || []);
-        setFavoriteDestinations(favoritesRes.data || []);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
         setLoading(false);
       }
     };
@@ -78,14 +65,11 @@ const Homepage = () => {
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
-      <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '60%' }}>
+      <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '65%' }}>
         <FilterBar />
       </Box>
       <Box>
         <Box component="section" className="why-choose-us">
-          <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '70%' }}>
-            <FilterBar />
-          </Box>
           <Typography variant="h4" className="section-title" sx={{ mb: 5, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>
             Tại sao nên tin dùng Vietway Tour
           </Typography>
@@ -126,18 +110,7 @@ const Homepage = () => {
             <Typography variant="h4" className="section-title" sx={{ mb: 2, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem' }}>Khám phá các điểm tham quan</Typography>
             <Button component={Link} to="/diem-tham-quan" className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
-          <SuggestProvinces />
-          <Box className="destination-cards">
-            {popularDestinations.map((destination) => (
-              <Box className="destination-card" key={destination.id}>
-                <img src={destination.image} alt={destination.name} className="destination-image" />
-                <Box className="destination-content">
-                  <Typography variant="h6">{destination.name}</Typography>
-                  <Typography>{destination.description}</Typography>
-                </Box>
-              </Box>
-            ))}
-          </Box>
+          <SuggestAttractionByProvinces />
         </Box>
 
         <Box component="section" className="popular-tours">
@@ -153,7 +126,7 @@ const Homepage = () => {
             <Typography variant="h4" className="section-title" sx={{ mb: 1, fontWeight: 'bold', fontSize: '2rem', marginBottom: '2rem'  }}>Điểm đến yêu thích</Typography>
             <Button component={Link} to={"/tinh-thanh"}  className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
-          <SuggestTourByProvince/>
+          <SuggestProvinces/>
         </Box>
       </Box>
       <Footer />
