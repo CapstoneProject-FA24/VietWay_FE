@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Header from '@layouts/Header';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
 import OtherAttractions from '@components/attractions/OtherAttractions';
 import Footer from '@layouts/Footer';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import ToursVisitAttraction from '@components/attractions/ToursVisitAttraction';
 import { getAttractionById } from '@services/AttractionService';
+import ReviewList from '@components/reviews/ReviewList';
+import ReviewInput from '@components/reviews/ReviewInput';
+import { mockReviews } from '@hooks/MockReviews';
+import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
+import { Typography, Grid, Paper, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 const AttractionDetails = () => {
   const [attraction, setAttraction] = useState(null);
@@ -20,6 +22,9 @@ const AttractionDetails = () => {
   const [sliderRef, setSliderRef] = useState(null);
   const { id } = useParams();
   const pageTopRef = useRef(null);
+  const [showReviewInput, setShowReviewInput] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [reviewData, setReviewData] = useState({ rating: 0, content: '' });
 
   useEffect(() => {
     const fetchAttractionData = async () => {
@@ -93,6 +98,35 @@ const AttractionDetails = () => {
       </>
     );
   }
+
+  const totalReviews = mockReviews.length;
+  const averageRating = mockReviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews;
+  const ratings = [0, 0, 0, 0, 0];
+  mockReviews.forEach(review => {
+    ratings[5 - review.rating]++;
+  });
+
+  const handleToggleReviewInput = () => {
+    if (showReviewInput && (reviewData.rating > 0 || reviewData.content.trim() !== '')) {
+      setOpenConfirmDialog(true);
+    } else {
+      setShowReviewInput(!showReviewInput);
+    }
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
+  };
+
+  const handleConfirmClose = () => {
+    setShowReviewInput(false);
+    setReviewData({ rating: 0, content: '' });
+    setOpenConfirmDialog(false);
+  };
+
+  const handleReviewDataChange = (data) => {
+    setReviewData(data);
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
@@ -172,9 +206,67 @@ const AttractionDetails = () => {
             </Paper>
           </Grid>
         </Grid>
-      </Box>
-      <Box sx={{ width: '100%' }}>
-        <OtherAttractions provinceId={attraction.provinceId} attractionId={attraction.attractionId} />
+        
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h4" sx={{ mb: 2, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>
+            Đánh giá
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={3}>
+              <ReviewBreakdown 
+                ratings={ratings}
+                totalReviews={totalReviews}
+                averageRating={averageRating}
+              />
+            </Grid>
+            <Grid item xs={12} md={9}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handleToggleReviewInput}
+                sx={{ mb: 2 }}
+              >
+                {showReviewInput ? 'Đóng đánh giá' : 'Thêm đánh giá'}
+              </Button>
+              
+              {showReviewInput && (
+                <Box sx={{ mb: 3 }}>
+                  <ReviewInput onDataChange={handleReviewDataChange} />
+                </Box>
+              )}
+              
+              <Box sx={{ mt: 3 }}>
+                <ReviewList reviews={mockReviews} />
+              </Box>
+
+              <Dialog
+                open={openConfirmDialog}
+                onClose={handleCloseConfirmDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">
+                  {"Xác nhận đóng đánh giá"}
+                </DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                    Bạn có chắc muốn đóng review này?
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseConfirmDialog}>Hủy</Button>
+                  <Button onClick={handleConfirmClose} autoFocus>
+                    Đồng ý
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </Grid>
+          </Grid>
+        </Box>
+        
+        <Box sx={{ width: '100%' }}>
+          <OtherAttractions provinceId={attraction.provinceId} attractionId={attraction.attractionId} />
+        </Box>
       </Box>
       <Footer />
     </Box>
