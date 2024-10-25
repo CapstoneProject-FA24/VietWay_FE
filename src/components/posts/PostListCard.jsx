@@ -7,7 +7,7 @@ const PostListCard = ({ post }) => {
 
     return (
         <Card
-            component={Link} to={`/su-kien/${event.eventId}`}
+            component={Link} to={`/bai-viet/${post.postId}`}
             sx={{
                 maxWidth: '100%', height: '100%', display: 'flex', flexDirection: 'column', borderRadius: '10px',
                 overflow: 'hidden', boxShadow: '0 0px 8px rgba(0,0,0,0.3)', position: 'relative'
