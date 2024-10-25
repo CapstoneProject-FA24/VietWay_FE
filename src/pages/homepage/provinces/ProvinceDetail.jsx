@@ -145,7 +145,6 @@ const ProvinceDetail = () => {
 
   const handleViewMoreAttractions = () => {
     const searchParams = new URLSearchParams({
-      name: null,
       provinceId: province.provinceId,
       applySearch: 'true'
     }).toString();

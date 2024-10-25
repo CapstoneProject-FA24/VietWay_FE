@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AttractionCard from '@components/attractions/AttractionCard';
 import { fetchAttractions } from '@services/AttractionService';
 import { fetchProvinces } from '@services/ProvinceService';
@@ -25,49 +25,51 @@ const Attractions = () => {
   const [provinces, setProvinces] = useState([]);
   const [attractionTypes, setAttractionTypes] = useState([]);
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
-  const [appliedFilters, setAppliedFilters] = useState({
-    province: 'all',
-    attractionType: 'all',
-    searchTerm: '',
-  });
-  const [isInitialized, setIsInitialized] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const name = searchParams.get('name');
     const provinceId = searchParams.get('provinceId');
     const attractionTypeId = searchParams.get('attractionTypeId');
-
-    const newFilters = { ...appliedFilters };
-
-    if (name) {
-      setSearchInput(name);
-      newFilters.searchTerm = name;
+    const applySearch = searchParams.get('applySearch');
+    
+    if (applySearch === 'true') {
+      setSearchInput(name || '');
+      setSelectedProvince(provinceId || 'all');
+      setSelectedAttractionType(attractionTypeId || 'all');
+      setSearchTerm(name || '');
+      setPage(1);
+      
+      searchParams.delete('applySearch');
+      navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+      
+      fetchAttractionData({
+        searchTerm: name || '',
+        provinceIds: provinceId !== 'all' ? [provinceId] : [],
+      });
     }
-    if (provinceId) {
-      setSelectedProvince(provinceId);
-      newFilters.province = provinceId;
-    }
-    if (attractionTypeId) {
-      setSelectedAttractionType(attractionTypeId);
-      newFilters.attractionType = attractionTypeId;
-    }
+  }, [location, navigate]);
 
-    setAppliedFilters(newFilters);
-    setIsInitialized(true);
-  }, [location]);
+  useEffect(() => {
+    if (!location.search.includes('applySearch=true')) {
+      fetchAttractionData();
+    }
+    fetchProvinceData();
+    fetchAttractionTypeData();
+  }, [page, pageSize, searchTerm, selectedProvince, selectedAttractionType]);
 
-  const fetchAttractionData = useCallback(async () => {
+  const fetchAttractionData = async (overrideParams = {}) => {
     try {
       setLoading(true);
       const params = {
         pageSize,
         pageIndex: page,
-        searchTerm: appliedFilters.searchTerm,
-        provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
-        attractionTypeIds: appliedFilters.attractionType !== 'all' ? [appliedFilters.attractionType] : [],
+        searchTerm: overrideParams.searchTerm || searchTerm,
+        provinceIds: overrideParams.provinceIds || (selectedProvince !== 'all' ? [selectedProvince] : []),
+        attractionTypeIds: overrideParams.attractionTypeIds || (selectedAttractionType !== 'all' ? [selectedAttractionType] : []),
       };
       const response = await fetchAttractions(params);
       setAttractions(response.data);
@@ -78,18 +80,7 @@ const Attractions = () => {
     } finally {
       setLoading(false);
     }
-  }, [appliedFilters, page, pageSize]);
-
-  useEffect(() => {
-    fetchAttractionData();
-  }, [appliedFilters, page, pageSize]);
-
-  useEffect(() => {
-    if (isInitialized) {
-      fetchProvinceData();
-      fetchAttractionTypeData();
-    }
-  }, [isInitialized]);
+  };
 
   const fetchProvinceData = async () => {
     try {
@@ -115,10 +106,7 @@ const Attractions = () => {
   };
 
   const handleSearch = () => {
-    setAppliedFilters(prev => ({
-      ...prev,
-      searchTerm: searchInput
-    }));
+    setSearchTerm(searchInput);
     setPage(1);
   };
 
@@ -138,35 +126,17 @@ const Attractions = () => {
   };
 
   const handleApplyFilters = () => {
-    setAppliedFilters({
-      province: selectedProvince,
-      attractionType: selectedAttractionType,
-      searchTerm: searchInput,
-    });
     setPage(1);
+    setSearchTerm(searchInput);
+    fetchAttractionData();
   };
-
-  const filteredProvinces = useMemo(() => {
-    return provinces.filter(province =>
-      province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase())
-    );
-  }, [provinces, provinceSearchTerm]);
-
-  const sortedProvinces = useMemo(() => {
-    if (selectedProvince === 'all') return filteredProvinces;
-    return [
-      filteredProvinces.find(p => p.provinceId === selectedProvince),
-      ...filteredProvinces.filter(p => p.provinceId !== selectedProvince)
-    ].filter(Boolean);
-  }, [filteredProvinces, selectedProvince]);
 
   const handleProvinceSearchChange = (event) => {
     setProvinceSearchTerm(event.target.value);
   };
 
   const handleProvinceSelect = (provinceId) => {
-    console.log(provinceId);
-    setSelectedProvince(provinceId === 'all' ? 'all' : provinceId);
+    setSelectedProvince(provinceId);
   };
 
   if (loading) {
@@ -262,7 +232,13 @@ const Attractions = () => {
                       >
                         <ListItemText primary="Tất cả" />
                       </ListItem>
-                      {sortedProvinces.map((province) => (
+                      {provinces.filter(province =>
+                        province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase())
+                      ).sort((a, b) => {
+                        if (a.provinceId === selectedProvince) return -1;
+                        if (b.provinceId === selectedProvince) return 1;
+                        return 0;
+                      }).map((province) => (
                         <ListItem
                           button
                           key={province.provinceId}

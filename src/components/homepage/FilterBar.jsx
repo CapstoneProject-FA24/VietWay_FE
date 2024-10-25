@@ -60,7 +60,8 @@ const FilterBar = () => {
       case 1:
         searchParams = new URLSearchParams({
           name: selectedDestination,
-          provinceId: selectedProvince
+          provinceId: selectedProvince,
+          applySearch: 'true'
         }).toString();
         navigate(`/diem-tham-quan?${searchParams}`);
         break;
