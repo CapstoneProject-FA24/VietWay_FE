@@ -82,7 +82,7 @@ const Tours = () => {
     }
     fetchProvinceData();
     fetchCategoryData();
-  }, [page, pageSize, searchTerm, startDate, priceRange, selectedProvince, selectedCategory, duration]);
+  }, [page, pageSize]);
 
   const fetchTours = async (overrideParams = {}) => {
     try {
@@ -162,7 +162,20 @@ const Tours = () => {
   const handleApplyFilters = () => {
     setPage(1);
     setSearchTerm(searchInput);
-    fetchTours();
+    let min = null;
+    let max = null;
+    if (priceRange !== 'all') {
+      [min, max] = priceRange.split(',');
+    }
+    fetchTours({
+      searchTerm: searchInput,
+      startDateFrom: startDate,
+      provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+      templateCategoryIds: selectedCategory !== 'all' ? [selectedCategory] : [],
+      numberOfDay: duration !== 'all' ? duration.split(',').map(Number) : [],
+      minPrice: min ? parseInt(min) : undefined,
+      maxPrice: max ? parseInt(max) : undefined
+    });
   };
 
   if (loading) {

@@ -77,8 +77,8 @@ const FilterBar = () => {
         searchParams = new URLSearchParams({
           name: selectedDestination,
           provinceId: selectedProvince,
-          startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : '',
-          endDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : ''
+          applySearch: 'true',
+          startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : ''
         }).toString();
         navigate(`/su-kien?${searchParams}`);
         break;

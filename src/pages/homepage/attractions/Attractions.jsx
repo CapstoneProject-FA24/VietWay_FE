@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton, List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
@@ -9,6 +9,7 @@ import { fetchAttractions } from '@services/AttractionService';
 import { fetchProvinces } from '@services/ProvinceService';
 import { fetchAttractionType } from '@services/AttractionTypeService';
 import SearchIcon from '@mui/icons-material/Search';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Attractions = () => {
   const [attractions, setAttractions] = useState([]);
@@ -25,6 +26,12 @@ const Attractions = () => {
   const [provinces, setProvinces] = useState([]);
   const [attractionTypes, setAttractionTypes] = useState([]);
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
+  const [isProvinceDropdownOpen, setIsProvinceDropdownOpen] = useState(false);
+  const provinceRef = useRef(null);
+
+  const [attractionTypeSearchTerm, setAttractionTypeSearchTerm] = useState('');
+  const [isAttractionTypeDropdownOpen, setIsAttractionTypeDropdownOpen] = useState(false);
+  const attractionTypeRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,7 +66,7 @@ const Attractions = () => {
     }
     fetchProvinceData();
     fetchAttractionTypeData();
-  }, [page, pageSize, searchTerm, selectedProvince, selectedAttractionType]);
+  }, [page, pageSize]);
 
   const fetchAttractionData = async (overrideParams = {}) => {
     try {
@@ -128,7 +135,11 @@ const Attractions = () => {
   const handleApplyFilters = () => {
     setPage(1);
     setSearchTerm(searchInput);
-    fetchAttractionData();
+    fetchAttractionData({
+      searchTerm: searchInput,
+      provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+      attractionTypeIds: selectedAttractionType !== 'all' ? [selectedAttractionType] : [],
+    });
   };
 
   const handleProvinceSearchChange = (event) => {
@@ -138,6 +149,40 @@ const Attractions = () => {
   const handleProvinceSelect = (provinceId) => {
     setSelectedProvince(provinceId);
   };
+
+  const handleProvinceDropdownToggle = () => {
+    setIsProvinceDropdownOpen(!isProvinceDropdownOpen);
+    if (!isProvinceDropdownOpen) {
+      setProvinceSearchTerm('');
+    }
+  };
+
+  const handleAttractionTypeDropdownToggle = () => {
+    setIsAttractionTypeDropdownOpen(!isAttractionTypeDropdownOpen);
+    if (!isAttractionTypeDropdownOpen) {
+      setAttractionTypeSearchTerm('');
+    }
+  };
+
+  const handleAttractionTypeSearchChange = (event) => {
+    setAttractionTypeSearchTerm(event.target.value);
+  };
+
+  const handleClickOutside = (event) => {
+    if (provinceRef.current && !provinceRef.current.contains(event.target)) {
+      setIsProvinceDropdownOpen(false);
+    }
+    if (attractionTypeRef.current && !attractionTypeRef.current.contains(event.target)) {
+      setIsAttractionTypeDropdownOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -185,93 +230,131 @@ const Attractions = () => {
             />
           </Grid>
           <Grid item xs={12} md={3.7}>
-            <Box sx={{ position: 'sticky', top: 8, maxHeight: 'calc(100vh)', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
-              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, }}>
+            <Box sx={{ position: 'sticky', top: 8, maxHeight: '100vh', minHeight: '75vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, maxHeight: '100vh', minHeight: '75vh' }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
-                <Box sx={{ p: 1 }}>
-                  <FormControl fullWidth sx={{ pl: 2, pr: 2 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.2, fontSize: '16px' }}>Loại điểm tham quan</Typography>
-                    <Select
-                      value={selectedAttractionType}
-                      onChange={(e) => setSelectedAttractionType(e.target.value)}
-                      sx={{ height: '40px' }}
-                    >
-                      <MenuItem value="all">Tất cả</MenuItem>
-                      {attractionTypes.map((type) => (
-                        <MenuItem key={type.attractionTypeId} value={type.attractionTypeId}>{type.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 1.5 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.2, fontSize: '16px' }}>Tỉnh thành</Typography>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      placeholder="Tìm kiếm tỉnh thành..."
-                      value={provinceSearchTerm}
-                      onChange={handleProvinceSearchChange}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
-                    />
-                    <List sx={{ maxHeight: 315, overflow: 'auto', border: '1px solid #ccc', borderRadius: '4px' }}>
-                      <ListItem
-                        button
-                        selected={selectedProvince === 'all'}
-                        onClick={() => handleProvinceSelect('all')}
-                        sx={{
-                          backgroundColor: selectedProvince === 'all' ? '#e3f2fd' : 'inherit',
-                          '&:hover': { backgroundColor: '#e3f2fd' },
-                          '&.Mui-selected': { backgroundColor: '#c0d5ff' },
-                        }}
-                      >
-                        <ListItemText primary="Tất cả" />
-                      </ListItem>
-                      {provinces.filter(province =>
-                        province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase())
-                      ).sort((a, b) => {
-                        if (a.provinceId === selectedProvince) return -1;
-                        if (b.provinceId === selectedProvince) return 1;
-                        return 0;
-                      }).map((province) => (
-                        <ListItem
-                          button
-                          key={province.provinceId}
-                          selected={selectedProvince === province.provinceId}
-                          onClick={() => handleProvinceSelect(province.provinceId)}
+                <Box sx={{ p: 3 }}>
+                  <FormControl fullWidth ref={attractionTypeRef}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, mt: 1, fontSize: '17px' }}>Loại điểm tham quan</Typography>
+                    <Box sx={{ position: 'relative' }}>
+                      {!isAttractionTypeDropdownOpen ? (
+                        <Button
+                          onClick={handleAttractionTypeDropdownToggle}
                           sx={{
-                            backgroundColor: selectedProvince === province.provinceId ? '#e3f2fd' : 'inherit',
-                            '&:hover': { backgroundColor: '#e3f2fd' },
-                            '&.Mui-selected': { backgroundColor: '#c0d5ff' },
+                            justifyContent: 'space-between', textAlign: 'left', color: 'black',
+                            backgroundColor: 'white', border: '1px solid #ccc',
+                            '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' },
+                            height: '50px', width: '100%', textTransform: 'none', fontSize: '17px'
                           }}
                         >
-                          <ListItemAvatar>
-                            <img
-                              src={province.imageURL} alt={province.provinceName}
-                              style={{
-                                width: '120px', height: '65px', marginRight: 10, marginBottom: -9, marginTop: -3,
-                                borderRadius: '5px'
-                              }} />
-                          </ListItemAvatar>
-                          <ListItemText primary={province.provinceName} />
-                        </ListItem>
-                      ))}
-                    </List>
+                          {selectedAttractionType === 'all' ? 'Tất cả' : attractionTypes.find(t => t.attractionTypeId === selectedAttractionType)?.name || 'Tất cả'}
+                          <ExpandMoreIcon />
+                        </Button>
+                      ) : (
+                        <Box sx={{ position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)' }}>
+                          <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="Tìm kiếm loại điểm tham quan..."
+                            value={attractionTypeSearchTerm}
+                            onChange={handleAttractionTypeSearchChange}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <SearchIcon />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                          />
+                          <Paper sx={{ maxHeight: 150, overflow: 'auto' }}>
+                            <List dense>
+                              <ListItem button onClick={() => { setSelectedAttractionType('all'); handleAttractionTypeDropdownToggle(); }} sx={{ py: 0.5 }}>
+                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem' }} />
+                              </ListItem>
+                              {attractionTypes
+                                .filter(type => type.name.toLowerCase().includes(attractionTypeSearchTerm.toLowerCase()))
+                                .map((type) => (
+                                  <ListItem 
+                                    button 
+                                    key={type.attractionTypeId} 
+                                    onClick={() => { setSelectedAttractionType(type.attractionTypeId); handleAttractionTypeDropdownToggle(); }}
+                                    selected={selectedAttractionType === type.attractionTypeId}
+                                    sx={{ py: 0.5 }}
+                                  >
+                                    <ListItemText primary={type.name} primaryTypographyProps={{ height: '1.3rem' }} />
+                                  </ListItem>
+                                ))}
+                            </List>
+                          </Paper>
+                        </Box>
+                      )}
+                    </Box>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }} ref={provinceRef}>
+                    <Typography sx={{ textAlign: 'left', color: 'black', mb: 1, mt: 1.5, fontSize: '17px' }}>Tỉnh thành</Typography>
+                    <Box sx={{ position: 'relative' }}>
+                      {!isProvinceDropdownOpen ? (
+                        <Button
+                          onClick={handleProvinceDropdownToggle}
+                          sx={{
+                            justifyContent: 'space-between', textAlign: 'left',
+                            color: 'black', backgroundColor: 'white', border: '1px solid #ccc',
+                            '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' },
+                            height: '50px', width: '100%', textTransform: 'none', fontSize: '17px'
+                          }}
+                        >
+                          {selectedProvince === 'all' ? 'Tất cả' : provinces.find(p => p.provinceId === selectedProvince)?.provinceName || 'Tất cả'}
+                          <ExpandMoreIcon />
+                        </Button>
+                      ) : (
+                        <Box sx={{ position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)' }}>
+                          <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="Tìm kiếm tỉnh thành..."
+                            value={provinceSearchTerm}
+                            onChange={handleProvinceSearchChange}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <SearchIcon />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                          />
+                          <Paper sx={{ maxHeight: 150, overflow: 'auto' }}>
+                            <List dense>
+                              <ListItem button onClick={() => { setSelectedProvince('all'); handleProvinceDropdownToggle(); }}>
+                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem' }}/>
+                              </ListItem>
+                              {provinces
+                                .filter(province => province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase()))
+                                .map((province) => (
+                                  <ListItem 
+                                    button 
+                                    key={province.provinceId} 
+                                    onClick={() => { setSelectedProvince(province.provinceId); handleProvinceDropdownToggle(); }}
+                                    selected={selectedProvince === province.provinceId}
+                                  >
+                                    <ListItemText primary={province.provinceName} primaryTypographyProps={{ height: '1.3rem' }}/>
+                                  </ListItem>
+                                ))}
+                            </List>
+                          </Paper>
+                        </Box>
+                      )}
+                    </Box>
                   </FormControl>
 
-                  <Box sx={{ pl: 2, pr: 2, mt: 1, mb: -0.5 }}>
+                  <Box sx={{ position: 'absolute', bottom: 25, left: 25, right: 25 }}>
                     <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={handleApplyFilters}
+                      variant="contained" fullWidth onClick={handleApplyFilters}
                       sx={{
                         backgroundColor: '#3572EF',
-                        '&:hover': { backgroundColor: '#1C3F94' }
+                        height: '50px',
+                        '&:hover': { borderRadius: '5px', backgroundColor: '#1C3F94' }
                       }}
                     >
                       Áp dụng bộ lọc
@@ -319,7 +402,7 @@ const Attractions = () => {
                 variant="outlined"
                 sx={{ height: '40px' }}
               >
-                <MenuItem value={5}>5 / trang</MenuItem>
+                <MenuItem value={4}>4 / trang</MenuItem>
                 <MenuItem value={10}>10 / trang</MenuItem>
                 <MenuItem value={20}>20 / trang</MenuItem>
               </Select>

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton, List, ListItem, ListItemText, ListItemAvatar } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import EventListCard from '@components/events/EventListCard';
 import { fetchEvents } from '@services/EventService';
 import { fetchProvinces } from '@services/ProvinceService';
@@ -13,9 +13,10 @@ import SearchIcon from '@mui/icons-material/Search';
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [totalItems, setTotalItems] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
@@ -24,31 +25,57 @@ const Events = () => {
   const [provinces, setProvinces] = useState([]);
   const [categories, setCategories] = useState([]);
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
-  const [appliedFilters, setAppliedFilters] = useState({
-    province: 'all',
-    category: 'all'
-  });
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchEventData();
+    const searchParams = new URLSearchParams(location.search);
+    const name = searchParams.get('name');
+    const provinceId = searchParams.get('provinceId');
+    const categoryId = searchParams.get('categoryId');
+    const applySearch = searchParams.get('applySearch');
+
+    if (applySearch === 'true') {
+      setSearchInput(name || '');
+      setSelectedProvince(provinceId || 'all');
+      setSelectedCategory(categoryId || 'all');
+      setSearchTerm(name || '');
+      setPage(1);
+
+      searchParams.delete('applySearch');
+      navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+
+      fetchEventData({
+        searchTerm: name || '',
+        provinceIds: provinceId !== 'all' ? [provinceId] : [],
+      });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (!location.search.includes('applySearch=true')) {
+      fetchEventData();
+    }
     fetchProvinceData();
     fetchCategoryData();
-  }, [page, pageSize, searchTerm, appliedFilters]);
+  }, [page, pageSize]);
 
-  const fetchEventData = async () => {
+  const fetchEventData = async (overrideParams = {}) => {
     try {
       setLoading(true);
       const params = {
-        pageSize: pageSize,
+        pageSize,
         pageIndex: page,
-        searchTerm: searchTerm,
-        provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
-        eventCategoryIds: appliedFilters.category !== 'all' ? [appliedFilters.category] : []
+        searchTerm: overrideParams.searchTerm || searchTerm,
+        provinceIds: overrideParams.provinceIds || (selectedProvince !== 'all' ? [selectedProvince] : []),
+        eventCategoryIds: overrideParams.eventCategoryIds || (selectedCategory !== 'all' ? [selectedCategory] : []),
       };
-      
+
       const response = await fetchEvents(params);
       setEvents(response.data);
       setTotalItems(response.total);
+      setTotalPages(Math.ceil(response.total / pageSize));
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
@@ -100,33 +127,21 @@ const Events = () => {
   };
 
   const handleApplyFilters = () => {
-    setAppliedFilters({
-      province: selectedProvince,
-      category: selectedCategory
-    });
     setPage(1);
+    setSearchTerm(searchInput);
+    fetchEventData({
+      searchTerm: searchInput,
+      provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+      eventCategoryIds: selectedCategory !== 'all' ? [selectedCategory] : [],
+    });
   };
-
-  const filteredProvinces = useMemo(() => {
-    return provinces.filter(province =>
-      province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase())
-    );
-  }, [provinces, provinceSearchTerm]);
-
-  const sortedProvinces = useMemo(() => {
-    if (selectedProvince === 'all') return filteredProvinces;
-    return [
-      filteredProvinces.find(p => p.provinceId === selectedProvince),
-      ...filteredProvinces.filter(p => p.provinceId !== selectedProvince)
-    ].filter(Boolean);
-  }, [filteredProvinces, selectedProvince]);
 
   const handleProvinceSearchChange = (event) => {
     setProvinceSearchTerm(event.target.value);
   };
 
   const handleProvinceSelect = (provinceId) => {
-    setSelectedProvince(provinceId === 'all' ? 'all' : provinceId);
+    setSelectedProvince(provinceId);
   };
 
   if (loading) {
@@ -226,7 +241,13 @@ const Events = () => {
                       >
                         <ListItemText primary="Tất cả" />
                       </ListItem>
-                      {sortedProvinces.map((province) => (
+                      {provinces.filter(province =>
+                        province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase())
+                      ).sort((a, b) => {
+                        if (a.provinceId === selectedProvince) return -1;
+                        if (b.provinceId === selectedProvince) return 1;
+                        return 0;
+                      }).map((province) => (
                         <ListItem
                           button
                           key={province.provinceId}
@@ -254,9 +275,7 @@ const Events = () => {
 
                   <Box sx={{ pl: 2, pr: 2, mt: 1, mb: -0.5 }}>
                     <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={handleApplyFilters}
+                      variant="contained" fullWidth onClick={handleApplyFilters}
                       sx={{
                         backgroundColor: '#3572EF',
                         '&:hover': { backgroundColor: '#1C3F94' }
@@ -288,14 +307,14 @@ const Events = () => {
                     Không tìm thấy sự kiện nào!
                   </Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
-                    <img src="/event-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }} />
+                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }} />
                   </Box>
                 </Box>
               )}
             </Grid>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
               <Pagination
-                count={Math.ceil(totalItems / pageSize)}
+                count={totalPages}
                 page={page}
                 onChange={handlePageChange}
                 color="primary"

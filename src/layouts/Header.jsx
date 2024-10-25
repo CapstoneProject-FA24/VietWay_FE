@@ -91,7 +91,7 @@ const Header = () => {
         <Typography variant="h6" component={Link} to="/trang-chu" sx={{ color: 'text.primary' }}>
           <img src={location.pathname === '/trang-chu' && scrollY === 0 ? "/logo2.png" : "/logo2_color.png"} alt="Logo" style={{ height: '55px', marginTop: '15px' }} />
         </Typography>    
-        <Box sx={{ display: 'flex', ml: 1 }}>
+        <Box sx={{ display: 'flex', ml: 0.5 }}>
           <StyledButton component={Link} to="/trang-chu" sx={{ textTransform: 'none',
               fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal', mr: 1.5,
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black' }}>
