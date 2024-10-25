@@ -5,7 +5,7 @@ import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import EventListCard from '@components/events/EventListCard';
-import { fetchEvents } from '@hooks/MockPost';
+import { fetchEvents } from '@services/EventService';
 import { fetchProvinces } from '@services/ProvinceService';
 import { fetchEventCategory } from '@services/EventCategoryService';
 import SearchIcon from '@mui/icons-material/Search';
@@ -38,9 +38,17 @@ const Events = () => {
   const fetchEventData = async () => {
     try {
       setLoading(true);
-      const fetchedEvents = await fetchEvents();
-      setEvents(fetchedEvents);
-      setTotalItems(fetchedEvents.length);
+      const params = {
+        pageSize: pageSize,
+        pageIndex: page,
+        searchTerm: searchTerm,
+        provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
+        eventCategoryIds: appliedFilters.category !== 'all' ? [appliedFilters.category] : []
+      };
+      
+      const response = await fetchEvents(params);
+      setEvents(response.data);
+      setTotalItems(response.total);
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
@@ -168,13 +176,13 @@ const Events = () => {
               sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3.7}>
             <Box sx={{ position: 'sticky', top: 8, maxHeight: 'calc(100vh)', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
               <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
                 <Box sx={{ p: 1 }}>
                   <FormControl fullWidth sx={{ pl: 2, pr: 2 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.2, fontSize: '16px' }}>Danh mục</Typography>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.2, fontSize: '16px' }}>Loại sự kiện</Typography>
                     <Select
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
@@ -261,16 +269,16 @@ const Events = () => {
               </Paper>
             </Box>
           </Grid>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={8.3}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả
               </Typography>
             </Box>
-            <Grid container spacing={1}>
+            <Grid container spacing={2}>
               {events.length > 0 ? (
                 events.map((event) => (
-                  <Grid item xs={12} key={event.id}>
+                  <Grid item xs={6} key={event.eventId}>
                     <EventListCard event={event} />
                   </Grid>
                 ))
@@ -299,7 +307,7 @@ const Events = () => {
                 variant="outlined"
                 sx={{ height: '40px' }}
               >
-                <MenuItem value={5}>5 / trang</MenuItem>
+                <MenuItem value={4}>4 / trang</MenuItem>
                 <MenuItem value={10}>10 / trang</MenuItem>
                 <MenuItem value={20}>20 / trang</MenuItem>
               </Select>

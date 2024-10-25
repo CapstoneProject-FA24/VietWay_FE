@@ -35,7 +35,8 @@ export const fetchEvents = async (params) => {
             startDate: new Date(item.startDate),
             endDate: new Date(item.endDate),
             provinceName: item.provinceName,
-            description: item.description
+            description: item.description,
+            createdAt: item.createdAt
         }));
         
         return {

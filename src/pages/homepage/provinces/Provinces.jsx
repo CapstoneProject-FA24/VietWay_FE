@@ -80,7 +80,7 @@ const Provinces = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '90vw' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89vw' }}>
       <Helmet>
         <title>Tỉnh thành</title>
       </Helmet>

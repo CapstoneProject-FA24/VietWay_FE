@@ -184,7 +184,7 @@ const Attractions = () => {
               sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3.7}>
             <Box sx={{ position: 'sticky', top: 8, maxHeight: 'calc(100vh)', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
               <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
@@ -281,16 +281,16 @@ const Attractions = () => {
               </Paper>
             </Box>
           </Grid>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={8.3}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả
               </Typography>
             </Box>
-            <Grid container spacing={1}>
+            <Grid container spacing={2}>
               {attractions.length > 0 ? (
                 attractions.map((attraction) => (
-                  <Grid item xs={12} key={attraction.attractionId}>
+                  <Grid item xs={12} md={6} key={attraction.attractionId}>
                     <AttractionCard attraction={attraction} />
                   </Grid>
                 ))

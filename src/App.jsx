@@ -23,6 +23,7 @@ import ProfileBookingDetail from "@pages/account/ProfileBookingDetail";
 import BookingDetailPayLater from "@pages/homepage/tours/BookingDetailPayLater";
 import { useEffect } from 'react';
 import { saveNavigationHistory } from '@utils/NavigationHistory';
+import EventDetail from "@pages/homepage/events/EventDetail";
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -55,6 +56,7 @@ const AppRoutes = () => {
       <Route path="/bai-viet" element={<Posts />} />
       <Route path="/tinh-thanh" element={<Provinces />} />
       <Route path="/su-kien" element={<Events />} />
+      <Route path="/su-kien/:id" element={<EventDetail />} />
       <Route path="/booking/:id" element={<ProfileBookingDetail />} />
     </Routes>
   );

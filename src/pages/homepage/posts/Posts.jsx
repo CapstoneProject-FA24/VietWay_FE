@@ -5,8 +5,8 @@ import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import PostListCard from '@components/posts/PostListCard';
-import { fetchPostById } from '@hooks/MockPost';
 import { fetchProvinces } from '@services/ProvinceService';
+import { fetchPosts } from '@services/PostService';
 import SearchIcon from '@mui/icons-material/Search';
 
 const Posts = () => {
@@ -42,22 +42,17 @@ const Posts = () => {
   const fetchPostData = async () => {
     try {
       setLoading(true);
-      const allPosts = [];
-      const promises = [];
-
-      for (let i = 1; i <= 11; i++) {
-        promises.push(fetchPostById(i.toString()));
-      }
-
-      const results = await Promise.all(promises);
-      results.forEach(post => {
-        if (post && !post.isEvent) {
-          allPosts.push(post);
-        }
-      });
-
-      setPosts(allPosts);
-      setTotalItems(allPosts.length);
+      const params = {
+        pageSize: pageSize,
+        pageIndex: page,
+        searchTerm: searchTerm,
+        provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
+        eventCategoryIds: appliedFilters.category !== 'all' ? [appliedFilters.category] : []
+      };
+      
+      const response = await fetchPosts(params);
+      setPosts(response.data);
+      setTotalItems(response.total);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -174,7 +169,7 @@ const Posts = () => {
               sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3.7}>
             <Box sx={{ position: 'sticky', top: 8, maxHeight: 'calc(100vh)', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
               <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
@@ -265,17 +260,17 @@ const Posts = () => {
               </Paper>
             </Box>
           </Grid>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={8.3}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả
               </Typography>
             </Box>
-            <Grid container spacing={1}>
+            <Grid container spacing={2}>
               {posts.length > 0 ? (
                 posts.map((post) => (
-                  <Grid item xs={12} key={post.id}>
-                    <PostCard post={post} />
+                  <Grid item xs={12} md={6} key={post.postId}>
+                    <PostListCard post={post} />
                   </Grid>
                 ))
               ) : (
