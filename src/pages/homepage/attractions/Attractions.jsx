@@ -42,17 +42,17 @@ const Attractions = () => {
     const provinceId = searchParams.get('provinceId');
     const attractionTypeId = searchParams.get('attractionTypeId');
     const applySearch = searchParams.get('applySearch');
-    
+
     if (applySearch === 'true') {
       setSearchInput(name || '');
       setSelectedProvince(provinceId || 'all');
       setSelectedAttractionType(attractionTypeId || 'all');
       setSearchTerm(name || '');
       setPage(1);
-      
+
       searchParams.delete('applySearch');
       navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
-      
+
       fetchAttractionData({
         searchTerm: name || '',
         provinceIds: provinceId !== 'all' ? [provinceId] : [],
@@ -229,70 +229,13 @@ const Attractions = () => {
               sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
             />
           </Grid>
-          <Grid item xs={12} md={3.7}>
-            <Box sx={{ position: 'sticky', top: 8, maxHeight: '100vh', minHeight: '75vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
-              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, maxHeight: '100vh', minHeight: '75vh' }}>
-                <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
+          <Grid item xs={12} md={3.3}>
+            <Box sx={{ position: 'sticky', top: 100, maxHeight: '100vh', minHeight: '77vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, maxHeight: '100vh', minHeight: '77vh' }}>
+                <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0', fontSize: '30px' }}>Bộ lọc</Typography>
                 <Box sx={{ p: 3 }}>
-                  <FormControl fullWidth ref={attractionTypeRef}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, mt: 1, fontSize: '17px' }}>Loại điểm tham quan</Typography>
-                    <Box sx={{ position: 'relative' }}>
-                      {!isAttractionTypeDropdownOpen ? (
-                        <Button
-                          onClick={handleAttractionTypeDropdownToggle}
-                          sx={{
-                            justifyContent: 'space-between', textAlign: 'left', color: 'black',
-                            backgroundColor: 'white', border: '1px solid #ccc',
-                            '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' },
-                            height: '50px', width: '100%', textTransform: 'none', fontSize: '17px'
-                          }}
-                        >
-                          {selectedAttractionType === 'all' ? 'Tất cả' : attractionTypes.find(t => t.attractionTypeId === selectedAttractionType)?.name || 'Tất cả'}
-                          <ExpandMoreIcon />
-                        </Button>
-                      ) : (
-                        <Box sx={{ position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)' }}>
-                          <TextField
-                            fullWidth
-                            variant="outlined"
-                            placeholder="Tìm kiếm loại điểm tham quan..."
-                            value={attractionTypeSearchTerm}
-                            onChange={handleAttractionTypeSearchChange}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <SearchIcon />
-                                </InputAdornment>
-                              ),
-                            }}
-                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
-                          />
-                          <Paper sx={{ maxHeight: 150, overflow: 'auto' }}>
-                            <List dense>
-                              <ListItem button onClick={() => { setSelectedAttractionType('all'); handleAttractionTypeDropdownToggle(); }} sx={{ py: 0.5 }}>
-                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem' }} />
-                              </ListItem>
-                              {attractionTypes
-                                .filter(type => type.name.toLowerCase().includes(attractionTypeSearchTerm.toLowerCase()))
-                                .map((type) => (
-                                  <ListItem 
-                                    button 
-                                    key={type.attractionTypeId} 
-                                    onClick={() => { setSelectedAttractionType(type.attractionTypeId); handleAttractionTypeDropdownToggle(); }}
-                                    selected={selectedAttractionType === type.attractionTypeId}
-                                    sx={{ py: 0.5 }}
-                                  >
-                                    <ListItemText primary={type.name} primaryTypographyProps={{ height: '1.3rem' }} />
-                                  </ListItem>
-                                ))}
-                            </List>
-                          </Paper>
-                        </Box>
-                      )}
-                    </Box>
-                  </FormControl>
-                  <FormControl fullWidth sx={{ mt: 2 }} ref={provinceRef}>
-                    <Typography sx={{ textAlign: 'left', color: 'black', mb: 1, mt: 1.5, fontSize: '17px' }}>Tỉnh thành</Typography>
+                <FormControl fullWidth ref={provinceRef}>
+                    <Typography sx={{ textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Tỉnh thành</Typography>
                     <Box sx={{ position: 'relative' }}>
                       {!isProvinceDropdownOpen ? (
                         <Button
@@ -301,14 +244,17 @@ const Attractions = () => {
                             justifyContent: 'space-between', textAlign: 'left',
                             color: 'black', backgroundColor: 'white', border: '1px solid #ccc',
                             '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' },
-                            height: '50px', width: '100%', textTransform: 'none', fontSize: '17px'
+                            height: '55px', width: '100%', textTransform: 'none', fontSize: '17px'
                           }}
                         >
                           {selectedProvince === 'all' ? 'Tất cả' : provinces.find(p => p.provinceId === selectedProvince)?.provinceName || 'Tất cả'}
                           <ExpandMoreIcon />
                         </Button>
                       ) : (
-                        <Box sx={{ position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)' }}>
+                        <Box sx={{
+                          position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', borderRadius: '10px',
+                          boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)'
+                        }}>
                           <TextField
                             fullWidth
                             variant="outlined"
@@ -324,21 +270,20 @@ const Attractions = () => {
                             }}
                             sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
                           />
-                          <Paper sx={{ maxHeight: 150, overflow: 'auto' }}>
+                          <Paper sx={{ maxHeight: 150, overflow: 'auto', borderRadius: '10px' }}>
                             <List dense>
                               <ListItem button onClick={() => { setSelectedProvince('all'); handleProvinceDropdownToggle(); }}>
-                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem' }}/>
+                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem' }} />
                               </ListItem>
                               {provinces
                                 .filter(province => province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase()))
                                 .map((province) => (
-                                  <ListItem 
-                                    button 
-                                    key={province.provinceId} 
+                                  <ListItem
+                                    button key={province.provinceId}
                                     onClick={() => { setSelectedProvince(province.provinceId); handleProvinceDropdownToggle(); }}
                                     selected={selectedProvince === province.provinceId}
                                   >
-                                    <ListItemText primary={province.provinceName} primaryTypographyProps={{ height: '1.3rem' }}/>
+                                    <ListItemText primary={province.provinceName} primaryTypographyProps={{ height: '1.3rem' }} />
                                   </ListItem>
                                 ))}
                             </List>
@@ -347,13 +292,71 @@ const Attractions = () => {
                       )}
                     </Box>
                   </FormControl>
-
+                  <FormControl fullWidth sx={{ mt: 3.5 }} ref={attractionTypeRef}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, mt: 1, fontSize: '18px' }}>Loại điểm tham quan</Typography>
+                    <Box sx={{ position: 'relative' }}>
+                      {!isAttractionTypeDropdownOpen ? (
+                        <Button
+                          onClick={handleAttractionTypeDropdownToggle}
+                          sx={{
+                            justifyContent: 'space-between', textAlign: 'left', color: 'black',
+                            backgroundColor: 'white', border: '1px solid #ccc',
+                            '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' },
+                            height: '55px', width: '100%', textTransform: 'none', fontSize: '17px'
+                          }}
+                        >
+                          {selectedAttractionType === 'all' ? 'Tất cả' : attractionTypes.find(t => t.attractionTypeId === selectedAttractionType)?.name || 'Tất cả'}
+                          <ExpandMoreIcon />
+                        </Button>
+                      ) : (
+                        <Box sx={{
+                          position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', borderRadius: '10px',
+                          boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)'
+                        }}>
+                          <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="Tìm kiếm loại điểm tham quan..."
+                            value={attractionTypeSearchTerm}
+                            onChange={handleAttractionTypeSearchChange}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <SearchIcon />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                          />
+                          <Paper sx={{ maxHeight: 150, overflow: 'auto', borderRadius: '10px' }}>
+                            <List dense>
+                              <ListItem button onClick={() => { setSelectedAttractionType('all'); handleAttractionTypeDropdownToggle(); }} sx={{ py: 0.5 }}>
+                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem' }} />
+                              </ListItem>
+                              {attractionTypes
+                                .filter(type => type.name.toLowerCase().includes(attractionTypeSearchTerm.toLowerCase()))
+                                .map((type) => (
+                                  <ListItem
+                                    button
+                                    key={type.attractionTypeId}
+                                    onClick={() => { setSelectedAttractionType(type.attractionTypeId); handleAttractionTypeDropdownToggle(); }}
+                                    selected={selectedAttractionType === type.attractionTypeId}
+                                    sx={{ py: 0.5 }}
+                                  >
+                                    <ListItemText primary={type.name} primaryTypographyProps={{ height: '1.3rem' }} />
+                                  </ListItem>
+                                ))}
+                            </List>
+                          </Paper>
+                        </Box>
+                      )}
+                    </Box>
+                  </FormControl>
                   <Box sx={{ position: 'absolute', bottom: 25, left: 25, right: 25 }}>
                     <Button
                       variant="contained" fullWidth onClick={handleApplyFilters}
                       sx={{
-                        backgroundColor: '#3572EF',
-                        height: '50px',
+                        backgroundColor: '#3572EF', height: '52px', fontSize: '15.3px',
                         '&:hover': { borderRadius: '5px', backgroundColor: '#1C3F94' }
                       }}
                     >
@@ -364,7 +367,7 @@ const Attractions = () => {
               </Paper>
             </Box>
           </Grid>
-          <Grid item xs={12} md={8.3}>
+          <Grid item xs={12} md={8.7}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả

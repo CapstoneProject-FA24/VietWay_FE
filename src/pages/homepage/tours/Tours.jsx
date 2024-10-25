@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
@@ -9,6 +9,10 @@ import { fetchTourTemplates } from '@services/TourTemplateService';
 import { fetchProvinces } from '@services/ProvinceService';
 import { fetchTourCategory } from '@services/TourCategoryService';
 import SearchIcon from '@mui/icons-material/Search';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 
 const Tours = () => {
   const [tours, setTours] = useState([]);
@@ -27,6 +31,9 @@ const Tours = () => {
   const [duration, setDuration] = useState('all');
   const [provinces, setProvinces] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
+  const [isProvinceDropdownOpen, setIsProvinceDropdownOpen] = useState(false);
+  const provinceRef = useRef(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -178,6 +185,30 @@ const Tours = () => {
     });
   };
 
+  const handleProvinceDropdownToggle = () => {
+    setIsProvinceDropdownOpen(!isProvinceDropdownOpen);
+    if (!isProvinceDropdownOpen) {
+      setProvinceSearchTerm('');
+    }
+  };
+
+  const handleProvinceSearchChange = (event) => {
+    setProvinceSearchTerm(event.target.value);
+  };
+
+  const handleClickOutside = (event) => {
+    if (provinceRef.current && !provinceRef.current.contains(event.target)) {
+      setIsProvinceDropdownOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   if (loading) {
     return (
       <>
@@ -224,24 +255,67 @@ const Tours = () => {
             />
           </Grid>
           <Grid item xs={12} md={3.5}>
-            <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
-              <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 2, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
-              <Box sx={{ p: 1 }}>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Tỉnh thành</Typography>
-                  <Select
-                    value={selectedProvince}
-                    onChange={(e) => setSelectedProvince(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    <MenuItem value="all">Tất cả</MenuItem>
-                    {provinces.map((province) => (
-                      <MenuItem key={province.provinceId} value={province.provinceId}>{province.provinceName}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Loại tour</Typography>
+            <Paper elevation={3} sx={{ position: 'sticky', top: 8, maxHeight: '100vh', minHeight: '75vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
+              <Box sx={{ p: 3 }}>
+              <FormControl fullWidth ref={provinceRef}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Tỉnh thành</Typography>
+                    <Box sx={{ position: 'relative' }}>
+                      {!isProvinceDropdownOpen ? (
+                        <Button
+                          onClick={handleProvinceDropdownToggle}
+                          sx={{
+                            justifyContent: 'space-between', textAlign: 'left',
+                            color: 'black', backgroundColor: 'white', border: '1px solid #ccc',
+                            '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' }, pl: 1.7,
+                            height: '40px', width: '100%', textTransform: 'none', fontSize: '17px'
+                          }}
+                        >
+                          {selectedProvince === 'all' ? 'Tất cả' : provinces.find(p => p.provinceId === selectedProvince)?.provinceName || 'Tất cả'}
+                          <ExpandMoreIcon />
+                        </Button>
+                      ) : (
+                        <Box sx={{ position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)' }}>
+                          <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="Tìm kiếm tỉnh thành..."
+                            value={provinceSearchTerm}
+                            onChange={handleProvinceSearchChange}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <SearchIcon />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                          />
+                          <Paper sx={{ maxHeight: 150, overflow: 'auto' }}>
+                            <List dense>
+                              <ListItem button onClick={() => { setSelectedProvince('all'); handleProvinceDropdownToggle(); }}>
+                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }}/>
+                              </ListItem>
+                              {provinces
+                                .filter(province => province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase()))
+                                .map((province) => (
+                                  <ListItem 
+                                    button 
+                                    key={province.provinceId} 
+                                    onClick={() => { setSelectedProvince(province.provinceId); handleProvinceDropdownToggle(); }}
+                                    selected={selectedProvince === province.provinceId}
+                                  >
+                                    <ListItemText primary={province.provinceName} primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }}/>
+                                  </ListItem>
+                                ))}
+                            </List>
+                          </Paper>
+                        </Box>
+                      )}
+                    </Box>
+                  </FormControl>
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Loại tour</Typography>
                   <Select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
@@ -253,8 +327,8 @@ const Tours = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Giá tour</Typography>
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Giá tour</Typography>
                   <Select
                     value={priceRange}
                     onChange={(e) => setPriceRange(e.target.value)}
@@ -266,18 +340,18 @@ const Tours = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Ngày bắt đầu</Typography>
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Ngày bắt đầu</Typography>
                   <TextField
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     InputLabelProps={{ shrink: true }}
-                    sx={{ '& .MuiInputBase-input': { height: '30px', padding: '8px' } }}
+                    sx={{ '& .MuiInputBase-input': { height: '27px', padding: '8px' } }}
                   />
                 </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Số ngày</Typography>
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Số ngày</Typography>
                   <Select
                     value={duration}
                     onChange={(e) => setDuration(e.target.value)}
@@ -290,14 +364,14 @@ const Tours = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <Box sx={{ pl: 2, pr: 2, mt: 2 }}>
+                <Box sx={{ mt: 3 }}>
                   <Button
                     variant="contained"
                     fullWidth
                     onClick={handleApplyFilters}
                     sx={{
-                      backgroundColor: '#3572EF',
-                      '&:hover': { backgroundColor: '#1C3F94' }
+                      backgroundColor: '#3572EF', height: '50px',
+                      '&:hover': { borderRadius: '5px', backgroundColor: '#1C3F94' }
                     }}
                   >
                     Áp dụng bộ lọc
