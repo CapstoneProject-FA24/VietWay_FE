@@ -40,13 +40,13 @@ const AttractionCard = ({ attraction }) => {
                 </Typography>
                 <Box sx={{ display: 'flex', minWidth: '100%', height: '100%' }}>
                     <Box sx={{ flex: 1 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1, fontSize: '1.1rem' }}>
-                            <MapOutlinedIcon sx={{ marginRight: '8px' }} />
-                            {attraction.province}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1, fontSize: '1.1rem' }}>
+                        <Typography variant="body1" color="text.primary" sx={{ display: 'flex', alignItems: 'center', mb: 1, fontSize: '1.1rem' }}>
                             <LocationOnOutlinedIcon sx={{ marginRight: '8px' }} />
                             {attraction.address}
+                        </Typography>
+                        <Typography variant="body1" color="text.primary" sx={{ display: 'flex', alignItems: 'center', mb: 1, fontSize: '1.1rem' }}>
+                            <MapOutlinedIcon sx={{ marginRight: '8px' }} />
+                            {attraction.province}
                         </Typography>
                     </Box>
                     <Box sx={{ width: '28%', display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 1 }}>
@@ -57,7 +57,7 @@ const AttractionCard = ({ attraction }) => {
                                 color: 'primary', textTransform: 'none', borderRadius: '10px',
                                 border: '1px solid #3572EF', height: '50px', width: '100%'
                             }}>
-                            Xem chi tiết
+                            Chi tiết
                         </StyledButton>
                     </Box>
                 </Box>
