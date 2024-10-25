@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Grid, Typography, Container, Box } from '@mui/material';
-import ProvincePagesCard from '@components/provinces/ProvincePagesCard';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import AttractionCard from '@components/provinces/AttractionCard';
 import ImageGallery from '@components/provinces/ImageGallery';
 import CategoryFilter from '@components/provinces/CategoryFilter';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
-import { PostsGrid } from '@components/provinces/PostsCard';
+import PostCard from '@components/provinces/PostCard';
 import { Link } from 'react-router-dom';
-import { mockProvinceData } from '@hooks/MockProvincePage';
-import { mockEvents } from '@hooks/MockEvent';
 import EventCard from '@components/provinces/EventCard';
 import { fetchProvinceInfo } from '@services/ProvinceService';
 import { fetchAttractions } from '@services/AttractionService';
 import { fetchEvents } from '@services/EventService';
+import { fetchPosts } from '@services/PostService';
 
 const ProvinceDetail = () => {
   const { id } = useParams();
-  const [provinceData, setProvinceData] = useState(null);
+  const navigate = useNavigate(); // Use navigate hook
   const [province, setProvince] = useState();
   const [attractions, setAttractions] = useState([]);
   const [events, setEvents] = useState([]);
+  const [posts, setPosts] = useState([]); // New state for posts
 
   const highlightCategories = ['Tất cả', 'Bảo tàng', 'Công viên', 'Di tích lịch sử', 'Công trình tôn giáo', 'Khu bảo tồn thiên nhiên'];
   const eventCategories = ['Tất cả', 'Đang diễn ra', 'Sắp đến'];
@@ -30,19 +31,11 @@ const ProvinceDetail = () => {
   const [eventsCategory, setEventsCategory] = useState('Tất cả');
   const [discoverCategory, setDiscoverCategory] = useState('Tất cả');
 
-  const [discoverPosts, setDiscoverPosts] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
-
   useEffect(() => {
     loadProvince();
     loadAttractions();
     loadEvents();
-    const pro = mockProvinceData.find(p => p.id === parseInt(id));
-    if (pro) {
-      setProvinceData(pro);
-      setDiscoverPosts(pro.discover);
-      setFilteredEvents(events);
-    }
+    loadPosts(); // Load posts
   }, [id]);
 
   const loadProvince = async () => {
@@ -64,7 +57,7 @@ const ProvinceDetail = () => {
       const response = await fetchAttractions(params);
       setAttractions(response.data);
     } catch (error) {
-      console.error('Failed to fetch province info:', error);
+      console.error('Failed to fetch attractions:', error);
     }
   };
 
@@ -78,7 +71,21 @@ const ProvinceDetail = () => {
       const response = await fetchEvents(params);
       setEvents(response.data);
     } catch (error) {
-      console.error('Failed to fetch province info:', error);
+      console.error('Failed to fetch events:', error);
+    }
+  };
+
+  const loadPosts = async () => {
+    try {
+      const params = {
+        pageSize: 6,
+        pageIndex: 1,
+        provinceIds: [id]
+      };
+      const response = await fetchPosts(params);
+      setPosts(response.data);
+    } catch (error) {
+      console.error('Failed to fetch posts:', error);
     }
   };
 
@@ -86,27 +93,47 @@ const ProvinceDetail = () => {
     if (!data || !Array.isArray(data)) {
       return null;
     }
-    return data.slice(0, 6).map((attraction, index) => (
-      <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
-        <ProvincePagesCard attraction={attraction} />
-      </Grid>
-    ));
+    if (data.length > 0) {
+      return data.slice(0, 6).map((attraction, index) => (
+        <Grid item xs={12} sm={6} md={4} lg={4} key={index}><AttractionCard attraction={attraction} /></Grid>
+      ));
+    } else {
+      return (
+        <Typography gutterBottom sx={{ mt: 1, textAlign: 'center', width: '100%', color: 'grey', fontStyle: 'italic' }}> Chưa có điểm tham quan nào. </Typography>
+      )
+    }
   };
 
   const renderEventCards = (data) => {
     if (!data || !Array.isArray(data)) {
       return null;
     }
-    return data.slice(0, 6).map((event, index) => (
-      <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
-        <EventCard event={event} />
-      </Grid>
-    ));
+    if (data.length > 0) {
+      return data.slice(0, 6).map((event, index) => (
+        <Grid item xs={12} sm={6} md={4} lg={4} key={index}> <EventCard event={event} /> </Grid>
+      ));
+    } else {
+      return (
+        <Typography gutterBottom sx={{ mt: 1, textAlign: 'center', width: '100%', color: 'grey', fontStyle: 'italic' }}> Chưa có sự kiện nào. </Typography>
+      )
+    }
   };
 
-  const filteredDiscoverPosts = discoverCategory === 'Tất cả'
-    ? discoverPosts
-    : discoverPosts.filter(post => post.category === discoverCategory);
+  const renderPostCards = (data) => {
+    if (!data || !Array.isArray(data)) {
+      return null;
+    }
+    console.log(data.length);
+    if (data.length > 0) {
+      return data.slice(0, 6).map((post, index) => (
+        <Grid item xs={12} sm={6} md={4} lg={4} key={index}> <PostCard post={post} /> </Grid>
+      ));
+    } else {
+      return (
+        <Typography gutterBottom sx={{ mt: 1, textAlign: 'center', width: '100%', color: 'grey', fontStyle: 'italic' }}> Chưa có bài viết nào. </Typography>
+      )
+    }
+  };
 
   const handleEventCategoryChange = (category) => {
     console.log('Selected category:', category);
@@ -116,92 +143,92 @@ const ProvinceDetail = () => {
     }
   };
 
-  const formatDate = (date) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(date).toLocaleDateString(undefined, options);
+  const handleViewMoreAttractions = () => {
+    const searchParams = new URLSearchParams({
+      name: null,
+      provinceId: province.provinceId,
+      applySearch: 'true'
+    }).toString();
+    navigate(`/diem-tham-quan?${searchParams}`);
   };
 
   return (
-    <Box sx={{ marginTop: 5 }}>
+    <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '90vw' }}>
       <Header />
       {province && (
-        <>
+        <Box sx={{ ml: 5, mr: 5 }}>
           <ImageGallery images={province.imageUrls} />
-          <Typography variant="h2" component="h1" sx={{ textAlign: 'center', marginY: 4, fontWeight: 'bold' }}>
-            {province.provinceName}
-          </Typography>
-          <Container maxWidth="xl">
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Về {province.provinceName}
+          <Container maxWidth="xl" sx={{ mt: 5 }}>
+            <Typography variant="h2" gutterBottom sx={{ fontWeight: 'bold', mb: 1 }}>
+              {province.provinceName}
             </Typography>
             <Typography variant="body1" paragraph>
               Miêu tả về {province.provinceName}
             </Typography>
-
-            <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
-              Điểm đến nổi bật
-            </Typography>
+            <Box sx={{ mt: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: '1.8rem' }}>
+                Điểm đến nổi bật
+              </Typography>
+              <Box display="flex" alignItems="center" onClick={handleViewMoreAttractions} sx={{ cursor: 'pointer' }}>
+                <Typography variant="body2" sx={{ color: 'grey', fontSize: '1rem' }}>
+                  Xem thêm
+                </Typography>
+                <ChevronRightIcon sx={{ ml: 1, color: 'grey' }} />
+              </Box>
+            </Box>
             <Box sx={{ position: 'relative', mb: 2 }}>
               <CategoryFilter
                 categories={highlightCategories}
                 selectedCategory={highlightsCategory}
                 onCategoryChange={setHighlightsCategory} />
-              <Typography
-                component={Link} to={`/diem-tham-quan`} variant="body2"
-                sx={{
-                  fontStyle: 800, textDecoration: 'underline', marginBottom: 2, fontSize: 16, position: 'absolute', right: 0, bottom: -24, color: '#000',
-                  cursor: 'pointer', '&:hover': { textDecoration: 'underline', },
-                }}>
-                Xem thêm
-              </Typography>
             </Box>
             <Grid container spacing={2}>
               {renderAttractionCards(attractions)}
             </Grid>
-
-            <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
-              Sự kiện
-            </Typography>
+            <Box sx={{ mt: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: '1.8rem' }}>
+                Sự kiện hấp dẫn
+              </Typography>
+              <Box display="flex" alignItems="center">
+                <Typography variant="body2" component={Link} to={`/su-kien`} sx={{ color: 'grey', fontSize: '1rem' }}>
+                  Xem thêm
+                </Typography>
+                <ChevronRightIcon sx={{ ml: 1, color: 'grey' }} />
+              </Box>
+            </Box>
             <Box sx={{ position: 'relative', mb: 2 }}>
               <CategoryFilter
                 categories={eventCategories}
                 selectedCategory={eventsCategory}
                 onCategoryChange={handleEventCategoryChange}
               />
-              <Typography
-                variant="body2" component={Link} to={`/su-kien`}
-                sx={{
-                  fontStyle: 800, textDecoration: 'underline', marginBottom: 2, fontSize: 16, position: 'absolute', right: 0, bottom: -24, color: '#000',
-                  cursor: 'pointer', '&:hover': { textDecoration: 'underline', },
-                }}>
-                Xem thêm
-              </Typography>
             </Box>
             <Grid container spacing={2}>
               {renderEventCards(events)}
             </Grid>
-
-            <Typography variant="h4" gutterBottom sx={{ mt: 4, fontWeight: 'bold' }}>
-              Khám phá {provinceData.name} qua các bài viết
-            </Typography>
+            <Box sx={{ mt: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: '1.8rem' }}>
+                Khám phá {province.provinceName} qua các bài viết
+              </Typography>
+              <Box display="flex" alignItems="center">
+                <Typography variant="body2" component={Link} to={`/bai-viet`} sx={{ color: 'grey', fontSize: '1rem' }}>
+                  Xem thêm
+                </Typography>
+                <ChevronRightIcon sx={{ ml: 1, color: 'grey' }} />
+              </Box>
+            </Box>
             <Box sx={{ position: 'relative', mb: 2 }}>
               <CategoryFilter
                 categories={discoverCategories}
                 selectedCategory={discoverCategory}
                 onCategoryChange={setDiscoverCategory}
               />
-              <Typography
-                variant="body2" component={Link} to={`/bai-viet`}
-                sx={{
-                  fontStyle: 800, textDecoration: 'underline', marginBottom: 2, fontSize: 16, position: 'absolute', right: 0, bottom: -24, color: '#000',
-                  cursor: 'pointer', '&:hover': { textDecoration: 'underline', },
-                }}>
-                Xem thêm
-              </Typography>
             </Box>
-            <PostsGrid posts={filteredDiscoverPosts} maxPosts={6} />
+            <Grid container spacing={2}>
+              {renderPostCards(posts)}
+            </Grid>
           </Container>
-        </>
+        </Box>
       )}
       <Footer />
     </Box>

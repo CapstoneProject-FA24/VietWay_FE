@@ -4,7 +4,7 @@ import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import PostCard from '@components/posts/PostCard';
+import PostListCard from '@components/posts/PostListCard';
 import { fetchPostById } from '@hooks/MockPost';
 import { fetchProvinces } from '@services/ProvinceService';
 import SearchIcon from '@mui/icons-material/Search';

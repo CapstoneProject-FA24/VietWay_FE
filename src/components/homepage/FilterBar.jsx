@@ -67,7 +67,8 @@ const FilterBar = () => {
       case 2:
         searchParams = new URLSearchParams({
           name: selectedDestination,
-          provinceId: selectedProvince
+          provinceId: selectedProvince,
+          applySearch: 'true'
         }).toString();
         navigate(`/bai-viet?${searchParams}`);
         break;
