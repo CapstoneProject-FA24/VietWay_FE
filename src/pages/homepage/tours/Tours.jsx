@@ -60,7 +60,7 @@ const Tours = () => {
     const priceRange = searchParams.get('priceRange');
     const provinceId = searchParams.get('provinceId');
     const applySearch = searchParams.get('applySearch');
-    
+
     if (applySearch === 'true') {
       setSearchInput(name || '');
       setStartDate(startDate || '');
@@ -68,11 +68,11 @@ const Tours = () => {
       setSelectedProvince(provinceId || 'all');
       setSearchTerm(name || '');
       setPage(1);
-      
+
       // Remove 'applySearch' from URL
       searchParams.delete('applySearch');
       navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
-      
+
       // Fetch tours with the new parameters
       fetchTours({
         searchTerm: name || '',
@@ -255,10 +255,11 @@ const Tours = () => {
             />
           </Grid>
           <Grid item xs={12} md={3.5}>
-            <Paper elevation={3} sx={{ position: 'sticky', top: 8, maxHeight: '100vh', minHeight: '75vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
-              <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
-              <Box sx={{ p: 3 }}>
-              <FormControl fullWidth ref={provinceRef}>
+            <Box sx={{ position: 'sticky', top: 10, height: '100vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, height: '100vh' }}>
+                <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
+                <Box sx={{ p: 3 }}>
+                  <FormControl fullWidth ref={provinceRef}>
                     <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Tỉnh thành</Typography>
                     <Box sx={{ position: 'relative' }}>
                       {!isProvinceDropdownOpen ? (
@@ -294,18 +295,18 @@ const Tours = () => {
                           <Paper sx={{ maxHeight: 150, overflow: 'auto' }}>
                             <List dense>
                               <ListItem button onClick={() => { setSelectedProvince('all'); handleProvinceDropdownToggle(); }}>
-                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }}/>
+                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }} />
                               </ListItem>
                               {provinces
                                 .filter(province => province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase()))
                                 .map((province) => (
-                                  <ListItem 
-                                    button 
-                                    key={province.provinceId} 
+                                  <ListItem
+                                    button
+                                    key={province.provinceId}
                                     onClick={() => { setSelectedProvince(province.provinceId); handleProvinceDropdownToggle(); }}
                                     selected={selectedProvince === province.provinceId}
                                   >
-                                    <ListItemText primary={province.provinceName} primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }}/>
+                                    <ListItemText primary={province.provinceName} primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }} />
                                   </ListItem>
                                 ))}
                             </List>
@@ -314,71 +315,72 @@ const Tours = () => {
                       )}
                     </Box>
                   </FormControl>
-                <FormControl fullWidth sx={{ mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Loại tour</Typography>
-                  <Select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    <MenuItem value="all">Tất cả</MenuItem>
-                    {categories.map((category) => (
-                      <MenuItem key={category.tourCategoryId} value={category.tourCategoryId}>{category.tourCategoryName}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Giá tour</Typography>
-                  <Select
-                    value={priceRange}
-                    onChange={(e) => setPriceRange(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    <MenuItem value="all">Tất cả</MenuItem>
-                    {priceRanges.map((range) => (
-                      <MenuItem key={range.value} value={range.value}>{range.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Ngày bắt đầu</Typography>
-                  <TextField
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                    sx={{ '& .MuiInputBase-input': { height: '27px', padding: '8px' } }}
-                  />
-                </FormControl>
-                <FormControl fullWidth sx={{ mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Số ngày</Typography>
-                  <Select
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    {durationOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <Box sx={{ mt: 3 }}>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={handleApplyFilters}
-                    sx={{
-                      backgroundColor: '#3572EF', height: '50px',
-                      '&:hover': { borderRadius: '5px', backgroundColor: '#1C3F94' }
-                    }}
-                  >
-                    Áp dụng bộ lọc
-                  </Button>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Loại tour</Typography>
+                    <Select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      sx={{ height: '40px' }}
+                    >
+                      <MenuItem value="all">Tất cả</MenuItem>
+                      {categories.map((category) => (
+                        <MenuItem key={category.tourCategoryId} value={category.tourCategoryId}>{category.tourCategoryName}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Giá tour</Typography>
+                    <Select
+                      value={priceRange}
+                      onChange={(e) => setPriceRange(e.target.value)}
+                      sx={{ height: '40px' }}
+                    >
+                      <MenuItem value="all">Tất cả</MenuItem>
+                      {priceRanges.map((range) => (
+                        <MenuItem key={range.value} value={range.value}>{range.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Ngày bắt đầu</Typography>
+                    <TextField
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      sx={{ '& .MuiInputBase-input': { height: '27px', padding: '8px' } }}
+                    />
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Số ngày</Typography>
+                    <Select
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      sx={{ height: '40px' }}
+                    >
+                      {durationOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Box sx={{ mt: 3 }}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={handleApplyFilters}
+                      sx={{
+                        backgroundColor: '#3572EF', height: '50px',
+                        '&:hover': { borderRadius: '5px', backgroundColor: '#1C3F94' }
+                      }}
+                    >
+                      Áp dụng bộ lọc
+                    </Button>
+                  </Box>
                 </Box>
-              </Box>
-            </Paper>
+              </Paper>
+            </Box>
           </Grid>
           <Grid item xs={12} md={8.5}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
@@ -397,7 +399,7 @@ const Tours = () => {
                     Không tìm thấy tour nào!
                   </Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
-                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }}/>
+                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }} />
                   </Box>
                 </Box>
               )}
