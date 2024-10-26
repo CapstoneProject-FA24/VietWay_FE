@@ -9,7 +9,7 @@ const ProvinceCard = ({ province }) => {
         <Card
             sx={{
                 position: 'relative',
-                height: '330px',
+                height: '350px',
                 borderRadius: '10px',
                 overflow: 'hidden',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)',

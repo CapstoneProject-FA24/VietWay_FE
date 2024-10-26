@@ -48,7 +48,7 @@ const Homepage = () => {
   };
 
   return (
-    <Box className="homepage" sx={{ width: '100%' }}>
+    <Box className="homepage" sx={{ display: 'flex', flexDirection: 'column', width: '89vw' }}>
       <Header />
       <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-60px", mt: -7.5, mb: 10 }} >
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.3)', zIndex: 1 }} />

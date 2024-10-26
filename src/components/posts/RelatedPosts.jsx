@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box } from '@mui/material';
 import { fetchRelatedPosts } from '@hooks/MockPost';
-import { PostsGrid } from '@components/provinces/PostsCard';
+import PostCard from '@components/provinces/PostCard';
 
 export default function RelatedPosts({ provinceId, currentPostId }) {
     const [relatedPosts, setRelatedPosts] = useState([]);
@@ -21,7 +21,7 @@ export default function RelatedPosts({ provinceId, currentPostId }) {
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
                 Bài viết liên quan
             </Typography>
-            <PostsGrid posts={relatedPosts}/>
+            {/* <PostCard posts={relatedPosts}/> */}
         </Box>
     );
 }
