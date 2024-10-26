@@ -10,6 +10,7 @@ import { fetchProvinces } from '@services/ProvinceService';
 import { fetchAttractionType } from '@services/AttractionTypeService';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SortIcon from '@mui/icons-material/Sort';
 
 const Attractions = () => {
   const [attractions, setAttractions] = useState([]);
@@ -32,6 +33,8 @@ const Attractions = () => {
   const [attractionTypeSearchTerm, setAttractionTypeSearchTerm] = useState('');
   const [isAttractionTypeDropdownOpen, setIsAttractionTypeDropdownOpen] = useState(false);
   const attractionTypeRef = useRef(null);
+
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -175,6 +178,19 @@ const Attractions = () => {
     if (attractionTypeRef.current && !attractionTypeRef.current.contains(event.target)) {
       setIsAttractionTypeDropdownOpen(false);
     }
+  };
+
+  const handleSortChange = (event) => {
+    const newSortOrder = event.target.value;
+    setSortOrder(newSortOrder);
+    const sortedAttractions = [...attractions].sort((a, b) => {
+      if (newSortOrder === 'asc') {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+    setAttractions(sortedAttractions);
   };
 
   useEffect(() => {
@@ -372,6 +388,19 @@ const Attractions = () => {
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả
               </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SortIcon sx={{ mr: 1 }} />
+                <Select
+                  value={sortOrder}
+                  onChange={handleSortChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ height: '40px' }}
+                >
+                  <MenuItem value="asc">Tên A-Z</MenuItem>
+                  <MenuItem value="desc">Tên Z-A</MenuItem>
+                </Select>
+              </Box>
             </Box>
             <Grid container spacing={2}>
               {attractions.length > 0 ? (

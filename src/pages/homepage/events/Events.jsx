@@ -10,6 +10,7 @@ import { fetchProvinces } from '@services/ProvinceService';
 import { fetchEventCategory } from '@services/EventCategoryService';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SortIcon from '@mui/icons-material/Sort';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -35,6 +36,8 @@ const Events = () => {
 
   const [startDateFrom, setStartDateFrom] = useState('');
   const [startDateTo, setStartDateTo] = useState('');
+
+  const [sortOrder, setSortOrder] = useState('titleAsc');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -195,6 +198,26 @@ const Events = () => {
 
   const handleStartDateToChange = (event) => {
     setStartDateTo(event.target.value);
+  };
+
+  const handleSortChange = (event) => {
+    const newSortOrder = event.target.value;
+    setSortOrder(newSortOrder);
+    const sortedEvents = [...events].sort((a, b) => {
+      switch (newSortOrder) {
+        case 'titleAsc':
+          return a.title.localeCompare(b.title);
+        case 'titleDesc':
+          return b.title.localeCompare(a.title);
+        case 'dateAsc':
+          return new Date(a.startDate) - new Date(b.startDate);
+        case 'dateDesc':
+          return new Date(b.startDate) - new Date(a.startDate);
+        default:
+          return 0;
+      }
+    });
+    setEvents(sortedEvents);
   };
 
   if (loading) {
@@ -412,6 +435,21 @@ const Events = () => {
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả
               </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SortIcon sx={{ mr: 1 }} />
+                <Select
+                  value={sortOrder}
+                  onChange={handleSortChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ height: '40px' }}
+                >
+                  <MenuItem value="titleAsc">Tên A-Z</MenuItem>
+                  <MenuItem value="titleDesc">Tên Z-A</MenuItem>
+                  <MenuItem value="dateAsc">Ngày bắt đầu gần nhất</MenuItem>
+                  <MenuItem value="dateDesc">Ngày bắt đầu xa nhất</MenuItem>
+                </Select>
+              </Box>
             </Box>
             <Grid container spacing={2}>
               {events.length > 0 ? (

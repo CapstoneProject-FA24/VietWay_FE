@@ -10,6 +10,7 @@ import { fetchPostCategories } from '@services/PostCategoryService';
 import { fetchPosts } from '@services/PostService';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SortIcon from '@mui/icons-material/Sort';
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -31,6 +32,7 @@ const Posts = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const provinceRef = useRef(null);
   const categoryRef = useRef(null);
+  const [sortOrder, setSortOrder] = useState('titleAsc');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -165,6 +167,26 @@ const Posts = () => {
     if (categoryRef.current && !categoryRef.current.contains(event.target)) {
       setIsCategoryDropdownOpen(false);
     }
+  };
+
+  const handleSortChange = (event) => {
+    const newSortOrder = event.target.value;
+    setSortOrder(newSortOrder);
+    const sortedPosts = [...posts].sort((a, b) => {
+      switch (newSortOrder) {
+        case 'titleAsc':
+          return a.title.localeCompare(b.title);
+        case 'titleDesc':
+          return b.title.localeCompare(a.title);
+        case 'dateDesc':
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case 'dateAsc':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        default:
+          return 0;
+      }
+    });
+    setPosts(sortedPosts);
   };
 
   useEffect(() => {
@@ -333,6 +355,21 @@ const Posts = () => {
           <Grid item xs={12} md={8.7}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}> {totalItems} kết quả </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SortIcon sx={{ mr: 1 }} />
+                <Select
+                  value={sortOrder}
+                  onChange={handleSortChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ height: '40px' }}
+                >
+                  <MenuItem value="titleAsc">Tiêu đề A-Z</MenuItem>
+                  <MenuItem value="titleDesc">Tiêu đề Z-A</MenuItem>
+                  <MenuItem value="dateDesc">Mới nhất</MenuItem>
+                  <MenuItem value="dateAsc">Cũ nhất</MenuItem>
+                </Select>
+              </Box>
             </Box>
             <Grid container spacing={2}>
               {posts.length > 0 ? (
