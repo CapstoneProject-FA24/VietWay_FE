@@ -41,7 +41,19 @@ const ReviewCard = ({ review }) => (
               {review.userName}
             </Typography>
             <Stack direction="row" alignItems="center" spacing={1}>
-              <Rating value={review.rating} readOnly size="small" />
+              <Rating 
+                value={review.rating} 
+                readOnly 
+                size="small"
+                sx={{
+                  '& .MuiRating-iconFilled': {
+                    color: 'primary.main',
+                  },
+                  '& .MuiRating-iconEmpty': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
               <Typography variant="body2" color="text.secondary">
                 • {review.date}
               </Typography>
