@@ -3,7 +3,7 @@ import baseURL from '@api/BaseURL'
 
 export const fetchEventCategory = async () => {
     try {
-        const response = await axios.get(`${baseURL}/api/EventCategory`);
+        const response = await axios.get(`${baseURL}/api/event-categories`);
         const eventCategories = response.data.data.map(item => ({
             eventCategoryId: item.eventCategoryId,
             name: item.name,

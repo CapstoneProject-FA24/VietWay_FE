@@ -43,13 +43,13 @@ const Events = () => {
     const searchParams = new URLSearchParams(location.search);
     const name = searchParams.get('name');
     const provinceId = searchParams.get('provinceId');
-    const categoryId = searchParams.get('categoryId');
+    const startDate = searchParams.get('startDate');
     const applySearch = searchParams.get('applySearch');
-
+    
     if (applySearch === 'true') {
       setSearchInput(name || '');
       setSelectedProvince(provinceId || 'all');
-      setSelectedCategory(categoryId || 'all');
+      setStartDateFrom(startDate || '');
       setSearchTerm(name || '');
       setPage(1);
 
@@ -58,7 +58,8 @@ const Events = () => {
 
       fetchEventData({
         searchTerm: name || '',
-        provinceIds: provinceId !== 'all' ? [provinceId] : [],
+        startDateFrom: startDate || '',
+        provinceIds: provinceId !== 'all' ? provinceId === null ||  provinceId === '' ? null :[provinceId] : [],
       });
     }
   }, [location, navigate]);

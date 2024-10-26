@@ -9,16 +9,13 @@ export const fetchPosts = async (params) => {
         if (params.pageIndex) queryParams.append('pageIndex', params.pageIndex);
         if (params.searchTerm) queryParams.append('nameSearch', params.searchTerm);
         
-        if (params.eventCategoryIds && params.eventCategoryIds.length > 0) {
-            params.eventCategoryIds.forEach(id => queryParams.append('eventCategoryIds', id));
+        if (params.postCategoryIds && params.postCategoryIds.length > 0) {
+            params.postCategoryIds.forEach(id => queryParams.append('postCategoryIds', id));
         }
         
         if (params.provinceIds && params.provinceIds.length > 0) {
             params.provinceIds.forEach(id => queryParams.append('provinceIds', id));
         }
-        
-        if (params.startDateFrom) queryParams.append('startDateFrom', params.startDateFrom);
-        if (params.startDateTo) queryParams.append('startDateTo', params.startDateTo);
 
         const response = await axios.get(`${baseURL}/api/posts?${queryParams.toString()}`);
         const items = response.data?.data?.items;

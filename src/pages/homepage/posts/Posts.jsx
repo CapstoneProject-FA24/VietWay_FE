@@ -3,9 +3,10 @@ import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, Men
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PostListCard from '@components/posts/PostListCard';
 import { fetchProvinces } from '@services/ProvinceService';
+import { fetchPostCategories } from '@services/PostCategoryService';
 import { fetchPosts } from '@services/PostService';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -13,9 +14,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [totalItems, setTotalItems] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
@@ -25,36 +27,64 @@ const Posts = () => {
   const [categories, setCategories] = useState([]);
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
   const [categorySearchTerm, setCategorySearchTerm] = useState('');
-  const [appliedFilters, setAppliedFilters] = useState({ province: 'all', category: 'all' });
   const [isProvinceDropdownOpen, setIsProvinceDropdownOpen] = useState(false);
-  const provinceRef = useRef(null);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const provinceRef = useRef(null);
   const categoryRef = useRef(null);
 
-  useEffect(() => {
-    fetchPostData();
-    fetchProvinceData();
-    setCategories([
-      { categoryId: '1', categoryName: 'Du lịch' },
-      { categoryId: '2', categoryName: 'Ẩm thực' },
-    ]);
-  }, [page, pageSize, searchTerm, appliedFilters]);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const fetchPostData = async () => {
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const title = searchParams.get('name');
+    const provinceId = searchParams.get('provinceId');
+    const postCategoryId = searchParams.get('postCategoryId');
+    const applySearch = searchParams.get('applySearch');
+
+    if (applySearch === 'true') {
+      setSearchInput(title || '');
+      setSelectedProvince(provinceId || 'all');
+      setSelectedCategory(postCategoryId || 'all');
+      setSearchTerm(title || '');
+      setPage(1);
+
+      searchParams.delete('applySearch');
+      navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+
+      fetchPostData({
+        searchTerm: title || '',
+        provinceIds: provinceId !== 'all' ? provinceId === null || provinceId === '' ? null : [provinceId] : [],
+        postCategoryIds: postCategoryId !== 'all' ? postCategoryId === null || postCategoryId === '' ? null : [postCategoryId] : [],
+      });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (!location.search.includes('applySearch=true')) {
+      fetchPostData();
+    }
+    fetchProvinceData();
+    fetchCategoryData();
+  }, [page, pageSize]);
+
+  const fetchPostData = async (overrideParams = {}) => {
     try {
       setLoading(true);
       const params = {
-        pageSize: pageSize, pageIndex: page, searchTerm: searchTerm,
-        provinceIds: appliedFilters.province !== 'all' ? [appliedFilters.province] : [],
-        eventCategoryIds: appliedFilters.category !== 'all' ? [appliedFilters.category] : []
+        pageSize,
+        pageIndex: page,
+        searchTerm: overrideParams.searchTerm || searchTerm,
+        provinceIds: overrideParams.provinceIds || (selectedProvince !== 'all' ? [selectedProvince] : []),
+        postCategoryIds: overrideParams.postCategoryIds || (selectedCategory !== 'all' ? [selectedCategory] : []),
       };
-
       const response = await fetchPosts(params);
       setPosts(response.data);
       setTotalItems(response.total);
-      setLoading(false);
+      setTotalPages(Math.ceil(response.total / pageSize));
     } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -65,6 +95,15 @@ const Posts = () => {
       setProvinces(fetchedProvinces);
     } catch (error) {
       console.error('Error fetching provinces:', error);
+    }
+  };
+
+  const fetchCategoryData = async () => {
+    try {
+      const fetchedCategories = await fetchPostCategories();
+      setCategories(fetchedCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -92,8 +131,13 @@ const Posts = () => {
   };
 
   const handleApplyFilters = () => {
-    setAppliedFilters({ province: selectedProvince, category: selectedCategory });
     setPage(1);
+    setSearchTerm(searchInput);
+    fetchPostData({
+      searchTerm: searchInput,
+      provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+      postCategoryIds: selectedCategory !== 'all' ? [selectedCategory] : [],
+    });
   };
 
   const handleProvinceDropdownToggle = () => {
@@ -233,7 +277,7 @@ const Posts = () => {
                             height: '55px', width: '100%', textTransform: 'none', fontSize: '17px'
                           }}
                         >
-                          {selectedCategory === 'all' ? 'Tất cả' : categories.find(c => c.categoryId === selectedCategory)?.categoryName || 'Tất cả'}
+                          {selectedCategory === 'all' ? 'Tất cả' : categories.find(c => c.postCategoryId === selectedCategory)?.name || 'Tất cả'}
                           <ExpandMoreIcon />
                         </Button>
                       ) : (
@@ -242,17 +286,10 @@ const Posts = () => {
                           boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)'
                         }}>
                           <TextField
-                            fullWidth
-                            variant="outlined"
-                            placeholder="Tìm kiếm danh mục..."
-                            value={categorySearchTerm}
-                            onChange={handleCategorySearchChange}
+                            fullWidth variant="outlined" placeholder="Tìm kiếm danh mục..."
+                            value={categorySearchTerm} onChange={handleCategorySearchChange}
                             InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <SearchIcon />
-                                </InputAdornment>
-                              ),
+                              startAdornment: ( <InputAdornment position="start"> <SearchIcon /> </InputAdornment> ),
                             }}
                             sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
                           />
@@ -262,14 +299,14 @@ const Posts = () => {
                                 <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem' }} />
                               </ListItem>
                               {categories
-                                .filter(category => category.categoryName.toLowerCase().includes(categorySearchTerm.toLowerCase()))
+                                .filter(category => category.name.toLowerCase().includes(categorySearchTerm.toLowerCase()))
                                 .map((category) => (
                                   <ListItem
-                                    button key={category.categoryId}
-                                    onClick={() => { setSelectedCategory(category.categoryId); handleCategoryDropdownToggle(); }}
-                                    selected={selectedCategory === category.categoryId} sx={{ py: 0.5 }}
+                                    button key={category.postCategoryId}
+                                    onClick={() => { setSelectedCategory(category.postCategoryId); handleCategoryDropdownToggle(); }}
+                                    selected={selectedCategory === category.postCategoryId} sx={{ py: 0.5 }}
                                   >
-                                    <ListItemText primary={category.categoryName} primaryTypographyProps={{ height: '1.3rem' }} />
+                                    <ListItemText primary={category.name} primaryTypographyProps={{ height: '1.3rem' }} />
                                   </ListItem>
                                 ))}
                             </List>
@@ -304,9 +341,7 @@ const Posts = () => {
                 ))
               ) : (
                 <Box sx={{ minHeight: '30rem', width: '100%' }}>
-                  <Typography sx={{ fontSize: '2rem', textAlign: 'center', width: '100%', p: 5 }}>
-                    Không tìm thấy bài viết nào!
-                  </Typography>
+                  <Typography sx={{ fontSize: '2rem', textAlign: 'center', width: '100%', p: 5 }}> Không tìm thấy bài viết nào!</Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
                     <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }} />
                   </Box>
@@ -316,7 +351,7 @@ const Posts = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
               <Pagination count={Math.ceil(totalItems / pageSize)} page={page} onChange={handlePageChange} color="primary" sx={{ m: '0 auto' }} />
               <Select value={pageSize} onChange={handlePageSizeChange} variant="outlined" sx={{ height: '40px' }} >
-                <MenuItem value={5}>5 / trang</MenuItem>
+                <MenuItem value={4}>4 / trang</MenuItem>
                 <MenuItem value={10}>10 / trang</MenuItem>
                 <MenuItem value={20}>20 / trang</MenuItem>
               </Select>

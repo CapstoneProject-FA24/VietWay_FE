@@ -17,14 +17,12 @@ dayjs.locale('vi');
 
 const FilterBar = () => {
   const [value, setValue] = useState(0);
-  const [destinations, setDestinations] = useState([]);
   const [selectedDestination, setSelectedDestination] = useState('');
   const [departureDate, setDepartureDate] = useState(null);
   const [budget, setBudget] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
   const [provinces, setProvinces] = useState([]);
   const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,14 +38,12 @@ const FilterBar = () => {
     }
   };
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  const handleChange = (event, newValue) => { setValue(newValue); };
 
   const handleSearch = () => {
     let searchParams = {};
     switch (value) {
-      case 0: // Tour du lịch
+      case 0:
         searchParams = new URLSearchParams({
           name: selectedDestination,
           startDate: departureDate ? dayjs(departureDate).format('YYYY-MM-DD') : '',
@@ -73,7 +69,7 @@ const FilterBar = () => {
         }).toString();
         navigate(`/bai-viet?${searchParams}`);
         break;
-      case 3: // Sự kiện
+      case 3:
         searchParams = new URLSearchParams({
           name: selectedDestination,
           provinceId: selectedProvince,
@@ -92,15 +88,8 @@ const FilterBar = () => {
           <>
             <TextField
               placeholder="Bạn muốn đi đâu?" value={selectedDestination}
-              onChange={(e) => setSelectedDestination(e.target.value)}
-              sx={{ width: '30%' }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton> <SearchIcon /> </IconButton>
-                  </InputAdornment>
-                ),
-              }}
+              onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '30%' }}
+              InputProps={{ endAdornment:(<InputAdornment position="end"><IconButton><SearchIcon /></IconButton></InputAdornment>)}}
             />
             <DatePicker
               label="Ngày đi" value={departureDate}
@@ -111,9 +100,7 @@ const FilterBar = () => {
               value={budget} onChange={(e) => setBudget(e.target.value)}
               displayEmpty sx={{ width: '23%' }}
             >
-              <MenuItem value="" disabled>
-                Chọn khoảng giá
-              </MenuItem>
+              <MenuItem value="" disabled> Chọn khoảng giá </MenuItem>
               <MenuItem value="all">Tất cả</MenuItem>
               <MenuItem value="0,1000000">Dưới 1 triệu</MenuItem>
               <MenuItem value="1000000,5000000">1-5 triệu</MenuItem>
@@ -127,24 +114,17 @@ const FilterBar = () => {
         return (
           <>
             <TextField
-              placeholder={value === 1 ? "Tên điểm tham quan" : "Tên bài viết"}
-              value={selectedDestination}
-              onChange={(e) => setSelectedDestination(e.target.value)}
-              sx={{ width: '50%' }}
+              placeholder={value === 1 ? "Tên điểm tham quan" : "Tên bài viết"} value={selectedDestination}
+              onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '50%' }}
+              InputProps={{endAdornment:(<InputAdornment position="end"><IconButton><SearchIcon/></IconButton></InputAdornment>)}}
             />
             <Select
-              value={selectedProvince}
-              onChange={(e) => setSelectedProvince(e.target.value)}
-              displayEmpty
-              sx={{ width: '30%' }}
+              value={selectedProvince} onChange={(e) => setSelectedProvince(e.target.value)}
+              displayEmpty sx={{ width: '30%' }}
             >
-              <MenuItem value="" disabled>
-                Chọn tỉnh thành
-              </MenuItem>
+              <MenuItem value="" disabled> Chọn tỉnh thành </MenuItem>
               {provinces.map((province) => (
-                <MenuItem key={province.provinceId} value={province.provinceId}>
-                  {province.provinceName}
-                </MenuItem>
+                <MenuItem key={province.provinceId} value={province.provinceId}> {province.provinceName} </MenuItem>
               ))}
             </Select>
           </>
@@ -153,32 +133,22 @@ const FilterBar = () => {
         return (
           <>
             <TextField
-              placeholder="Tên sự kiện"
-              value={selectedDestination}
-              onChange={(e) => setSelectedDestination(e.target.value)}
-              sx={{ width: '30%' }}
+              placeholder="Tên sự kiện" value={selectedDestination}
+              onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '30%' }}
+              InputProps={{endAdornment:(<InputAdornment position="end"><IconButton><SearchIcon/></IconButton></InputAdornment>)}}
             />
             <Select
-              value={selectedProvince}
-              onChange={(e) => setSelectedProvince(e.target.value)}
-              displayEmpty
-              sx={{ width: '25%' }}
+              value={selectedProvince} onChange={(e) => setSelectedProvince(e.target.value)}
+              displayEmpty sx={{ width: '25%' }}
             >
-              <MenuItem value="" disabled>
-                Chọn tỉnh thành
-              </MenuItem>
+              <MenuItem value="" disabled> Chọn tỉnh thành </MenuItem>
               {provinces.map((province) => (
-                <MenuItem key={province.provinceId} value={province.provinceId}>
-                  {province.provinceName}
-                </MenuItem>
+                <MenuItem key={province.provinceId} value={province.provinceId}> {province.provinceName} </MenuItem>
               ))}
             </Select>
             <DatePicker
-              label="Ngày bắt đầu"
-              value={startDate}
-              onChange={(newValue) => setStartDate(newValue)}
-              format="DD/MM/YYYY"
-              sx={{ width: '23%' }}
+              label="Ngày bắt đầu" value={startDate} onChange={(newValue) => setStartDate(newValue)}
+              format="DD/MM/YYYY" sx={{ width: '23%' }} 
             />
           </>
         );
@@ -196,12 +166,7 @@ const FilterBar = () => {
         </Tabs>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
           {renderFilterFields()}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSearch}
-            sx={{ width: '15%', height: '100%' }}
-          >
+          <Button variant="contained" color="primary" onClick={handleSearch} sx={{ width: '15%', height: '45px' }} >
             Tìm kiếm
           </Button>
         </Box>

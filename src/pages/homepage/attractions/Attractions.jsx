@@ -55,7 +55,7 @@ const Attractions = () => {
 
       fetchAttractionData({
         searchTerm: name || '',
-        provinceIds: provinceId !== 'all' ? [provinceId] : [],
+        provinceIds: provinceId !== 'all' ? provinceId === null ||  provinceId === '' ? null :[provinceId] : [],
       });
     }
   }, [location, navigate]);

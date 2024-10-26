@@ -78,7 +78,7 @@ const Tours = () => {
         searchTerm: name || '',
         startDateFrom: startDate || '',
         priceRange: priceRange || 'all',
-        provinceIds: provinceId !== 'all' ? [provinceId] : [],
+        provinceIds: provinceId !== 'all' ? provinceId === null ||  provinceId === '' ? null :[provinceId] : [],
       });
     }
   }, [location, navigate]);
