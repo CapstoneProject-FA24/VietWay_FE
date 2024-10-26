@@ -259,7 +259,7 @@ const Tours = () => {
                 <Box sx={{ mt: -1, p: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControl fullWidth ref={provinceRef}>
                     <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Tỉnh thành</Typography>
-                    <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ position: 'relative', mb: isProvinceDropdownOpen ? '14.4%' : 0 }}>
                       {!isProvinceDropdownOpen ? (
                         <Button
                           onClick={handleProvinceDropdownToggle}

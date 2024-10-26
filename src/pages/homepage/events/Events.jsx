@@ -245,13 +245,13 @@ const Events = () => {
             />
           </Grid>
           <Grid item xs={12} md={3.3}>
-            <Box sx={{ position: 'sticky', top: 70, height: '90vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
-              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, height: '90vh' }}>
+            <Box sx={{ position: 'sticky', top: 70, maxHeight: '100vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0', fontSize: '30px' }}>Bộ lọc</Typography>
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ mt: -1, p: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControl fullWidth ref={provinceRef}>
-                    <Typography sx={{ textAlign: 'left', color: 'black', mt: -1, fontSize: '18px' }}>Tỉnh thành</Typography>
-                    <Box sx={{ position: 'relative' }}>
+                    <Typography sx={{ textAlign: 'left', color: 'black', fontSize: '18px' }}>Tỉnh thành</Typography>
+                    <Box sx={{ position: 'relative', mb: isProvinceDropdownOpen ? '19.5%' : 0 }}>
                       {!isProvinceDropdownOpen ? (
                         <Button
                           onClick={handleProvinceDropdownToggle}
@@ -283,7 +283,7 @@ const Events = () => {
                                 </InputAdornment>
                               ),
                             }}
-                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '50px' } }}
                           />
                           <Paper sx={{ maxHeight: 150, overflow: 'auto', borderRadius: '10px' }}>
                             <List dense>
