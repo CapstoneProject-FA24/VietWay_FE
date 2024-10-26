@@ -221,10 +221,16 @@ const AttractionDetails = () => {
             </Grid>
             <Grid item xs={12} md={9}>
               <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={handleToggleReviewInput}
-                sx={{ mb: 2 }}
+                variant="outlined" 
+                onClick={handleToggleReviewInput} 
+                sx={{ 
+                  mb: 2,
+                  padding: '8px 15px',
+                  backgroundColor: 'white',
+                  color: 'primary.main',
+                  borderColor: 'primary.main',
+                  borderRadius: '13px',
+                }}
               >
                 {showReviewInput ? 'Đóng đánh giá' : 'Thêm đánh giá'}
               </Button>

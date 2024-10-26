@@ -12,7 +12,8 @@ import { fetchToursByTemplateId } from '@services/TourService';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/tours/OtherTours';
-import FeedbackList from '@components/tours/FeedbackList';
+import ReviewList from '@components/reviews/ReviewList';
+import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -79,7 +80,6 @@ const TourDetails = () => {
       const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
       setAvailableTours(filteredTours);
 
-      // Set default selected tour to the first available tour
       if (filteredTours.length > 0) {
         setSelectedTour(filteredTours[0].id);
       } else {
@@ -349,7 +349,19 @@ const TourDetails = () => {
         </Grid>
       </Box>
       <Box sx={{ width: '100%' }}>
-        <FeedbackList tourTemplateId={tour.tourTemplateId} />
+        <Box>
+          <Typography variant="h4" sx={{ mb: 2, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>
+            Đánh giá từ khách hàng
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <ReviewBreakdown />
+            </Grid>
+            <Grid item xs={12} md={8}>
+              <ReviewList />
+            </Grid>
+          </Grid>
+        </Box>
         <OtherTours pros={tour.provinces.map(province => province.provinceId.toString())} tourId={tour.tourTemplateId} />
       </Box>
       <Footer />

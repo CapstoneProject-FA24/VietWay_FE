@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Rating, TextField, Button, IconButton, styled, Box, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
+import Checkbox from '@mui/material/Checkbox';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -54,6 +55,7 @@ const FeedbackPopup = ({ onClose, id }) => {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
 
   const handleSubmit = () => {
     console.log('Tour ID:', id);
@@ -95,16 +97,7 @@ const FeedbackPopup = ({ onClose, id }) => {
       <StyledDialog onClose={handleClose} open={true} maxWidth="sm" fullWidth>
         <DialogTitle>
           <Title variant="h6">Đánh giá tour</Title>
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
+          <IconButton aria-label="close" onClick={handleClose} sx={{ position: 'absolute', right: 8, top: 8, color: (theme) => theme.palette.grey[500] }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -115,51 +108,34 @@ const FeedbackPopup = ({ onClose, id }) => {
           <Divider sx={{ my: 2 }} />
           <Typography gutterBottom align="center">Chuyến đi của bạn như thế nào?</Typography>
           <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
-            <StyledRating
-              name="simple-controlled"
-              value={rating}
-              onChange={(event, newValue) => {
-                setRating(newValue);
-              }}
-              size="large"
-              emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-            />
+            <StyledRating name="simple-controlled" value={rating} onChange={(event, newValue) => { setRating(newValue); }} size="large" emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />} />
           </Box>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="feedback"
-            label="Chia sẻ những ý kiến chi tiết về trải nghiệm của bạn"
-            type="text"
-            fullWidth
-            variant="outlined"
-            multiline
-            rows={4}
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-          />
+          <TextField autoFocus margin="dense" id="feedback" 
+          label="Chia sẻ những ý kiến chi tiết về trải nghiệm của bạn" type="text" 
+          fullWidth variant="outlined" multiline rows={4} value={feedback} 
+          onChange={(e) => setFeedback(e.target.value)} />
           <ContactInfo sx={{ color: (theme) => theme.palette.primary.main }}>
             Liên hệ hotline <strong>1900 123 456</strong> hoặc <strong>emailsupport@vietwaytour.com</strong>
             <br />
             để được hỗ trợ thêm
           </ContactInfo>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
+            <Checkbox
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+              inputProps={{ 'aria-label': 'Công khai đánh giá' }}
+            />
+            <Typography>
+              Công khai đánh giá của tôi
+            </Typography>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center' }}>
           <Button onClick={handleClose} variant="outlined" sx={{ width: '120px' }}>
             Hủy
           </Button>
-          <Button 
-            onClick={handleSubmit} 
-            variant="contained" 
-            disabled={rating === 0} 
-            sx={{ 
-              width: '120px', 
-              backgroundColor: '#3ABEF9',
-              '&:hover': {
-                backgroundColor: '#2196f3',
-              },
-            }}
-          >
+          <Button onClick={handleSubmit} variant="contained" disabled={rating === 0} 
+          sx={{ width: '120px', backgroundColor: '#3ABEF9', '&:hover': { backgroundColor: '#2196f3' } }}>
             Gửi
           </Button>
         </DialogActions>

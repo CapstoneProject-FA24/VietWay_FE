@@ -4,7 +4,7 @@ import StarIcon from '@mui/icons-material/Star';
 import { mockReviews } from '@hooks/MockReviews';
 
 const ratingLabels = ['Tuyệt vời', 'Tốt', 'Khá tốt', 'Tệ', 'Rất tệ'];
-const ratingColors = ['#00a300', '#79bc00', '#ffb900', '#f28b00', '#e23838'];
+const ratingColors = ['primary.main', 'primary.main', 'primary.main', 'primary.main', 'primary.main'];
 
 const totalReviews = mockReviews.length;
 const averageRating = mockReviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
@@ -17,7 +17,7 @@ const ReviewBreakdown = () => {
   return (
     <Box sx={{ width: '100%', maxWidth: 400, p: 2 }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <Typography variant="h4" fontWeight="bold">
+        <Typography variant="h3" fontWeight="bold">
           {averageRating.toFixed(1)}
         </Typography>
         <Stack>
@@ -26,19 +26,19 @@ const ReviewBreakdown = () => {
               <StarIcon
                 key={index}
                 sx={{
-                  color: index < Math.floor(averageRating) ? '#00a300' : '#e0e0e0',
-                  fontSize: '1rem'
+                  color: index < Math.floor(averageRating) ? 'primary.main' : '#e0e0e0',
+                  fontSize: '1.5rem'
                 }}
               />
             ))}
             {averageRating % 1 > 0 && (
               <StarIcon
                 sx={{
-                  color: '#00a300',
+                  color: 'primary.main',
                   clipPath: `inset(0 ${100 - (averageRating % 1) * 100}% 0 0)`,
                   position: 'absolute',
                   right: 0,
-                  fontSize: '1rem'
+                  fontSize: '1.5rem'
                 }}
               />
             )}
@@ -52,8 +52,8 @@ const ReviewBreakdown = () => {
       {ratingLabels.map((label, index) => (
         <Box key={label} sx={{ mb: 1 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="body2">{label}</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body1">{label}</Typography>
+            <Typography variant="body1" color="text.secondary">
               {ratings[index]}
             </Typography>
           </Stack>
@@ -61,7 +61,7 @@ const ReviewBreakdown = () => {
             variant="determinate"
             value={(ratings[index] / totalReviews) * 100}
             sx={{
-              height: 6,
+              height: 15,
               borderRadius: 3,
               [`& .MuiLinearProgress-bar`]: {
                 borderRadius: 3,

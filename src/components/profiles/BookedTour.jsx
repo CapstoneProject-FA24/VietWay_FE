@@ -38,7 +38,7 @@ const BookedTour = () => {
     };
 
     const getStatusLabel = (status) => {
-        const labels = ["Chờ thanh toán", "Đã thanh toán", "Đã hoàn tất", "Đã hủy", "Quá hạn thanh toán"];
+        const labels = ["Chờ thanh toán", "Đã thanh toán", "Đã hủy","Hoàn tất", "Đã hoàn tiền"];
         return labels[status] || "Unknown";
     };
 
