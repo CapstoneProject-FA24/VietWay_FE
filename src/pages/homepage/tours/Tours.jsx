@@ -69,11 +69,9 @@ const Tours = () => {
       setSearchTerm(name || '');
       setPage(1);
 
-      // Remove 'applySearch' from URL
       searchParams.delete('applySearch');
       navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
 
-      // Fetch tours with the new parameters
       fetchTours({
         searchTerm: name || '',
         startDateFrom: startDate || '',
@@ -255,12 +253,12 @@ const Tours = () => {
             />
           </Grid>
           <Grid item xs={12} md={3.5}>
-            <Box sx={{ position: 'sticky', top: 10, height: '100vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
-              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, height: '100vh' }}>
+            <Box sx={{ position: 'sticky', top: 10, maxHeight: '100vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ mt: -1, p: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControl fullWidth ref={provinceRef}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Tỉnh thành</Typography>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Tỉnh thành</Typography>
                     <Box sx={{ position: 'relative' }}>
                       {!isProvinceDropdownOpen ? (
                         <Button
@@ -316,7 +314,7 @@ const Tours = () => {
                     </Box>
                   </FormControl>
                   <FormControl fullWidth sx={{ mt: 2 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Loại tour</Typography>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Loại tour</Typography>
                     <Select
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
@@ -329,7 +327,7 @@ const Tours = () => {
                     </Select>
                   </FormControl>
                   <FormControl fullWidth sx={{ mt: 2 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Giá tour</Typography>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Giá tour</Typography>
                     <Select
                       value={priceRange}
                       onChange={(e) => setPriceRange(e.target.value)}
@@ -342,7 +340,7 @@ const Tours = () => {
                     </Select>
                   </FormControl>
                   <FormControl fullWidth sx={{ mt: 2 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Ngày bắt đầu</Typography>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Ngày bắt đầu</Typography>
                     <TextField
                       type="date"
                       value={startDate}
@@ -352,7 +350,7 @@ const Tours = () => {
                     />
                   </FormControl>
                   <FormControl fullWidth sx={{ mt: 2 }}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.5, fontSize: '18px' }}>Số ngày</Typography>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Số ngày</Typography>
                     <Select
                       value={duration}
                       onChange={(e) => setDuration(e.target.value)}
@@ -365,7 +363,7 @@ const Tours = () => {
                       ))}
                     </Select>
                   </FormControl>
-                  <Box sx={{ mt: 3 }}>
+                  <Box sx={{ mt: 2, mb: -2 }}>
                     <Button
                       variant="contained"
                       fullWidth
