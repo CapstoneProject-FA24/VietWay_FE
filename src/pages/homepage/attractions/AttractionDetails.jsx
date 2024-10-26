@@ -129,7 +129,7 @@ const AttractionDetails = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '99.6%' }} ref={pageTopRef}>
       <Helmet>
         <title>{attraction.name}</title>
       </Helmet>

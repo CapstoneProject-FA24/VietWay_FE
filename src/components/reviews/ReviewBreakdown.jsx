@@ -31,17 +31,6 @@ const ReviewBreakdown = () => {
                 }}
               />
             ))}
-            {averageRating % 1 > 0 && (
-              <StarIcon
-                sx={{
-                  color: 'primary.main',
-                  clipPath: `inset(0 ${100 - (averageRating % 1) * 100}% 0 0)`,
-                  position: 'absolute',
-                  right: 0,
-                  fontSize: '1.5rem'
-                }}
-              />
-            )}
           </Stack>
           <Typography variant="body2" color="text.secondary">
             {totalReviews} đánh giá

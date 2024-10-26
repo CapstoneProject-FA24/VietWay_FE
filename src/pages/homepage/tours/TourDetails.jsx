@@ -54,7 +54,6 @@ const TourDetails = () => {
           };
         }));
 
-        // Set default selected month to the first available month
         if (months.length > 0) {
           setSelectedMonth(months[0]);
         }
@@ -76,7 +75,7 @@ const TourDetails = () => {
   useEffect(() => {
     if (tour && selectedMonth) {
       const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token);
+      setIsLoggedIn(!token);
       const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
       setAvailableTours(filteredTours);
 
@@ -140,7 +139,7 @@ const TourDetails = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '99.6%' }} ref={pageTopRef}>
       <Helmet>
         <title>Chi tiết tour mẫu</title>
       </Helmet>
