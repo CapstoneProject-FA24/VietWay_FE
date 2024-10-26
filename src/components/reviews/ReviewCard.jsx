@@ -1,6 +1,7 @@
 import React from 'react';
 import { Paper, Stack, Avatar, Typography, IconButton, Rating } from '@mui/material';
-import { ThumbsUp, MoreHorizontal } from 'lucide-react';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const getInitials = (name) => {
   return name
@@ -48,7 +49,7 @@ const ReviewCard = ({ review }) => (
           </Stack>
         </Stack>
         <IconButton size="small">
-          <MoreHorizontal size={20} />
+          <MoreVertIcon fontSize="small" />
         </IconButton>
       </Stack>
 
@@ -58,7 +59,7 @@ const ReviewCard = ({ review }) => (
 
       <Stack direction="row" spacing={1} alignItems="center">
         <IconButton size="small" sx={{ color: 'text.secondary' }}>
-          <ThumbsUp size={18} />
+          <ThumbUpIcon fontSize="small" />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
           {review.helpful} lượt hữu ích
