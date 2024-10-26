@@ -8,7 +8,9 @@ import EventDetails from '@components/posts/EventDetails';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faTag } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faTag, faEnvelope, faCopy } from '@fortawesome/free-solid-svg-icons';
+import { faTwitter, faFacebookF } from '@fortawesome/free-brands-svg-icons';
+import { IconButton, Tooltip } from '@mui/material';
 
 const extractHeadings = (content) => {
     const parser = new DOMParser();
@@ -57,6 +59,31 @@ const TableOfContents = ({ headings }) => (
         })}
     </Paper>
 );
+
+const handleShare = (platform) => {
+    const url = window.location.href;
+    const title = post.title;
+
+    switch (platform) {
+        case 'twitter':
+            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+            break;
+        case 'facebook':
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+            break;
+        case 'email':
+            window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
+            break;
+        case 'copy':
+            navigator.clipboard.writeText(url).then(() => {
+                // You can show a notification here that the link was copied
+                alert('Link copied to clipboard!');
+            });
+            break;
+        default:
+            console.log('Unknown sharing platform');
+    }
+};
 
 export default function PostDetail() {
     const { id } = useParams();
@@ -119,17 +146,39 @@ export default function PostDetail() {
                 <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
                     {post.title}
                 </Typography>
-
-                <CardMedia component="img" height="400" image={post.image} alt={post.title} sx={{ mb: 2, borderRadius: 2 }} />
-
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
                     <FontAwesomeIcon icon={faTag} style={{ marginRight: '10px', color: '#3572EF' }} />
                     <Chip label={post.category} color="primary" sx={{ mr: 1 }} />
                     <FontAwesomeIcon icon={faCalendarAlt} style={{ marginLeft: '20px', marginRight: '10px', color: '#3572EF' }} />
-                    <Typography variant="body2" color="text.secondary" component="span">
+                    <Typography variant="body2" color="text.secondary" component="span" sx={{ mr: 2 }}>
                         Đăng ngày: {new Date(post.createDate).toLocaleDateString('vi-VN')}
                     </Typography>
                 </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: { xs: 1, sm: 0 }, color: 'primary.main', mb: 3 }}>
+                        <Tooltip title="Share on X (Twitter)">
+                            <IconButton onClick={() => handleShare('twitter')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
+                                <FontAwesomeIcon icon={faTwitter} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Share on Facebook">
+                            <IconButton onClick={() => handleShare('facebook')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
+                                <FontAwesomeIcon icon={faFacebookF} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Share via Email">
+                            <IconButton onClick={() => handleShare('email')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
+                                <FontAwesomeIcon icon={faEnvelope} />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Copy Link">
+                            <IconButton onClick={() => handleShare('copy')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
+                                <FontAwesomeIcon icon={faCopy} />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+
+                <CardMedia component="img" height="400" image={post.image} alt={post.title} sx={{ mb: 2, borderRadius: 2 }} />
 
                 {post.isEvent && <EventDetails startDate={post.startDate} endDate={post.endDate} />}
 

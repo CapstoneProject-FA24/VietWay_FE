@@ -54,7 +54,7 @@ const OtherTours = ({ pros, tourId }) => {
                     alt={tour.name}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/path/to/fallback/image.jpg'; // Replace with your fallback image path
+                      e.target.src = '/path/to/fallback/image.jpg';
                     }}
                     sx={{
                       objectFit: 'cover',
@@ -65,22 +65,22 @@ const OtherTours = ({ pros, tourId }) => {
                   />
                   <CardContent sx={{ textAlign: 'left' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: 13 }}>
+                      <Typography variant="body2" color="text.primary" gutterBottom sx={{ fontSize: 13 }}>
                         {tour.provinces.map(province => province).join(' - ')}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: 13 }}>
+                      <Typography variant="body2" color="text.primary" gutterBottom sx={{ fontSize: 13 }}>
                         {tour.tourCategory}
                       </Typography>
                     </Box>
-                    <Typography variant="h6" component="div" sx={{ fontSize: 19, fontWeight: 500, textAlign: 'justify' }}>
+                    <Typography variant="h6" component="div" sx={{ fontSize: 19, fontWeight: 600 }}>
                       {tour.tourName}
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
+                      <Typography variant="body2" color="text.primary" sx={{ fontSize: 13 }}>
                         {tour.duration}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
-                        Giá: {tour.minPrice.toLocaleString()} VND
+                      <Typography variant="body1" color="text.primary" sx={{ fontSize: 13 }}>
+                        Giá: <span style={{ fontWeight: 600, color: 'primary.main' }}>{tour.minPrice.toLocaleString()} VND</span> 
                       </Typography>
                     </Box>
                   </CardContent>

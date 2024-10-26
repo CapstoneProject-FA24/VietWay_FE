@@ -5,9 +5,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import SearchIcon from '@mui/icons-material/Search';
-import HotelIcon from '@mui/icons-material/Hotel';
-import FlightIcon from '@mui/icons-material/Flight';
-import WorkIcon from '@mui/icons-material/Work';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import ArticleIcon from '@mui/icons-material/Article';
+import EventIcon from '@mui/icons-material/Event';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import { useNavigate } from 'react-router-dom';
@@ -83,7 +83,7 @@ const FilterBar = () => {
 
   const renderFilterFields = () => {
     switch (value) {
-      case 0: // Tour du lịch
+      case 0:
         return (
           <>
             <TextField
@@ -159,14 +159,15 @@ const FilterBar = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%' }}>
       <Box sx={{ width: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1 }}>
         <Tabs value={value} onChange={handleChange} sx={{ width: '100%' }}>
-          <Tab icon={<DirectionsBusIcon />} label="Tour trọn gói" iconPosition="start" sx={{ width: '28%' }}/>
-          <Tab icon={<HotelIcon />} label="Địa điểm tham quan" iconPosition="start" sx={{ width: '31%' }}/>
-          <Tab icon={<FlightIcon />} label="Bài viết" iconPosition="start" sx={{ width: '20%' }}/>
-          <Tab icon={<WorkIcon />} label="Sự kiện" iconPosition="start" sx={{ width: '21%' }}/>
+          <Tab icon={<DirectionsBusIcon />} label="Tour du lịch" iconPosition="start" sx={{ width: '28%' }}/>
+          <Tab icon={<LocationOnIcon />} label="Địa điểm tham quan" iconPosition="start" sx={{ width: '31%' }}/>
+          <Tab icon={<ArticleIcon />} label="Bài viết" iconPosition="start" sx={{ width: '20%' }}/>
+          <Tab icon={<EventIcon />} label="Sự kiện" iconPosition="start" sx={{ width: '21%' }}/>
         </Tabs>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
           {renderFilterFields()}
-          <Button variant="contained" color="primary" onClick={handleSearch} sx={{ width: '15%', height: '45px' }} >
+          <Button variant="contained" color="primary" onClick={handleSearch}
+            sx={{ width: '15%', height: '120%', borderRadius: '10px', padding: '8px 15px' }}>
             Tìm kiếm
           </Button>
         </Box>

@@ -14,30 +14,14 @@ const RegisteredTourCard = ({ tour }) => {
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
   console.log(tour);
   return (
-    <Box sx={{ 
-      p: 0.5, // Padding around the card
-      mb: 2, // Margin bottom to create space between cards
-      bgcolor: 'background.paper', // Background color from theme
-      borderRadius: '16px', // Rounded corners for the box
-      boxShadow: 2, // Add some shadow to the box
-    }}>
-      <Card component={Link} to={`/booking/${tour.bookingId}`}
+    <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
+      <Card /*component={Link} to={`/booking/${tour.bookingId}`}*/
         sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'none', position: 'relative' }}>
         <StatusChip status={tour.bookedTourStatus} />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3} md={3}>
-            <CardMedia
-              component="img"
-              sx={{
-                margin: '12px',
-                borderRadius: '8px',
-                width: '100%',
-                height: '200px',
-                objectFit: 'cover'
-              }}
-              image={tour.imageUrl}
-              alt={tour.name}
-            />
+            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }} 
+            image={tour.imageUrl} alt={tour.name} />
           </Grid>
           <Grid item xs={12} md={7}>
             <CardContent>
@@ -93,28 +77,44 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-const StatusChip = ({ status }) => (
-  <Chip
-    label={status}
-    color={
-      status === "Đã hoàn tất" ? "success" :
-        status === "Đã thanh toán" ? "primary" :
-          status === "Đã hủy" || status === "Quá hạn thanh toán" ? "error" : "warning"
+const StatusChip = ({ status }) => {
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Hoàn tất":
+        return "#4CAF50"; // Green
+      case "Đã thanh toán":
+        return "#15B392"; // Light Green
+      case "Đã hủy":
+        return "#F44336"; // Red
+      case "Chờ thanh toán":
+        return "#FFA000"; // Amber
+      case "Đã hoàn tiền":
+        return "#387478"; // Dark Green
+      default:
+        return "#757575"; // Grey
     }
-    sx={{
-      position: 'absolute',
-      top: 20,
-      right: 15,
-      zIndex: 1,
-      fontSize: '0.75rem',
-      height: '24px'
-    }}
-  />
-);
+  };
+
+  return (
+    <Chip
+      label={status}
+      sx={{
+        position: 'absolute',
+        top: 20,
+        right: 15,
+        zIndex: 1,
+        fontSize: '0.75rem',
+        height: '24px',
+        backgroundColor: getStatusColor(status),
+        color: 'white',
+      }}
+    />
+  );
+};
 
 const renderActionButtons = (status, handleFeedbackOpen) => {
   switch (status) {
-    case "Đã hoàn tất":
+    case "Hoàn tất":
       return (
         <>
           <ActionButton onClick={handleFeedbackOpen} variant="contained" color="primary">Đánh giá</ActionButton>
@@ -124,7 +124,8 @@ const renderActionButtons = (status, handleFeedbackOpen) => {
     case "Đã thanh toán":
       return <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>;
     case "Đã hủy":
-    case "Quá hạn thanh toán":
+    case "Chờ thanh toán":
+    case "Đã hoàn tiền":
       return <ActionButton variant="contained" color="primary">Đặt Lại</ActionButton>;
     default:
       return (

@@ -10,7 +10,7 @@ export const mockTours = [
     bookingDate: "2023-06-15",
     totalPrice: 3500000,
     image: "https://ik.imagekit.io/tvlk/blog/2022/10/kinh-nghiem-du-lich-vinh-ha-long-5.jpg?tr=dpr-2,w-675",
-    bookedTourStatus: "Đã hoàn tất"
+    bookedTourStatus: "Hoàn tất"
   },
   {
     code: "NDSGN564-047",
@@ -23,7 +23,7 @@ export const mockTours = [
     bookingDate: "2023-09-20",
     totalPrice: 5500000,
     image: "https://r2.nucuoimekong.com/wp-content/uploads/ban-cat-sapa-a.jpg",
-    bookedTourStatus: "Đã hoàn tất"
+    bookedTourStatus: "Hoàn tất"
   },
   {
     code: "NDSGN564-047",
@@ -36,7 +36,7 @@ export const mockTours = [
     bookingDate: "2023-10-25",
     totalPrice: 7000000,
     image: "https://toquoc.mediacdn.vn/280518851207290880/2023/9/13/318486b4-c187-40b5-9220-1afe6e4ccf5eb99d0408-1694595766050422505578.jpg",
-    bookedTourStatus: "Quá hạn thanh toán"
+    bookedTourStatus: "Đã hoàn tiền"
   },
   {
     code: "NDSGN564-047",
@@ -49,7 +49,7 @@ export const mockTours = [
     bookingDate: "2023-11-20",
     totalPrice: 4000000,
     image: "https://ik.imagekit.io/tvlk/blog/2023/07/bai-bien-nha-trang-8-1024x576.jpg?tr=dpr-2,w-675",
-    bookedTourStatus: "Đã hoàn tất"
+    bookedTourStatus: "Hoàn tất"
   },
   {
     code: "NDSGN564-047",

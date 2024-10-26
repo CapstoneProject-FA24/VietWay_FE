@@ -10,9 +10,9 @@ const TourStatusTab = ({ statusTab, handleStatusTabChange, searchTerm, handleSea
         <Tab label="Tất cả" />
         <Tab label="Chờ thanh toán" />
         <Tab label="Đã thanh toán" />
-        <Tab label="Đã hoàn tất" />
+        <Tab label="Hoàn tất" />
         <Tab label="Đã hủy" />
-        <Tab label="Quá hạn thanh toán" />
+        <Tab label="Đã hoàn tiền" />
       </Tabs>
     </Box>
   );
