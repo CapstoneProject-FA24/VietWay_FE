@@ -27,9 +27,9 @@ const Profile = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        //if (!token) {
-        //    navigate('/');
-        //}
+        if (!token) {
+            navigate('/');
+        }
         fetchCustomerInfo();
         setPayments(mockPayments);
     }, []);

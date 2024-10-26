@@ -57,6 +57,8 @@ export default function Register() {
     });
 
     React.useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) { navigate('/'); }
         const prevPage = location.state?.previousPage || getPreviousPage();
         setPreviousPage(prevPage);
     }, [location]);

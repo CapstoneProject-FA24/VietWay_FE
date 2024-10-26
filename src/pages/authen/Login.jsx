@@ -50,6 +50,8 @@ export default function Login() {
   const [previousPage, setPreviousPage] = useState('/');
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) { navigate('/'); }
     const prevPage = location.state?.previousPage || getPreviousPage();
     setPreviousPage(prevPage);
   }, [location]);
@@ -94,8 +96,19 @@ export default function Login() {
       if (email && password) {
         const response = await login({ email, password });
         if (response.data) {
+          const history = JSON.parse(sessionStorage.getItem('navigationHistory') || '[]');
+          let targetPage = '/';
+
+          while (history.length > 0 && (history[history.length - 1] === '/dang-nhap' || history[history.length - 1] === '/dang-ky')) {
+            history.pop();
+          }
+
+          if (history.length > 0) {
+            targetPage = history[history.length - 1];
+          }
+
           clearNavigationHistory();
-          navigate(previousPage);
+          navigate(targetPage);
         } else {
           setError('Đã xảy ra lỗi. Vui lòng thử lại.');
         }
@@ -181,10 +194,10 @@ export default function Login() {
               <Grid container>
                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                   Chưa có tài khoản?
-                  <Link 
-                    sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} 
+                  <Link
+                    sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }}
                     onClick={() => navigate('/dang-ky', { state: { previousPage } })}
-                    variant="body2" 
+                    variant="body2"
                     color='#FF8682'
                   >
                     {"Đăng ký ngay"}

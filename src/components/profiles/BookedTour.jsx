@@ -4,6 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import TourStatusTab from '@components/profiles/TourStatusTab';
 import RegisteredTourCard from '@components/profiles/RegisteredTourCard';
 import { fetchBookingList } from '@services/BookingService';
+import { getBookingStatusInfo } from "@services/StatusService";
 
 const BookedTour = () => {
     const [statusTab, setStatusTab] = useState(0);
@@ -36,12 +37,7 @@ const BookedTour = () => {
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
-
-    const getStatusLabel = (status) => {
-        const labels = ["Chờ thanh toán", "Đã thanh toán", "Đã hủy","Hoàn tất", "Đã hoàn tiền"];
-        return labels[status] || "Unknown";
-    };
-
+    
     const filteredBookings = bookings.filter(booking => 
         (booking.tourName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.code.toLowerCase().includes(searchTerm.toLowerCase())) &&
@@ -79,7 +75,7 @@ const BookedTour = () => {
                                     bookingId: booking.bookingId,
                                     name: booking.tourName,
                                     code: booking.code,
-                                    bookedTourStatus: getStatusLabel(booking.status),
+                                    bookedTourStatus: getBookingStatusInfo(booking.status),
                                     imageUrl: booking.imageUrl,
                                     numberOfParticipants: booking.numberOfParticipants,
                                     totalPrice: booking.totalPrice,

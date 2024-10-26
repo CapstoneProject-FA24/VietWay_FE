@@ -12,33 +12,12 @@ import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
 
-// Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: "100%",
   margin: "0 auto",
   boxSizing: "border-box",
 }));
-
-const StepBox = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: theme.spacing(4),
-}));
-
-const StepItem = styled(Typography)(({ theme, active }) => ({
-  margin: "0 10px",
-  color: active ? "#3572EF" : "#999",
-  fontWeight: "bold",
-  fontSize: 30,
-}));
-
-const ArrowIcon = styled("img")({
-  width: "30px",
-  height: "30px",
-  margin: "0 15px",
-});
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   boxSizing: "border-box",
@@ -89,9 +68,7 @@ const ProfileBookingDetail = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-    }
+    if (!token) { navigate('/'); }
   }, []);
 
   const handlePayment = async () => {
@@ -110,9 +87,7 @@ const ProfileBookingDetail = () => {
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
-        if (vnpCode === "00") {
-          setOpenSnackbar(true);
-        }
+        if (vnpCode === "00") { setOpenSnackbar(true); }
         if (vnpAmount) {
           const paidAmount = parseInt(vnpAmount) / 100;
           data.paymentMethod = "VNPay";

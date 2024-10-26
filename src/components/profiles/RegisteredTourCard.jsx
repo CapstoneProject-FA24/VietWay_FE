@@ -15,11 +15,11 @@ const RegisteredTourCard = ({ tour }) => {
   console.log(tour);
   return (
     <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
-      <Card /*component={Link} to={`/booking/${tour.bookingId}`}*/
+      <Card
         sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'none', position: 'relative' }}>
         <StatusChip status={tour.bookedTourStatus} />
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={3} md={3}>
+          <Grid item xs={12} sm={3} md={3} component={Link} to={`/booking/${tour.bookingId}`}>
             <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }} 
             image={tour.imageUrl} alt={tour.name} />
           </Grid>
