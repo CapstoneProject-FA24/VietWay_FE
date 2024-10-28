@@ -13,6 +13,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import SortIcon from '@mui/icons-material/Sort';
 
 const Tours = () => {
   const [tours, setTours] = useState([]);
@@ -34,6 +35,7 @@ const Tours = () => {
   const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
   const [isProvinceDropdownOpen, setIsProvinceDropdownOpen] = useState(false);
   const provinceRef = useRef(null);
+  const [sortOrder, setSortOrder] = useState('nameAsc');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -200,6 +202,26 @@ const Tours = () => {
     }
   };
 
+  const handleSortChange = (event) => {
+    const newSortOrder = event.target.value;
+    setSortOrder(newSortOrder);
+    const sortedTours = [...tours].sort((a, b) => {
+      switch (newSortOrder) {
+        case 'nameAsc':
+          return a.tourName.localeCompare(b.tourName);
+        case 'nameDesc':
+          return b.tourName.localeCompare(a.tourName);
+        case 'priceLow':
+          return a.minPrice - b.minPrice;
+        case 'priceHigh':
+          return b.minPrice - a.minPrice;
+        default:
+          return 0;
+      }
+    });
+    setTours(sortedTours);
+  };
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -259,7 +281,7 @@ const Tours = () => {
                 <Box sx={{ mt: -1, p: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControl fullWidth ref={provinceRef}>
                     <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Tỉnh thành</Typography>
-                    <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ position: 'relative', mb: isProvinceDropdownOpen ? '14.4%' : 0 }}>
                       {!isProvinceDropdownOpen ? (
                         <Button
                           onClick={handleProvinceDropdownToggle}
@@ -385,6 +407,21 @@ const Tours = () => {
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả
               </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SortIcon sx={{ mr: 1 }} />
+                <Select
+                  value={sortOrder}
+                  onChange={handleSortChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ height: '40px' }}
+                >
+                  <MenuItem value="nameAsc">Tên A-Z</MenuItem>
+                  <MenuItem value="nameDesc">Tên Z-A</MenuItem>
+                  <MenuItem value="priceLow">Giá thấp đến cao</MenuItem>
+                  <MenuItem value="priceHigh">Giá cao đến thấp</MenuItem>
+                </Select>
+              </Box>
             </Box>
             <Grid container spacing={1}>
               {tours.length > 0 ? (

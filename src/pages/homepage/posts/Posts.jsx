@@ -10,6 +10,7 @@ import { fetchPostCategories } from '@services/PostCategoryService';
 import { fetchPosts } from '@services/PostService';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SortIcon from '@mui/icons-material/Sort';
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -31,6 +32,7 @@ const Posts = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const provinceRef = useRef(null);
   const categoryRef = useRef(null);
+  const [sortOrder, setSortOrder] = useState('titleAsc');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -167,6 +169,26 @@ const Posts = () => {
     }
   };
 
+  const handleSortChange = (event) => {
+    const newSortOrder = event.target.value;
+    setSortOrder(newSortOrder);
+    const sortedPosts = [...posts].sort((a, b) => {
+      switch (newSortOrder) {
+        case 'titleAsc':
+          return a.title.localeCompare(b.title);
+        case 'titleDesc':
+          return b.title.localeCompare(a.title);
+        case 'dateDesc':
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case 'dateAsc':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        default:
+          return 0;
+      }
+    });
+    setPosts(sortedPosts);
+  };
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -209,14 +231,14 @@ const Posts = () => {
               }} sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
             />
           </Grid>
-          <Grid item xs={12} md={3.7}>
-            <Box sx={{ position: 'sticky', top: 100, maxHeight: '100vh', minHeight: '77vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
-              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2, maxHeight: '100vh', minHeight: '77vh' }}>
+          <Grid item xs={12} md={3.3}>
+            <Box sx={{ position: 'sticky', top: 100, maxHeight: '100vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 1, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0', fontSize: '30px' }}>Bộ lọc</Typography>
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ mt: -1, p: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <FormControl fullWidth ref={provinceRef}>
                     <Typography sx={{ textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Tỉnh thành</Typography>
-                    <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ position: 'relative', mb: isProvinceDropdownOpen ? '19.5%' : 0 }}>
                       {!isProvinceDropdownOpen ? (
                         <Button
                           onClick={handleProvinceDropdownToggle}
@@ -224,7 +246,7 @@ const Posts = () => {
                             justifyContent: 'space-between', textAlign: 'left',
                             color: 'black', backgroundColor: 'white', border: '1px solid #ccc',
                             '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' },
-                            height: '55px', width: '100%', textTransform: 'none', fontSize: '17px'
+                            height: '50px', width: '100%', textTransform: 'none', fontSize: '17px'
                           }}
                         >
                           {selectedProvince === 'all' ? 'Tất cả' : provinces.find(p => p.provinceId === selectedProvince)?.provinceName || 'Tất cả'}
@@ -240,7 +262,7 @@ const Posts = () => {
                             value={provinceSearchTerm} onChange={handleProvinceSearchChange}
                             InputProps={{
                               startAdornment: (<InputAdornment position="start"> <SearchIcon /> </InputAdornment>),
-                            }} sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                            }} sx={{ '& .MuiInputBase-root': { height: '50px' } }}
                           />
                           <Paper sx={{ maxHeight: 150, overflow: 'auto', borderRadius: '10px' }}>
                             <List dense>
@@ -264,8 +286,8 @@ const Posts = () => {
                       )}
                     </Box>
                   </FormControl>
-                  <FormControl fullWidth sx={{ mt: 3.5 }} ref={categoryRef}>
-                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, mt: 1, fontSize: '18px' }}>Danh mục</Typography>
+                  <FormControl fullWidth sx={{ mt: isProvinceDropdownOpen ? 'calc(55%)' : 2, transition: 'margin-top 0.2s ease-in-out' }} ref={categoryRef}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, mt: 1, fontSize: '18px' }}>Loại bài viết</Typography>
                     <Box sx={{ position: 'relative' }}>
                       {!isCategoryDropdownOpen ? (
                         <Button
@@ -274,7 +296,7 @@ const Posts = () => {
                             justifyContent: 'space-between', textAlign: 'left', color: 'black',
                             backgroundColor: 'white', border: '1px solid #ccc',
                             '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' },
-                            height: '55px', width: '100%', textTransform: 'none', fontSize: '17px'
+                            height: '50px', width: '100%', textTransform: 'none', fontSize: '17px'
                           }}
                         >
                           {selectedCategory === 'all' ? 'Tất cả' : categories.find(c => c.postCategoryId === selectedCategory)?.name || 'Tất cả'}
@@ -291,7 +313,7 @@ const Posts = () => {
                             InputProps={{
                               startAdornment: ( <InputAdornment position="start"> <SearchIcon /> </InputAdornment> ),
                             }}
-                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                            sx={{ '& .MuiInputBase-root': { height: '50px' } }}
                           />
                           <Paper sx={{ maxHeight: 150, overflow: 'auto', borderRadius: '10px' }}>
                             <List dense>
@@ -315,7 +337,7 @@ const Posts = () => {
                       )}
                     </Box>
                   </FormControl>
-                  <Box sx={{ position: 'absolute', bottom: 25, left: 25, right: 25 }}>
+                  <Box sx={{ mb: -2, mt: isCategoryDropdownOpen ? 'calc(80%)' : 2, transition: 'margin-top 0.2s ease-in-out' }}>
                     <Button
                       variant="contained" fullWidth onClick={handleApplyFilters}
                       sx={{
@@ -330,9 +352,24 @@ const Posts = () => {
               </Paper>
             </Box>
           </Grid>
-          <Grid item xs={12} md={8.3}>
+          <Grid item xs={12} md={8.7}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}> {totalItems} kết quả </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SortIcon sx={{ mr: 1 }} />
+                <Select
+                  value={sortOrder}
+                  onChange={handleSortChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ height: '40px' }}
+                >
+                  <MenuItem value="titleAsc">Tiêu đề A-Z</MenuItem>
+                  <MenuItem value="titleDesc">Tiêu đề Z-A</MenuItem>
+                  <MenuItem value="dateDesc">Mới nhất</MenuItem>
+                  <MenuItem value="dateAsc">Cũ nhất</MenuItem>
+                </Select>
+              </Box>
             </Box>
             <Grid container spacing={2}>
               {posts.length > 0 ? (
