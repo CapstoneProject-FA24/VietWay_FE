@@ -78,26 +78,9 @@ const formatDate = (dateString) => {
 };
 
 const StatusChip = ({ status }) => {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Hoàn tất":
-        return "#4CAF50"; // Green
-      case "Đã thanh toán":
-        return "#15B392"; // Light Green
-      case "Đã hủy":
-        return "#F44336"; // Red
-      case "Chờ thanh toán":
-        return "#FFA000"; // Amber
-      case "Đã hoàn tiền":
-        return "#387478"; // Dark Green
-      default:
-        return "#757575"; // Grey
-    }
-  };
-
   return (
     <Chip
-      label={status}
+      label={status.text}
       sx={{
         position: 'absolute',
         top: 20,
@@ -105,7 +88,7 @@ const StatusChip = ({ status }) => {
         zIndex: 1,
         fontSize: '0.75rem',
         height: '24px',
-        backgroundColor: getStatusColor(status),
+        backgroundColor: status.color,
         color: 'white',
       }}
     />
