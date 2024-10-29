@@ -45,7 +45,6 @@ export const createBooking = async (bookingData) => {
     try {
         const requestData = {
             tourId: bookingData.tourId,
-            customerId: "1298280622971682816",
             numberOfParticipants: bookingData.passengers.length,
             tourParticipants: bookingData.passengers.map(passenger => ({
                 fullName: passenger.fullName,
