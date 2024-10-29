@@ -5,13 +5,16 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const RegisteredTourCard = ({ tour }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
+  const handlePayment = () => navigate(`/dat-tour/thanh-toan/${tour.bookingId}`);
+
   console.log(tour);
   return (
     <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
@@ -25,17 +28,17 @@ const RegisteredTourCard = ({ tour }) => {
           </Grid>
           <Grid item xs={12} md={7}>
             <CardContent>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }} component={Link} to={`/booking/${tour.bookingId}`}>
                 {tour.name}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={6} component={Link} to={`/booking/${tour.bookingId}`}>
                   <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã booking" value={tour.bookingId} />
                   <InfoItem icon={<TourOutlinedIcon />} label="Mã tour" value={tour.code} />
                   <InfoItem icon={<CalendarMonthOutlinedIcon />} label="Ngày đặt" value={formatDate(tour.bookingDate)} />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={6} component={Link} to={`/booking/${tour.bookingId}`}>
                   <InfoItem icon={<GroupOutlinedIcon />} label="Số lượng khách" value={tour.numberOfParticipants} />
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
@@ -52,7 +55,7 @@ const RegisteredTourCard = ({ tour }) => {
             </CardContent>
           </Grid>
           <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
-            {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen)}
+            {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen, handlePayment)}
           </Grid>
         </Grid>
         {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
@@ -95,8 +98,8 @@ const StatusChip = ({ status }) => {
   );
 };
 
-const renderActionButtons = (status, handleFeedbackOpen) => {
-  switch (status) {
+const renderActionButtons = (status, handleFeedbackOpen, handlePayment) => {
+  switch (status.text) {
     case "Hoàn tất":
       return (
         <>
@@ -113,7 +116,7 @@ const renderActionButtons = (status, handleFeedbackOpen) => {
     default:
       return (
         <>
-          <ActionButton variant="contained" color="error">Thanh Toán</ActionButton>
+          <ActionButton variant="contained" color="error" onClick={handlePayment}>Thanh Toán</ActionButton>
           <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>
         </>
       );

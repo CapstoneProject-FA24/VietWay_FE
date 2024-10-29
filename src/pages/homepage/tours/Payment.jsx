@@ -11,6 +11,7 @@ import { fetchPaymentURL } from "@services/PaymentService";
 import '@styles/Homepage.css'
 import { styled } from "@mui/material/styles";
 import { getBookingStatusInfo } from "@services/StatusService";
+import { BookingStatus } from "@hooks/Statuses";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -94,6 +95,9 @@ const PayBooking = () => {
     const fetchData = async () => {
       try {
         const data = await fetchBookingData(id);
+        if(data.status !== BookingStatus.Pending){
+          navigate(`/booking/${id}`);
+        };
         setBookingData(data);
         const storedPaymentMethod = sessionStorage.getItem('paymentMethod');
         if (storedPaymentMethod) {
