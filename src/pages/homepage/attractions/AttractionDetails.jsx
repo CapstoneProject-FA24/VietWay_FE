@@ -13,6 +13,7 @@ import ReviewList from '@components/reviews/ReviewList';
 import ReviewInput from '@components/reviews/ReviewInput';
 import { mockReviews } from '@hooks/MockReviews';
 import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
+import MediaShare from '@components/posts/MediaShare';
 import { Typography, Grid, Paper, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 const AttractionDetails = () => {
@@ -152,6 +153,7 @@ const AttractionDetails = () => {
             {attraction.name}
           </Typography>
         </Box>
+        <MediaShare attractionName={attraction.name} />
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Paper elevation={3} sx={{ mb: 3, overflow: 'hidden', position: 'relative', maxWidth: '1000px' }}>
