@@ -8,7 +8,7 @@ import EventDetails from '@components/posts/EventDetails';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faTag } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faTag, faMapLocation } from '@fortawesome/free-solid-svg-icons';
 import MediaShare from '@components/posts/MediaShare';
 
 export default function PostDetail() {
@@ -172,6 +172,12 @@ export default function PostDetail() {
                                         <FontAwesomeIcon icon={faCalendarAlt} style={{ color: '#666' }} />
                                         <Typography variant="body2" color="text.secondary">
                                             {new Date(post.createDate).toLocaleDateString('vi-VN')}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <FontAwesomeIcon icon={faMapLocation} style={{ color: '#666' }} />
+                                        <Typography variant="body2" color="text.secondary">
+                                            {post.provinceName}
                                         </Typography>
                                     </Box>
                                 </Box>
