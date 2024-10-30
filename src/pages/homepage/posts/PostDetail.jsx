@@ -39,7 +39,7 @@ export default function PostDetail() {
     }, [post]);
 
     if (loading) {
-        return <Typography>Loading...</Typography>;
+        return <img src="/src/assets/Loading.gif" alt="Loading..." style={{ display: 'block', margin: 'auto' }} />;
     }
 
     if (!post) {
@@ -92,7 +92,7 @@ export default function PostDetail() {
                 disableGutters={true}
                 sx={{ 
                     mt: -12, 
-                    ml: -9.3,
+                    ml: -7,
                     position: 'relative', 
                     zIndex: 2,
                     width: '98vw',
