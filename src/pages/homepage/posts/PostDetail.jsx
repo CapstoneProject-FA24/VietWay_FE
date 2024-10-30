@@ -47,7 +47,7 @@ export default function PostDetail() {
     }
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '98vh' }} ref={pageTopRef}>
             <Helmet>
                 <title>{post.title} | VietWayTour</title>
             </Helmet>
@@ -92,15 +92,15 @@ export default function PostDetail() {
                 disableGutters={true}
                 sx={{ 
                     mt: -12, 
-                    ml: -9.5,
+                    ml: -9.3,
                     position: 'relative', 
                     zIndex: 2,
-                    width: '100vw',
-                    maxWidth: '100vw !important',
+                    width: '98vw',
+                    maxWidth: '98vw !important',
                 }}
             >
                 <Grid container spacing={3} justifyContent="center">
-                    <Grid item xs={12} md={8}>
+                    <Grid item xs={12} md={9}>
                         {/* Breadcrumb */}
                         {/*<Typography 
                             variant="body2" 
@@ -135,11 +135,12 @@ export default function PostDetail() {
                                     variant="h1" 
                                     sx={{ 
                                         fontSize: { xs: '2.5rem', md: '3.5rem' },
-                                        fontWeight: 800,
+                                        fontWeight: 700,
                                         color: '#1A1A1A',
                                         mb: 3,
                                         lineHeight: 1.2,
-                                        letterSpacing: '-0.02em'
+                                        letterSpacing: '-0.02em',
+                                        fontFamily: '"Tinos", serif'
                                     }}
                                 >
                                     {post.title}
@@ -183,6 +184,7 @@ export default function PostDetail() {
                             {/* Article Content */}
                             <Box 
                                 sx={{ 
+                                    mt: -5,
                                     p: { xs: 3, md: 5 },
                                     '& p': {
                                         fontSize: '1.2rem',
@@ -229,7 +231,7 @@ export default function PostDetail() {
                 </Grid>
 
                 {/* Related Posts */}
-                <Box sx={{ mt: 8, mb: 10 }}>
+                <Box sx={{ mt: 8, mb: 10, ml: 9.5 }}>
                     <RelatedPosts provinceId={post.provinceId} currentPostId={post.id} />
                 </Box>
             </Container>
