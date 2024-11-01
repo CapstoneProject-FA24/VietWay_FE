@@ -93,7 +93,7 @@ const ToursVisitAttraction = () => {
                         {tour.duration}
                       </Typography>
                       <Typography variant="body2" color="primary" sx={{ fontSize: 14, fontWeight: 600 }}>
-                        {formatCurrency(tour.minPrice)}
+                        {formatCurrency(tour.price)}
                       </Typography>
                     </Box>
                     

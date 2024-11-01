@@ -83,7 +83,7 @@ export const fetchTourTemplateById = async (id) => {
             description: response.data.data.description,
             duration: response.data.data.duration.durationName,
             tourCategoryId: response.data.data.tourCategory.tourCategoryId,
-            tourCategoryName: response.data.data.tourCategory.tourCategoryName,
+            tourCategoryName: response.data.data.tourCategory.name,
             policy: response.data.data.policy,
             note: response.data.data.note,
             status: response.data.data.status,
@@ -115,6 +115,7 @@ export const fetchToursByAttractionId = async (attractionId, previewCount) => {
             tourCategory: item.tourCategory,
             provinces: item.provinces,
             imageUrl: item.imageUrl,
+            price: item.price
         }));
         return templates;
     } catch (error) {
