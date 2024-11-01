@@ -96,7 +96,7 @@ const PayBooking = () => {
     const fetchData = async () => {
       try {
         const data = await fetchBookingData(id);
-        if(data.status !== BookingStatus.Pending){
+        if (data.status !== BookingStatus.Pending) {
           navigate(`/booking/${id}`);
         };
         setBookingData(data);
@@ -235,7 +235,7 @@ const PayBooking = () => {
                       <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography sx={{fontWeight: 'bold'}}>Số điện thoại:</Typography>
+                      <Typography sx={{ fontWeight: 'bold' }}>Số điện thoại:</Typography>
                       <Typography>{participant.phoneNumber}</Typography>
                     </SummaryItem>
                     <SummaryItem>
@@ -243,7 +243,7 @@ const PayBooking = () => {
                       <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography sx={{fontWeight: 'bold'}}>Ngày sinh:</Typography>
+                      <Typography sx={{ fontWeight: 'bold' }}>Ngày sinh:</Typography>
                       <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
@@ -271,11 +271,16 @@ const PayBooking = () => {
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString()}
+                  {bookingData.startDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </Typography>
                 <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {bookingData.endDate.toLocaleDateString()}
+                  {
+                    (() => {
+                      const end = sessionStorage.getItem('endDate');
+                      return end ? end : '';
+                    })()
+                  }
                 </Typography>
                 <TotalPrice variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền:</span>

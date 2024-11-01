@@ -8,7 +8,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import '@styles/Homepage.css'
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
-import { fetchToursByTemplateId } from '@services/TourService';
+import { fetchToursByTemplateId, calculateEndDate } from '@services/TourService';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/tours/OtherTours';
@@ -314,7 +314,16 @@ const TourDetails = () => {
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
                 <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '10px', color: '#3572EF' }} />
                 <Typography sx={{ color: '#05073C' }}>
-                  Kết thúc ngày: {availableTours.find(t => t.id === selectedTour)?.endDate ? new Date(availableTours.find(t => t.id === selectedTour).endDate).toLocaleDateString('vi-VN') : ''}
+                  Kết thúc ngày: {
+                    (() => {
+                        const selectedTourData = availableTours.find(t => t.id === selectedTour);
+                        if (selectedTourData) {
+                            const endDate = calculateEndDate(selectedTourData.startDate, { durationName: tour.duration });
+                            return endDate ? endDate.toLocaleDateString('vi-VN') : '';
+                        }
+                        return '';
+                    })()
+                }
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>

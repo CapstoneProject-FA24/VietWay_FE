@@ -6,7 +6,7 @@ export const fetchProvinces = async () => {
         const response = await axios.get(`${baseURL}/api/provinces`);
         const provinces = response.data.data.map(province => ({
             provinceId: province.provinceId,
-            provinceName: province.provinceName,
+            provinceName: province.name,
             imageURL: province.imageUrl
         }));
         return provinces;

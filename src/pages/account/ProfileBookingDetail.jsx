@@ -127,7 +127,7 @@ const ProfileBookingDetail = () => {
   if (!bookingData) return null;
 
   return (
-    <Box>
+    <Box sx={{ width: '89vw' }}>
       <Header />
       <ContentContainer>
         <StyledBox>
@@ -246,10 +246,10 @@ const ProfileBookingDetail = () => {
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
                   {bookingData.startDate.toLocaleDateString()}
                 </Typography>
-                <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                {/* <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
                   {bookingData.endDate.toLocaleDateString()}
-                </Typography>
+                </Typography> */}
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
                 </TotalPrice>

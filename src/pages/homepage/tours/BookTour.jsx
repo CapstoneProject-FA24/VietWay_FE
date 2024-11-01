@@ -7,7 +7,7 @@ import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import PhoneIcon from '@mui/icons-material/Phone';
 import { getCustomerInfo } from '@services/CustomerService';
-import { fetchTourById } from '@services/TourService';
+import { fetchTourById, calculateEndDate } from '@services/TourService';
 import { createBooking } from '@services/BookingService';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
 import AddIcon from '@mui/icons-material/Add';
@@ -274,7 +274,6 @@ const BookTour = () => {
       try {
         const bookingData = {
           tourId: id,
-          customerId: '1', // Replace with actual customer ID
           passengers: formData.passengers.map(passenger => ({
             fullName: passenger.name,
             phoneNumber: formData.phone,
@@ -529,7 +528,16 @@ const BookTour = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Ngày kết thúc:</Typography>
-                  <Typography variant="body2">{bookingData.endDate.toLocaleDateString('vi-VN')}</Typography>
+                  <Typography variant="body2">{
+                    (() => {
+                        if (bookingData) {
+                            const endDate = calculateEndDate(bookingData.startDate, { durationName: bookingData.duration });
+                            sessionStorage.setItem('endDate', endDate ? endDate.toLocaleDateString('vi-VN') : '');
+                            return endDate ? endDate.toLocaleDateString('vi-VN') : '';
+                        }
+                        return '';
+                    })()
+                }</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Thời lượng:</Typography>

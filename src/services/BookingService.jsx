@@ -25,7 +25,6 @@ export const fetchBookingData = async (bookingId) => {
             createdOn: bookingData.createdOn,
             startLocation: bookingData.startLocation,
             startDate: new Date(bookingData.startDate),
-            endDate: new Date(bookingData.endDate),
             tourName: bookingData.tourName,
             imageUrl: bookingData.imageUrl,
             code: bookingData.code,

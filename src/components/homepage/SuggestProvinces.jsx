@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Card, CardMedia, Typography, Box, CardActionArea } from '@mui/material';
-import { fetchProvinces } from '@services/ProvinceService';
+import { fetchProvinceWithCountDetails } from '@services/ProvinceService';
 import { useNavigate } from 'react-router-dom';
 
 const SuggestProvinces = () => {
@@ -13,9 +13,10 @@ const SuggestProvinces = () => {
 
     const fetchProvinceData = async () => {
         try {
-            const response = await fetchProvinces();
-            if (response && Array.isArray(response) && response.length >= 6) {
-                setProvinces(response.slice(0, 6));
+            const params = { pageIndex: 1, pageSize: 6 };
+            const response = await fetchProvinceWithCountDetails(params);
+            if (response.data && Array.isArray(response.data) && response.data.length >= 6) {
+                setProvinces(response.data.slice(0, 6));
             } else {
                 console.error('Invalid or insufficient data received from fetchProvinces');
             }

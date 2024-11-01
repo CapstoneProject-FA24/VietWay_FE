@@ -17,7 +17,7 @@ export const fetchPosts = async (params) => {
             params.provinceIds.forEach(id => queryParams.append('provinceIds', id));
         }
 
-        const response = await axios.get(`${baseURL}/api/posts?${queryParams.toString()}`);
+        const response = await axios.get(`${baseURL}/api/post?${queryParams.toString()}`);
         const items = response.data?.data?.items;
         
         if (!items || !Array.isArray(items)) {
@@ -28,7 +28,7 @@ export const fetchPosts = async (params) => {
             postId: item.postId,
             title: item.title,
             imageUrl: item.imageUrl,
-            postCategory: item.postCategory,
+            postCategory: item.postCategoryName,
             createdAt: new Date(item.createdAt),
             provinceName: item.provinceName,
             description: item.description
@@ -43,6 +43,29 @@ export const fetchPosts = async (params) => {
         
     } catch (error) {
         console.error('Error fetching posts:', error);
+        throw error;
+    }
+};
+
+
+export const fetchPostById = async (id) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/post/${id}`);
+        const item = response.data.data;
+        const post = {
+            postId: item.postId,
+            title: item.title,
+            imageUrl: item.imageUrl,
+            content: item.content,
+            postCategoryId: item.postCategoryId,
+            postCategoryName: item.postCategoryName,
+            provinceId: item.provinceId,
+            provinceName: item.provinceName,
+            description: item.description
+        };
+        return post;
+    } catch (error) {
+        console.error('Error fetching post:', error);
         throw error;
     }
 };
