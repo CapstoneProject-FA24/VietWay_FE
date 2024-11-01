@@ -52,17 +52,22 @@ export const fetchPostById = async (id) => {
     try {
         const response = await axios.get(`${baseURL}/api/post/${id}`);
         const item = response.data.data;
+        
         const post = {
-            postId: item.postId,
+            id: item.postId,
             title: item.title,
-            imageUrl: item.imageUrl,
+            image: item.imageUrl,
             content: item.content,
-            postCategoryId: item.postCategoryId,
-            postCategoryName: item.postCategoryName,
+            category: item.postCategoryName,
+            createDate: item.createdAt,
             provinceId: item.provinceId,
             provinceName: item.provinceName,
+            isEvent: item.isEvent || false,
+            startDate: item.startDate,
+            endDate: item.endDate,
             description: item.description
         };
+        
         return post;
     } catch (error) {
         console.error('Error fetching post:', error);

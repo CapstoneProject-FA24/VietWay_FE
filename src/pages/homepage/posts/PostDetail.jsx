@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, Box, Chip, Link, CardMedia, Grid, Container } from '@mui/material';
 import { Helmet } from 'react-helmet';
-import { fetchPostById } from '@hooks/MockPost';
+import { fetchPostById } from '@services/PostService';
 import RelatedPosts from '@components/posts/RelatedPosts';
 import EventDetails from '@components/posts/EventDetails';
 import Header from '@layouts/Header';
@@ -47,17 +47,16 @@ export default function PostDetail() {
     }
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '98vh' }} ref={pageTopRef}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '98vh', width: '99.6%' }} ref={pageTopRef}>
             <Helmet>
                 <title>{post.title} | VietWayTour</title>
             </Helmet>
             <Header />
-            
-            {/* Hero Section with Image */}
-            <Box sx={{ 
+
+            <Box sx={{
                 position: 'relative',
-                width: '95vw',
-                ml: '-2vw',
+                width: '99vw',
+                ml: '-65px',
                 height: { xs: '400px', md: '70vh' },
                 overflow: 'hidden',
                 '&::after': {
@@ -88,12 +87,12 @@ export default function PostDetail() {
             </Box>
 
             {/* Main Content */}
-            <Container 
+            <Container
                 disableGutters={true}
-                sx={{ 
-                    mt: -12, 
+                sx={{
+                    mt: -12,
                     ml: -7,
-                    position: 'relative', 
+                    position: 'relative',
                     zIndex: 2,
                     width: '98vw',
                     maxWidth: '98vw !important',
@@ -122,7 +121,7 @@ export default function PostDetail() {
                         </Typography>
 
                         {/* Article Container */}
-                        <Box sx={{ 
+                        <Box sx={{
                             bgcolor: 'white',
                             padding: { xs: 3, md: 5 },
                             borderRadius: 2,
@@ -131,9 +130,9 @@ export default function PostDetail() {
                         }}>
                             {/* Title Section */}
                             <Box sx={{ p: { xs: 3, md: 5 } }}>
-                                <Typography 
-                                    variant="h1" 
-                                    sx={{ 
+                                <Typography
+                                    variant="h1"
+                                    sx={{
                                         fontSize: { xs: '2.5rem', md: '3.5rem' },
                                         fontWeight: 700,
                                         color: '#1A1A1A',
@@ -147,7 +146,7 @@ export default function PostDetail() {
                                 </Typography>
 
                                 {/* Meta Info */}
-                                <Box sx={{ 
+                                <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: 3,
@@ -156,24 +155,24 @@ export default function PostDetail() {
                                 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <FontAwesomeIcon icon={faTag} style={{ color: '#666' }} />
-                                        <Chip 
-                                            label={post.category} 
-                                            sx={{ 
+                                        <Chip
+                                            label={post.category}
+                                            sx={{
                                                 bgcolor: '#f5f5f5',
                                                 color: '#666',
                                                 fontWeight: 500,
                                                 '&:hover': {
                                                     bgcolor: '#eeeeee'
                                                 }
-                                            }} 
+                                            }}
                                         />
                                     </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <FontAwesomeIcon icon={faCalendarAlt} style={{ color: '#666' }} />
                                         <Typography variant="body2" color="text.secondary">
                                             {new Date(post.createDate).toLocaleDateString('vi-VN')}
                                         </Typography>
-                                    </Box>
+                                    </Box> */}
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <FontAwesomeIcon icon={faMapLocation} style={{ color: '#666' }} />
                                         <Typography variant="body2" color="text.secondary">
@@ -188,8 +187,8 @@ export default function PostDetail() {
                             </Box>
 
                             {/* Article Content */}
-                            <Box 
-                                sx={{ 
+                            <Box
+                                sx={{
                                     mt: -5,
                                     p: { xs: 3, md: 5 },
                                     '& p': {
