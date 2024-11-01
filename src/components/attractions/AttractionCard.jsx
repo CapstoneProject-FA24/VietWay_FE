@@ -1,9 +1,18 @@
-import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Chip, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardContent, CardMedia, Typography, Chip, Box, IconButton } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Link } from 'react-router-dom';
 
 const AttractionCard = ({ attraction }) => {
+    const [isLiked, setIsLiked] = useState(false);
+
+    const handleLikeClick = (e) => {
+        e.preventDefault();
+        setIsLiked(!isLiked);
+    };
+
     return (
         <Card
             component={Link} to={`/diem-tham-quan/${attraction.attractionId}`}
@@ -50,6 +59,28 @@ const AttractionCard = ({ attraction }) => {
                         bgcolor: 'rgba(255,255,255,0.8)', color: 'black', height: '25px'
                     }} />
             </CardContent>
+            <IconButton 
+                onClick={handleLikeClick}
+                sx={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    backgroundColor: 'white',
+                    width: '35px',
+                    height: '35px',
+                    '&:hover': {
+                        backgroundColor: 'white',
+                        transform: 'scale(1.1)',
+                    },
+                    zIndex: 2
+                }}
+            >
+                {isLiked ? (
+                    <FavoriteIcon sx={{ color: 'red', fontSize: '23px' }} />
+                ) : (
+                    <FavoriteBorderIcon sx={{ color: '#666', fontSize: '23px' }} />
+                )}
+            </IconButton>
         </Card>
     );
 };
