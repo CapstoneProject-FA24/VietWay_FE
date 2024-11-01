@@ -153,7 +153,7 @@ const TourDetails = () => {
           <strong> {tour.tourName}</strong>
         </Typography>
         <Typography gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'grey', fontSize: '1.15rem' }}>
-          {tour.provinces.map(province => province.provinceName).join(' - ')}
+          {tour.provinces.map(province => province.name).join(' - ')}
         </Typography>
         <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
           {tour.tourName}

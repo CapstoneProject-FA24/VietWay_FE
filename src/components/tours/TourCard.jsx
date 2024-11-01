@@ -43,7 +43,7 @@ const TourCard = ({ tour }) => {
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1  }}>
           <MapOutlinedIcon sx={{ marginRight: '8px' }} />
-          Điểm đến: {tour.provinces.join(', ')}
+          Điểm đến: {tour.provinces.join(' - ')}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <CalendarMonthOutlinedIcon sx={{ marginRight: '8px' }} />
