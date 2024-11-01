@@ -66,8 +66,8 @@ export const getAttractionById = async (id) => {
             googlePlaceId: data.googlePlaceId,
             provinceId: data.province.provinceId,
             provinceName: data.province.provinceName,
-            attractionTypeId: data.attractionType.attractionCategoryId,
-            attractionTypeName: data.attractionType.name,
+            attractionTypeId: data.attractionCategory.attractionCategoryId,
+            attractionTypeName: data.attractionCategory.name,
             images: data.images.map(image => ({
                 imageId: image.imageId,
                 url: image.url
