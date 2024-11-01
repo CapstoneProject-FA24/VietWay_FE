@@ -4,29 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { styled, alpha } from '@mui/material/styles';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
-/* const Search = styled('div')(({ theme }) => ({
-  position: 'relative', borderRadius: theme.shape.borderRadius * 3,
-  backgroundColor: '#CAECFF',
-  '&:hover': { backgroundColor: alpha('#CAECFF', 0.9)},
-  marginRight: theme.spacing(2), marginLeft: 0, width: '100%',
-  [theme.breakpoints.up('sm')]: { marginLeft: theme.spacing(3), width: '100'},
-  [theme.breakpoints.up('md')]: { width: '100%' },
-  display: 'flex', alignItems: 'center', height: '36px', marginTop: '10px',
-})); */
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  width: '100%',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 2),
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
-  },
-}));
+import { getCookie, removeCookie } from '@services/AuthenService';
 
 const StyledButton = styled(Button)(({ theme }) => ({
   fontFamily: 'Inter, sans-serif',
@@ -43,7 +21,7 @@ const Header = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     setIsLoggedIn(!!token);
 
     const handleScroll = () => {
@@ -66,7 +44,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    removeCookie('token');
     setIsLoggedIn(false);
     handleClose();
     navigate('/trang-chu');

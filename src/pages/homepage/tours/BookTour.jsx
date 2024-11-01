@@ -14,6 +14,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import '@styles/Homepage.css'
 import { useNavigate } from 'react-router-dom';
+import { getCookie } from "@services/AuthenService";
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -76,7 +77,7 @@ const BookTour = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     if (!token) {
       navigate('/');
     }

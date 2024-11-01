@@ -9,7 +9,7 @@ import { Helmet } from 'react-helmet';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '@services/AuthenService';
 import { getPreviousPage, clearNavigationHistory } from '@utils/NavigationHistory';
-
+import { getCookie } from '@services/AuthenService';
 export default function Login() {
   const settingLogin = {
     dots: true,
@@ -50,7 +50,7 @@ export default function Login() {
   const [previousPage, setPreviousPage] = useState('/');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     if (token) { navigate('/'); }
     const prevPage = location.state?.previousPage || getPreviousPage();
     setPreviousPage(prevPage);

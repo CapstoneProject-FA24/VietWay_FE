@@ -1,9 +1,9 @@
 import axios from 'axios';
 import baseURL from '@api/BaseURL';
-
+import { getCookie } from '@services/AuthenService';
 export const fetchPaymentURL = async (bookingId) => {
     try {
-        const token = localStorage.getItem('token');
+        const token = getCookie('token');
         const response = await axios.get(`${baseURL}/api/payments/${bookingId}/vnpay`, {
             headers: {
             'Authorization': `Bearer ${token}`

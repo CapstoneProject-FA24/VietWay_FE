@@ -32,7 +32,7 @@ export const fetchAttractions = async (params) => {
             name: item.name,
             address: item.address,
             province: item.province,
-            attractionType: item.attractionType,
+            attractionType: item.attractionCategory,
             status: item.status,
             createdDate: item.createdDate,
             creatorName: item.creatorName,

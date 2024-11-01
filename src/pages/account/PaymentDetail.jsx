@@ -5,6 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { mockPaymentDetails } from '@hooks/MockProfile';
+import { getCookie } from '@services/AuthenService';
 
 const PaymentDetail = () => {
   const { id } = useParams();
@@ -15,6 +16,10 @@ const PaymentDetail = () => {
   useEffect(() => {
     const loadPayment = async () => {
       try {
+        const token = getCookie('token');
+        if (!token) {
+            navigate('/');
+        }
         const paymentDetail = mockPaymentDetails.find(p => p.paymentId === id);
         if (paymentDetail) {
           setPayment(paymentDetail);

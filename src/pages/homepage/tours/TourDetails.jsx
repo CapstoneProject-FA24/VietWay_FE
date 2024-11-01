@@ -15,6 +15,7 @@ import OtherTours from '@components/tours/OtherTours';
 import ReviewList from '@components/reviews/ReviewList';
 import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
 import MediaShare from '@components/posts/MediaShare';
+import { getCookie } from '@services/AuthenService';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -75,7 +76,7 @@ const TourDetails = () => {
 
   useEffect(() => {
     if (tour && selectedMonth) {
-      const token = localStorage.getItem('token');
+      const token = getCookie('token');
       setIsLoggedIn(!!token);
       const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
       setAvailableTours(filteredTours);

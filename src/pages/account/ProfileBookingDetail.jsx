@@ -11,6 +11,7 @@ import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
+import { getCookie } from "@services/AuthenService";getCookie
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -67,7 +68,7 @@ const ProfileBookingDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     if (!token) { navigate('/'); }
   }, []);
 

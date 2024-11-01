@@ -11,6 +11,7 @@ import BookedTour from '@components/profiles/BookedTour';
 import PaymentHistory from '@components/profiles/PaymentHistory';
 import { useNavigate, Route, Routes } from 'react-router-dom';
 import { getCustomerInfo } from '@services/CustomerService';
+import { getCookie } from '@services/AuthenService';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -26,7 +27,7 @@ const Profile = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = getCookie('token');
         if (!token) {
             navigate('/');
         }

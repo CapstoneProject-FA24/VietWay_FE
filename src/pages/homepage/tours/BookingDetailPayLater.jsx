@@ -11,6 +11,7 @@ import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
+import { getCookie } from "@services/AuthenService";
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -88,7 +89,7 @@ const BookingDetailPayLater = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     if (!token) {
       navigate('/');
     }

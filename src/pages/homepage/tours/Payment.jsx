@@ -12,6 +12,7 @@ import '@styles/Homepage.css'
 import { styled } from "@mui/material/styles";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { BookingStatus } from "@hooks/Statuses";
+import { getCookie } from "@services/AuthenService";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -85,7 +86,7 @@ const PayBooking = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     if (!token) {
       navigate('/');
     }

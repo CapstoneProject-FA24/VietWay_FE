@@ -1,5 +1,7 @@
 import baseURL from '@api/BaseURL';
 import axios from 'axios';
+import { getCookie } from '@services/AuthenService';
+const token = getCookie('token');
 
 const getGender = (gender) => {
     switch (gender) {
@@ -11,7 +13,6 @@ const getGender = (gender) => {
 
 export const getCustomerInfo = async () => {
     try {
-        const token = localStorage.getItem('token');
         const response = await axios.get(`${baseURL}/api/Customer/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -35,7 +36,6 @@ export const getCustomerInfo = async () => {
 
 export const updateCustomerInfo = async (customerData) => {
     try {
-        const token = localStorage.getItem('token');
         const response = await axios.put(`${baseURL}/api/Customer/profile`, {
             fullName: customerData.fullName,
             dateOfBirth: customerData.birthday,

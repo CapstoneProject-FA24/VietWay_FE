@@ -16,7 +16,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { register } from '@services/AuthenService';
 import { getPreviousPage } from '@utils/NavigationHistory';
-
+import { getCookie } from '@services/AuthenService';
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -57,7 +57,7 @@ export default function Register() {
     });
 
     React.useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = getCookie('token');
         if (token) { navigate('/'); }
         const prevPage = location.state?.previousPage || getPreviousPage();
         setPreviousPage(prevPage);
