@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Box, Breadcrumbs, Chip, Link, CardMedia, Grid, Paper } from '@mui/material';
+import { Typography, Box, Chip, Link, CardMedia, Grid, Container } from '@mui/material';
 import { Helmet } from 'react-helmet';
 import { fetchPostById } from '@hooks/MockPost';
 import RelatedPosts from '@components/posts/RelatedPosts';
@@ -8,88 +8,13 @@ import EventDetails from '@components/posts/EventDetails';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faTag, faEnvelope, faCopy } from '@fortawesome/free-solid-svg-icons';
-import { faTwitter, faFacebookF } from '@fortawesome/free-brands-svg-icons';
-import { IconButton, Tooltip } from '@mui/material';
-
-const extractHeadings = (content) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
-    const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    return Array.from(headings).map((heading, index) => ({
-        id: `heading-${index}`,
-        text: heading.textContent,
-        level: parseInt(heading.tagName.charAt(1))
-    }));
-};
-
-const TableOfContents = ({ headings }) => (
-    <Paper elevation={3} sx={{ p: 3, position: 'sticky', top: 80, maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', height: 'calc(100vh - 5rem)'}}>
-        <Typography variant="h4" gutterBottom>Mục lục</Typography>
-        <hr/>
-        {headings.map((heading) => {
-            const [isActive, setIsActive] = useState(false);
-
-            useEffect(() => {
-                const observer = new IntersectionObserver(
-                    ([entry]) => {
-                        setIsActive(entry.isIntersecting);
-                    },
-                    { threshold: 0.5 }
-                );
-
-                const element = document.getElementById(heading.id);
-                if (element) {
-                    observer.observe(element);
-                }
-
-                return () => {
-                    if (element) {
-                        observer.unobserve(element);
-                    }
-                };
-            }, [heading.id]);
-
-            return (
-                <Link key={heading.id} href={`#${heading.id}`} underline="hover"
-                    sx={{ display: 'block', ml: (heading.level - 1) * 2, mb: 1, color: isActive ? 'primary.main' : 'text.primary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', fontWeight: isActive ? 'bold' : 'normal', '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)', }, }}>   
-                    {heading.text.length > 100 ? `${heading.text.substring(0, 30)}...` : heading.text}
-                </Link>
-            );
-        })}
-    </Paper>
-);
-
-const handleShare = (platform) => {
-    const url = window.location.href;
-    const title = post.title;
-
-    switch (platform) {
-        case 'twitter':
-            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
-            break;
-        case 'facebook':
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-            break;
-        case 'email':
-            window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
-            break;
-        case 'copy':
-            navigator.clipboard.writeText(url).then(() => {
-                // You can show a notification here that the link was copied
-                alert('Link copied to clipboard!');
-            });
-            break;
-        default:
-            console.log('Unknown sharing platform');
-    }
-};
+import { faCalendarAlt, faTag, faMapLocation } from '@fortawesome/free-solid-svg-icons';
+import MediaShare from '@components/posts/MediaShare';
 
 export default function PostDetail() {
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [headings, setHeadings] = useState([]);
     const pageTopRef = useRef(null);
 
     useEffect(() => {
@@ -98,7 +23,6 @@ export default function PostDetail() {
             try {
                 const fetchedPost = await fetchPostById(id);
                 setPost(fetchedPost);
-                setHeadings(extractHeadings(fetchedPost.content));
             } catch (error) {
                 console.error("Error fetching post data:", error);
             } finally {
@@ -115,84 +39,208 @@ export default function PostDetail() {
     }, [post]);
 
     if (loading) {
-        return <Typography>Loading...</Typography>;
+        return <img src="/src/assets/Loading.gif" alt="Loading..." style={{ display: 'block', margin: 'auto' }} />;
     }
 
     if (!post) {
         return <Typography>Post not found</Typography>;
     }
 
-    const addIdsToHeadings = (content) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(content, 'text/html');
-        doc.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading, index) => {
-            heading.id = `heading-${index}`;
-        });
-        return doc.body.innerHTML;
-    };
-
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '98vh' }} ref={pageTopRef}>
             <Helmet>
                 <title>{post.title} | VietWayTour</title>
             </Helmet>
             <Header />
-            <Box sx={{ p: 3, flexGrow: 1, mt: 5, maxWidth: '1200px', margin: '0 auto' }}>
-                <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '10px', textAlign: 'left' }}>
-                    <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</Link> 
-                    &gt; <Link to={`/tinh/${post.provinceId}`} style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>{post.provinceName}</Link> &gt; <strong>{post.title}</strong>
-                </Typography>
+            
+            {/* Hero Section with Image */}
+            <Box sx={{ 
+                position: 'relative',
+                width: '95vw',
+                ml: '-2vw',
+                height: { xs: '400px', md: '70vh' },
+                overflow: 'hidden',
+                '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '30%',
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)',
+                }
+            }}>
+                <CardMedia
+                    component="img"
+                    image={post.image}
+                    alt={post.title}
+                    sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transform: 'scale(1.1)',
+                        transition: 'transform 0.3s ease-in-out',
+                        '&:hover': {
+                            transform: 'scale(1.15)'
+                        }
+                    }}
+                />
+            </Box>
 
-                <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
-                    {post.title}
-                </Typography>
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <FontAwesomeIcon icon={faTag} style={{ marginRight: '10px', color: '#3572EF' }} />
-                    <Chip label={post.category} color="primary" sx={{ mr: 1 }} />
-                    <FontAwesomeIcon icon={faCalendarAlt} style={{ marginLeft: '20px', marginRight: '10px', color: '#3572EF' }} />
-                    <Typography variant="body2" color="text.secondary" component="span" sx={{ mr: 2 }}>
-                        Đăng ngày: {new Date(post.createDate).toLocaleDateString('vi-VN')}
-                    </Typography>
-                </Box>
+            {/* Main Content */}
+            <Container 
+                disableGutters={true}
+                sx={{ 
+                    mt: -12, 
+                    ml: -7,
+                    position: 'relative', 
+                    zIndex: 2,
+                    width: '98vw',
+                    maxWidth: '98vw !important',
+                }}
+            >
+                <Grid container spacing={3} justifyContent="center">
+                    <Grid item xs={12} md={9}>
+                        {/* Breadcrumb */}
+                        {/*<Typography 
+                            variant="body2" 
+                            sx={{ 
+                                color: '#fff',
+                                mb: 2,
+                                '& a': {
+                                    color: '#fff',
+                                    textDecoration: 'none',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }
+                            }}
+                        >
+                            <Link href="/trang-chu">Trang chủ</Link> 
+                            {' > '} 
+                            <Link href={`/tinh/${post.provinceId}`}>{post.provinceName}</Link>
+                        </Typography>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: { xs: 1, sm: 0 }, color: 'primary.main', mb: 3 }}>
-                        <Tooltip title="Share on X (Twitter)">
-                            <IconButton onClick={() => handleShare('twitter')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
-                                <FontAwesomeIcon icon={faTwitter} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Share on Facebook">
-                            <IconButton onClick={() => handleShare('facebook')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
-                                <FontAwesomeIcon icon={faFacebookF} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Share via Email">
-                            <IconButton onClick={() => handleShare('email')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
-                                <FontAwesomeIcon icon={faEnvelope} />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Copy Link">
-                            <IconButton onClick={() => handleShare('copy')} size="small" sx={{ color: 'gray', mr: 0.5 }}>
-                                <FontAwesomeIcon icon={faCopy} />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
+                        {/* Article Container */}
+                        <Box sx={{ 
+                            bgcolor: 'white',
+                            padding: { xs: 3, md: 5 },
+                            borderRadius: 2,
+                            boxShadow: '0 4px 30px rgba(0,0,0,0.1)',
+                            overflow: 'hidden'
+                        }}>
+                            {/* Title Section */}
+                            <Box sx={{ p: { xs: 3, md: 5 } }}>
+                                <Typography 
+                                    variant="h1" 
+                                    sx={{ 
+                                        fontSize: { xs: '2.5rem', md: '3.5rem' },
+                                        fontWeight: 700,
+                                        color: '#1A1A1A',
+                                        mb: 3,
+                                        lineHeight: 1.2,
+                                        letterSpacing: '-0.02em',
+                                        fontFamily: '"Tinos", serif'
+                                    }}
+                                >
+                                    {post.title}
+                                </Typography>
 
-                <CardMedia component="img" height="400" image={post.image} alt={post.title} sx={{ mb: 2, borderRadius: 2 }} />
+                                {/* Meta Info */}
+                                <Box sx={{ 
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 3,
+                                    mb: 4,
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <FontAwesomeIcon icon={faTag} style={{ color: '#666' }} />
+                                        <Chip 
+                                            label={post.category} 
+                                            sx={{ 
+                                                bgcolor: '#f5f5f5',
+                                                color: '#666',
+                                                fontWeight: 500,
+                                                '&:hover': {
+                                                    bgcolor: '#eeeeee'
+                                                }
+                                            }} 
+                                        />
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <FontAwesomeIcon icon={faCalendarAlt} style={{ color: '#666' }} />
+                                        <Typography variant="body2" color="text.secondary">
+                                            {new Date(post.createDate).toLocaleDateString('vi-VN')}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <FontAwesomeIcon icon={faMapLocation} style={{ color: '#666' }} />
+                                        <Typography variant="body2" color="text.secondary">
+                                            {post.provinceName}
+                                        </Typography>
+                                    </Box>
+                                </Box>
 
-                {post.isEvent && <EventDetails startDate={post.startDate} endDate={post.endDate} />}
+                                <MediaShare postTitle={post.title} />
 
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={8}>
-                        <Box dangerouslySetInnerHTML={{ __html: addIdsToHeadings(post.content) }} sx={{ mt: 3 }} />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TableOfContents headings={headings} />
+                                {post.isEvent && <EventDetails startDate={post.startDate} endDate={post.endDate} />}
+                            </Box>
+
+                            {/* Article Content */}
+                            <Box 
+                                sx={{ 
+                                    mt: -5,
+                                    p: { xs: 3, md: 5 },
+                                    '& p': {
+                                        fontSize: '1.2rem',
+                                        lineHeight: 1.8,
+                                        color: '#333',
+                                        mb: 4,
+                                        fontFamily: '"Inter", sans-serif'
+                                    },
+                                    '& h2': {
+                                        fontSize: '2rem',
+                                        fontWeight: 700,
+                                        color: '#1A1A1A',
+                                        mt: 6,
+                                        mb: 4,
+                                        letterSpacing: '-0.02em'
+                                    },
+                                    '& h3': {
+                                        fontSize: '1.75rem',
+                                        fontWeight: 600,
+                                        color: '#1A1A1A',
+                                        mt: 5,
+                                        mb: 3
+                                    },
+                                    '& img': {
+                                        width: '100%',
+                                        borderRadius: 2,
+                                        my: 5,
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                                    },
+                                    '& a': {
+                                        color: '#0066CC',
+                                        textDecoration: 'none',
+                                        borderBottom: '1px solid transparent',
+                                        transition: 'border-color 0.2s',
+                                        '&:hover': {
+                                            borderBottomColor: '#0066CC'
+                                        }
+                                    }
+                                }}
+                                dangerouslySetInnerHTML={{ __html: post.content }}
+                            />
+                        </Box>
                     </Grid>
                 </Grid>
 
-                <RelatedPosts provinceId={post.provinceId} currentPostId={post.id} />
-            </Box>
+                {/* Related Posts */}
+                <Box sx={{ mt: 8, mb: 10, ml: 9.5 }}>
+                    <RelatedPosts provinceId={post.provinceId} currentPostId={post.id} />
+                </Box>
+            </Container>
             <Footer />
         </Box>
     );

@@ -14,6 +14,7 @@ import Footer from '@layouts/Footer';
 import OtherTours from '@components/tours/OtherTours';
 import ReviewList from '@components/reviews/ReviewList';
 import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
+import MediaShare from '@components/posts/MediaShare';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -156,6 +157,7 @@ const TourDetails = () => {
         <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
           {tour.tourName}
         </Typography>
+        <MediaShare tourName={tour.tourName} />
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', minWidth: '100%', height: '450px', mb: 3 }}>
