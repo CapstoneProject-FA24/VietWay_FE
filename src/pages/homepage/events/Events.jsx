@@ -7,7 +7,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import EventListCard from '@components/events/EventListCard';
 import { fetchEvents } from '@services/EventService';
 import { fetchProvinces } from '@services/ProvinceService';
-import { fetchEventCategory } from '@services/EventCategoryService';
+import { fetchEventCategories } from '@services/EventCategoryService';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SortIcon from '@mui/icons-material/Sort';
@@ -110,7 +110,7 @@ const Events = () => {
 
   const fetchCategoryData = async () => {
     try {
-      const fetchedCategories = await fetchEventCategory();
+      const fetchedCategories = await fetchEventCategories();
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);

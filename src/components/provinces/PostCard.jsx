@@ -22,9 +22,9 @@ const PostCard = ({ post }) => {
           'linear-gradient(to bottom, rgba(0,0,0,0) 45%, rgba(0,0,0,0.9) 85%)',
         display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '16px'
       }}>
-        <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'white' }}>
+        {/* <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'white' }}>
           {new Date(post.createdAt).toLocaleDateString('vi-VN')}
-        </Typography>
+        </Typography> */}
         <Typography variant="h4" component="div" sx={{
           fontWeight: 'bold', fontSize: '1.3rem', color: 'white', marginBottom: '4px',
           overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'

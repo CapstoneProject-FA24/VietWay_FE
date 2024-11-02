@@ -55,12 +55,12 @@ export const fetchProvinceWithCountDetails = async (params) => {
 
 export const fetchProvinceInfo = async (provinceId) => {
     try {
-        const response = await axios.get(`${baseURL}/api/provinces/province-info?provinceId=${provinceId}`);
+        const response = await axios.get(`${baseURL}/api/provinces/${provinceId}/images/?imageCount=20`);
         const provinceInfo = response.data.data;
         return {
             provinceId: provinceInfo.provinceId,
-            provinceName: provinceInfo.provinceName,
-            imageUrls: provinceInfo.imageUrls
+            provinceName: provinceInfo.name,
+            imageUrls: provinceInfo.images.map(image => image.url)
         };
     } catch (error) {
         console.error('Error fetching province info:', error);

@@ -14,6 +14,10 @@ import { fetchProvinceInfo } from '@services/ProvinceService';
 import { fetchAttractions } from '@services/AttractionService';
 import { fetchEvents } from '@services/EventService';
 import { fetchPosts } from '@services/PostService';
+import { fetchEventCategories } from '@services/EventCategoryService';
+import { fetchPostCategories } from '@services/PostCategoryService';
+import { fetchAttractionType } from '@services/AttractionTypeService';
+
 
 const ProvinceDetail = () => {
   const { id } = useParams();
@@ -21,15 +25,13 @@ const ProvinceDetail = () => {
   const [province, setProvince] = useState();
   const [attractions, setAttractions] = useState([]);
   const [events, setEvents] = useState([]);
-  const [posts, setPosts] = useState([]); // New state for posts
-
-  const highlightCategories = ['Tất cả', 'Bảo tàng', 'Công viên', 'Di tích lịch sử', 'Công trình tôn giáo', 'Khu bảo tồn thiên nhiên'];
-  const eventCategories = ['Tất cả', 'Đang diễn ra', 'Sắp đến'];
-  const discoverCategories = ['Tất cả', 'Văn hóa', 'Ẩm thực', 'Hoạt động', 'Nơi lưu trú'];
-
-  const [highlightsCategory, setHighlightsCategory] = useState('Tất cả');
+  const [posts, setPosts] = useState([]);
+  const [attractionCategories, setAttractionCategories] = useState([]);
+  const [postCategories, setPostCategories] = useState([]);
+  const [eventCategories, setEventCategories] = useState([]);
+  const [selectedAttractionType, setSelectedAttractionType] = useState('Tất cả');
+  const [selectedPostCategory, setSelectedPostCategory] = useState('Tất cả');
   const [eventsCategory, setEventsCategory] = useState('Tất cả');
-  const [discoverCategory, setDiscoverCategory] = useState('Tất cả');
 
   useEffect(() => {
     loadProvince();
@@ -47,27 +49,44 @@ const ProvinceDetail = () => {
     }
   };
 
-  const loadAttractions = async () => {
+  const loadAttractions = async (categoryId = null) => {
     try {
       const params = {
         pageSize: 6,
         pageIndex: 1,
         provinceIds: [id]
       };
+      
+      if (categoryId && categoryId !== 'Tất cả') {
+        params.attractionTypeIds = [categoryId];
+      }
+
       const response = await fetchAttractions(params);
+      const categories = await fetchAttractionType();
       setAttractions(response.data);
+      setAttractionCategories(categories);
+
+      //move this to fetch events
+      const eventCat = await fetchEventCategories();
+      setEventCategories(eventCat.map(cat => cat.name)); // Map to just the name strings
+
     } catch (error) {
       console.error('Failed to fetch attractions:', error);
     }
   };
 
-  const loadEvents = async () => {
+  const loadEvents = async (categoryId = null) => {
     try {
       const params = {
         pageSize: 6,
         pageIndex: 1,
         provinceIds: [id]
       };
+      
+      if (categoryId && categoryId !== 'Tất cả') {
+        params.eventCategoryIds = [categoryId];
+      }
+
       const response = await fetchEvents(params);
       setEvents(response.data);
     } catch (error) {
@@ -75,15 +94,22 @@ const ProvinceDetail = () => {
     }
   };
 
-  const loadPosts = async () => {
+  const loadPosts = async (categoryId = null) => {
     try {
       const params = {
         pageSize: 6,
         pageIndex: 1,
         provinceIds: [id]
       };
+
+      if (categoryId && categoryId !== 'Tất cả') {
+        params.postCategoryIds = [categoryId];
+      }
+
       const response = await fetchPosts(params);
+      const categories = await fetchPostCategories();
       setPosts(response.data);
+      setPostCategories(categories);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
     }
@@ -123,7 +149,6 @@ const ProvinceDetail = () => {
     if (!data || !Array.isArray(data)) {
       return null;
     }
-    console.log(data.length);
     if (data.length > 0) {
       return data.slice(0, 6).map((post, index) => (
         <Grid item xs={12} sm={6} md={4} lg={4} key={index}> <PostCard post={post} /> </Grid>
@@ -136,10 +161,11 @@ const ProvinceDetail = () => {
   };
 
   const handleEventCategoryChange = (category) => {
-    console.log('Selected category:', category);
-    setEventsCategory(category);
-    if (category !== 'Tất cả') {
-      setEvents(events.filter(event => event.eventCategory === category));
+    if (typeof category === 'string') {
+      setEventsCategory(category);
+      const categoryId = category === 'Tất cả' ? null :
+        eventCategories.find(cat => cat.eventCategoryId)?.eventCategoryId;
+      loadEvents(categoryId);
     }
   };
 
@@ -151,8 +177,26 @@ const ProvinceDetail = () => {
     navigate(`/diem-tham-quan?${searchParams}`);
   };
 
+  const handleAttractionCategoryChange = (category) => {
+    if (typeof category === 'string') {
+      setSelectedAttractionType(category);
+      const categoryId = category === 'Tất cả' ? null : 
+        attractionCategories.find(cat => cat.name === category)?.attractionTypeId;
+      loadAttractions(categoryId);
+    }
+  };
+
+  const handlePostCategoryChange = (category) => {
+    if (typeof category === 'string') {
+      setSelectedPostCategory(category);
+      const categoryId = category === 'Tất cả' ? null :
+        postCategories.find(cat => cat.name === category)?.postCategoryId;
+      loadPosts(categoryId);
+    }
+  };
+
   return (
-    <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '90vw' }}>
+    <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89vw' }}>
       <Header />
       {province && (
         <Box sx={{ ml: 5, mr: 5 }}>
@@ -177,9 +221,10 @@ const ProvinceDetail = () => {
             </Box>
             <Box sx={{ position: 'relative', mb: 2 }}>
               <CategoryFilter
-                categories={highlightCategories}
-                selectedCategory={highlightsCategory}
-                onCategoryChange={setHighlightsCategory} />
+                categories={Array.isArray(attractionCategories) ? ['Tất cả', ...attractionCategories.map(cat => cat.name)] : ['Tất cả']}
+                selectedCategory={selectedAttractionType}
+                onCategoryChange={handleAttractionCategoryChange}
+              />
             </Box>
             <Grid container spacing={2}>
               {renderAttractionCards(attractions)}
@@ -197,7 +242,7 @@ const ProvinceDetail = () => {
             </Box>
             <Box sx={{ position: 'relative', mb: 2 }}>
               <CategoryFilter
-                categories={eventCategories}
+                categories={Array.isArray(eventCategories) ? ['Tất cả', ...eventCategories] : ['Tất cả']}
                 selectedCategory={eventsCategory}
                 onCategoryChange={handleEventCategoryChange}
               />
@@ -218,9 +263,9 @@ const ProvinceDetail = () => {
             </Box>
             <Box sx={{ position: 'relative', mb: 2 }}>
               <CategoryFilter
-                categories={discoverCategories}
-                selectedCategory={discoverCategory}
-                onCategoryChange={setDiscoverCategory}
+                categories={Array.isArray(postCategories) ? ['Tất cả', ...postCategories.map(cat => cat.name)] : ['Tất cả']}
+                selectedCategory={selectedPostCategory}
+                onCategoryChange={handlePostCategoryChange}
               />
             </Box>
             <Grid container spacing={2}>

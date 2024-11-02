@@ -2,7 +2,6 @@ import axios from 'axios';
 import baseURL from '@api/BaseURL';
 
 export const fetchAttractions = async (params) => {
-    console.log(params);
     try {
         const queryParams = new URLSearchParams();
 
