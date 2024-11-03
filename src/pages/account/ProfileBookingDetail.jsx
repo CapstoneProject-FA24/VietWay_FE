@@ -12,6 +12,7 @@ import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";getCookie
+import { getPreviousPage } from "@utils/NavigationHistory";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -113,6 +114,11 @@ const ProfileBookingDetail = () => {
     setOpenSnackbar(false);
   };
 
+  const handleGoBack = () => {
+    const previousPage = getPreviousPage();
+    navigate(previousPage);
+  };
+
   if (loading) {
     return (
       <Box>
@@ -131,9 +137,20 @@ const ProfileBookingDetail = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Link to={`/trang-chu`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
-            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại trang chủ
-          </Link>
+          <div 
+            onClick={handleGoBack}
+            style={{ 
+              textDecoration: "none", 
+              color: "inherit", 
+              display: "flex", 
+              alignItems: "center", 
+              marginBottom: 16, 
+              marginTop: 10,
+              cursor: "pointer" 
+            }}
+          >
+            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
+          </div>
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             THÔNG TIN BOOKING
           </Typography>

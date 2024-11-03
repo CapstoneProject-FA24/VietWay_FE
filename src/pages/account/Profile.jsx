@@ -5,7 +5,6 @@ import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
 import { mockPayments } from '@hooks/MockProfile';
-import { mockTours } from '@hooks/MockTours';
 import ProfileDetail from '@components/profiles/ProfileDetail';
 import BookedTour from '@components/profiles/BookedTour';
 import PaymentHistory from '@components/profiles/PaymentHistory';
@@ -60,19 +59,6 @@ const Profile = () => {
         setTabValue(newValue);
     };
 
-    const handleStatusTabChange = (event, newValue) => {
-        setStatusTab(newValue);
-    };
-
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value);
-    };
-
-    const filteredTours = mockTours.filter(tour =>
-        tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tour.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <Box sx={{ width: '89vw' }}>
             <Header />
@@ -97,13 +83,7 @@ const Profile = () => {
                         <>
                             {tabValue === 0 && <ProfileDetail profile={profile} onProfileUpdate={handleProfileUpdate} />}
                             {tabValue === 2 && (
-                                <BookedTour
-                                    statusTab={statusTab}
-                                    handleStatusTabChange={handleStatusTabChange}
-                                    searchTerm={searchTerm}
-                                    handleSearchChange={handleSearchChange}
-                                    filteredTours={filteredTours}
-                                />
+                                <BookedTour/>
                             )}
                             {tabValue === 4 && <PaymentHistory payments={payments} />}
                         </>

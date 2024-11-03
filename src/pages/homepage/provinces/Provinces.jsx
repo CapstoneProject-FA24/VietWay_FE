@@ -4,7 +4,6 @@ import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { provinces } from '@hooks/MockProvinces';
 import SearchIcon from '@mui/icons-material/Search';
 import ProvinceCard from '@components/provinces/ProvinceCard';
 import { fetchProvinceWithCountDetails } from '@services/ProvinceService';

@@ -45,7 +45,7 @@ const BookedTour = () => {
     const filteredBookings = bookings.filter(booking => 
         (booking.tourName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.code.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (statusTab === 0 || booking.status === statusTab - 1)
+        (statusTab === 0 || booking.status === statusTab - 1 || (statusTab === 4 && booking.status >= 3))
     );
 
     const handlePageChange = (event, newPage) => {
