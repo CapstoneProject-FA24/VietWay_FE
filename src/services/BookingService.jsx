@@ -14,7 +14,6 @@ export const fetchBookingData = async (bookingId) => {
         return {
             bookingId: bookingData.bookingId,
             tourId: bookingData.tourId,
-            customerId: bookingData.customerId,
             numberOfParticipants: bookingData.numberOfParticipants,
             contactFullName: bookingData.contactFullName,
             contactEmail: bookingData.contactEmail,
@@ -71,7 +70,7 @@ export const createBooking = async (bookingData) => {
     }
 };
 
-export const fetchBookingList = async (pageCount = 100, pageIndex = 1) => {
+export const fetchBookingList = async (pageCount, pageIndex) => {
     try {
         const response = await axios.get(`${baseURL}/api/bookings`, {
             params: {
@@ -103,6 +102,26 @@ export const fetchBookingList = async (pageCount = 100, pageIndex = 1) => {
         };
     } catch (error) {
         console.error('Error fetching booking list:', error);
+        throw error;
+    }
+};
+
+export const cancelBooking = async (bookingId, reason) => {
+    try {
+        const response = await axios.patch(
+            `${baseURL}/api/bookings/${bookingId}`,
+            {
+                reason: `${reason}`
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error canceling booking:', error);
         throw error;
     }
 };

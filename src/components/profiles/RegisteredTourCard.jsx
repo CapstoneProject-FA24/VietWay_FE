@@ -1,21 +1,58 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider, Snackbar, Alert } from '@mui/material';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import { Link, useNavigate } from 'react-router-dom';
+import CancelBooking from '@components/profiles/CancelBooking';
+import { cancelBooking } from '@services/BookingService';
 
-const RegisteredTourCard = ({ tour }) => {
+const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const navigate = useNavigate();
 
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
   const handlePayment = () => navigate(`/dat-tour/thanh-toan/${tour.bookingId}`);
+  const handleCancelOpen = () => setIsCancelOpen(true);
+  const handleCancelClose = () => setIsCancelOpen(false);
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
-  console.log(tour);
+  const handleCancelConfirm = async (reason) => {
+    try {
+      setCancelLoading(true);
+      await cancelBooking(tour.bookingId, reason);
+      handleCancelClose();
+      setSnackbar({
+        open: true,
+        message: 'Hủy đặt tour thành công',
+        severity: 'success'
+      });
+      // Refresh the booking list
+      if (onBookingCancelled) {
+        onBookingCancelled();
+      }
+    } catch (error) {
+      console.error('Failed to cancel booking:', error);
+      setSnackbar({
+        open: true,
+        message: 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
   return (
     <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
       <Card
@@ -55,10 +92,27 @@ const RegisteredTourCard = ({ tour }) => {
             </CardContent>
           </Grid>
           <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
-            {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen, handlePayment)}
+            {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen, handlePayment, handleCancelOpen)}
           </Grid>
         </Grid>
         {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
+        <CancelBooking 
+          open={isCancelOpen}
+          onClose={handleCancelClose}
+          onConfirm={handleCancelConfirm}
+          loading={cancelLoading}
+          tour={tour}
+        />
+        <Snackbar 
+          open={snackbar.open}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </Card>
     </Box>
   );
@@ -98,7 +152,7 @@ const StatusChip = ({ status }) => {
   );
 };
 
-const renderActionButtons = (status, handleFeedbackOpen, handlePayment) => {
+const renderActionButtons = (status, handleFeedbackOpen, handlePayment, handleCancelOpen) => {
   switch (status.text) {
     case "Hoàn tất":
       return (
@@ -108,7 +162,7 @@ const renderActionButtons = (status, handleFeedbackOpen, handlePayment) => {
         </>
       );
     case "Đã thanh toán":
-      return <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>;
+      return <ActionButton onClick={handleCancelOpen} variant="outlined" color="primary">Hủy Đặt</ActionButton>;
     case "Đã hủy":
     case "Chờ thanh toán":
     case "Đã hoàn tiền":
@@ -117,7 +171,7 @@ const renderActionButtons = (status, handleFeedbackOpen, handlePayment) => {
       return (
         <>
           <ActionButton variant="contained" color="error" onClick={handlePayment}>Thanh Toán</ActionButton>
-          <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>
+          <ActionButton variant="outlined" color="primary" onClick={handleCancelOpen}>Hủy Đặt</ActionButton>
         </>
       );
   }

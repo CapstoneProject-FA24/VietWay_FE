@@ -34,12 +34,15 @@ export const fetchTourById = async (id) => {
             startLocation: item.startLocation,
             startTime: new Date(item.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
             startDate: new Date(item.startDate),
-            endDate: new Date(item.endDate),
             price: item.defaultTouristPrice,
             maxParticipant: item.maxParticipant,
             minParticipant: item.minParticipant,
             currentParticipant: item.currentParticipant,
-            status: item.status
+            status: item.status,
+            refundPolicies: item.refundPolicies,
+            pricesByAge: item.pricesByAge,
+            registerOpenDate: item.registerOpenDate,
+            registerCloseDate: item.registerCloseDate
         };
         return tours;
     } catch (error) {
