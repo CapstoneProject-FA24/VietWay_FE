@@ -12,6 +12,7 @@ import { useNavigate, Route, Routes } from 'react-router-dom';
 import { getCustomerInfo } from '@services/CustomerService';
 import { getCookie } from '@services/AuthenService';
 import { saveLastProfileTab, getLastProfileTab } from '@utils/NavigationHistory';
+import { saveNavigationHistory } from '@utils/NavigationHistory';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -31,6 +32,7 @@ const Profile = () => {
         if (!token) {
             navigate('/');
         }
+        saveNavigationHistory(window.location.pathname);
         fetchCustomerInfo();
         setPayments(mockPayments);
     }, []);

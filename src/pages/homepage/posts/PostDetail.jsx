@@ -167,12 +167,12 @@ export default function PostDetail() {
                                             }}
                                         />
                                     </Box>
-                                    {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <FontAwesomeIcon icon={faCalendarAlt} style={{ color: '#666' }} />
                                         <Typography variant="body2" color="text.secondary">
                                             {new Date(post.createDate).toLocaleDateString('vi-VN')}
                                         </Typography>
-                                    </Box> */}
+                                    </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <FontAwesomeIcon icon={faMapLocation} style={{ color: '#666' }} />
                                         <Typography variant="body2" color="text.secondary">

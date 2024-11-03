@@ -81,7 +81,8 @@ const Posts = () => {
         postCategoryIds: overrideParams.postCategoryIds || (selectedCategory !== 'all' ? [selectedCategory] : []),
       };
       const response = await fetchPosts(params);
-      setPosts(response.data);
+      const sortedPosts = [...response.data].sort((a, b) => a.title.localeCompare(b.title));
+      setPosts(sortedPosts);
       setTotalItems(response.total);
       setTotalPages(Math.ceil(response.total / pageSize));
     } catch (error) {

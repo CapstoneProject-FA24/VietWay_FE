@@ -82,7 +82,8 @@ const Attractions = () => {
         attractionTypeIds: overrideParams.attractionTypeIds || (selectedAttractionType !== 'all' ? [selectedAttractionType] : []),
       };
       const response = await fetchAttractions(params);
-      setAttractions(response.data);
+      const sortedAttractions = [...response.data].sort((a, b) => a.name.localeCompare(b.name));
+      setAttractions(sortedAttractions);
       setTotalItems(response.total);
       setTotalPages(Math.ceil(response.total / pageSize));
     } catch (error) {

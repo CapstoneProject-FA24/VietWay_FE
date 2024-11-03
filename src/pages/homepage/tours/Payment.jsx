@@ -84,7 +84,8 @@ const PayBooking = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const currentPath = window.location.pathname;
+  
   useEffect(() => {
     const token = getCookie('token');
     if (!token) {
@@ -152,8 +153,8 @@ const PayBooking = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Link to={`/trang-chu`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
-            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại trang chủ
+          <Link to={`${currentPath.includes('dat-tour') ? `/dat-tour/${bookingData.bookingId}` : `/tai-khoan`}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
+            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
           </Link>
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
@@ -291,7 +292,13 @@ const PayBooking = () => {
                 <Button onClick={() => { handlePayment() }} variant="contained" fullWidth>
                   Thanh toán ngay
                 </Button>
-                <Button component={Link} to={`/dat-tour/hoan-thanh/${bookingData.bookingId}`} variant="outlined" fullWidth sx={{ mt: 1 }}>
+                <Button 
+                  component={Link} 
+                  to={`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${bookingData.bookingId}`} 
+                  variant="outlined" 
+                  fullWidth 
+                  sx={{ mt: 1 }}
+                >
                   Thanh toán sau
                 </Button>
               </SummaryBox>

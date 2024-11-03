@@ -12,6 +12,7 @@ import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchCreatePayment } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";
+import { saveNavigationHistory, getPreviousPageBooking } from '@utils/NavigationHistory';
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -79,18 +80,19 @@ const BookingDetail = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const token = getCookie('token');
     if (!token) {
       navigate('/');
     }
+    saveNavigationHistory(window.location.pathname);
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        
+
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
@@ -128,6 +130,11 @@ const BookingDetail = () => {
     setOpenSnackbar(false);
   };
 
+  const handleGoBack = () => {
+    const previousPage = getPreviousPageBooking();
+    navigate(previousPage);
+  };
+
   if (loading) {
     return (
       <Box>
@@ -146,9 +153,20 @@ const BookingDetail = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Link to={`/trang-chu`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
-            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại trang chủ
-          </Link>
+          <div
+            onClick={handleGoBack}
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 16,
+              marginTop: 10,
+              cursor: "pointer"
+            }}
+          >
+            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
+          </div>
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>
