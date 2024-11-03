@@ -65,7 +65,7 @@ const Homepage = () => {
           <img src="homepage-wave.png" alt="Wave" style={{ width: "100%", bottom: 0, left: 0, position: "absolute" }}/>
         </Box>
       </Box>
-      <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '65%' }}>
+      <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 5, top: 450, width: '65%', maxWidth: '65%', minWidth: '65%' }}>
         <FilterBar />
       </Box>
       <Box>

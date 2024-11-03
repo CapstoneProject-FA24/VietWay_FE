@@ -157,7 +157,7 @@ const FilterBar = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%' }}>
-      <Box sx={{ width: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1 }}>
+      <Box sx={{ width: '100%', maxWidth: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1, position: 'relative', zIndex: 3, transform: 'none !important' }}>
         <Tabs value={value} onChange={handleChange} sx={{ width: '100%' }}>
           <Tab icon={<DirectionsBusIcon />} label="Tour du lịch" iconPosition="start" sx={{ width: '28%' }}/>
           <Tab icon={<LocationOnIcon />} label="Địa điểm tham quan" iconPosition="start" sx={{ width: '31%' }}/>

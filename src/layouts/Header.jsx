@@ -13,6 +13,61 @@ const StyledButton = styled(Button)(({ theme }) => ({
   marginLeft: '3rem',
 }));
 
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  '& .MuiPaper-root': {
+    borderRadius: 12,
+    marginTop: 8,
+    minWidth: 160,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+    '& .MuiMenu-list': {
+      padding: '8px',
+    },
+    '& .MuiMenuItem-root': {
+      fontSize: '16px',
+      padding: '12px 16px',
+      borderRadius: 8,
+      '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.04),
+      },
+    },
+    '&::before': {
+      content: '""',
+      display: 'block',
+      position: 'absolute',
+      top: 0,
+      right: 20,
+      width: 10,
+      height: 10,
+      backgroundColor: theme.palette.background.paper,
+      transform: 'translateY(-50%) rotate(45deg)',
+      zIndex: 0,
+    },
+  },
+}));
+
+const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
+  fontSize: '16px',
+  fontFamily: 'Inter, sans-serif',
+  color: theme.palette.text.primary,
+  '&:not(:last-child)': {
+    marginBottom: '4px',
+  },
+}));
+
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -53,6 +108,11 @@ const Header = () => {
   const handleAccount = () => {
     handleClose();
     navigate('/tai-khoan');
+  };
+
+  const handleSaved = () => {
+    handleClose();
+    navigate('/luu-tru');
   };
 
   return (
@@ -129,21 +189,54 @@ const Header = () => {
           {isLoggedIn ? (
             <>
               <IconButton
-                size="large" aria-label="account of current user" aria-controls="menu-appbar"
-                aria-haspopup="true" onClick={handleMenu}  sx={{ border: location.pathname === '/trang-chu' && scrollY === 0  ? '3px solid white' : '3px solid grey' }}
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                sx={{
+                  border: location.pathname === '/trang-chu' && scrollY === 0 
+                    ? '2px solid white' 
+                    : '2px solid #666',
+                  padding: '8px',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  },
+                }}
               >
-                <AccountCircleIcon sx={{ color: location.pathname === '/trang-chu' && scrollY === 0  ? "white" : "grey" }}/>
+                <AccountCircleIcon 
+                  sx={{ 
+                    color: location.pathname === '/trang-chu' && scrollY === 0 
+                      ? "white" 
+                      : "#666",
+                    fontSize: 28
+                  }}
+                />
               </IconButton>
-              <Menu
-                id="menu-appbar" anchorEl={anchorEl}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }} keepMounted
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              <StyledMenu
+                id="menu-appbar"
+                anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
+                onClick={handleClose}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                  },
+                }}
               >
-                <MenuItem onClick={handleAccount}>Tài khoản</MenuItem>
-                <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
-              </Menu>
+                <StyledMenuItem onClick={handleAccount}>
+                  Tài khoản
+                </StyledMenuItem>
+                <StyledMenuItem onClick={handleSaved}>
+                  Lưu trữ
+                </StyledMenuItem>
+                <StyledMenuItem onClick={handleLogout}>
+                  Đăng xuất
+                </StyledMenuItem>
+              </StyledMenu>
             </>
           ) : (
             <>
