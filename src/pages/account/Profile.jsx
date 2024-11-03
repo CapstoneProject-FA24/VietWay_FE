@@ -11,6 +11,7 @@ import PaymentHistory from '@components/profiles/PaymentHistory';
 import { useNavigate, Route, Routes } from 'react-router-dom';
 import { getCustomerInfo } from '@services/CustomerService';
 import { getCookie } from '@services/AuthenService';
+import { saveLastProfileTab, getLastProfileTab } from '@utils/NavigationHistory';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -19,7 +20,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const Profile = () => {
     const [profile, setProfile] = useState({});
     const [payments, setPayments] = useState([]);
-    const [tabValue, setTabValue] = useState(0);
+    const [tabValue, setTabValue] = useState(getLastProfileTab());
     const [statusTab, setStatusTab] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -57,6 +58,7 @@ const Profile = () => {
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
+        saveLastProfileTab(newValue);
     };
 
     return (

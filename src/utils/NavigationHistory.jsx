@@ -12,3 +12,11 @@ export const getPreviousPage = () => {
 export const clearNavigationHistory = () => {
   sessionStorage.removeItem('navigationHistory');
 };
+
+export const saveLastProfileTab = (tabValue) => {
+  sessionStorage.setItem('lastProfileTab', tabValue.toString());
+};
+
+export const getLastProfileTab = () => {
+  return parseInt(sessionStorage.getItem('lastProfileTab') || '0');
+};
