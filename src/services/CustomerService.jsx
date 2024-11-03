@@ -1,7 +1,6 @@
 import baseURL from '@api/BaseURL';
 import axios from 'axios';
 import { getCookie } from '@services/AuthenService';
-const token = getCookie('token');
 
 const getGender = (gender) => {
     switch (gender) {
@@ -12,6 +11,7 @@ const getGender = (gender) => {
 };
 
 export const getCustomerInfo = async () => {
+    const token = getCookie('token');
     try {
         const response = await axios.get(`${baseURL}/api/Customer/profile`, {
             headers: {
@@ -35,6 +35,7 @@ export const getCustomerInfo = async () => {
 };
 
 export const updateCustomerInfo = async (customerData) => {
+    const token = getCookie('token');
     try {
         const response = await axios.put(`${baseURL}/api/Customer/profile`, {
             fullName: customerData.fullName,

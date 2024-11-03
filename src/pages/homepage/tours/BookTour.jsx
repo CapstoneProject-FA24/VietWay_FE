@@ -15,6 +15,9 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import '@styles/Homepage.css'
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from "@services/AuthenService";
+import dayjs from 'dayjs';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -102,7 +105,12 @@ const BookTour = () => {
         ...prevState,
         fullName: customer.fullName, email: customer.email,
         phone: customer.phone, address: customer.address || "",
-        passengers: [{ type: 'adult', name: customer.fullName, gender: customer.genderId, birthday: new Date(customer.birthday).toISOString().slice(0, 10) }]
+        passengers: [{
+          type: 'adult',
+          name: customer.fullName,
+          gender: customer.genderId,
+          birthday: dayjs(customer.birthday).format('YYYY-MM-DD')
+        }]
       }));
     };
     fetchData();
@@ -117,13 +125,6 @@ const BookTour = () => {
     if (errors[name]) {
       setErrors(prevErrors => ({ ...prevErrors, [name]: '' }));
     }
-  };
-
-  const handlePassengerTypeChange = (index, value) => {
-    const newPassengers = [...formData.passengers];
-    newPassengers[index] = { ...newPassengers[index], type: value, birthday: '' };
-    setFormData({ ...formData, passengers: newPassengers });
-    validatePassengerField(index, 'passengerType', value);
   };
 
   const handlePassengerInfoChange = (index, field, value) => {
@@ -334,9 +335,9 @@ const BookTour = () => {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }} ref={topRef}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", width: "89vw" }} ref={topRef}>
       <Header />
-      <ContentContainer>
+      <ContentContainer sx={{ width: "100%" }}>
         <StyledBox>
           <Link to={`/tour-du-lich/${bookingData.tourTemplateId}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
             <ArrowBackIcon style={{ marginLeft: 8 }} /> Quay lại
@@ -351,8 +352,8 @@ const BookTour = () => {
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
             <StepItem>HOÀN TẤT</StepItem>
           </StepBox>
-          <Grid container spacing={3} sx={{ maxWidth: "100%" }}>
-            <Grid item xs={12} md={8} sx={{ maxWidth: "100%" }}>
+          <Grid container spacing={3} sx={{ width: "100%" }}>
+            <Grid item xs={12} md={8} sx={{ width: "100%" }}>
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -436,25 +437,31 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField
-                        fullWidth label="Ngày sinh" type="date"
-                        InputLabelProps={{ shrink: true }}
-                        name={`passengerBirthday-${index}`}
-                        value={passenger.birthday || ''}
-                        onChange={(e) => handlePassengerInfoChange(index, 'birthday', e.target.value)}
-                        onBlur={() => validatePassengerField(index, 'birthday', passenger.birthday)}
-                        error={!!errors[`passenger${index}-birthday`]}
-                        helperText={errors[`passenger${index}-birthday`]}
-                        required
-                        inputProps={{
-                          max: new Date().toISOString().split('T')[0],
-                          min: passenger.type === 'adult'
-                            ? new Date(new Date().setFullYear(new Date().getFullYear() - 100)).toISOString().split('T')[0]
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Ngày sinh *"
+                          value={dayjs(passenger.birthday)}
+                          onChange={(newValue) => {
+                            handlePassengerInfoChange(index, 'birthday', newValue.format('YYYY-MM-DD'));
+                          }}
+                          format="DD/MM/YYYY"
+                          maxDate={dayjs()}
+                          minDate={passenger.type === 'adult'
+                            ? dayjs().subtract(100, 'year')
                             : passenger.type === 'child'
-                              ? new Date(new Date().setFullYear(new Date().getFullYear() - 11)).toISOString().split('T')[0]
-                              : new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0]
-                        }}
-                      />
+                              ? dayjs().subtract(11, 'year')
+                              : dayjs().subtract(1, 'year')
+                          }
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              error: !!errors[`passenger${index}-birthday`],
+                              helperText: errors[`passenger${index}-birthday`],
+                              required: true
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
                     </Grid>
                     <Grid item xs={12}>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -507,7 +514,7 @@ const BookTour = () => {
               </RadioGroup>
               {errors.paymentMethod && <ErrorText>{errors.paymentMethod}</ErrorText>}
             </Grid>
-            <Grid item xs={12} md={4} sx={{ maxWidth: "100%" }}>
+            <Grid item xs={12} md={4} sx={{ width: "100%" }}>
               <SummaryTitle variant="h5" style={{ alignContent: "center" }}>
                 THÔNG TIN CHUYẾN ĐI
               </SummaryTitle>

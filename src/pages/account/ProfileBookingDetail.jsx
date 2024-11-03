@@ -13,6 +13,7 @@ import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";getCookie
 import { getPreviousPage } from "@utils/NavigationHistory";
+import dayjs from "dayjs";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -187,7 +188,7 @@ const ProfileBookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Ngày đặt tour:</Typography>
-                  <Typography>{new Date(bookingData.createdOn).toLocaleDateString()}</Typography>
+                  <Typography>{dayjs(bookingData.createdOn).format('DD/MM/YYYY')}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
@@ -205,7 +206,7 @@ const ProfileBookingDetail = () => {
                   <SummaryItem>
                     <Typography>Thời hạn thanh toán:</Typography>
                     <Typography>
-                      {new Date(new Date(bookingData.createdOn).getTime() + 24 * 60 * 60 * 1000).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} (Theo giờ Việt Nam)
+                      {dayjs(bookingData.createdOn).add(24, 'hour').format('DD/MM/YYYY HH:mm')} (Theo giờ Việt Nam)
                     </Typography>
                   </SummaryItem>
                 )}
@@ -237,7 +238,7 @@ const ProfileBookingDetail = () => {
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
+                      <Typography>{dayjs(participant.dateOfBirth).format('DD/MM/YYYY')}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
@@ -261,11 +262,11 @@ const ProfileBookingDetail = () => {
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString()}
+                  {dayjs(bookingData.startDate).format('DD/MM/YYYY')}
                 </Typography>
                 {/* <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {bookingData.endDate.toLocaleDateString()}
+                  {dayjs(bookingData.endDate).format('DD/MM/YYYY')}
                 </Typography> */}
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ

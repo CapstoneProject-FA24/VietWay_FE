@@ -292,7 +292,7 @@ export default function Register() {
                                         label="Ngày sinh *"
                                         value={dob}
                                         onChange={(newValue) => setDob(newValue)}
-                                        renderInput={(params) => <TextField {...params} sx={{ width: '48%' }} />}
+                                        format="DD/MM/YYYY"
                                         slotProps={{
                                             textField: {
                                                 error: !!errors.dob,

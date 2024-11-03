@@ -13,6 +13,7 @@ import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchCreatePayment } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";
 import { saveNavigationHistory, getPreviousPageBooking } from '@utils/NavigationHistory';
+import dayjs from 'dayjs';
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -210,7 +211,7 @@ const BookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Ngày đặt tour:</Typography>
-                  <Typography>{new Date(bookingData.createdOn).toLocaleDateString()}</Typography>
+                  <Typography>{dayjs(bookingData.createdOn).format('DD/MM/YYYY')}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
@@ -251,7 +252,7 @@ const BookingDetail = () => {
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
+                      <Typography>{dayjs(participant.dateOfBirth).format('DD/MM/YYYY')}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>

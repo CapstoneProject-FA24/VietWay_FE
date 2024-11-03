@@ -1,9 +1,9 @@
 import axios from 'axios';
 import baseURL from '@api/BaseURL';
 import { getCookie } from '@services/AuthenService';
-const token = getCookie('token');
 
 export const fetchBookingData = async (bookingId) => {
+    const token = getCookie('token');
     try {
         const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`, {
             headers: {
@@ -41,6 +41,7 @@ export const fetchBookingData = async (bookingId) => {
 };
 
 export const createBooking = async (bookingData) => {
+    const token = getCookie('token');
     try {
         const requestData = {
             tourId: bookingData.tourId,
@@ -71,6 +72,7 @@ export const createBooking = async (bookingData) => {
 };
 
 export const fetchBookingList = async (pageCount, pageIndex) => {
+    const token = getCookie('token');
     try {
         const response = await axios.get(`${baseURL}/api/bookings`, {
             params: {
@@ -107,6 +109,7 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
 };
 
 export const cancelBooking = async (bookingId, reason) => {
+    const token = getCookie('token');
     try {
         const response = await axios.patch(
             `${baseURL}/api/bookings/${bookingId}`,

@@ -178,7 +178,7 @@ export default function Login() {
                 }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Lưu mật khẩu" />
+                {/* <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Lưu mật khẩu" /> */}
                 <Grid item>
                   <Link href="/quen-mat-khau" variant="body2" color="#FF8682" sx={{ textDecoration: 'none' }}>
                     Quên mật khẩu?

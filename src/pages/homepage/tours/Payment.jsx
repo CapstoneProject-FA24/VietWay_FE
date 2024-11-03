@@ -245,7 +245,7 @@ const PayBooking = () => {
                     </SummaryItem>
                     <SummaryItem>
                       <Typography sx={{ fontWeight: 'bold' }}>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
+                      <Typography>{participant.dateOfBirth.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'}) || 'Không xác định'}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
