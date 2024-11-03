@@ -8,6 +8,8 @@ import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import { Link, useNavigate } from 'react-router-dom';
 import CancelBooking from '@components/profiles/CancelBooking';
 import { cancelBooking } from '@services/BookingService';
+import { BookingStatus } from '../../hooks/Statuses';
+import { getBookingStatusInfo } from "@services/StatusService";
 
 const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -60,8 +62,8 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
         <StatusChip status={tour.bookedTourStatus} />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3} md={3} component={Link} to={`/booking/${tour.bookingId}`}>
-            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }} 
-            image={tour.imageUrl} alt={tour.name} />
+            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }}
+              image={tour.imageUrl} alt={tour.name} />
           </Grid>
           <Grid item xs={12} md={7}>
             <CardContent>
@@ -96,14 +98,14 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
           </Grid>
         </Grid>
         {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
-        <CancelBooking 
+        <CancelBooking
           open={isCancelOpen}
           onClose={handleCancelClose}
           onConfirm={handleCancelConfirm}
           loading={cancelLoading}
           tour={tour}
         />
-        <Snackbar 
+        <Snackbar
           open={snackbar.open}
           autoHideDuration={6000}
           onClose={handleSnackbarClose}
@@ -137,7 +139,7 @@ const formatDate = (dateString) => {
 const StatusChip = ({ status }) => {
   return (
     <Chip
-      label={status.text}
+      label={getBookingStatusInfo(status).text}
       sx={{
         position: 'absolute',
         top: 20,
@@ -145,7 +147,7 @@ const StatusChip = ({ status }) => {
         zIndex: 1,
         fontSize: '0.75rem',
         height: '24px',
-        backgroundColor: status.color,
+        backgroundColor: getBookingStatusInfo(status).color,
         color: 'white',
       }}
     />
@@ -153,27 +155,26 @@ const StatusChip = ({ status }) => {
 };
 
 const renderActionButtons = (status, handleFeedbackOpen, handlePayment, handleCancelOpen) => {
-  switch (status.text) {
-    case "Hoàn tất":
+  switch (status) {
+    case BookingStatus.Completed:
       return (
         <>
           <ActionButton onClick={handleFeedbackOpen} variant="contained" color="primary">Đánh giá</ActionButton>
           <ActionButton variant="outlined" color="primary">Đặt Lại</ActionButton>
         </>
       );
-    case "Đã thanh toán":
+    case BookingStatus.Confirmed:
       return <ActionButton onClick={handleCancelOpen} variant="outlined" color="primary">Hủy Đặt</ActionButton>;
-    case "Đã hủy":
-    case "Chờ thanh toán":
-    case "Đã hoàn tiền":
-      return <ActionButton variant="contained" color="primary">Đặt Lại</ActionButton>;
-    default:
+    case BookingStatus.Pending:
       return (
         <>
           <ActionButton variant="contained" color="error" onClick={handlePayment}>Thanh Toán</ActionButton>
           <ActionButton variant="outlined" color="primary" onClick={handleCancelOpen}>Hủy Đặt</ActionButton>
         </>
       );
+    default:
+      return <ActionButton variant="contained" color="primary">Đặt Lại</ActionButton>;
+      
   }
 };
 

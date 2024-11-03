@@ -12,6 +12,7 @@ const TourStatusTab = ({ statusTab, handleStatusTabChange, searchTerm, handleSea
         <Tab label="Đã thanh toán" />
         <Tab label="Hoàn tất" />
         <Tab label="Đã hủy" />
+        <Tab label="Hoàn tiền" />
       </Tabs>
     </Box>
   );

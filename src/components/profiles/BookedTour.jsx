@@ -41,11 +41,16 @@ const BookedTour = () => {
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
-    
-    const filteredBookings = bookings.filter(booking => 
+
+    const filteredBookings = bookings.filter(booking =>
         (booking.tourName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.code.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (statusTab === 0 || booking.status === statusTab - 1 || (statusTab === 4 && booking.status >= 3))
+            booking.code.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (
+            statusTab === 0 ||
+            booking.status === statusTab - 1 ||
+            (statusTab === 4 && (booking.status == 3 || booking.status == 4)) ||
+            (statusTab === 5 && (booking.status == 5 || booking.status == 6))
+        )
     );
 
     const handlePageChange = (event, newPage) => {
@@ -73,19 +78,19 @@ const BookedTour = () => {
 
     return (
         <Box sx={{ my: 5 }}>
-            <TextField 
-                fullWidth 
-                placeholder="Tìm kiếm theo Tên tour và Mã tour" 
-                value={searchTerm} 
-                onChange={handleSearchChange} 
+            <TextField
+                fullWidth
+                placeholder="Tìm kiếm theo Tên tour và Mã tour"
+                value={searchTerm}
+                onChange={handleSearchChange}
                 sx={{ mb: 2, backgroundColor: 'white', borderRadius: '10px', display: 'flex', justifyContent: 'center' }}
-                InputProps={{ 
+                InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
                             <SearchIcon />
                         </InputAdornment>
-                    ) 
-                }} 
+                    )
+                }}
             />
             <Paper sx={{ p: 2, borderRadius: '8px' }}>
                 <TourStatusTab statusTab={statusTab} handleStatusTabChange={handleStatusTabChange} />
@@ -97,14 +102,14 @@ const BookedTour = () => {
                     ) : (
                         <>
                             {filteredBookings.map((booking) => (
-                                <RegisteredTourCard 
-                                    key={booking.bookingId} 
+                                <RegisteredTourCard
+                                    key={booking.bookingId}
                                     tour={{
                                         tourId: booking.tourId,
                                         bookingId: booking.bookingId,
                                         name: booking.tourName,
                                         code: booking.code,
-                                        bookedTourStatus: getBookingStatusInfo(booking.status),
+                                        bookedTourStatus: booking.status,
                                         imageUrl: booking.imageUrl,
                                         numberOfParticipants: booking.numberOfParticipants,
                                         totalPrice: booking.totalPrice,
@@ -113,15 +118,15 @@ const BookedTour = () => {
                                     onBookingCancelled={handleBookingCancelled}
                                 />
                             ))}
-                            <Box sx={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
                                 alignItems: 'center',
-                                mt: 2 
+                                mt: 2
                             }}>
-                                <Box sx={{ width: '10%' }}/>
-                                    <Pagination 
-                                        count={Math.ceil(totalItems / pageSize)}
+                                <Box sx={{ width: '10%' }} />
+                                <Pagination
+                                    count={Math.ceil(totalItems / pageSize)}
                                     page={page}
                                     onChange={handlePageChange}
                                     color="primary"
