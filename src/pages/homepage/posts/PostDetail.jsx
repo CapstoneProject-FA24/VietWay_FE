@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Box, Chip, Link, CardMedia, Grid, Container } from '@mui/material';
+import { Typography, Box, Chip, CardMedia, Grid, Container } from '@mui/material';
 import { Helmet } from 'react-helmet';
 import { fetchPostById } from '@services/PostService';
 import RelatedPosts from '@components/posts/RelatedPosts';
@@ -39,7 +39,7 @@ export default function PostDetail() {
     }, [post]);
 
     if (loading) {
-        return <img src="/src/assets/Loading.gif" alt="Loading..." style={{ display: 'block', margin: 'auto' }} />;
+        return <img src="/loading.gif" alt="Loading..." style={{ display: 'block', margin: 'auto' }} />;
     }
 
     if (!post) {
@@ -100,27 +100,6 @@ export default function PostDetail() {
             >
                 <Grid container spacing={3} justifyContent="center">
                     <Grid item xs={12} md={9}>
-                        {/* Breadcrumb */}
-                        {/*<Typography 
-                            variant="body2" 
-                            sx={{ 
-                                color: '#fff',
-                                mb: 2,
-                                '& a': {
-                                    color: '#fff',
-                                    textDecoration: 'none',
-                                    '&:hover': {
-                                        textDecoration: 'underline'
-                                    }
-                                }
-                            }}
-                        >
-                            <Link href="/trang-chu">Trang chủ</Link> 
-                            {' > '} 
-                            <Link href={`/tinh/${post.provinceId}`}>{post.provinceName}</Link>
-                        </Typography>
-
-                        {/* Article Container */}
                         <Box sx={{
                             bgcolor: 'white',
                             padding: { xs: 3, md: 5 },

@@ -54,11 +54,12 @@ const PostListCard = ({ post }) => {
                             fontSize: '0.8rem', fontWeight: 'bold',
                             bgcolor: 'rgba(255,255,255,0.8)', color: 'black', height: '25px'
                         }} />
-                    <Chip
+                    {/* <Chip
                         label={`Ngày đăng: ${new Date(post.createdAt).toLocaleDateString('vi-VN')}`} size="medium" sx={{
                             fontSize: '0.75rem',
                             bgcolor: 'rgba(200,200,200,0.7)', color: 'black', height: '22px'
                         }} />
+                    */}
                 </Box>
             </CardContent>
         </Card>

@@ -1,23 +1,75 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Chip, Box, IconButton } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardMedia, Typography, Chip, Box, IconButton, Alert, Snackbar } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Link } from 'react-router-dom';
-import SideSavedFolderTab from '@components/saved/SideSavedFolderTab';
+import SideSavedTab from '@components/saved/SideSavedTab';
 
 const AttractionCard = ({ attraction }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [savedCount, setSavedCount] = useState(0);
+    const TEN_MINUTES = 10 * 60 * 1000; // 10 minutes in milliseconds
 
     const handleLikeClick = (e) => {
         e.preventDefault();
-        setIsLiked(!isLiked);
-        setIsSavedTabOpen(true);
+        
+        if (isLiked) {
+            setIsSavedTabOpen(true);
+            return;
+        }
+
+        setIsLiked(true);
+        
+        const lastShownTime = localStorage.getItem('savedTabLastShown');
+        const currentTime = Date.now();
+        
+        if (!lastShownTime || (currentTime - parseInt(lastShownTime)) >= TEN_MINUTES) {
+            setIsSavedTabOpen(true);
+            localStorage.setItem('savedTabLastShown', currentTime.toString());
+            setSavedCount(1);
+        } else {
+            setSavedCount(prev => prev + 1);
+            setShowNotification(true);
+        }
+
+        const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+        if (!saved.some(item => item.id === attraction.attractionId)) {
+            const newSaved = [{
+                id: attraction.attractionId,
+                name: attraction.name,
+                imageUrl: attraction.imageUrl,
+                address: attraction.address,
+                province: attraction.province,
+                attractionType: attraction.attractionType,
+                rating: attraction.rating || 5
+            }, ...saved];
+            localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
+        }
+    };
+
+    const handleUnlike = (attractionId) => {
+        if (attractionId === attraction.attractionId) {
+            setIsLiked(false);
+        }
     };
 
     const handleCloseSavedTab = () => {
         setIsSavedTabOpen(false);
+    };
+
+    const handleCloseNotification = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setShowNotification(false);
+    };
+
+    const handleNotificationClick = () => {
+        setIsSavedTabOpen(true);
+        setShowNotification(false);
     };
 
     return (
@@ -47,8 +99,7 @@ const AttractionCard = ({ attraction }) => {
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <LocationOnIcon sx={{ color: 'lightGray', marginRight: '8px', fontSize: '1rem' }} />
-                        <Typography variant="body2" sx={{
-                            fontSize: '0.9rem', color: 'lightGray',
+                        <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'lightGray',
                             overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
                         }}>
                             {attraction.address}
@@ -58,13 +109,13 @@ const AttractionCard = ({ attraction }) => {
                 <CardContent sx={{ position: 'absolute', top: '16px', left: '16px', padding: 0 }}>
                     <Chip
                         label={attraction.attractionType} size="medium" sx={{
-                            fontSize: '0.75rem', fontWeight: 'bold',
-                            bgcolor: 'rgba(255,255,255,0.8)', color: 'black', height: '25px'
+                            fontSize: '0.75rem', fontWeight: 'bold', bgcolor: 'rgba(255,255,255,0.8)', color: 'black', height: '25px'
                         }} />
                 </CardContent>
                 <IconButton 
                     onClick={handleLikeClick}
-                    sx={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'white', width: '35px', height: '35px', '&:hover': { backgroundColor: 'white', transform: 'scale(1.1)' }, zIndex: 2 }}>
+                    sx={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'white', width: '35px', height: '35px', zIndex: 2,
+                        '&:hover': { backgroundColor: 'white' } }}>
                     {isLiked ? (
                         <FavoriteIcon sx={{ color: 'red', fontSize: '23px' }} />
                     ) : (
@@ -73,13 +124,44 @@ const AttractionCard = ({ attraction }) => {
                 </IconButton>
             </Card>
             
-            {isSavedTabOpen && (
-                <SideSavedFolderTab 
-                    onClose={handleCloseSavedTab} 
-                    attraction={attraction}
-                    isLiked={isLiked}
-                />
-            )}
+            {isSavedTabOpen && <SideSavedTab onClose={handleCloseSavedTab} attraction={attraction} isLiked={isLiked} onUnlike={handleUnlike} />}
+
+            <Snackbar
+                open={showNotification}
+                autoHideDuration={3000}
+                onClose={handleCloseNotification}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                sx={{ position: 'fixed', top: '24px', right: '24px' }}>
+                <Alert onClose={handleCloseNotification} severity="success" action={
+                    <Typography
+                        component="span"
+                        sx={{
+                            cursor: 'pointer',
+                            color: 'primary.main',
+                            fontWeight: 600,
+                            '&:hover': { textDecoration: 'underline' }
+                        }}
+                        onClick={handleNotificationClick}
+                        >
+                            Mở thanh lưu trữ
+                        </Typography>
+                    }
+                    sx={{ 
+                        width: '100%', 
+                        bgcolor: 'white', 
+                        color: 'black', 
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
+                        '& .MuiAlert-icon': { color: 'success.main' },
+                        '& .MuiAlert-action': { 
+                            alignItems: 'center', 
+                            paddingTop: 0,
+                            marginLeft: 1 
+                        }
+                    }}
+                >
+                    Đã lưu vào lưu trữ của bạn ({savedCount} địa điểm)
+                </Alert>
+            </Snackbar>
         </>
     );
 };

@@ -328,7 +328,7 @@ const BookTour = () => {
       <>
         <Header />
         <div style={{ display: "flex", alignItems: "center", height: "80vh" }}>
-          <img src="public/loading.gif" alt="Loading..." />
+          <img src="/loading.gif" alt="Loading..." />
         </div>
       </>
     );

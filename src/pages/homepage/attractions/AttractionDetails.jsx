@@ -15,6 +15,11 @@ import { mockReviews } from '@hooks/MockReviews';
 import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
 import MediaShare from '@components/posts/MediaShare';
 import { Typography, Grid, Paper, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import SideSavedTab from '@components/saved/SideSavedTab';
 
 const AttractionDetails = () => {
   const [attraction, setAttraction] = useState(null);
@@ -26,6 +31,11 @@ const AttractionDetails = () => {
   const [showReviewInput, setShowReviewInput] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [reviewData, setReviewData] = useState({ rating: 0, content: '' });
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
+  const TEN_MINUTES = 10 * 60 * 1000;
 
   useEffect(() => {
     const fetchAttractionData = async () => {
@@ -70,6 +80,64 @@ const AttractionDetails = () => {
     if (sliderRef) {
       sliderRef.slickGoTo(index);
     }
+  };
+
+  const handleLikeClick = () => {
+    if (isLiked) {
+      setIsSavedTabOpen(true);
+      return;
+    }
+
+    setIsLiked(true);
+    
+    const lastShownTime = localStorage.getItem('savedTabLastShown');
+    const currentTime = Date.now();
+    
+    if (!lastShownTime || (currentTime - parseInt(lastShownTime)) >= TEN_MINUTES) {
+      setIsSavedTabOpen(true);
+      localStorage.setItem('savedTabLastShown', currentTime.toString());
+      setSavedCount(1);
+    } else {
+      setSavedCount(prev => prev + 1);
+      setShowNotification(true);
+    }
+
+    const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+    if (!saved.some(item => item.id === attraction.attractionId)) {
+      const newSaved = [{
+        id: attraction.attractionId,
+        name: attraction.name,
+        imageUrl: attraction.images[0].url,
+        address: attraction.address,
+        province: attraction.provinceName,
+        attractionType: attraction.attractionTypeName,
+        rating: attraction.rating || 5
+      }, ...saved];
+      localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
+    }
+    console.log(saved);
+  };
+
+  const handleUnlike = (attractionId) => {
+    if (attractionId === attraction.attractionId) {
+      setIsLiked(false);
+    }
+  };
+
+  const handleCloseSavedTab = () => {
+    setIsSavedTabOpen(false);
+  };
+
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowNotification(false);
+  };
+
+  const handleNotificationClick = () => {
+    setIsSavedTabOpen(true);
+    setShowNotification(false);
   };
 
   if (loading) {
@@ -148,12 +216,34 @@ const AttractionDetails = () => {
             {attraction.attractionTypeName}
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
             {attraction.name}
           </Typography>
+
+          <Button
+            variant="outlined"
+            onClick={handleLikeClick}
+            startIcon={isLiked ? 
+              <FavoriteIcon sx={{ color: 'red' }} /> : 
+              <FavoriteBorderIcon />
+            }
+            sx={{
+              mb: 2,
+              borderRadius: '8px', 
+              textTransform: 'none',
+              color: isLiked ? 'red' : 'inherit',
+              borderColor: isLiked ? 'red' : 'inherit',
+              '&:hover': {
+                borderColor: isLiked ? 'red' : 'inherit',
+              }
+            }}
+          >
+            Lưu
+          </Button>
         </Box>
         <MediaShare attractionName={attraction.name} />
+        
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Paper elevation={3} sx={{ mb: 3, overflow: 'hidden', position: 'relative', maxWidth: '1000px' }}>
@@ -277,6 +367,55 @@ const AttractionDetails = () => {
         </Box>
       </Box>
       <Footer />
+      {isSavedTabOpen && 
+        <SideSavedTab 
+          onClose={handleCloseSavedTab} 
+          attraction={attraction} 
+          isLiked={isLiked} 
+          onUnlike={handleUnlike} 
+        />
+      }
+
+      <Snackbar
+        open={showNotification}
+        autoHideDuration={3000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ position: 'fixed', top: '24px', right: '24px' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity="success" 
+          action={
+            <Typography
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'primary.main',
+                fontWeight: 600,
+                '&:hover': { textDecoration: 'underline' }
+              }}
+              onClick={handleNotificationClick}
+            >
+              Mở thanh lưu trữ
+            </Typography>
+          }
+          sx={{ 
+            width: '100%', 
+            bgcolor: 'white', 
+            color: 'black', 
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
+            '& .MuiAlert-icon': { color: 'success.main' },
+            '& .MuiAlert-action': { 
+              alignItems: 'center', 
+              paddingTop: 0,
+              marginLeft: 1 
+            }
+          }}
+        >
+          Đã lưu vào lưu trữ của bạn ({savedCount} địa điểm)
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
