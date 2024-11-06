@@ -328,7 +328,7 @@ export default function Register() {
                                 }}
                                 sx={{ marginBottom: '-2px' }}
                                 error={!!errors.password}
-                                helperText={errors.password}
+                                helperText={'Mật khẩu cần ít nhất 8 ký tự, gồm 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt'}
                             />
                             <TextField
                                 margin="normal" required fullWidth name="passwordConfirm"
