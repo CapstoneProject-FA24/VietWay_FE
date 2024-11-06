@@ -65,7 +65,6 @@ export const getCookie = (name) => {
                     return null;
                 }
             }
-            console.log(value);
             return value;
         }
     }

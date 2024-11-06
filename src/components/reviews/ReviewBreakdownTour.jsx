@@ -1,27 +1,21 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Box, Typography, LinearProgress, Stack } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import { mockReviews } from '@hooks/MockReviews';
 
 const ratingLabels = ['Tuyệt vời', 'Tốt', 'Khá tốt', 'Tệ', 'Rất tệ'];
 const ratingColors = ['primary.main', 'primary.main', 'primary.main', 'primary.main', 'primary.main'];
 
-const ReviewBreakdown = ({ reviews }) => {
-  const { totalReviews, averageRating, ratings } = useMemo(() => {
-    const totalReviews = reviews.length;
-    const averageRating = totalReviews > 0 
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
-      : 0;
-    
-    // Initialize ratings array [5★, 4★, 3★, 2★, 1★]
-    const ratings = [0, 0, 0, 0, 0];
-    reviews.forEach(review => {
-      ratings[5 - review.rating]++;
-    });
+const totalReviews = mockReviews.length;
+const averageRating = mockReviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+const ratings = [0, 0, 0, 0, 0];
+mockReviews.forEach(review => {
+  ratings[5 - review.rating]++;
+});
 
-    return { totalReviews, averageRating, ratings };
-  }, [reviews]);
-
+const ReviewBreakdownTour = () => {
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -80,7 +74,7 @@ const ReviewBreakdown = ({ reviews }) => {
           </Stack>
           <LinearProgress
             variant="determinate"
-            value={totalReviews > 0 ? (ratings[index] / totalReviews) * 100 : 0}
+            value={(ratings[index] / totalReviews) * 100}
             sx={{
               height: 15,
               borderRadius: 3,
@@ -96,4 +90,4 @@ const ReviewBreakdown = ({ reviews }) => {
   );
 };
 
-export default ReviewBreakdown;
+export default ReviewBreakdownTour;

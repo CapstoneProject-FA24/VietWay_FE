@@ -1,5 +1,6 @@
 import axios from 'axios';
 import baseURL from '@api/BaseURL';
+import { getCookie } from '@services/AuthenService';
 
 export const fetchAttractions = async (params) => {
     try {
@@ -79,3 +80,106 @@ export const getAttractionById = async (id) => {
     }
 };
 
+export const getAttractionReviews = async (attractionId, params) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const queryParams = new URLSearchParams();
+
+        if (params.pageSize) queryParams.append('pageSize', params.pageSize);
+        if (params.pageIndex) queryParams.append('pageIndex', params.pageIndex);
+        if (params.isOrderedByLikeNumber !== undefined) {
+            queryParams.append('isOrderedByLikeNumber', params.isOrderedByLikeNumber);
+        }
+        if (params.isOrderedByCreatedDate !== undefined) {
+            queryParams.append('isOrderedByCreatedDate', params.isOrderedByCreatedDate);
+        }
+        if (params.hasReviewContent) queryParams.append('hasReviewContent', params.hasReviewContent);
+        if (params.ratingValues && params.ratingValues.length > 0) {
+            params.ratingValues.forEach(rating => queryParams.append('ratingValue', rating));
+        }
+
+        const response = await axios.get(`${baseURL}/api/attractions/${attractionId}/reviews?${queryParams.toString()}`,
+        {
+            headers: {
+                'Authorization': `Bearer ${customerToken}`
+            }
+        });
+        return {
+            total: response.data.data.total,
+            pageSize: response.data.data.pageSize,
+            pageIndex: response.data.data.pageIndex,
+            items: response.data.data.items.map(item => ({
+                reviewId: item.reviewId,
+                rating: item.rating,
+                review: item.review,
+                createdAt: item.createdAt,
+                reviewer: item.reviewer,
+                likeCount: item.likeCount
+            }))
+        };
+    } catch (error) {
+        console.error('Error getting attraction reviews:', error);
+        throw error;
+    }
+};
+
+export const getCurrentCustomerAttractionReviews = async (attractionId) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(`${baseURL}/api/attractions/${attractionId}/customer-reviews`, {
+            headers: {
+                'Authorization': `Bearer ${customerToken}`
+            }
+        });
+        return {
+            reviewId: response.data.data.reviewId,
+            rating: response.data.data.rating,
+            review: response.data.data.review,
+            createdAt: response.data.data.createdAt,
+            reviewer: response.data.data.reviewer,
+            likeCount: response.data.data.likeCount
+        };
+    } catch (error) {
+        console.error('Error getting attraction reviews:', error);
+        throw error;
+    }
+};
+
+export const addAttractionReview = async (attractionId, reviewData) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.post(`${baseURL}/api/attractions/${attractionId}/customer-reviews`, {
+            rating: reviewData.rating,
+            review: reviewData.review
+        },
+        {
+            headers: {
+                'Authorization': `Bearer ${customerToken}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding attraction review:', error);
+        throw error;
+    }
+};
+
+
+export const updateAttractionReview = async (attractionId, reviewData) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.put(`${baseURL}/api/attractions/${attractionId}/customer-reviews`, {
+            rating: reviewData.rating,
+            review: reviewData.review
+        },
+        {
+            headers: {
+                'Authorization': `Bearer ${customerToken}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding attraction review:', error);
+        throw error;
+    }
+};

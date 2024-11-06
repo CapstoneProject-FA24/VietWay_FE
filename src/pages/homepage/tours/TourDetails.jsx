@@ -13,7 +13,7 @@ import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/tours/OtherTours';
 import ReviewList from '@components/reviews/ReviewList';
-import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
+import ReviewBreakdownTour from '@components/reviews/ReviewBreakdownTour';
 import MediaShare from '@components/posts/MediaShare';
 import { getCookie } from '@services/AuthenService';
 
@@ -366,7 +366,7 @@ const TourDetails = () => {
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
-              <ReviewBreakdown />
+              <ReviewBreakdownTour />
             </Grid>
             <Grid item xs={12} md={8}>
               <ReviewList />
