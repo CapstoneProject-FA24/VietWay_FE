@@ -117,6 +117,11 @@ const ReviewList = ({ attractionId }) => {
     setReviewData(data);
   };
 
+  const handleReviewSubmitSuccess = async () => {
+    await fetchExistingReview();
+    await fetchReviews();
+  };
+
   return (
     <>
       <Grid container spacing={3}>
@@ -149,6 +154,7 @@ const ReviewList = ({ attractionId }) => {
                 attractionId={attractionId}
                 initialRating={existingReview?.rating || 0}
                 initialContent={existingReview?.review || ''}
+                onSubmitSuccess={handleReviewSubmitSuccess}
               />
             </Box>
           )}

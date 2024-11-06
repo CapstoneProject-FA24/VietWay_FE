@@ -45,7 +45,13 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const ReviewInput = ({ onDataChange, attractionId, initialRating = 0, initialContent = '' }) => {
+const ReviewInput = ({ 
+  onDataChange, 
+  attractionId, 
+  initialRating = 0, 
+  initialContent = '',
+  onSubmitSuccess
+}) => {
   const countWords = (text) => {
     const trimmedText = text.trim();
     return trimmedText === '' ? 0 : trimmedText.split(/\s+/).length;
@@ -109,6 +115,10 @@ const ReviewInput = ({ onDataChange, attractionId, initialRating = 0, initialCon
           severity: 'success',
           message: 'Đánh giá của bạn đã được gửi thành công!'
         });
+      }
+      
+      if (onSubmitSuccess) {
+        await onSubmitSuccess();
       }
     } catch (error) {
       console.error('Error submitting review:', error);
