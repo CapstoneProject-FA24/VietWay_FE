@@ -99,7 +99,15 @@ const AttractionCard = ({ attraction }) => {
                 </IconButton>
             </Card>
             
-            {isSavedTabOpen && <SideSavedTab onClose={handleCloseSavedTab} attraction={attraction} isLiked={isLiked} onUnlike={handleUnlike} />}
+            {isSavedTabOpen && 
+                <SideSavedTab 
+                    onClose={handleCloseSavedTab} 
+                    attraction={attraction} 
+                    isLiked={isLiked} 
+                    onUnlike={handleUnlike}
+                    initialTab={0}
+                />
+            }
 
             <Snackbar
                 open={showNotification}

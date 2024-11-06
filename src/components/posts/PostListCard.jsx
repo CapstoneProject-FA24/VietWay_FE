@@ -1,9 +1,54 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Chip, Box, Slide } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Chip, Box, Slide, IconButton, Snackbar, Alert } from '@mui/material';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { Link } from 'react-router-dom';
+import SideSavedTab from '@components/saved/SideSavedTab';
 
 const PostListCard = ({ post }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [savedCount, setSavedCount] = useState(0);
+    const TEN_MINUTES = 10 * 60 * 1000;
+
+    const handleUnbookmark = (postId) => {
+        setIsBookmarked(false);
+        setSavedCount(prev => prev - 1);
+        setIsSavedTabOpen(false);
+    };
+
+    const handleCloseSavedTab = () => {
+        setIsSavedTabOpen(false);
+    };
+
+    const handleCloseNotification = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setShowNotification(false);
+    };
+
+    const handleNotificationClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsSavedTabOpen(true);
+        setShowNotification(false);
+    };
+
+    const handleBookmarkClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isBookmarked) {
+            setIsSavedTabOpen(true);
+            return;
+        }
+        setIsBookmarked(true);
+        setSavedCount(prev => prev + 1);
+        setShowNotification(true);
+        setIsSavedTabOpen(true);
+    };
 
     return (
         <Card
@@ -54,14 +99,70 @@ const PostListCard = ({ post }) => {
                             fontSize: '0.8rem', fontWeight: 'bold',
                             bgcolor: 'rgba(255,255,255,0.8)', color: 'black', height: '25px'
                         }} />
-                    {/* <Chip
-                        label={`Ngày đăng: ${new Date(post.createdAt).toLocaleDateString('vi-VN')}`} size="medium" sx={{
-                            fontSize: '0.75rem',
-                            bgcolor: 'rgba(200,200,200,0.7)', color: 'black', height: '22px'
-                        }} />
-                    */}
+                    <IconButton 
+                    onClick={handleBookmarkClick}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    sx={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'white', width: '35px', height: '35px', zIndex: 2,
+                        '&:hover': { backgroundColor: 'white' } }}>
+                    {isBookmarked ? (
+                        <BookmarkIcon sx={{ color: 'primary.main', fontSize: '23px' }} />
+                    ) : (
+                        <BookmarkBorderIcon sx={{ color: '#666', fontSize: '23px' }} />
+                        )}
+                    </IconButton>
                 </Box>
             </CardContent>
+
+            {isSavedTabOpen && 
+                <SideSavedTab 
+                    onClose={handleCloseSavedTab} 
+                    post={post}
+                    isBookmarked={isBookmarked}
+                    onUnbookmark={handleUnbookmark}
+                    initialTab={1}
+                />
+            }
+
+            <Snackbar
+                open={showNotification}
+                autoHideDuration={3000}
+                onClose={handleCloseNotification}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                sx={{ position: 'fixed', top: '24px', right: '24px' }}>
+                <Alert onClose={handleCloseNotification} severity="success" action={
+                    <Typography
+                        component="span"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleNotificationClick(e);
+                        }}
+                        sx={{
+                            cursor: 'pointer',
+                            color: 'primary.main',
+                            fontWeight: 600,
+                            '&:hover': { textDecoration: 'underline' }
+                        }}
+                        >
+                            Mở thanh lưu trữ
+                        </Typography>
+                    }
+                    sx={{ 
+                        width: '100%', 
+                        bgcolor: 'white', 
+                        color: 'black', 
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
+                        '& .MuiAlert-icon': { color: 'success.main' },
+                        '& .MuiAlert-action': { 
+                            alignItems: 'center', 
+                            paddingTop: 0,
+                            marginLeft: 1 
+                        }
+                    }}
+                >
+                    Đã lưu vào lưu trữ của bạn ({savedCount} bài viết)
+                </Alert>
+            </Snackbar>
         </Card>
     );
 };

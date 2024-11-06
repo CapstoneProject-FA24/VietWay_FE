@@ -3,8 +3,8 @@ import { Box, Typography, IconButton, Stack, Tabs, Tab, Backdrop } from '@mui/ma
 import CloseIcon from '@mui/icons-material/Close';
 import CardTravelIcon from '@mui/icons-material/CardTravel';
 import AttractionSavedCard from '@components/saved/AttractionSavedCard';
+import PostSavedCard from '@components/saved/PostSavedCard';
 
-// Custom TabPanel component
 function CustomTabPanel({ children, value, index }) {
   return (
     <div
@@ -22,11 +22,17 @@ function CustomTabPanel({ children, value, index }) {
   );
 }
 
-const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
+const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initialTab = 0 }) => {
   const [savedAttractions, setSavedAttractions] = useState([]);
-  const [tabValue, setTabValue] = useState(0);
+  const [savedPosts, setSavedPosts] = useState([]);
+  const [tabValue, setTabValue] = useState(initialTab);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const THIRTY_MINUTES = 30 * 60 * 1000;
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+    setSavedAttractions(saved);
+  }, []);
 
   useEffect(() => {
     if (isLiked && attraction) {
@@ -42,22 +48,51 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
 
       setSavedAttractions(prev => {
         if (!prev.some(item => item.id === newAttraction.id)) {
-          return [newAttraction, ...prev];
+          const updatedAttractions = [newAttraction, ...prev];
+          localStorage.setItem('savedAttractions', JSON.stringify(updatedAttractions));
+          return updatedAttractions;
         }
         return prev;
       });
     }
   }, [isLiked, attraction]);
 
+  useEffect(() => {
+    if (isBookmarked && post) {
+      const newPost = {
+        id: post.postId,
+        title: post.title,
+        imageUrl: post.imageUrl,
+        category: post.postCategory,
+        province: post.provinceName
+      };
+
+      setSavedPosts(prev => {
+        if (!prev.some(item => item.id === newPost.id)) {
+          return [newPost, ...prev];
+        }
+        return prev;
+      });
+    }
+  }, [isBookmarked, post]);
+
   const handleUnlike = (attractionId) => {
     setSavedAttractions(prev => {
       const filtered = prev.filter(item => item.id !== attractionId);
+      localStorage.setItem('savedAttractions', JSON.stringify(filtered));
+      return filtered;
+    });
+  };
+
+  const handleUnbookmark = (postId) => {
+    setSavedPosts(prev => {
+      const filtered = prev.filter(item => item.id !== postId);
+      localStorage.setItem('savedPosts', JSON.stringify(filtered));
       return filtered;
     });
 
-    if (onUnlike) {
-      onUnlike(attractionId);
-    }
+    const event = new Event('storage');
+    window.dispatchEvent(event);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -81,8 +116,22 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
 
   return (
     <>
-      <Backdrop open={true} sx={{ zIndex: 1200 }} onClick={onClose} />
-      <Box sx={drawerStyles}>
+      <Backdrop 
+        open={true} 
+        sx={{ zIndex: 1200 }} 
+        onClick={(e) => {
+          e.preventDefault();  
+          e.stopPropagation();
+          onClose();
+        }} 
+      />
+      <Box 
+        sx={drawerStyles}
+        onClick={(e) => {
+          e.preventDefault();  
+          e.stopPropagation();
+        }}
+      >
         {timeRemaining && (
           <Typography variant="caption" sx={{ position: 'absolute', top: 8, right: 48, color: 'text.secondary' }}>
             Next show in: {Math.ceil(timeRemaining / (60 * 1000))} min
@@ -122,9 +171,20 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
           </CustomTabPanel>
           
           <CustomTabPanel value={tabValue} index={1}>
-            <Typography variant="body1" color="text.secondary" textAlign="center">
-              Chưa có bài viết nào được lưu
-            </Typography>
+            <Stack spacing={2}>
+              {savedPosts.map((post) => (
+                <PostSavedCard 
+                  key={post.id} 
+                  post={post}
+                  onUnbookmark={handleUnbookmark}
+                />
+              ))}
+              {savedPosts.length === 0 && (
+                <Typography variant="body1" color="text.secondary" textAlign="center">
+                  Chưa có bài viết nào được lưu
+                </Typography>
+              )}
+            </Stack>
           </CustomTabPanel>
         </Box>
 
