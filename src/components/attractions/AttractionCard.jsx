@@ -11,14 +11,7 @@ const AttractionCard = ({ attraction }) => {
     const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [savedCount, setSavedCount] = useState(0);
-    const TEN_MINUTES = 10 * 60 * 1000; // 10 minutes in milliseconds
-
-    // Check if attraction is liked on component mount
-    useEffect(() => {
-        const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-        const isAttractionSaved = saved.some(item => item.id === attraction.attractionId);
-        setIsLiked(isAttractionSaved);
-    }, [attraction.attractionId]);
+    const TEN_MINUTES = 10 * 60 * 1000;
 
     const handleLikeClick = (e) => {
         e.preventDefault();
@@ -29,58 +22,14 @@ const AttractionCard = ({ attraction }) => {
         }
 
         setIsLiked(true);
-        
-        const lastShownTime = localStorage.getItem('savedTabLastShown');
-        const currentTime = Date.now();
-        
-        if (!lastShownTime || (currentTime - parseInt(lastShownTime)) >= TEN_MINUTES) {
-            setIsSavedTabOpen(true);
-            localStorage.setItem('savedTabLastShown', currentTime.toString());
-            setSavedCount(1);
-        } else {
-            setSavedCount(prev => prev + 1);
-            setShowNotification(true);
-        }
-
-        const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-        if (!saved.some(item => item.id === attraction.attractionId)) {
-            const newSaved = [{
-                id: attraction.attractionId,
-                name: attraction.name,
-                imageUrl: attraction.imageUrl,
-                address: attraction.address,
-                province: attraction.province,
-                attractionType: attraction.attractionType,
-                rating: attraction.rating || 5
-            }, ...saved];
-            localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
-        }
+        setSavedCount(prev => prev + 1);
+        setShowNotification(true);
     };
 
     const handleUnlike = (attractionId) => {
         setIsLiked(false);
-        const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-        const newSaved = saved.filter(item => item.id !== attractionId);
-        localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
+        setSavedCount(prev => prev - 1);
     };
-
-    // Update isLiked state whenever savedAttractions changes in localStorage
-    useEffect(() => {
-        const handleStorageChange = () => {
-            const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-            const isAttractionSaved = saved.some(item => item.id === attraction.attractionId);
-            setIsLiked(isAttractionSaved);
-        };
-
-        // Listen for storage changes
-        window.addEventListener('storage', handleStorageChange);
-        // Initial check
-        handleStorageChange();
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, [attraction.attractionId]);
 
     const handleCloseSavedTab = () => {
         setIsSavedTabOpen(false);

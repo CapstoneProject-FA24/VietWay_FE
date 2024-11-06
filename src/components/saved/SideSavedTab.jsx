@@ -29,11 +29,6 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
   const THIRTY_MINUTES = 30 * 60 * 1000;
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-    setSavedAttractions(saved);
-  }, []);
-
-  useEffect(() => {
     if (isLiked && attraction) {
       const newAttraction = {
         id: attraction.attractionId,
@@ -47,9 +42,7 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
 
       setSavedAttractions(prev => {
         if (!prev.some(item => item.id === newAttraction.id)) {
-          const updatedAttractions = [newAttraction, ...prev];
-          localStorage.setItem('savedAttractions', JSON.stringify(updatedAttractions));
-          return updatedAttractions;
+          return [newAttraction, ...prev];
         }
         return prev;
       });
@@ -59,16 +52,12 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
   const handleUnlike = (attractionId) => {
     setSavedAttractions(prev => {
       const filtered = prev.filter(item => item.id !== attractionId);
-      localStorage.setItem('savedAttractions', JSON.stringify(filtered));
       return filtered;
     });
 
     if (onUnlike) {
       onUnlike(attractionId);
     }
-
-    const event = new Event('savedAttractionsUpdate');
-    window.dispatchEvent(event);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -89,21 +78,6 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
     overflowY: 'auto', 
     animation: 'slideIn 0.3s ease-out' 
   };
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-      setSavedAttractions(saved);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('savedAttractionsUpdate', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('savedAttractionsUpdate', handleStorageChange);
-    };
-  }, []);
 
   return (
     <>
