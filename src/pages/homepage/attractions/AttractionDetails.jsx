@@ -115,7 +115,6 @@ const AttractionDetails = () => {
       }, ...saved];
       localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
     }
-    console.log(saved);
   };
 
   const handleUnlike = (attractionId) => {
@@ -370,9 +369,16 @@ const AttractionDetails = () => {
       {isSavedTabOpen && 
         <SideSavedTab 
           onClose={handleCloseSavedTab} 
-          attraction={attraction} 
+          attraction={{
+            attractionId: attraction.attractionId,
+            name: attraction.name,
+            imageUrl: attraction.images[0].url,
+            address: attraction.address,
+            province: attraction.provinceName,
+            attractionType: attraction.attractionTypeName
+          }} 
           isLiked={isLiked} 
-          onUnlike={handleUnlike} 
+          onUnlike={handleUnlike}
         />
       }
 

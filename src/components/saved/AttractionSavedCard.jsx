@@ -5,7 +5,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const AttractionSavedCard = ({ attraction, onUnlike }) => {
   const handleUnlike = (e) => {
-    e.stopPropagation(); // Prevent card click event
+    e.stopPropagation();
     onUnlike(attraction.id);
   };
 

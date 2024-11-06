@@ -13,6 +13,13 @@ const AttractionCard = ({ attraction }) => {
     const [savedCount, setSavedCount] = useState(0);
     const TEN_MINUTES = 10 * 60 * 1000; // 10 minutes in milliseconds
 
+    // Check if attraction is liked on component mount
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+        const isAttractionSaved = saved.some(item => item.id === attraction.attractionId);
+        setIsLiked(isAttractionSaved);
+    }, [attraction.attractionId]);
+
     const handleLikeClick = (e) => {
         e.preventDefault();
         
@@ -51,10 +58,29 @@ const AttractionCard = ({ attraction }) => {
     };
 
     const handleUnlike = (attractionId) => {
-        if (attractionId === attraction.attractionId) {
-            setIsLiked(false);
-        }
+        setIsLiked(false);
+        const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+        const newSaved = saved.filter(item => item.id !== attractionId);
+        localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
     };
+
+    // Update isLiked state whenever savedAttractions changes in localStorage
+    useEffect(() => {
+        const handleStorageChange = () => {
+            const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+            const isAttractionSaved = saved.some(item => item.id === attraction.attractionId);
+            setIsLiked(isAttractionSaved);
+        };
+
+        // Listen for storage changes
+        window.addEventListener('storage', handleStorageChange);
+        // Initial check
+        handleStorageChange();
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, [attraction.attractionId]);
 
     const handleCloseSavedTab = () => {
         setIsSavedTabOpen(false);

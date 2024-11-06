@@ -29,40 +29,46 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
   const THIRTY_MINUTES = 30 * 60 * 1000;
 
   useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+    setSavedAttractions(saved);
+  }, []);
+
+  useEffect(() => {
     if (isLiked && attraction) {
+      const newAttraction = {
+        id: attraction.attractionId,
+        name: attraction.name,
+        imageUrl: attraction.imageUrl,
+        address: attraction.address,
+        province: attraction.province,
+        attractionType: attraction.attractionType,
+        rating: attraction.rating
+      };
+
       setSavedAttractions(prev => {
-        if (!prev.some(item => item.id === attraction.attractionId)) {
-          return [{
-            id: attraction.attractionId,
-            name: attraction.name,
-            imageUrl: attraction.imageUrl,
-            address: attraction.address,
-            province: attraction.province,
-            attractionType: attraction.attractionType,
-            rating: attraction.rating || 5
-          }, ...prev];
+        if (!prev.some(item => item.id === newAttraction.id)) {
+          const updatedAttractions = [newAttraction, ...prev];
+          localStorage.setItem('savedAttractions', JSON.stringify(updatedAttractions));
+          return updatedAttractions;
         }
         return prev;
       });
     }
   }, [isLiked, attraction]);
 
-  useEffect(() => {
-    const lastShownTime = localStorage.getItem('savedTabLastShown');
-    if (lastShownTime) {
-      const currentTime = Date.now();
-      const elapsedTime = currentTime - parseInt(lastShownTime);
-      const remainingTime = THIRTY_MINUTES - elapsedTime;
-      
-      if (remainingTime > 0) {
-        setTimeRemaining(remainingTime);
-      }
-    }
-  }, []);
-
   const handleUnlike = (attractionId) => {
-    setSavedAttractions(prev => prev.filter(item => item.id !== attractionId));
-    onUnlike(attractionId);
+    setSavedAttractions(prev => {
+      const filtered = prev.filter(item => item.id !== attractionId);
+      localStorage.setItem('savedAttractions', JSON.stringify(filtered));
+      return filtered;
+    });
+
+    if (onUnlike) {
+      onUnlike(attractionId);
+    }
+
+    const event = new Event('savedAttractionsUpdate');
+    window.dispatchEvent(event);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -83,6 +89,21 @@ const SideSavedTab = ({ onClose, attraction, isLiked, onUnlike }) => {
     overflowY: 'auto', 
     animation: 'slideIn 0.3s ease-out' 
   };
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
+      setSavedAttractions(saved);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('savedAttractionsUpdate', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('savedAttractionsUpdate', handleStorageChange);
+    };
+  }, []);
 
   return (
     <>
