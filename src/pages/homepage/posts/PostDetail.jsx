@@ -175,8 +175,8 @@ export default function PostDetail() {
                                 Đánh dấu
                             </Button>
                         </Box>
-
-                            {/* Title Section */}
+                        
+                        {/* Title Section */}
                         <Box sx={{ p: { xs: 3, md: 5 } }}>
                             <Typography
                                     variant="h1"
