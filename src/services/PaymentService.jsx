@@ -3,10 +3,10 @@ import baseURL from '@api/BaseURL';
 import { getCookie } from '@services/AuthenService';
 export const fetchPaymentURL = async (bookingId) => {
     try {
-        const token = getCookie('token');
+        const customerToken = getCookie('customerToken');
         const response = await axios.get(`${baseURL}/api/payments/${bookingId}?paymentMethod=0`, {
             headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${customerToken}`
         }});
         return response.data.data;
     } catch (error) {

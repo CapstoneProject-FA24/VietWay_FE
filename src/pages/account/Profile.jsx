@@ -28,8 +28,8 @@ const Profile = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = getCookie('token');
-        if (!token) {
+        const customerToken = getCookie('customerToken');
+        if (!customerToken) {
             navigate('/');
         }
         saveNavigationHistory(window.location.pathname);

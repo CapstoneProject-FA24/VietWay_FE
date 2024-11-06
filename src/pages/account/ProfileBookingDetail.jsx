@@ -70,8 +70,8 @@ const ProfileBookingDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = getCookie('token');
-    if (!token) { navigate('/'); }
+    const customerToken = getCookie('customerToken');
+    if (!customerToken) { navigate('/'); }
   }, []);
 
   const handlePayment = async () => {

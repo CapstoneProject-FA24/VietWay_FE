@@ -16,7 +16,7 @@ const PaymentDetail = () => {
   useEffect(() => {
     const loadPayment = async () => {
       try {
-        const token = getCookie('token');
+        const token = getCookie('customerToken');
         if (!token) {
             navigate('/');
         }

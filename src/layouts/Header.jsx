@@ -76,8 +76,8 @@ const Header = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const token = getCookie('token');
-    setIsLoggedIn(!!token);
+    const customercustomerToken = getCookie('customercustomerToken');
+    setIsLoggedIn(!!customercustomerToken);
 
     const handleScroll = () => {
       setScrollY(window.pageYOffset);
@@ -99,7 +99,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    removeCookie('token');
+    removeCookie('customercustomerToken');
     setIsLoggedIn(false);
     handleClose();
     navigate('/trang-chu');

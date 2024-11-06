@@ -3,11 +3,11 @@ import baseURL from '@api/BaseURL';
 import { getCookie } from '@services/AuthenService';
 
 export const fetchBookingData = async (bookingId) => {
-    const token = getCookie('token');
+    const customerToken = getCookie('customerToken');
     try {
         const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
         const bookingData = response.data.data;
@@ -41,7 +41,7 @@ export const fetchBookingData = async (bookingId) => {
 };
 
 export const createBooking = async (bookingData) => {
-    const token = getCookie('token');
+    const customerToken = getCookie('customerToken');
     try {
         const requestData = {
             tourId: bookingData.tourId,
@@ -60,7 +60,7 @@ export const createBooking = async (bookingData) => {
         };
         const response = await axios.post(`${baseURL}/api/bookings`, requestData, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
 
@@ -72,7 +72,7 @@ export const createBooking = async (bookingData) => {
 };
 
 export const fetchBookingList = async (pageCount, pageIndex) => {
-    const token = getCookie('token');
+    const customerToken = getCookie('customerToken');
     try {
         const response = await axios.get(`${baseURL}/api/bookings`, {
             params: {
@@ -80,7 +80,7 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 pageIndex
             },
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
         
@@ -109,7 +109,7 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
 };
 
 export const cancelBooking = async (bookingId, reason) => {
-    const token = getCookie('token');
+    const customerToken = getCookie('customerToken');
     try {
         const response = await axios.patch(
             `${baseURL}/api/bookings/${bookingId}`,
@@ -118,7 +118,7 @@ export const cancelBooking = async (bookingId, reason) => {
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${customerToken}`
                 }
             }
         );

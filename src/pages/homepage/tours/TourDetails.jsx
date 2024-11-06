@@ -76,7 +76,7 @@ const TourDetails = () => {
 
   useEffect(() => {
     if (tour && selectedMonth) {
-      const token = getCookie('token');
+      const token = getCookie('customerToken');
       setIsLoggedIn(!!token);
       const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
       setAvailableTours(filteredTours);
