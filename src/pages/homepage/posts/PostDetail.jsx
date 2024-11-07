@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Box, Chip, CardMedia, Grid, Container } from '@mui/material';
+import { Typography, Box, Chip, Link, CardMedia, Grid, Container, IconButton, Snackbar, Alert, Button } from '@mui/material';
 import { Helmet } from 'react-helmet';
 import { fetchPostById } from '@services/PostService';
 import RelatedPosts from '@components/posts/RelatedPosts';
@@ -10,12 +10,20 @@ import Footer from '@layouts/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faTag, faMapLocation } from '@fortawesome/free-solid-svg-icons';
 import MediaShare from '@components/posts/MediaShare';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import SideSavedTab from '@components/saved/SideSavedTab';
 
 export default function PostDetail() {
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const pageTopRef = useRef(null);
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [savedCount, setSavedCount] = useState(0);
+    const TEN_MINUTES = 10 * 60 * 1000;
 
     useEffect(() => {
         const loadPost = async () => {
@@ -37,6 +45,46 @@ export default function PostDetail() {
             pageTopRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [post]);
+
+    const handleBookmarkClick = () => {
+        if (isBookmarked) {
+            setIsSavedTabOpen(true);
+            return;
+        }
+
+        setIsBookmarked(true);
+        
+        const lastShownTime = localStorage.getItem('savedTabLastShown');
+        const currentTime = Date.now();
+        
+        if (!lastShownTime || (currentTime - parseInt(lastShownTime)) >= TEN_MINUTES) {
+            setIsSavedTabOpen(true);
+            localStorage.setItem('savedTabLastShown', currentTime.toString());
+            setSavedCount(1);
+        } else {
+            setSavedCount(prev => prev + 1);
+            setShowNotification(true);
+        }
+    };
+
+    const handleCloseSavedTab = () => {
+        setIsSavedTabOpen(false);
+    };
+
+    const handleCloseNotification = () => {
+        setShowNotification(false);
+    };
+
+    const handleNotificationClick = () => {
+        setIsSavedTabOpen(true);
+        setShowNotification(false);
+    };
+
+    const handleUnbookmark = () => {
+        setIsBookmarked(false);
+        setSavedCount(prev => prev - 1);
+        setIsSavedTabOpen(false);
+    };
 
     if (loading) {
         return <img src="/loading.gif" alt="Loading..." style={{ display: 'block', margin: 'auto' }} />;
@@ -107,9 +155,30 @@ export default function PostDetail() {
                             boxShadow: '0 4px 30px rgba(0,0,0,0.1)',
                             overflow: 'hidden'
                         }}>
-                            {/* Title Section */}
-                            <Box sx={{ p: { xs: 3, md: 5 } }}>
-                                <Typography
+
+                        {/* Bookmark Button */}
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button onClick={handleBookmarkClick} variant="outlined"
+                                sx={{ color: 'black',
+                                    marginLeft: 'auto',
+                                borderColor: 'black',
+                                textTransform: 'none',
+                                '&:hover': {
+                                borderColor: 'black',
+                                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                            }, padding: '6px 16px' }}
+                            startIcon={isBookmarked ? 
+                                <BookmarkIcon sx={{ color: 'primary.main' }} /> : 
+                                <BookmarkBorderIcon />
+                            }
+                            >
+                                Đánh dấu
+                            </Button>
+                        </Box>
+                        
+                        {/* Title Section */}
+                        <Box sx={{ p: { xs: 3, md: 5 } }}>
+                            <Typography
                                     variant="h1"
                                     sx={{
                                         fontSize: { xs: '2.5rem', md: '3.5rem' },
@@ -219,6 +288,64 @@ export default function PostDetail() {
                     <RelatedPosts provinceId={post.provinceId} currentPostId={post.id} />
                 </Box>
             </Container>
+
+            {isSavedTabOpen && 
+                <SideSavedTab 
+                    onClose={handleCloseSavedTab} 
+                    post={{
+                        postId: post.id,
+                        title: post.title,
+                        imageUrl: post.image,
+                        postCategory: post.category,
+                        provinceName: post.provinceName
+                    }}
+                    isBookmarked={isBookmarked}
+                    onUnbookmark={handleUnbookmark}
+                    initialTab={1}
+                />
+            }
+
+            <Snackbar
+                open={showNotification}
+                autoHideDuration={3000}
+                onClose={handleCloseNotification}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                sx={{ position: 'fixed', top: '24px', right: '24px' }}
+            >
+                <Alert 
+                    onClose={handleCloseNotification} 
+                    severity="success" 
+                    action={
+                        <Typography
+                            component="span"
+                            sx={{
+                                cursor: 'pointer',
+                                color: 'primary.main',
+                                fontWeight: 600,
+                                '&:hover': { textDecoration: 'underline' }
+                            }}
+                            onClick={handleNotificationClick}
+                        >
+                            Mở thanh lưu trữ
+                        </Typography>
+                    }
+                    sx={{ 
+                        width: '100%', 
+                        bgcolor: 'white', 
+                        color: 'black', 
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
+                        '& .MuiAlert-icon': { color: 'success.main' },
+                        '& .MuiAlert-action': { 
+                            alignItems: 'center', 
+                            paddingTop: 0,
+                            marginLeft: 1 
+                        }
+                    }}
+                >
+                    Đã lưu vào lưu trữ của bạn ({savedCount} bài viết)
+                </Alert>
+            </Snackbar>
+
             <Footer />
         </Box>
     );
