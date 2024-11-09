@@ -10,6 +10,7 @@ import CancelBooking from '@components/profiles/CancelBooking';
 import { cancelBooking } from '@services/BookingService';
 import { BookingStatus } from '../../hooks/Statuses';
 import { getBookingStatusInfo } from "@services/StatusService";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -87,14 +88,14 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
                       {tour.totalPrice.toLocaleString()} đ
                     </Typography>
                   </Box>
-                  {/* <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />
-                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian tour" value={`${formatDate(tour.startDate)} - ${formatDate(tour.endDate)}`} /> */}
+                  {/* <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} /> */}
+                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian khởi hành" value={`${formatDate(tour.startDate)}`} />
                 </Grid>
               </Grid>
             </CardContent>
           </Grid>
           <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
-            {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen, handlePayment, handleCancelOpen)}
+            {renderActionButtons(handleFeedbackOpen, handlePayment, handleCancelOpen, tour)}
           </Grid>
         </Grid>
         {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
@@ -154,13 +155,13 @@ const StatusChip = ({ status }) => {
   );
 };
 
-const renderActionButtons = (status, handleFeedbackOpen, handlePayment, handleCancelOpen) => {
-  switch (status) {
+const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen, tour) => {
+  switch (tour.bookedTourStatus) {
     case BookingStatus.Completed:
       return (
         <>
           <ActionButton onClick={handleFeedbackOpen} variant="contained" color="primary">Đánh giá</ActionButton>
-          <ActionButton variant="outlined" color="primary">Đặt Lại</ActionButton>
+          {/* <ActionButton variant="outlined" component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`} color="primary">Đặt Lại</ActionButton> */}
         </>
       );
     case BookingStatus.Confirmed:
@@ -173,8 +174,8 @@ const renderActionButtons = (status, handleFeedbackOpen, handlePayment, handleCa
         </>
       );
     default:
-      return <ActionButton variant="contained" color="primary">Đặt Lại</ActionButton>;
-      
+      //return <ActionButton variant="contained" component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`} color="primary">Đặt Lại</ActionButton>;
+      return <></>;
   }
 };
 

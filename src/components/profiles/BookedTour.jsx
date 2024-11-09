@@ -113,7 +113,8 @@ const BookedTour = () => {
                                         imageUrl: booking.imageUrl,
                                         numberOfParticipants: booking.numberOfParticipants,
                                         totalPrice: booking.totalPrice,
-                                        bookingDate: booking.bookingDate
+                                        bookingDate: booking.bookingDate,
+                                        startDate: booking.startDate
                                     }}
                                     onBookingCancelled={handleBookingCancelled}
                                 />

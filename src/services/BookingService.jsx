@@ -99,7 +99,8 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 bookingDate: booking.createdOn,
                 tourName: booking.tourName,
                 imageUrl: booking.imageUrl,
-                code: booking.code
+                code: booking.code,
+                startDate: booking.startDate,
             }))
         };
     } catch (error) {
