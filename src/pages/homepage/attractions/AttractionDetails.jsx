@@ -17,6 +17,10 @@ import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SideSavedTab from '@components/saved/SideSavedTab';
 import MediaShare from '@components/posts/MediaShare';
+import { fetchPlaceDetails } from '@services/GooglePlaceService';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const AttractionDetails = () => {
   const [attraction, setAttraction] = useState(null);
@@ -30,6 +34,7 @@ const AttractionDetails = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
   const TEN_MINUTES = 10 * 60 * 1000;
+  const [openingHours, setOpeningHours] = useState(null);
 
   useEffect(() => {
     const fetchAttractionData = async () => {
@@ -53,6 +58,22 @@ const AttractionDetails = () => {
       pageTopRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [attraction]);
+
+  useEffect(() => {
+    const getPlaceDetails = async () => {
+      if (attraction?.googlePlaceId) {
+        try {
+          const hours = await fetchPlaceDetails(attraction.googlePlaceId);
+          console.log(hours);
+          setOpeningHours(hours);
+        } catch (error) {
+          console.error('Error fetching opening hours:', error);
+        }
+      }
+    };
+
+    getPlaceDetails();
+  }, [attraction?.googlePlaceId]);
 
   const settings = {
     dots: true,
@@ -259,6 +280,71 @@ const AttractionDetails = () => {
 
               <Typography variant="h4" sx={{ mt: 4, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>Thông tin liên hệ</Typography>
               <div dangerouslySetInnerHTML={{ __html: attraction.contactInfo }} />
+
+              {attraction.googlePlaceId && (
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="h4" sx={{
+                    fontWeight: '700',
+                    fontFamily: 'Inter, sans-serif',
+                    color: '#05073C',
+                    fontSize: '27px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 2
+                  }}>
+                    Giờ mở cửa
+                  </Typography>
+
+                  {loading ? (
+                    <Typography sx={{ mt: 2 }}>Đang tải...</Typography>
+                  ) : openingHours ? (
+                    <>
+                      <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        mb: 2,
+                        color: openingHours.opening_hours.open_now ? 'success.main' : 'error.main'
+                      }}>
+                        {openingHours.opening_hours.open_now ? (
+                          <><CheckCircleIcon /> <Typography>Đang mở cửa</Typography></>
+                        ) : (
+                          <><CancelIcon /> <Typography>Đã đóng cửa</Typography></>
+                        )}
+                      </Box>
+                      <Paper elevation={3} sx={{ pl: 4, pr: 4, pt: 2, pb: 2, mb: 3, borderRadius: '10px' }}>
+                        <Box>
+                          {openingHours.opening_hours.periods.map((period, index) => {
+                            const days = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+                            const openTime = period.open.time.replace(/(\d{2})(\d{2})/, '$1:$2');
+                            const closeTime = period.close.time.replace(/(\d{2})(\d{2})/, '$1:$2');
+
+                            return (
+                              <Typography key={index} sx={{
+                                py: 1,
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                borderBottom: '1px solid #eee',
+                                '&:last-child': {
+                                  borderBottom: 'none'
+                                }
+                              }}>
+                                <span style={{ fontWeight: period.open.day === new Date().getDay() ? 700 : 400 }}>
+                                  {days[period.open.day]}
+                                </span>
+                                <span>{openTime} - {closeTime}</span>
+                              </Typography>
+                            );
+                          })}
+                        </Box>
+                      </Paper>
+                    </>
+                  ) : (
+                    <Typography sx={{ mt: 2 }}>Không có thông tin giờ mở cửa</Typography>
+                  )}
+                </Box>
+              )}
             </Paper>
           </Grid>
         </Grid>
@@ -267,7 +353,7 @@ const AttractionDetails = () => {
           <Typography variant="h4" sx={{ mb: 2, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>
             Đánh giá
           </Typography>
-          
+
           <Box sx={{ mt: 3 }}>
             <ReviewList attractionId={attraction.attractionId} />
           </Box>
