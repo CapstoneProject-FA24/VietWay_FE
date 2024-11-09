@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Stack, Tabs, Tab, Backdrop } from '@mui/material';
+import { Box, Typography, IconButton, Stack, Tabs, Tab } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import CardTravelIcon from '@mui/icons-material/CardTravel';
 import AttractionSavedCard from '@components/saved/AttractionSavedCard';
 import PostSavedCard from '@components/saved/PostSavedCard';
+import CardTravelIcon from '@mui/icons-material/CardTravel';
 
 function CustomTabPanel({ children, value, index }) {
   return (
@@ -26,77 +26,93 @@ const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initia
   const [savedAttractions, setSavedAttractions] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
   const [tabValue, setTabValue] = useState(initialTab);
-  const [timeRemaining, setTimeRemaining] = useState(null);
-  const THIRTY_MINUTES = 30 * 60 * 1000;
 
+  // Fetch saved attractions from API
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-    setSavedAttractions(saved);
+    const fetchSavedAttractions = async () => {
+      try {
+        // TODO: Replace with actual API call
+        // const response = await getSavedAttractions();
+        // setSavedAttractions(response.data);
+      } catch (error) {
+        console.error('Error fetching saved attractions:', error);
+      }
+    };
+
+    fetchSavedAttractions();
   }, []);
 
+  // Fetch saved posts from API
+  useEffect(() => {
+    const fetchSavedPosts = async () => {
+      try {
+        // TODO: Replace with actual API call
+        // const response = await getSavedPosts();
+        // setSavedPosts(response.data);
+      } catch (error) {
+        console.error('Error fetching saved posts:', error);
+      }
+    };
+
+    fetchSavedPosts();
+  }, []);
+
+  // Add new attraction to saved list
   useEffect(() => {
     if (isLiked && attraction) {
-      const newAttraction = {
-        id: attraction.attractionId,
-        name: attraction.name,
-        imageUrl: attraction.imageUrl,
-        address: attraction.address,
-        province: attraction.province,
-        attractionType: attraction.attractionType,
-        rating: attraction.rating
+      const addNewAttraction = async () => {
+        try {
+          // TODO: Replace with actual API call
+          // await saveAttraction(attraction);
+          setSavedAttractions(prev => [attraction, ...prev]);
+        } catch (error) {
+          console.error('Error saving attraction:', error);
+        }
       };
 
-      setSavedAttractions(prev => {
-        if (!prev.some(item => item.id === newAttraction.id)) {
-          const updatedAttractions = [newAttraction, ...prev];
-          localStorage.setItem('savedAttractions', JSON.stringify(updatedAttractions));
-          return updatedAttractions;
-        }
-        return prev;
-      });
+      addNewAttraction();
     }
   }, [isLiked, attraction]);
 
+  // Add new post to saved list
   useEffect(() => {
     if (isBookmarked && post) {
-      const newPost = {
-        id: post.postId,
-        title: post.title,
-        imageUrl: post.imageUrl,
-        category: post.postCategory,
-        province: post.provinceName
+      const addNewPost = async () => {
+        try {
+          // TODO: Replace with actual API call
+          // await savePost(post);
+          setSavedPosts(prev => [post, ...prev]);
+        } catch (error) {
+          console.error('Error saving post:', error);
+        }
       };
 
-      setSavedPosts(prev => {
-        if (!prev.some(item => item.id === newPost.id)) {
-          return [newPost, ...prev];
-        }
-        return prev;
-      });
+      addNewPost();
     }
   }, [isBookmarked, post]);
 
-  const handleUnlike = (attractionId) => {
-    setSavedAttractions(prev => {
-      const filtered = prev.filter(item => item.id !== attractionId);
-      localStorage.setItem('savedAttractions', JSON.stringify(filtered));
-      return filtered;
-    });
-  };
-
-  const handleUnbookmark = (postId) => {
-    setSavedPosts(prev => {
-      const filtered = prev.filter(item => item.id !== postId);
-      localStorage.setItem('savedPosts', JSON.stringify(filtered));
-      return filtered;
-    });
-
-    const event = new Event('storage');
-    window.dispatchEvent(event);
-  };
-
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const handleUnlike = async (attractionId) => {
+    try {
+      // TODO: Replace with actual API call
+      // await unlikeAttraction(attractionId);
+      setSavedAttractions(prev => prev.filter(item => item.id !== attractionId));
+    } catch (error) {
+      console.error('Error unliking attraction:', error);
+    }
+  };
+
+  const handleUnbookmark = async (postId) => {
+    try {
+      // TODO: Replace with actual API call
+      // await unbookmarkPost(postId);
+      setSavedPosts(prev => prev.filter(item => item.id !== postId));
+    } catch (error) {
+      console.error('Error unbookmarking post:', error);
+    }
   };
 
   const drawerStyles = { 
@@ -116,15 +132,6 @@ const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initia
 
   return (
     <>
-      <Backdrop 
-        open={true} 
-        sx={{ zIndex: 1200 }} 
-        onClick={(e) => {
-          e.preventDefault();  
-          e.stopPropagation();
-          onClose();
-        }} 
-      />
       <Box 
         sx={drawerStyles}
         onClick={(e) => {
@@ -132,11 +139,6 @@ const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initia
           e.stopPropagation();
         }}
       >
-        {timeRemaining && (
-          <Typography variant="caption" sx={{ position: 'absolute', top: 8, right: 48, color: 'text.secondary' }}>
-            Next show in: {Math.ceil(timeRemaining / (60 * 1000))} min
-          </Typography>
-        )}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', p: 3, ml: 1, position: 'sticky', top: 1, bgcolor: 'background.paper', zIndex: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CardTravelIcon fontSize="medium"/>

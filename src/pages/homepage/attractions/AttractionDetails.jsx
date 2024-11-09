@@ -82,12 +82,14 @@ const AttractionDetails = () => {
     }
   };
 
-  const handleLikeClick = () => {
-    if (isLiked) {
-      setIsSavedTabOpen(true);
-      return;
-    }
+  const handleLikeClick = async () => {
+    try {
+      if (isLiked) {
+        setIsSavedTabOpen(true);
+        return;
+      }
 
+<<<<<<< Updated upstream
     setIsLiked(true);
     
     const lastShownTime = localStorage.getItem('savedTabLastShown');
@@ -114,6 +116,20 @@ const AttractionDetails = () => {
         rating: attraction.rating || 5
       }, ...saved];
       localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
+=======
+      setIsLiked(true);
+      
+      const currentTime = Date.now();
+      if (!lastShownTime || (currentTime - lastShownTime) >= TEN_MINUTES) {
+        setIsSavedTabOpen(true);
+        setSavedCount(1);
+      } else {
+        setSavedCount(prev => prev + 1);
+        setShowNotification(true);
+      }
+    } catch (error) {
+      console.error('Error liking attraction:', error);
+>>>>>>> Stashed changes
     }
   };
 

@@ -10,6 +10,7 @@ import CancelBooking from '@components/profiles/CancelBooking';
 import { cancelBooking } from '@services/BookingService';
 import { BookingStatus } from '../../hooks/Statuses';
 import { getBookingStatusInfo } from "@services/StatusService";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -79,6 +80,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
                 </Grid>
                 <Grid item xs={12} md={6} component={Link} to={`/booking/${tour.bookingId}`}>
                   <InfoItem icon={<GroupOutlinedIcon />} label="Số lượng khách" value={tour.numberOfParticipants} />
+                  <InfoItem icon={<AccessTimeIcon />} label="Ngày đi" value={`${formatDate(tour.startDate)}`} />
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
                       Tổng tiền:
@@ -87,8 +89,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
                       {tour.totalPrice.toLocaleString()} đ
                     </Typography>
                   </Box>
-                  {/* <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />
-                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian tour" value={`${formatDate(tour.startDate)} - ${formatDate(tour.endDate)}`} /> */}
+                  {/*<InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />*/} 
                 </Grid>
               </Grid>
             </CardContent>

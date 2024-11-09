@@ -46,24 +46,26 @@ export default function PostDetail() {
         }
     }, [post]);
 
-    const handleBookmarkClick = () => {
-        if (isBookmarked) {
-            setIsSavedTabOpen(true);
-            return;
-        }
+    const handleBookmarkClick = async () => {
+        try {
+            if (isBookmarked) {
+                setIsSavedTabOpen(true);
+                return;
+            }
 
-        setIsBookmarked(true);
-        
-        const lastShownTime = localStorage.getItem('savedTabLastShown');
-        const currentTime = Date.now();
-        
-        if (!lastShownTime || (currentTime - parseInt(lastShownTime)) >= TEN_MINUTES) {
-            setIsSavedTabOpen(true);
-            localStorage.setItem('savedTabLastShown', currentTime.toString());
-            setSavedCount(1);
-        } else {
-            setSavedCount(prev => prev + 1);
-            setShowNotification(true);
+            setIsBookmarked(true);
+            
+            const currentTime = Date.now();
+            
+            if (!lastShownTime || (currentTime - lastShownTime) >= TEN_MINUTES) {
+                setIsSavedTabOpen(true);
+                setSavedCount(1);
+            } else {
+                setSavedCount(prev => prev + 1);
+                setShowNotification(true);
+            }
+        } catch (error) {
+            console.error('Error bookmarking post:', error);
         }
     };
 
