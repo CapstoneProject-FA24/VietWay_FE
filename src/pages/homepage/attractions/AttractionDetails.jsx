@@ -89,34 +89,8 @@ const AttractionDetails = () => {
         return;
       }
 
-<<<<<<< Updated upstream
-    setIsLiked(true);
-    
-    const lastShownTime = localStorage.getItem('savedTabLastShown');
-    const currentTime = Date.now();
-    
-    if (!lastShownTime || (currentTime - parseInt(lastShownTime)) >= TEN_MINUTES) {
-      setIsSavedTabOpen(true);
-      localStorage.setItem('savedTabLastShown', currentTime.toString());
-      setSavedCount(1);
-    } else {
-      setSavedCount(prev => prev + 1);
-      setShowNotification(true);
-    }
-
-    const saved = JSON.parse(localStorage.getItem('savedAttractions') || '[]');
-    if (!saved.some(item => item.id === attraction.attractionId)) {
-      const newSaved = [{
-        id: attraction.attractionId,
-        name: attraction.name,
-        imageUrl: attraction.images[0].url,
-        address: attraction.address,
-        province: attraction.provinceName,
-        attractionType: attraction.attractionTypeName,
-        rating: attraction.rating || 5
-      }, ...saved];
-      localStorage.setItem('savedAttractions', JSON.stringify(newSaved));
-=======
+      // TODO: Replace with actual API call
+      // await likeAttraction(attraction.id);
       setIsLiked(true);
       
       const currentTime = Date.now();
@@ -129,7 +103,6 @@ const AttractionDetails = () => {
       }
     } catch (error) {
       console.error('Error liking attraction:', error);
->>>>>>> Stashed changes
     }
   };
 
