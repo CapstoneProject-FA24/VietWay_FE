@@ -365,9 +365,6 @@ const TourDetails = () => {
             Đánh giá từ khách hàng
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
-              <ReviewBreakdownTour />
-            </Grid>
             <Grid item xs={12} md={8}>
               <ReviewList />
             </Grid>
