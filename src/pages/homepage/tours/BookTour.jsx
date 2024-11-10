@@ -80,7 +80,7 @@ const BookTour = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = getCookie('token');
+    const token = getCookie('customerToken');
     if (!token) {
       navigate('/');
     }

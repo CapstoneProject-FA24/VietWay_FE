@@ -1,4 +1,4 @@
-import baseURL from '@api/BaseURL';
+const baseURL = import.meta.env.VITE_API_URL;
 import axios from 'axios';
 import { getCookie } from '@services/AuthenService';
 
@@ -11,11 +11,11 @@ const getGender = (gender) => {
 };
 
 export const getCustomerInfo = async () => {
-    const token = getCookie('token');
+    const customerToken = getCookie('customerToken');
     try {
         const response = await axios.get(`${baseURL}/api/Customer/profile`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
         return {
@@ -35,7 +35,7 @@ export const getCustomerInfo = async () => {
 };
 
 export const updateCustomerInfo = async (customerData) => {
-    const token = getCookie('token');
+    const customerToken = getCookie('customerToken');
     try {
         const response = await axios.put(`${baseURL}/api/Customer/profile`, {
             fullName: customerData.fullName,
@@ -45,7 +45,7 @@ export const updateCustomerInfo = async (customerData) => {
             email: customerData.email
         }, {
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${customerToken}`,
                 'Content-Type': 'application/json'
             }
         });

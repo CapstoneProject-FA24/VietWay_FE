@@ -1,12 +1,12 @@
 import axios from 'axios';
-import baseURL from '@api/BaseURL';
+const baseURL = import.meta.env.VITE_API_URL;
 import { getCookie } from '@services/AuthenService';
 export const fetchPaymentURL = async (bookingId) => {
     try {
-        const token = getCookie('token');
-        const response = await axios.get(`${baseURL}/api/payments/${bookingId}?paymentMethod=0`, {
+        const customerToken = getCookie('customerToken');
+        const response = await axios.get(`${baseURL}/api/bookings/${bookingId}/payment-url?paymentMethod=0`, {
             headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${customerToken}`
         }});
         return response.data.data;
     } catch (error) {

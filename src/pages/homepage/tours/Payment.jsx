@@ -87,7 +87,7 @@ const PayBooking = () => {
   const currentPath = window.location.pathname;
   
   useEffect(() => {
-    const token = getCookie('token');
+    const token = getCookie('customerToken');
     if (!token) {
       navigate('/');
     }

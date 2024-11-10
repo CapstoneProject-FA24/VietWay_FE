@@ -1,4 +1,4 @@
-import baseURL from '@api/BaseURL';
+const baseURL = import.meta.env.VITE_API_URL;
 import axios from 'axios';
 
 export const login = async (credentials) => {
@@ -10,7 +10,7 @@ export const login = async (credentials) => {
         const response = await axios.post(`${baseURL}/api/account/login`, loginRequest);
         const data = response.data;
         if (data.data) {
-            setCookie('token', data.data);
+            setCookie('customerToken', data.data);
         }
         return data;
     } catch (error) {
@@ -56,7 +56,16 @@ export const getCookie = (name) => {
             cookie = cookie.substring(1);
         }
         if (cookie.indexOf(cookieName) === 0) {
-            return cookie.substring(cookieName.length);
+            const value = cookie.substring(cookieName.length);
+            const expiresMatch = cookie.match(/expires=([^;]+)/);
+            if (expiresMatch) {
+                const expiryDate = new Date(expiresMatch[1]);
+                if (expiryDate <= new Date()) {
+                    removeCookie(name);
+                    return null;
+                }
+            }
+            return value;
         }
     }
     return null;

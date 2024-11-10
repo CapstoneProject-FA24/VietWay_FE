@@ -1,19 +1,72 @@
-import React, { useState, useMemo } from 'react';
-import { Box, Button, Typography, Chip, Menu, MenuItem } from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Box, Button, Typography, Chip, Menu, MenuItem, CircularProgress, Grid, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Snackbar, Alert } from '@mui/material';
 import ReviewCard from '@components/reviews/ReviewCard';
-import { mockReviews } from '@hooks/MockReviews';
+import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { getAttractionReviews, getCurrentCustomerAttractionReviews } from '@services/AttractionService';
+import ReviewInput from '@components/reviews/ReviewInput';
+import { getCookie } from '@services/AuthenService';
 
-const ReviewList = () => {
-  const [visibleReviews, setVisibleReviews] = useState(3);
+const ReviewList = ({ attractionId }) => {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedRatings, setSelectedRatings] = useState([]);
   const [sortBy, setSortBy] = useState('helpful');
+  const [visibleReviews, setVisibleReviews] = useState(3);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [pageSize] = useState(100);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [showReviewInput, setShowReviewInput] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [reviewData, setReviewData] = useState({ rating: 0, content: '' });
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const [existingReview, setExistingReview] = useState(null);
+
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+      const response = await getAttractionReviews(attractionId, {
+        pageSize,
+        pageIndex,
+        isOrderedByLikeNumber: sortBy === 'helpful',
+        isOrderedByCreatedDate: sortBy === 'date',
+        ratingValues: selectedRatings.length > 0 ? selectedRatings : undefined
+      });
+      setReviews(response.items);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchExistingReview = async () => {
+    try {
+      if (getCookie('customerToken')) {
+        const response = await getCurrentCustomerAttractionReviews(attractionId);
+        if (response) {
+          setExistingReview(response);
+          setShowReviewInput(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching existing review:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (attractionId) {
+      fetchReviews();
+      fetchExistingReview();
+    }
+  }, [attractionId, selectedRatings, sortBy, pageIndex]);
 
   const handleRatingFilter = (rating) => {
-    setSelectedRatings(prev => 
-      prev.includes(rating) ? prev.filter(r => r !== rating) : [...prev, rating]
-    );
+    const newRatings = selectedRatings.includes(rating)
+      ? selectedRatings.filter(r => r !== rating)
+      : [...selectedRatings, rating];
+    setSelectedRatings(newRatings);
+    setPageIndex(1);
   };
 
   const handleSortMenuOpen = (event) => {
@@ -26,28 +79,9 @@ const ReviewList = () => {
 
   const handleSortChange = (newSortBy) => {
     setSortBy(newSortBy);
+    setPageIndex(1);
     handleSortMenuClose();
   };
-
-  const parseDate = (dateString) => {
-    const [month, year] = dateString.split(' ').slice(1);
-    const monthMap = {
-      '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5,
-      '7': 6, '8': 7, '9': 8, '10': 9, '11': 10, '12': 11
-    };
-    return new Date(parseInt(year), monthMap[month], 1);
-  };
-
-  const filteredAndSortedReviews = useMemo(() => {
-    let filtered = mockReviews;
-    if (selectedRatings.length > 0) {
-      filtered = filtered.filter(review => selectedRatings.includes(review.rating));
-    }
-    return filtered.sort((a, b) => {
-      if (sortBy === 'helpful') return b.helpful - a.helpful;
-      return parseDate(b.date) - parseDate(a.date);
-    });
-  }, [selectedRatings, sortBy]);
 
   const loadMoreReviews = () => {
     setVisibleReviews(prevVisible => prevVisible + 5);
@@ -57,78 +91,200 @@ const ReviewList = () => {
     setVisibleReviews(3);
   };
 
+  const handleToggleReviewInput = () => {
+    if (getCookie('customerToken') !== null) {
+      if (showReviewInput && (reviewData.rating > 0 || reviewData.content.trim() !== '')) {
+        setOpenConfirmDialog(true);
+      } else {
+        setShowReviewInput(!showReviewInput);
+      }
+    } else {
+      setShowLoginAlert(true);
+    }
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
+  };
+
+  const handleConfirmClose = () => {
+    setShowReviewInput(false);
+    setReviewData({ rating: 0, content: '' });
+    setOpenConfirmDialog(false);
+  };
+
+  const handleReviewDataChange = (data) => {
+    setReviewData(data);
+  };
+
+  const handleReviewSubmitSuccess = async () => {
+    await fetchExistingReview();
+    await fetchReviews();
+  };
+
   return (
-    <Box>
-      <Typography variant="h5" fontWeight="bold" mb={2}>Lọc theo đánh giá</Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Box>
-          {[5, 4, 3, 2, 1].map(rating => (
-            <Chip
-              key={rating}
-              label={`${rating} sao`}
-              onClick={() => handleRatingFilter(rating)}
-              color={selectedRatings.includes(rating) ? 'primary' : 'default'}
-              sx={{ mr: 1, mb: 1 }}
-            />
-          ))}
-          {/* {selectedRatings.length > 0 && (
-            <Typography variant="body2" color="text.secondary">
-              Lọc {selectedRatings.length} loại đánh giá
-            </Typography>
-          )} */}
-        </Box>
-        <Button
-          startIcon={<FilterListIcon />}
-          onClick={handleSortMenuOpen}
-        >
-          {sortBy === 'helpful' ? 'Hữu ích nhất' : 'Gần đây'}
-        </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleSortMenuClose}
-        >
-          <MenuItem onClick={() => handleSortChange('helpful')}>Hữu ích nhất</MenuItem>
-          <MenuItem onClick={() => handleSortChange('date')}>Gần đây</MenuItem>
-        </Menu>
-      </Box>
+    <>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={3}>
+          <ReviewBreakdown reviews={reviews} />
+        </Grid>
+        <Grid item xs={12} md={9}>
+          {!existingReview && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+              <Button
+                variant="outlined"
+                onClick={handleToggleReviewInput}
+                sx={{
+                  padding: '8px 15px',
+                  backgroundColor: 'white',
+                  color: 'primary.main',
+                  borderColor: 'primary.main',
+                  borderRadius: '13px',
+                }}
+              >
+                {showReviewInput ? 'Đóng đánh giá' : 'Thêm đánh giá'}
+              </Button>
+            </Box>
+          )}
 
-      {filteredAndSortedReviews.slice(0, visibleReviews).map((review, index) => (
-        <ReviewCard key={index} review={review} />
-      ))}
+          {(showReviewInput || existingReview) && (
+            <Box sx={{ mb: 3 }}>
+              <ReviewInput 
+                onDataChange={handleReviewDataChange} 
+                attractionId={attractionId}
+                initialRating={existingReview?.rating || 0}
+                initialContent={existingReview?.review || ''}
+                onSubmitSuccess={handleReviewSubmitSuccess}
+              />
+            </Box>
+          )}
+          <Typography variant="h5" fontWeight="bold" mb={2}>Lọc theo đánh giá</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+            <Box>
+              {[5, 4, 3, 2, 1].map(rating => (
+                <Chip
+                  key={rating}
+                  label={`${rating} sao`}
+                  onClick={() => handleRatingFilter(rating)}
+                  color={selectedRatings.includes(rating) ? 'primary' : 'default'}
+                  sx={{ mr: 1, mb: 1 }}
+                />
+              ))}
+            </Box>
+            <Button
+              startIcon={<FilterListIcon />}
+              onClick={handleSortMenuOpen}
+            >
+              {sortBy === 'helpful' ? 'Hữu ích nhất' : 'Gần đây'}
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleSortMenuClose}
+            >
+              <MenuItem onClick={() => handleSortChange('helpful')}>Hữu ích nhất</MenuItem>
+              <MenuItem onClick={() => handleSortChange('date')}>Gần đây</MenuItem>
+            </Menu>
+          </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
-        {visibleReviews < filteredAndSortedReviews.length && (
-          <Button 
-            variant="outlined" 
-            onClick={loadMoreReviews}
-            sx={{ textTransform: 'none' }}
-          >
-            Xem thêm đánh giá
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              {reviews.slice(0, visibleReviews).map((review) => (
+                <ReviewCard
+                  key={review.reviewId}
+                  review={{
+                    ...review,
+                    helpful: review.likeCount,
+                    date: new Date(review.createdAt).toLocaleDateString('vi-VN'),
+                    userName: review.reviewer.fullName,
+                    userAvatar: review.reviewer.avatarUrl
+                  }}
+                />
+              ))}
+
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+                {visibleReviews < reviews.length && (
+                  <Button
+                    variant="outlined"
+                    onClick={loadMoreReviews}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Xem thêm đánh giá
+                  </Button>
+                )}
+                {visibleReviews > 3 && (
+                  <Button
+                    variant="outlined"
+                    onClick={closeAdditionalReviews}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Đóng bớt đánh giá
+                  </Button>
+                )}
+              </Box>
+
+              {visibleReviews >= reviews.length && reviews.length > 0 && (
+                <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
+                  Đã hiển thị tất cả đánh giá
+                </Typography>
+              )}
+              {reviews.length === 0 && (
+                <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
+                  Không có đánh giá nào phù hợp với bộ lọc
+                </Typography>
+              )}
+            </>
+          )}
+        </Grid>
+      </Grid>
+
+      <Dialog
+        open={openConfirmDialog}
+        onClose={handleCloseConfirmDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Xác nhận đóng đánh giá"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn có chắc muốn đóng review này?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog}>Hủy</Button>
+          <Button onClick={handleConfirmClose} autoFocus>
+            Đồng ý
           </Button>
-        )}
-        {visibleReviews > 3 && (
-          <Button 
-            variant="outlined" 
-            onClick={closeAdditionalReviews}
-            sx={{ textTransform: 'none' }}
-          >
-            Đóng bớt đánh giá
-          </Button>
-        )}
-      </Box>
+        </DialogActions>
+      </Dialog>
 
-      {visibleReviews >= filteredAndSortedReviews.length && filteredAndSortedReviews.length > 0 && (
-        <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
-          Đã hiển thị tất cả đánh giá
-        </Typography>
-      )}
-      {filteredAndSortedReviews.length === 0 && (
-        <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
-          Không có đánh giá nào phù hợp với bộ lọc
-        </Typography>
-      )}
-    </Box>
+      <Snackbar
+        open={showLoginAlert}
+        autoHideDuration={3000}
+        onClose={() => setShowLoginAlert(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setShowLoginAlert(false)}
+          severity="warning"
+          sx={{
+            width: '100%',
+            bgcolor: '#ffeee1',
+            color: 'black',
+            mt: 10,
+            '& .MuiAlert-icon': { color: 'warning.main' }
+          }}
+        >
+          Vui lòng đăng nhập để thêm đánh giá
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

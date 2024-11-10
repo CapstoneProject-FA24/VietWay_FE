@@ -50,7 +50,7 @@ export default function Login() {
   const [previousPage, setPreviousPage] = useState('/');
 
   useEffect(() => {
-    const token = getCookie('token');
+    const token = getCookie('customerToken');
     if (token) { navigate('/'); }
     const prevPage = location.state?.previousPage || getPreviousPage();
     setPreviousPage(prevPage);

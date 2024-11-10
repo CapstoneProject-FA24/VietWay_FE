@@ -50,3 +50,5 @@ dist-ssr
 .prettierrc
 .prettierrc.*
 
+# Environment files
+.env
