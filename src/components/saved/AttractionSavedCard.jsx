@@ -6,7 +6,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 const AttractionSavedCard = ({ attraction, onUnlike }) => {
   const handleUnlike = (e) => {
     e.stopPropagation();
-    onUnlike(attraction.id);
+    onUnlike(attraction.attractionId);
   };
 
   return (

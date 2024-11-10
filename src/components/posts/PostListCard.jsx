@@ -11,7 +11,8 @@ const PostListCard = ({ post }) => {
     const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [savedCount, setSavedCount] = useState(0);
-    const TEN_MINUTES = 10 * 60 * 1000;
+    const [lastSavedTabOpenTime, setLastSavedTabOpenTime] = useState(null);
+    const THIRTY_MINUTES = 30 * 60 * 1000;
 
     const handleUnbookmark = (postId) => {
         setIsBookmarked(false);
@@ -33,21 +34,32 @@ const PostListCard = ({ post }) => {
     const handleNotificationClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsSavedTabOpen(true);
+        
+        const currentTime = Date.now();
+        
+        if (!lastSavedTabOpenTime || (currentTime - lastSavedTabOpenTime) >= THIRTY_MINUTES) {
+            setIsSavedTabOpen(true);
+            setLastSavedTabOpenTime(currentTime);
+        }
+        
         setShowNotification(false);
     };
 
-    const handleBookmarkClick = (e) => {
+    const handleBookmarkClick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (isBookmarked) {
-            setIsSavedTabOpen(true);
-            return;
+        
+        try {
+            if (!isBookmarked) {
+                setIsBookmarked(true);
+                setSavedCount(prev => prev + 1);
+                setShowNotification(true);
+            } else {
+                setShowNotification(true);
+            }
+        } catch (error) {
+            console.error('Error bookmarking post:', error);
         }
-        setIsBookmarked(true);
-        setSavedCount(prev => prev + 1);
-        setShowNotification(true);
-        setIsSavedTabOpen(true);
     };
 
     return (
@@ -116,7 +128,13 @@ const PostListCard = ({ post }) => {
             {isSavedTabOpen && 
                 <SideSavedTab 
                     onClose={handleCloseSavedTab} 
-                    post={post}
+                    post={{
+                        postId: post.postId,
+                        title: post.title,
+                        imageUrl: post.imageUrl,
+                        postCategory: post.postCategory,
+                        provinceName: post.provinceName
+                    }}
                     isBookmarked={isBookmarked}
                     onUnbookmark={handleUnbookmark}
                     initialTab={1}

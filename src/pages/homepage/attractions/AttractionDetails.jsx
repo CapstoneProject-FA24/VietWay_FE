@@ -89,8 +89,6 @@ const AttractionDetails = () => {
         return;
       }
 
-      // TODO: Replace with actual API call
-      // await likeAttraction(attraction.id);
       setIsLiked(true);
       
       const currentTime = Date.now();

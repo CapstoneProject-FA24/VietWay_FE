@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardMedia, Typography, Chip, Box, IconButton, Alert, Snackbar } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -11,24 +11,32 @@ const AttractionCard = ({ attraction }) => {
     const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [savedCount, setSavedCount] = useState(0);
-    const TEN_MINUTES = 10 * 60 * 1000;
+    const [lastSavedTabOpenTime, setLastSavedTabOpenTime] = useState(null);
+    const THIRTY_MINUTES = 30 * 60 * 1000;
 
-    const handleLikeClick = (e) => {
+    const handleLikeClick = async (e) => {
         e.preventDefault();
+        e.stopPropagation();
         
-        if (isLiked) {
-            setIsSavedTabOpen(true);
-            return;
+        try {
+            if (!isLiked) {
+                setIsLiked(true);
+                setSavedCount(prev => prev + 1);
+                setShowNotification(true);
+            } else {
+                setShowNotification(true);
+            }
+        } catch (error) {
+            console.error('Error handling like:', error);
         }
-
-        setIsLiked(true);
-        setSavedCount(prev => prev + 1);
-        setShowNotification(true);
     };
 
     const handleUnlike = (attractionId) => {
-        setIsLiked(false);
-        setSavedCount(prev => prev - 1);
+        if (attractionId === attraction.attractionId) {
+            setIsLiked(false);
+            setSavedCount(prev => Math.max(0, prev - 1));
+            setIsSavedTabOpen(false);
+        }
     };
 
     const handleCloseSavedTab = () => {
@@ -42,8 +50,17 @@ const AttractionCard = ({ attraction }) => {
         setShowNotification(false);
     };
 
-    const handleNotificationClick = () => {
-        setIsSavedTabOpen(true);
+    const handleNotificationClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const currentTime = Date.now();
+        
+        if (!lastSavedTabOpenTime || (currentTime - lastSavedTabOpenTime) >= THIRTY_MINUTES) {
+            setIsSavedTabOpen(true);
+            setLastSavedTabOpenTime(currentTime);
+        }
+        
         setShowNotification(false);
     };
 
@@ -99,32 +116,42 @@ const AttractionCard = ({ attraction }) => {
                 </IconButton>
             </Card>
             
-            {isSavedTabOpen && 
+            {isSavedTabOpen && (
                 <SideSavedTab 
-                    onClose={handleCloseSavedTab} 
-                    attraction={attraction} 
-                    isLiked={isLiked} 
+                    onClose={handleCloseSavedTab}
+                    attraction={{
+                        attractionId: attraction.attractionId,
+                        name: attraction.name,
+                        imageUrl: attraction.imageUrl,
+                        address: attraction.address,
+                        province: attraction.province,
+                        attractionType: attraction.attractionType
+                    }}
+                    isLiked={isLiked}
                     onUnlike={handleUnlike}
-                    initialTab={0}
                 />
-            }
+            )}
 
             <Snackbar
                 open={showNotification}
                 autoHideDuration={3000}
                 onClose={handleCloseNotification}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                sx={{ position: 'fixed', top: '24px', right: '24px' }}>
-                <Alert onClose={handleCloseNotification} severity="success" action={
-                    <Typography
-                        component="span"
-                        sx={{
-                            cursor: 'pointer',
-                            color: 'primary.main',
-                            fontWeight: 600,
-                            '&:hover': { textDecoration: 'underline' }
-                        }}
-                        onClick={handleNotificationClick}
+                sx={{ position: 'fixed', top: '24px', right: '24px' }}
+            >
+                <Alert 
+                    onClose={handleCloseNotification} 
+                    severity="success" 
+                    action={
+                        <Typography
+                            component="span"
+                            sx={{
+                                cursor: 'pointer',
+                                color: 'primary.main',
+                                fontWeight: 600,
+                                '&:hover': { textDecoration: 'underline' }
+                            }}
+                            onClick={handleNotificationClick}
                         >
                             Mở thanh lưu trữ
                         </Typography>

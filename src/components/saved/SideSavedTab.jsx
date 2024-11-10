@@ -22,12 +22,11 @@ function CustomTabPanel({ children, value, index }) {
   );
 }
 
-const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initialTab = 0 }) => {
+const SideSavedTab = ({ onClose, post, attraction, isLiked, isBookmarked, onUnlike, onUnbookmark, initialTab = 0 }) => {
   const [savedAttractions, setSavedAttractions] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
   const [tabValue, setTabValue] = useState(initialTab);
 
-  // Fetch saved attractions from API
   useEffect(() => {
     const fetchSavedAttractions = async () => {
       try {
@@ -57,61 +56,46 @@ const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initia
     fetchSavedPosts();
   }, []);
 
-  // Add new attraction to saved list
+
   useEffect(() => {
     if (isLiked && attraction) {
-      const addNewAttraction = async () => {
-        try {
-          // TODO: Replace with actual API call
-          // await saveAttraction(attraction);
-          setSavedAttractions(prev => [attraction, ...prev]);
-        } catch (error) {
-          console.error('Error saving attraction:', error);
+      setSavedAttractions(prev => {
+        const exists = prev.some(item => item.attractionId === attraction.attractionId);
+        if (!exists) {
+          return [attraction, ...prev];
         }
-      };
-
-      addNewAttraction();
+        return prev;
+      });
     }
   }, [isLiked, attraction]);
 
-  // Add new post to saved list
   useEffect(() => {
     if (isBookmarked && post) {
-      const addNewPost = async () => {
-        try {
-          // TODO: Replace with actual API call
-          // await savePost(post);
-          setSavedPosts(prev => [post, ...prev]);
-        } catch (error) {
-          console.error('Error saving post:', error);
+      setSavedPosts(prev => {
+        const exists = prev.some(p => p.postId === post.postId);
+        if (!exists) {
+          return [...prev, post];
         }
-      };
-
-      addNewPost();
+        return prev;
+      });
     }
-  }, [isBookmarked, post]);
+  }, [post, isBookmarked]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
   const handleUnlike = async (attractionId) => {
-    try {
-      // TODO: Replace with actual API call
-      // await unlikeAttraction(attractionId);
-      setSavedAttractions(prev => prev.filter(item => item.id !== attractionId));
-    } catch (error) {
-      console.error('Error unliking attraction:', error);
+    setSavedAttractions(prev => prev.filter(item => item.attractionId !== attractionId));
+    if (onUnlike) {
+      onUnlike(attractionId);
     }
   };
 
-  const handleUnbookmark = async (postId) => {
-    try {
-      // TODO: Replace with actual API call
-      // await unbookmarkPost(postId);
-      setSavedPosts(prev => prev.filter(item => item.id !== postId));
-    } catch (error) {
-      console.error('Error unbookmarking post:', error);
+  const handleUnbookmark = (postId) => {
+    setSavedPosts(prev => prev.filter(p => p.postId !== postId));
+    if (onUnbookmark) {
+      onUnbookmark(postId);
     }
   };
 
@@ -125,13 +109,25 @@ const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initia
     top: 0, 
     borderTopLeftRadius: 15, 
     borderBottomLeftRadius: 15, 
-    zIndex: 1201, 
+    zIndex: 9999,
     overflowY: 'auto', 
     animation: 'slideIn 0.3s ease-out' 
   };
 
   return (
     <>
+      <Box 
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          bgcolor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 9998,
+        }}
+        onClick={onClose}
+      />
       <Box 
         sx={drawerStyles}
         onClick={(e) => {
@@ -142,10 +138,18 @@ const SideSavedTab = ({ onClose, attraction, post, isLiked, isBookmarked, initia
         <Box sx={{ borderBottom: 1, borderColor: 'divider', p: 3, ml: 1, position: 'sticky', top: 1, bgcolor: 'background.paper', zIndex: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CardTravelIcon fontSize="medium"/>
-            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: 600, 
+                fontSize: '1.1rem',
+                userSelect: 'none',
+                cursor: 'default'
+              }}
+            >
               {tabValue === 0 ? 'Các điểm tham quan đã lưu' : 'Các bài viết đã lưu'}
             </Typography>
-            <IconButton onClick={onClose} size="small" sx={{ ml: 'auto', '&:hover': { backgroundColor: 'transparent' } }}>
+            <IconButton onClick={onClose} size="small" sx={{ ml: 'auto' }}>
               <CloseIcon />
             </IconButton>
           </Box>

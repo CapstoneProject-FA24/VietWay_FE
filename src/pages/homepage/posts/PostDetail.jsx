@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Box, Chip, Link, CardMedia, Grid, Container, IconButton, Snackbar, Alert, Button } from '@mui/material';
+import { Typography, Box, Chip, CardMedia, Grid, Container, Snackbar, Alert, Button } from '@mui/material';
 import { Helmet } from 'react-helmet';
 import { fetchPostById } from '@services/PostService';
 import RelatedPosts from '@components/posts/RelatedPosts';
