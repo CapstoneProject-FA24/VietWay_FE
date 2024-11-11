@@ -208,7 +208,10 @@ const Posts = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', ml: 1, mr: 1 }}>
-      <Helmet><title>Bài viết</title></Helmet> <Header />
+      <Helmet>
+        <title>Bài viết</title>
+      </Helmet>
+      <Header />
       <Box sx={{ flexGrow: 1, mt: 8 }}>
         <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', textAlign: 'left', mb: 2 }}>
           <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</Link> &gt; <strong>Bài viết</strong>
@@ -312,7 +315,7 @@ const Posts = () => {
                             fullWidth variant="outlined" placeholder="Tìm kiếm danh mục..."
                             value={categorySearchTerm} onChange={handleCategorySearchChange}
                             InputProps={{
-                              startAdornment: ( <InputAdornment position="start"> <SearchIcon /> </InputAdornment> ),
+                              startAdornment: (<InputAdornment position="start"> <SearchIcon /> </InputAdornment>),
                             }}
                             sx={{ '& .MuiInputBase-root': { height: '50px' } }}
                           />

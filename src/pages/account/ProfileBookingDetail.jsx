@@ -14,6 +14,7 @@ import { fetchPaymentURL } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";getCookie
 import { getPreviousPage } from "@utils/NavigationHistory";
 import dayjs from "dayjs";
+import { Helmet } from 'react-helmet';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -135,6 +136,9 @@ const ProfileBookingDetail = () => {
 
   return (
     <Box sx={{ width: '89vw' }}>
+      <Helmet>
+        <title>Thông tin booking</title>
+      </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>

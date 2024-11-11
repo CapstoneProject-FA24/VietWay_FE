@@ -13,6 +13,7 @@ import MediaShare from '@components/posts/MediaShare';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import SideSavedTab from '@components/saved/SideSavedTab';
+import { CircularProgress } from '@mui/material';
 
 export default function PostDetail() {
     const { id } = useParams();
@@ -54,9 +55,9 @@ export default function PostDetail() {
             }
 
             setIsBookmarked(true);
-            
+
             const currentTime = Date.now();
-            
+
             if (!lastShownTime || (currentTime - lastShownTime) >= TEN_MINUTES) {
                 setIsSavedTabOpen(true);
                 setSavedCount(1);
@@ -89,17 +90,32 @@ export default function PostDetail() {
     };
 
     if (loading) {
-        return <img src="/loading.gif" alt="Loading..." style={{ display: 'block', margin: 'auto' }} />;
+        return (
+            <>
+                <Helmet> <title>Chi tiết bài viết</title> </Helmet> <Header />
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+            </>
+        );
     }
 
     if (!post) {
-        return <Typography>Post not found</Typography>;
+        return (
+            <>
+              <Header />
+              <Helmet>
+                <title>Không tìm thấy bài viết</title>
+              </Helmet>
+              <Box sx={{ p: 3 }}>
+                <Typography variant="h4">Không tìm thấy thông tin bài viết</Typography>
+              </Box>
+            </>
+          );
     }
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '98vh', width: '99.6%' }} ref={pageTopRef}>
             <Helmet>
-                <title>{post.title} | VietWayTour</title>
+                <title>{post.title}</title>
             </Helmet>
             <Header />
 
@@ -158,29 +174,31 @@ export default function PostDetail() {
                             overflow: 'hidden'
                         }}>
 
-                        {/* Bookmark Button */}
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button onClick={handleBookmarkClick} variant="outlined"
-                                sx={{ color: 'black',
-                                    marginLeft: 'auto',
-                                borderColor: 'black',
-                                textTransform: 'none',
-                                '&:hover': {
-                                borderColor: 'black',
-                                backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                            }, padding: '6px 16px' }}
-                            startIcon={isBookmarked ? 
-                                <BookmarkIcon sx={{ color: 'primary.main' }} /> : 
-                                <BookmarkBorderIcon />
-                            }
-                            >
-                                Đánh dấu
-                            </Button>
-                        </Box>
-                        
-                        {/* Title Section */}
-                        <Box sx={{ p: { xs: 3, md: 5 } }}>
-                            <Typography
+                            {/* Bookmark Button */}
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button onClick={handleBookmarkClick} variant="outlined"
+                                    sx={{
+                                        color: 'black',
+                                        marginLeft: 'auto',
+                                        borderColor: 'black',
+                                        textTransform: 'none',
+                                        '&:hover': {
+                                            borderColor: 'black',
+                                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                                        }, padding: '6px 16px'
+                                    }}
+                                    startIcon={isBookmarked ?
+                                        <BookmarkIcon sx={{ color: 'primary.main' }} /> :
+                                        <BookmarkBorderIcon />
+                                    }
+                                >
+                                    Đánh dấu
+                                </Button>
+                            </Box>
+
+                            {/* Title Section */}
+                            <Box sx={{ p: { xs: 3, md: 5 } }}>
+                                <Typography
                                     variant="h1"
                                     sx={{
                                         fontSize: { xs: '2.5rem', md: '3.5rem' },
@@ -291,9 +309,9 @@ export default function PostDetail() {
                 </Box>
             </Container>
 
-            {isSavedTabOpen && 
-                <SideSavedTab 
-                    onClose={handleCloseSavedTab} 
+            {isSavedTabOpen &&
+                <SideSavedTab
+                    onClose={handleCloseSavedTab}
                     post={{
                         postId: post.id,
                         title: post.title,
@@ -314,9 +332,9 @@ export default function PostDetail() {
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 sx={{ position: 'fixed', top: '24px', right: '24px' }}
             >
-                <Alert 
-                    onClose={handleCloseNotification} 
-                    severity="success" 
+                <Alert
+                    onClose={handleCloseNotification}
+                    severity="success"
                     action={
                         <Typography
                             component="span"
@@ -331,16 +349,16 @@ export default function PostDetail() {
                             Mở thanh lưu trữ
                         </Typography>
                     }
-                    sx={{ 
-                        width: '100%', 
-                        bgcolor: 'white', 
-                        color: 'black', 
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
+                    sx={{
+                        width: '100%',
+                        bgcolor: 'white',
+                        color: 'black',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                         '& .MuiAlert-icon': { color: 'success.main' },
-                        '& .MuiAlert-action': { 
-                            alignItems: 'center', 
+                        '& .MuiAlert-action': {
+                            alignItems: 'center',
                             paddingTop: 0,
-                            marginLeft: 1 
+                            marginLeft: 1
                         }
                     }}
                 >

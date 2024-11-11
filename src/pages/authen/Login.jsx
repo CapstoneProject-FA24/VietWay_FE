@@ -47,17 +47,9 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const [previousPage, setPreviousPage] = useState('/');
-
-  useEffect(() => {
-    const token = getCookie('customerToken');
-    if (token) { navigate('/'); }
-    const prevPage = location.state?.previousPage || getPreviousPage();
-    setPreviousPage(prevPage);
-  }, [location]);
 
   const handleBackClick = () => {
-    navigate(previousPage);
+    navigate(-1);
   };
 
   const handleClickShowPassword = () => {
@@ -196,7 +188,7 @@ export default function Login() {
                   Chưa có tài khoản?
                   <Link
                     sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }}
-                    onClick={() => navigate('/dang-ky', { state: { previousPage } })}
+                    onClick={() => navigate('/dang-ky')}
                     variant="body2"
                     color='#FF8682'
                   >

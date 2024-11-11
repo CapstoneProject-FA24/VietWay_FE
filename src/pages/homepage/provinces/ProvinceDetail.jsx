@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Grid, Typography, Container, Box } from '@mui/material';
+import { Grid, Typography, Container, Box, CircularProgress } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AttractionCard from '@components/provinces/AttractionCard';
 import ImageGallery from '@components/provinces/ImageGallery';
@@ -17,7 +17,7 @@ import { fetchPosts } from '@services/PostService';
 import { fetchEventCategories } from '@services/EventCategoryService';
 import { fetchPostCategories } from '@services/PostCategoryService';
 import { fetchAttractionType } from '@services/AttractionTypeService';
-
+import { Helmet } from 'react-helmet';
 
 const ProvinceDetail = () => {
   const { id } = useParams();
@@ -32,6 +32,7 @@ const ProvinceDetail = () => {
   const [selectedAttractionType, setSelectedAttractionType] = useState('Tất cả');
   const [selectedPostCategory, setSelectedPostCategory] = useState('Tất cả');
   const [eventsCategory, setEventsCategory] = useState('Tất cả');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadProvince();
@@ -42,10 +43,13 @@ const ProvinceDetail = () => {
 
   const loadProvince = async () => {
     try {
+      setLoading(true);
       const response = await fetchProvinceInfo(id);
       setProvince(response);
     } catch (error) {
       console.error('Failed to fetch province info:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,7 +60,7 @@ const ProvinceDetail = () => {
         pageIndex: 1,
         provinceIds: [id]
       };
-      
+
       if (categoryId && categoryId !== 'Tất cả') {
         params.attractionTypeIds = [categoryId];
       }
@@ -82,7 +86,7 @@ const ProvinceDetail = () => {
         pageIndex: 1,
         provinceIds: [id]
       };
-      
+
       if (categoryId && categoryId !== 'Tất cả') {
         params.eventCategoryIds = [categoryId];
       }
@@ -180,7 +184,7 @@ const ProvinceDetail = () => {
   const handleAttractionCategoryChange = (category) => {
     if (typeof category === 'string') {
       setSelectedAttractionType(category);
-      const categoryId = category === 'Tất cả' ? null : 
+      const categoryId = category === 'Tất cả' ? null :
         attractionCategories.find(cat => cat.name === category)?.attractionTypeId;
       loadAttractions(categoryId);
     }
@@ -195,9 +199,31 @@ const ProvinceDetail = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <>
+        <Helmet> <title>Chi tiết tỉnh thành</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <CircularProgress />
+        </Box>
+      </>
+    );
+  }
+
+  if (!province) {
+    return (
+      <>
+        <Helmet> <title>Không tìm thấy tỉnh thành</title> </Helmet> <Header />
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h4">Không tìm thấy thông tin tỉnh thành</Typography>
+        </Box>
+      </>
+    );
+  }
+
   return (
     <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89vw' }}>
-      <Header />
+      <Helmet> <title>{province.provinceName}</title> </Helmet> <Header />
       {province && (
         <Box sx={{ ml: 5, mr: 5 }}>
           <ImageGallery images={province.imageUrls} />
