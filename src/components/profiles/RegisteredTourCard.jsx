@@ -8,7 +8,7 @@ import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import { Link, useNavigate } from 'react-router-dom';
 import CancelBooking from '@components/profiles/CancelBooking';
 import { cancelBooking } from '@services/BookingService';
-import { BookingStatus } from '../../hooks/Statuses';
+import { BookingStatus } from '@hooks/Statuses';
 import { getBookingStatusInfo } from "@services/StatusService";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 

@@ -15,7 +15,7 @@ import { getCookie } from "@services/AuthenService"; getCookie
 import { getPreviousPage } from "@utils/NavigationHistory";
 import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
-import { BookingStatus } from '../../hooks/Statuses';
+import { BookingStatus } from '@hooks/Statuses';
 import CancelBooking from '@components/profiles/CancelBooking';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
 import { VnPayCode } from "@hooks/VnPayCode";
