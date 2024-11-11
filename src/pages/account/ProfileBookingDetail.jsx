@@ -17,6 +17,8 @@ import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
 import { BookingStatus } from '../../hooks/Statuses';
 import CancelBooking from '@components/profiles/CancelBooking';
+import FeedbackPopup from '@components/profiles/FeedbackPopup';
+import { VnPayCode } from "@hooks/VnPayCode";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -86,6 +88,7 @@ const ProfileBookingDetail = () => {
     message: '',
     severity: 'success'
   });
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   useEffect(() => {
     const customerToken = getCookie('customerToken');
@@ -111,10 +114,23 @@ const ProfileBookingDetail = () => {
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
-        if (vnpCode === "00") { setOpenSnackbar(true); }
-        else if (vnpCode !== null) {
-          navigate(`/dat-tour/thanh-toan/${id}?vnpCode=${vnpCode}`);
+        
+        // Handle VNPay response
+        if (vnpCode) {
+          const message = VnPayCode[vnpCode] || 'Giao dịch thất bại';
+          setSnackbar({
+            open: true,
+            message: message,
+            severity: vnpCode === '00' ? 'success' : 'error'
+          });
+          
+          // Refresh data after successful payment
+          if (vnpCode === '00') {
+            const updatedData = await fetchBookingData(id);
+            setBookingData(updatedData);
+          }
         }
+
         if (vnpAmount) {
           const paidAmount = parseInt(vnpAmount) / 100;
           data.paymentMethod = "VNPay";
@@ -124,6 +140,11 @@ const ProfileBookingDetail = () => {
         setBookingData(data);
       } catch (error) {
         console.error("Error fetching booking details:", error);
+        setSnackbar({
+          open: true,
+          message: 'Có lỗi xảy ra khi tải thông tin đặt tour',
+          severity: 'error'
+        });
       } finally {
         setLoading(false);
       }
@@ -157,20 +178,23 @@ const ProfileBookingDetail = () => {
         message: 'Hủy đặt tour thành công',
         severity: 'success'
       });
-      // Refresh the booking data
-      const data = await fetchBookingData(id);
-      setBookingData(data);
+      // Refresh the booking data after cancellation
+      const updatedData = await fetchBookingData(id);
+      setBookingData(updatedData);
     } catch (error) {
       console.error('Failed to cancel booking:', error);
       setSnackbar({
         open: true,
-        message: 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
+        message: error.response?.data?.message || 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
         severity: 'error'
       });
     } finally {
       setCancelLoading(false);
     }
   };
+
+  const handleFeedbackOpen = () => setIsFeedbackOpen(true);
+  const handleFeedbackClose = () => setIsFeedbackOpen(false);
 
   const renderActionButtons = () => {
     if (!bookingData) return null;
@@ -195,14 +219,13 @@ const ProfileBookingDetail = () => {
             >
               Đánh giá
             </ActionButton>
-            {/* <ActionButton 
-              variant="outlined" 
+            <ActionButton
+              variant="outlined"
               color="primary"
-              component={Link}
-              to={`/tour-du-lich/${bookingData.tourTemplateId}`}
+              onClick={handleFeedbackOpen}
             >
-              Đặt Lại
-            </ActionButton> */}
+              Đánh giá
+            </ActionButton>
           </Box>
         );
       case BookingStatus.Confirmed:
@@ -503,6 +526,12 @@ const ProfileBookingDetail = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      {isFeedbackOpen && (
+        <FeedbackPopup 
+          onClose={handleFeedbackClose} 
+          tourId={bookingData.tourId} 
+        />
+      )}
     </Box>
   );
 };
