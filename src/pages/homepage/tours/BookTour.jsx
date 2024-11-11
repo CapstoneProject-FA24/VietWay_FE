@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, CircularProgress, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText, Snackbar, Alert } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Header from "@layouts/Header";
@@ -18,6 +18,7 @@ import { getCookie } from "@services/AuthenService";
 import dayjs from 'dayjs';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Helmet } from 'react-helmet';
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -78,6 +79,7 @@ const BookTour = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('error');
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = getCookie('customerToken');
@@ -88,30 +90,37 @@ const BookTour = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const customer = await getCustomerInfo();
-      const tour = await fetchTourById(id);
-      const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
-      const data = {
-        tourTemplateId: tour.tourTemplateId, imageUrls: tourTemplate.imageUrls,
-        tourName: tourTemplate.tourName, code: tourTemplate.code,
-        duration: tourTemplate.duration, startLocation: tour.startLocation,
-        startTime: tour.startTime, startDate: tour.startDate,
-        endDate: tour.endDate, price: tour.price,
-        infantPrice: tour.price / 10,
-        childPrice: tour.price * (70 / 100)
+      try {
+        setLoading(true);
+        const customer = await getCustomerInfo();
+        const tour = await fetchTourById(id);
+        const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
+        const data = {
+          tourTemplateId: tour.tourTemplateId, imageUrls: tourTemplate.imageUrls,
+          tourName: tourTemplate.tourName, code: tourTemplate.code,
+          duration: tourTemplate.duration, startLocation: tour.startLocation,
+          startTime: tour.startTime, startDate: tour.startDate,
+          endDate: tour.endDate, price: tour.price,
+          infantPrice: tour.price / 10,
+          childPrice: tour.price * (70 / 100)
+        }
+        setBookingData(data);
+        setFormData(prevState => ({
+          ...prevState,
+          fullName: customer.fullName, email: customer.email,
+          phone: customer.phone, address: customer.address || "",
+          passengers: [{
+            type: 'adult',
+            name: customer.fullName,
+            gender: customer.genderId,
+            birthday: dayjs(customer.birthday).format('YYYY-MM-DD')
+          }]
+        }));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
-      setBookingData(data);
-      setFormData(prevState => ({
-        ...prevState,
-        fullName: customer.fullName, email: customer.email,
-        phone: customer.phone, address: customer.address || "",
-        passengers: [{
-          type: 'adult',
-          name: customer.fullName,
-          gender: customer.genderId,
-          birthday: dayjs(customer.birthday).format('YYYY-MM-DD')
-        }]
-      }));
     };
     fetchData();
     if (topRef.current) {
@@ -323,19 +332,32 @@ const BookTour = () => {
     setOpenSnackbar(false);
   };
 
-  if (!bookingData) {
+  if (loading) {
     return (
-      <>
-        <Header />
-        <div style={{ display: "flex", alignItems: "center", height: "80vh" }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </div>
-      </>
+        <>
+            <Helmet> <title>Đặt tour</title> </Helmet> <Header />
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+        </>
     );
-  }
+}
+
+if (!bookingData) {
+    return (
+        <>
+          <Header />
+          <Helmet>
+            <title>Không tìm thấy tour</title>
+          </Helmet>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h4">Không tìm thấy thông tin tour</Typography>
+          </Box>
+        </>
+      );
+}
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", width: "89vw" }} ref={topRef}>
+      <Helmet><title>Đặt tour</title></Helmet>
       <Header />
       <ContentContainer sx={{ width: "100%" }}>
         <StyledBox>
@@ -537,14 +559,14 @@ const BookTour = () => {
                   <Typography variant="body2">Ngày kết thúc:</Typography>
                   <Typography variant="body2">{
                     (() => {
-                        if (bookingData) {
-                            const endDate = calculateEndDate(bookingData.startDate, { durationName: bookingData.duration });
-                            sessionStorage.setItem('endDate', endDate ? endDate.toLocaleDateString('vi-VN') : '');
-                            return endDate ? endDate.toLocaleDateString('vi-VN') : '';
-                        }
-                        return '';
+                      if (bookingData) {
+                        const endDate = calculateEndDate(bookingData.startDate, { durationName: bookingData.duration });
+                        sessionStorage.setItem('endDate', endDate ? endDate.toLocaleDateString('vi-VN') : '');
+                        return endDate ? endDate.toLocaleDateString('vi-VN') : '';
+                      }
+                      return '';
                     })()
-                }</Typography>
+                  }</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Thời lượng:</Typography>

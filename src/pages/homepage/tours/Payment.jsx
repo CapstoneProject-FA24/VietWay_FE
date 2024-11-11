@@ -13,6 +13,7 @@ import { styled } from "@mui/material/styles";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { BookingStatus } from "@hooks/Statuses";
 import { getCookie } from "@services/AuthenService";
+import { Helmet } from 'react-helmet';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -138,10 +139,8 @@ const PayBooking = () => {
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Thanh toán</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -150,6 +149,7 @@ const PayBooking = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", width: '89vw' }}>
+      <Helmet> <title>Thanh toán</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>

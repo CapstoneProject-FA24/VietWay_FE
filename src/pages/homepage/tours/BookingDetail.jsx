@@ -14,6 +14,7 @@ import { fetchCreatePayment } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";
 import { saveNavigationHistory, getPreviousPageBooking } from '@utils/NavigationHistory';
 import dayjs from 'dayjs';
+import { Helmet } from 'react-helmet';
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -139,10 +140,8 @@ const BookingDetail = () => {
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Chi tiết booking</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -151,6 +150,7 @@ const BookingDetail = () => {
 
   return (
     <Box sx={{ width: "89vw" }}>
+      <Helmet> <title>Chi tiết booking</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>

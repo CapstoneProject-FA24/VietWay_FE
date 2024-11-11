@@ -12,6 +12,7 @@ import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";
+import { Helmet } from 'react-helmet';
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -141,10 +142,8 @@ const BookingDetailPayLater = () => {
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Hoàn thành</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -153,6 +152,7 @@ const BookingDetailPayLater = () => {
 
   return (
     <Box sx={{ width: '89vw' }}>
+      <Helmet> <title>Hoàn thành</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>
