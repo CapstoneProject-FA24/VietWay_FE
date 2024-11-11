@@ -14,6 +14,7 @@ import { getBookingStatusInfo } from "@services/StatusService";
 import { BookingStatus } from "@hooks/Statuses";
 import { getCookie } from "@services/AuthenService";
 import { Helmet } from 'react-helmet';
+import { VnPayCode } from "@hooks/VnPayCode";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -83,6 +84,8 @@ const PayBooking = () => {
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('warning');
   const { id } = useParams();
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
@@ -115,6 +118,25 @@ const PayBooking = () => {
 
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const vnpCode = queryParams.get('vnpCode');
+    
+    if (vnpCode) {
+      const message = VnPayCode[vnpCode] || 'Giao dịch thất bại';
+      setSnackbarMessage(message);
+      setSnackbarSeverity(vnpCode === '00' ? 'success' : 'error');
+      setOpenSnackbar(true);
+      
+      // Redirect after payment result
+      if (vnpCode === '00') {
+        setTimeout(() => {
+          navigate(`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${id}`);
+        }, 2000);
+      }
+    }
+  }, []);
 
   const handlePayment = async () => {
     if (paymentMethod !== '') {
@@ -153,9 +175,9 @@ const PayBooking = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Link to={`${currentPath.includes('dat-tour') ? `/dat-tour/${bookingData.bookingId}` : `/tai-khoan`}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
+          {/* <Link to={`${currentPath.includes('dat-tour') ? `/dat-tour/${bookingData.bookingId}` : `/tai-khoan`}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
             <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
-          </Link>
+          </Link> */}
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>
@@ -312,8 +334,8 @@ const PayBooking = () => {
       </ContentContainer>
       <Footer />
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={3000} open={openSnackbar} onClose={handleCloseSnackbar}>
-        <MuiAlert onClose={handleCloseSnackbar} severity="warning" sx={{ width: '100%' }}>
-          Vui lòng chọn phương thức thanh toán
+        <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage || 'Vui lòng chọn phương thức thanh toán'}
         </MuiAlert>
       </Snackbar>
     </Box>

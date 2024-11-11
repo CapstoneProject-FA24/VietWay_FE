@@ -108,6 +108,9 @@ const BookingDetail = () => {
           data.paymentMethod = "VNPay";
           data.paidAmount = paidAmount;
         }
+        else if (vnpCode !== null){
+          navigate(`/dat-tour/thanh-toan/${id}?vnpCode=${vnpCode}`);
+        }
         setBookingData(data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -148,7 +151,7 @@ const BookingDetail = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <div
+          {/* <div
             onClick={handleGoBack}
             style={{
               textDecoration: "none",
@@ -161,7 +164,7 @@ const BookingDetail = () => {
             }}
           >
             <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
-          </div>
+          </div> */}
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>
@@ -209,7 +212,7 @@ const BookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
-                  <Typography>{bookingData.totalPrice.toLocaleString()} đ</Typography>
+                  <Typography>{bookingData?.totalPrice?.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
@@ -217,7 +220,7 @@ const BookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Số tiền đã thanh toán:</Typography>
-                  <Typography>{bookingData.paidAmount.toLocaleString()} đ</Typography>
+                  <Typography>{bookingData?.paidAmount?.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Tình trạng:</Typography>
@@ -254,7 +257,7 @@ const BookingDetail = () => {
                   <Box key={index} mb={2}>
                     <SummaryItem>
                       <Typography>Số tiền:</Typography>
-                      <Typography>{payment.amount.toLocaleString()} đ</Typography>
+                      <Typography>{payment?.amount?.toLocaleString()} đ</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Thời gian:</Typography>
@@ -290,7 +293,7 @@ const BookingDetail = () => {
                   Mã tour: {bookingData.code}
                 </Typography>
                 <TotalPrice variant="h6">
-                  Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
+                  Tổng tiền: {bookingData?.totalPrice?.toLocaleString()} đ
                 </TotalPrice>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>

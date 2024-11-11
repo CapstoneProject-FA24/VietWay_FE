@@ -80,7 +80,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
                 </Grid>
                 <Grid item xs={12} md={6} component={Link} to={`/booking/${tour.bookingId}`}>
                   <InfoItem icon={<GroupOutlinedIcon />} label="Số lượng khách" value={tour.numberOfParticipants} />
-                  <InfoItem icon={<AccessTimeIcon />} label="Ngày đi" value={`${formatDate(tour.startDate)}`} />
+                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian khởi hành" value={`${formatDate(tour.startDate)}`} />
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
                       Tổng tiền:
@@ -90,7 +90,6 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
                     </Typography>
                   </Box>
                   {/* <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} /> */}
-                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian khởi hành" value={`${formatDate(tour.startDate)}`} />
                 </Grid>
               </Grid>
             </CardContent>

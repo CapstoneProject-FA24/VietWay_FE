@@ -63,6 +63,13 @@ const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
   },
 }));
 
+const ActionButton = styled(Button)(({ theme }) => ({
+  marginBottom: theme.spacing(1),
+  width: '100%',
+  height: '40px',
+  borderRadius: '8px'
+}));
+
 const ProfileBookingDetail = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -105,6 +112,9 @@ const ProfileBookingDetail = () => {
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
         if (vnpCode === "00") { setOpenSnackbar(true); }
+        else if (vnpCode !== null) {
+          navigate(`/dat-tour/thanh-toan/${id}?vnpCode=${vnpCode}`);
+        }
         if (vnpAmount) {
           const paidAmount = parseInt(vnpAmount) / 100;
           data.paymentMethod = "VNPay";
@@ -130,8 +140,7 @@ const ProfileBookingDetail = () => {
   };
 
   const handleGoBack = () => {
-    const previousPage = getPreviousPage();
-    navigate(previousPage);
+    navigate(-1);
   };
 
   const handleCancelOpen = () => setIsCancelOpen(true);
@@ -166,50 +175,66 @@ const ProfileBookingDetail = () => {
   const renderActionButtons = () => {
     if (!bookingData) return null;
 
+    const buttonContainer = {
+      display: 'flex',
+      flexDirection: 'column',
+      mt: 2,
+      px: 2,
+      pb: 2
+    };
+
     switch (bookingData.status) {
       case BookingStatus.Completed:
         return (
-          <Button
-            variant="contained"
-            fullWidth
-            component={Link}
-            to={`/feedback/${bookingData.tourId}`}
-          >
-            Đánh giá
-          </Button>
+          <Box sx={buttonContainer}>
+            <ActionButton
+              variant="contained"
+              color="primary"
+              component={Link}
+              to={`/feedback/${bookingData.tourId}`}
+            >
+              Đánh giá
+            </ActionButton>
+            {/* <ActionButton 
+              variant="outlined" 
+              color="primary"
+              component={Link}
+              to={`/tour-du-lich/${bookingData.tourTemplateId}`}
+            >
+              Đặt Lại
+            </ActionButton> */}
+          </Box>
         );
       case BookingStatus.Confirmed:
         return (
-          <Button
-            variant="outlined"
-            fullWidth
-            onClick={handleCancelOpen}
-            color="primary"
-          >
-            Hủy Đặt
-          </Button>
+          <Box sx={buttonContainer}>
+            <ActionButton
+              variant="outlined"
+              color="primary"
+              onClick={handleCancelOpen}
+            >
+              Hủy Đặt
+            </ActionButton>
+          </Box>
         );
       case BookingStatus.Pending:
         return (
-          <>
-            <Button
+          <Box sx={buttonContainer}>
+            <ActionButton
               variant="contained"
-              fullWidth
-              onClick={handlePayment}
               color="error"
-              sx={{ mb: 1 }}
+              onClick={handlePayment}
             >
               Thanh Toán
-            </Button>
-            <Button
+            </ActionButton>
+            <ActionButton
               variant="outlined"
-              fullWidth
-              onClick={handleCancelOpen}
               color="primary"
+              onClick={handleCancelOpen}
             >
               Hủy Đặt
-            </Button>
-          </>
+            </ActionButton>
+          </Box>
         );
       default:
         return null;
@@ -233,7 +258,7 @@ const ProfileBookingDetail = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <div
+          {/* <div
             onClick={handleGoBack}
             style={{
               textDecoration: "none",
@@ -246,7 +271,7 @@ const ProfileBookingDetail = () => {
             }}
           >
             <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
-          </div>
+          </div> */}
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             THÔNG TIN BOOKING
           </Typography>
@@ -287,7 +312,7 @@ const ProfileBookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
-                  <Typography>{bookingData.totalPrice.toLocaleString()} đ</Typography>
+                  <Typography>{bookingData?.totalPrice?.toLocaleString() || 0} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
@@ -346,7 +371,7 @@ const ProfileBookingDetail = () => {
                     <Box key={index}>
                       <SummaryItem>
                         <Typography>Số tiền:</Typography>
-                        <Typography>{payment.amount.toLocaleString()} đ</Typography>
+                        <Typography>{payment?.amount?.toLocaleString()} đ</Typography>
                       </SummaryItem>
                       <SummaryItem>
                         <Typography>Thời gian:</Typography>
@@ -400,8 +425,26 @@ const ProfileBookingDetail = () => {
                   {dayjs(bookingData.endDate).format('DD/MM/YYYY')}
                 </Typography> */}
                 <TotalPrice variant="h6">
-                  Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
+                  Tổng tiền: {bookingData?.totalPrice?.toLocaleString() || 0} đ
                 </TotalPrice>
+                {bookingData.status === 2 && (
+                  <ActionButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleFeedbackOpen}
+                  >
+                    Đánh giá
+                  </ActionButton>
+                )}
+                {bookingData.status === 1 && (
+                  <ActionButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleCancelOpen}
+                  >
+                    Hủy Đặt
+                  </ActionButton>
+                )}
                 {bookingData.status === 0 && (
                   <Box sx={{ mt: 5 }}>
                     <Typography>Chọn hình thức thanh toán</Typography>
@@ -421,9 +464,16 @@ const ProfileBookingDetail = () => {
                         <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
                       </Box>
                     </Box>
-                    <Button onClick={handlePayment} variant="contained" fullWidth>
+                    <ActionButton onClick={handlePayment} variant="contained" fullWidth>
                       Thanh toán ngay
-                    </Button>
+                    </ActionButton>
+                    <ActionButton
+                      variant="outlined"
+                      color="primary"
+                      onClick={handleCancelOpen}
+                    >
+                      Hủy Đặt
+                    </ActionButton>
                   </Box>
                 )}
               </SummaryBox>
@@ -453,7 +503,6 @@ const ProfileBookingDetail = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      {bookingData.status !== BookingStatus.Pending && renderActionButtons()}
     </Box>
   );
 };
