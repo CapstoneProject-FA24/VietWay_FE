@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -8,13 +8,15 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchBookingData } from "@services/BookingService";
+import { fetchBookingData, fetchBookingPayments, cancelBooking } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
-import { getCookie } from "@services/AuthenService";getCookie
+import { getCookie } from "@services/AuthenService"; getCookie
 import { getPreviousPage } from "@utils/NavigationHistory";
 import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
+import { BookingStatus } from '../../hooks/Statuses';
+import CancelBooking from '@components/profiles/CancelBooking';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -66,9 +68,17 @@ const ProfileBookingDetail = () => {
   const [loading, setLoading] = useState(true);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [payments, setPayments] = useState([]);
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   useEffect(() => {
     const customerToken = getCookie('customerToken');
@@ -88,6 +98,9 @@ const ProfileBookingDetail = () => {
     const fetchData = async () => {
       try {
         const data = await fetchBookingData(id);
+        const paymentData = await fetchBookingPayments(id);
+        setPayments(paymentData.items);
+
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
@@ -121,13 +134,93 @@ const ProfileBookingDetail = () => {
     navigate(previousPage);
   };
 
+  const handleCancelOpen = () => setIsCancelOpen(true);
+  const handleCancelClose = () => setIsCancelOpen(false);
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
+
+  const handleCancelConfirm = async (reason) => {
+    try {
+      setCancelLoading(true);
+      await cancelBooking(bookingData.bookingId, reason);
+      handleCancelClose();
+      setSnackbar({
+        open: true,
+        message: 'Hủy đặt tour thành công',
+        severity: 'success'
+      });
+      // Refresh the booking data
+      const data = await fetchBookingData(id);
+      setBookingData(data);
+    } catch (error) {
+      console.error('Failed to cancel booking:', error);
+      setSnackbar({
+        open: true,
+        message: 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const renderActionButtons = () => {
+    if (!bookingData) return null;
+
+    switch (bookingData.status) {
+      case BookingStatus.Completed:
+        return (
+          <Button
+            variant="contained"
+            fullWidth
+            component={Link}
+            to={`/feedback/${bookingData.tourId}`}
+          >
+            Đánh giá
+          </Button>
+        );
+      case BookingStatus.Confirmed:
+        return (
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={handleCancelOpen}
+            color="primary"
+          >
+            Hủy Đặt
+          </Button>
+        );
+      case BookingStatus.Pending:
+        return (
+          <>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handlePayment}
+              color="error"
+              sx={{ mb: 1 }}
+            >
+              Thanh Toán
+            </Button>
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={handleCancelOpen}
+              color="primary"
+            >
+              Hủy Đặt
+            </Button>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Thông tin booking</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -136,22 +229,20 @@ const ProfileBookingDetail = () => {
 
   return (
     <Box sx={{ width: '89vw' }}>
-      <Helmet>
-        <title>Thông tin booking</title>
-      </Helmet>
+      <Helmet> <title>Thông tin booking</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>
-          <div 
+          <div
             onClick={handleGoBack}
-            style={{ 
-              textDecoration: "none", 
-              color: "inherit", 
-              display: "flex", 
-              alignItems: "center", 
-              marginBottom: 16, 
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 16,
               marginTop: 10,
-              cursor: "pointer" 
+              cursor: "pointer"
             }}
           >
             <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
@@ -248,6 +339,42 @@ const ProfileBookingDetail = () => {
                   </Box>
                 ))}
               </SummaryBox>
+              <SummaryBox>
+                <SummaryTitle variant="h6">LỊCH SỬ THANH TOÁN</SummaryTitle>
+                {payments.length > 0 ? (
+                  payments.map((payment, index) => (
+                    <Box key={index}>
+                      <SummaryItem>
+                        <Typography>Số tiền:</Typography>
+                        <Typography>{payment.amount.toLocaleString()} đ</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Thời gian:</Typography>
+                        <Typography>{dayjs(payment.payTime).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Phương thức:</Typography>
+                        <Typography>{payment.bankCode || 'VNPay'}</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Mã giao dịch:</Typography>
+                        <Typography>{payment.thirdPartyTransactionNumber}</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Trạng thái:</Typography>
+                        <Typography sx={{ color: payment.status === 1 ? 'success.main' : 'error.main' }}>
+                          {payment.status === 1 ? 'Thành công' : 'Thất bại'}
+                        </Typography>
+                      </SummaryItem>
+                      {index < payments.length - 1 && <Divider sx={{ my: 2 }} />}
+                    </Box>
+                  ))
+                ) : (
+                  <Typography variant="body1" sx={{ textAlign: 'center', py: 2 }}>
+                    Chưa có lịch sử thanh toán
+                  </Typography>
+                )}
+              </SummaryBox>
             </Grid>
             <Grid item xs={12} md={4}>
               <SummaryBox>
@@ -309,23 +436,24 @@ const ProfileBookingDetail = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{
-            width: '500px', fontSize: '1.5rem', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
-          }}
-          iconMapping={{
-            success: <CheckCircleIcon fontSize="large" />
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
-            Thanh toán thành công!
-          </Box>
-        </MuiAlert>
+      <CancelBooking
+        open={isCancelOpen}
+        onClose={handleCancelClose}
+        onConfirm={handleCancelConfirm}
+        loading={cancelLoading}
+        tour={bookingData}
+      />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
       </Snackbar>
+      {bookingData.status !== BookingStatus.Pending && renderActionButtons()}
     </Box>
   );
 };
