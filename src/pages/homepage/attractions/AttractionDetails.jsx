@@ -18,9 +18,9 @@ import Snackbar from '@mui/material/Snackbar';
 import SideSavedTab from '@components/saved/SideSavedTab';
 import MediaShare from '@components/posts/MediaShare';
 import { fetchPlaceDetails } from '@services/GooglePlaceService';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { CircularProgress } from '@mui/material';
 
 const AttractionDetails = () => {
   const [attraction, setAttraction] = useState(null);
@@ -142,17 +142,12 @@ const AttractionDetails = () => {
 
   if (loading) {
     return (
-      <>
-        <Helmet>
-          <title>Chi tiết điểm tham quan</title>
-        </Helmet>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
-      </>
+        <>
+            <Helmet> <title>Chi tiết điểm tham quan</title> </Helmet> <Header />
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+        </>
     );
-  }
+}
 
   if (!attraction) {
     return (

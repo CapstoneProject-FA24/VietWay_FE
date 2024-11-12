@@ -232,11 +232,8 @@ const Tours = () => {
   if (loading) {
     return (
       <>
-        <Helmet> <title>Tour du lịch</title> </Helmet>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Tour du lịch</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </>
     );
   }

@@ -13,6 +13,7 @@ import Slider from 'react-slick';
 import SuggestTours from '@components/homepage/SuggestTours'
 import SuggestProvinces from '@components/homepage/SuggestProvinces';
 import FilterBar from '@components/homepage/FilterBar';
+import { Helmet } from 'react-helmet';
 
 const Homepage = () => {
   const [loading, setLoading] = useState(true);
@@ -49,6 +50,7 @@ const Homepage = () => {
 
   return (
     <Box className="homepage" sx={{ display: 'flex', flexDirection: 'column', width: '99.6%' }}>
+      <Helmet> <title>Trang chủ</title> </Helmet>
       <Header />
       <Box component="header" className="hero" sx={{ ml: "-60px", mr: "-65px", mt: -7.5, mb: 10 }} >
         <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.3)', zIndex: 1 }} />

@@ -49,7 +49,6 @@ export default function Register() {
     const [errors, setErrors] = React.useState({});
     const navigate = useNavigate();
     const location = useLocation();
-    const [previousPage, setPreviousPage] = React.useState('/');
     const [snackbar, setSnackbar] = React.useState({
         open: false,
         message: '',
@@ -59,9 +58,7 @@ export default function Register() {
     React.useEffect(() => {
         const token = getCookie('customerToken');
         if (token) { navigate('/'); }
-        const prevPage = location.state?.previousPage || getPreviousPage();
-        setPreviousPage(prevPage);
-    }, [location]);
+    }, []);
 
     React.useEffect(() => {
         const getProvinces = async () => {
@@ -156,7 +153,7 @@ export default function Register() {
                     severity: 'success'
                 });
                 setTimeout(() => {
-                    navigate('/dang-nhap', { state: { previousPage } });
+                    handleSuccessfulRegistration();
                 }, 2000);
             } catch (error) {
                 console.error('Registration failed:', error);
@@ -176,7 +173,7 @@ export default function Register() {
     };
 
     const handleBackClick = () => {
-        navigate(previousPage);
+        navigate(-1);
     };
 
     const handleCloseSnackbar = (event, reason) => {
@@ -184,6 +181,10 @@ export default function Register() {
             return;
         }
         setSnackbar({ ...snackbar, open: false });
+    };
+
+    const handleSuccessfulRegistration = () => {
+        navigate('/dang-nhap');
     };
 
     return (
@@ -356,7 +357,12 @@ export default function Register() {
                             <Grid container>
                                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                                     Đã có tài khoản?
-                                    <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-nhap" variant="body2" color='#FF8682'>
+                                    <Link 
+                                        sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} 
+                                        onClick={() => navigate('/dang-nhap')}
+                                        variant="body2" 
+                                        color='#FF8682'
+                                    >
                                         {"Đăng nhập ngay"}
                                     </Link>
                                 </Grid>

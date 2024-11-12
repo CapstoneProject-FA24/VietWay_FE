@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar } from '@mui/material';
+import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar, CircularProgress } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQrcode, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
@@ -123,10 +123,27 @@ const TourDetails = () => {
     setOpenSnackbar(false);
   };
 
+  if (loading) {
+    return (
+      <>
+        <Helmet> <title>Chi tiết tour</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+      </>
+    );
+  }
+
   if (!tour) {
-    return <Typography sx={{ width: '100vw', textAlign: 'center' }}>
-      <img src="/loading.gif" alt="Loading..." />
-    </Typography>;
+    return (
+      <>
+        <Header />
+        <Helmet>
+          <title>Không tìm thấy tour</title>
+        </Helmet>
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h4">Không tìm thấy thông tin tour</Typography>
+        </Box>
+      </>
+    );
   }
 
   const getMinTourPrice = () => {
@@ -143,7 +160,7 @@ const TourDetails = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '99.6%' }} ref={pageTopRef}>
       <Helmet>
-        <title>Chi tiết tour mẫu</title>
+        <title>{tour.tourName}</title>
       </Helmet>
       <Header />
       <Box sx={{ p: 3, flexGrow: 1, mt: 4 }}>
@@ -316,14 +333,14 @@ const TourDetails = () => {
                 <Typography sx={{ color: '#05073C' }}>
                   Kết thúc ngày: {
                     (() => {
-                        const selectedTourData = availableTours.find(t => t.id === selectedTour);
-                        if (selectedTourData) {
-                            const endDate = calculateEndDate(selectedTourData.startDate, { durationName: tour.duration });
-                            return endDate ? endDate.toLocaleDateString('vi-VN') : '';
-                        }
-                        return '';
+                      const selectedTourData = availableTours.find(t => t.id === selectedTour);
+                      if (selectedTourData) {
+                        const endDate = calculateEndDate(selectedTourData.startDate, { durationName: tour.duration });
+                        return endDate ? endDate.toLocaleDateString('vi-VN') : '';
+                      }
+                      return '';
                     })()
-                }
+                  }
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>

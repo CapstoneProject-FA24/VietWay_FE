@@ -174,7 +174,7 @@ const Header = () => {
           >
             Bài viết
           </StyledButton>
-          <StyledButton
+          {/* <StyledButton
             color="inherit" component={Link} to="/su-kien"
             sx={{ textTransform: 'none', ml: 1.5, mr: 1.5,
               fontWeight: location.pathname === '/su-kien' ? 'bold' : 'normal', 
@@ -182,7 +182,7 @@ const Header = () => {
             }}
           >
             Tin tức sự kiện
-          </StyledButton>
+          </StyledButton> */}
         </Box>
         
         <Box sx={{ display: 'flex' }}>

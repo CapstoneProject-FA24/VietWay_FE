@@ -13,6 +13,7 @@ import { getCustomerInfo } from '@services/CustomerService';
 import { getCookie } from '@services/AuthenService';
 import { saveLastProfileTab, getLastProfileTab } from '@utils/NavigationHistory';
 import { saveNavigationHistory } from '@utils/NavigationHistory';
+import { Helmet } from 'react-helmet';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -65,6 +66,9 @@ const Profile = () => {
 
     return (
         <Box sx={{ width: '89vw' }}>
+            <Helmet>
+                <title>Thông tin tài khoản</title>
+            </Helmet>
             <Header />
             <Box component="header" sx={{ ml: '-65px', mr: '-65px', position: 'relative', height: '430px', borderRadius: '0 0 30px 30px', overflow: 'hidden' }}>
                 <Box className="hero-text" sx={{ width: "100%", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', position: "relative", zIndex: 1 }}>
@@ -87,7 +91,7 @@ const Profile = () => {
                         <>
                             {tabValue === 0 && <ProfileDetail profile={profile} onProfileUpdate={handleProfileUpdate} />}
                             {tabValue === 2 && (
-                                <BookedTour/>
+                                <BookedTour />
                             )}
                             {tabValue === 4 && <PaymentHistory payments={payments} />}
                         </>

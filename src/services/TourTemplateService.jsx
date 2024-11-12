@@ -13,7 +13,6 @@ const getStatusText = (status) => {
 
 export const fetchTourTemplates = async (params) => {
     try {
-        console.log(params);
         const queryParams = new URLSearchParams();
         
         if (params.pageSize) queryParams.append('pageSize', params.pageSize);
@@ -75,7 +74,6 @@ export const fetchTourTemplates = async (params) => {
 export const fetchTourTemplateById = async (id) => {
     try {
         const response = await axios.get(`${baseURL}/api/tour-templates/${id}`);
-        console.log(response);
         return {
             tourTemplateId: response.data.data.tourTemplateId,
             code: response.data.data.code,

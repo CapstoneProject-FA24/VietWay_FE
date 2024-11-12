@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Pagination, TextField, InputAdornment, IconButton, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Grid, Pagination, TextField, InputAdornment, IconButton, Select, MenuItem, CircularProgress } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
@@ -67,13 +67,8 @@ const Provinces = () => {
   if (loading) {
     return (
       <>
-        <Helmet>
-          <title>Danh sách tỉnh thành</title>
-        </Helmet>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Tỉnh thành</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </>
     );
   }

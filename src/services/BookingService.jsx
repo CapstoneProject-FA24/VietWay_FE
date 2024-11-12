@@ -129,3 +129,40 @@ export const cancelBooking = async (bookingId, reason) => {
         throw error;
     }
 };
+
+export const fetchBookingPayments = async (bookingId, pageIndex = 1, pageSize = 10) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(`${baseURL}/api/bookings/${bookingId}/payments`, {
+            params: {
+                pageSize,
+                pageIndex
+            },
+            headers: {
+                'Authorization': `Bearer ${customerToken}`
+            }
+        });
+
+        const paymentListData = response.data.data;
+        return {
+            total: paymentListData.total,
+            pageSize: paymentListData.pageSize, 
+            pageIndex: paymentListData.pageIndex,
+            items: paymentListData.items.map(payment => ({
+                paymentId: payment.paymentId,
+                bookingId: payment.bookingId,
+                amount: payment.amount,
+                note: payment.note,
+                createAt: payment.createAt,
+                bankCode: payment.bankCode,
+                bankTransactionNumber: payment.bankTransactionNumber,
+                payTime: payment.payTime,
+                thirdPartyTransactionNumber: payment.thirdPartyTransactionNumber,
+                status: payment.status
+            }))
+        };
+    } catch (error) {
+        console.error('Error fetching booking payments:', error);
+        throw error;
+    }
+};

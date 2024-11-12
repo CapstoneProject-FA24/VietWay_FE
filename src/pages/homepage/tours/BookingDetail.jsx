@@ -8,12 +8,13 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchBookingData } from "@services/BookingService";
+import { fetchBookingData, fetchBookingPayments } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchCreatePayment } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService";
 import { saveNavigationHistory, getPreviousPageBooking } from '@utils/NavigationHistory';
 import dayjs from 'dayjs';
+import { Helmet } from 'react-helmet';
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -78,6 +79,7 @@ const BookingDetail = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [payments, setPayments] = useState([]);
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -93,29 +95,25 @@ const BookingDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-
+        const data = await fetchBookingData(id);
+        const paymentData = await fetchBookingPayments(id);
+        setPayments(paymentData.items);
+        
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
-        //remove when use online payment
-        //start from here
-        const vnPayIPN = `?vnp_TmnCode=${searchParams.get('vnp_TmnCode')}&vnp_Amount=${searchParams.get('vnp_Amount')}&vnp_BankCode=${searchParams.get('vnp_BankCode')}&vnp_BankTranNo=${searchParams.get('vnp_BankTranNo')}&vnp_CardType=${searchParams.get('vnp_CardType')}&vnp_PayDate=${searchParams.get('vnp_PayDate')}&vnp_OrderInfo=${searchParams.get('vnp_OrderInfo').replace(/\+/g, '%2B')}&vnp_TransactionNo=${searchParams.get('vnp_TransactionNo')}&vnp_ResponseCode=${searchParams.get('vnp_ResponseCode')}&vnp_TransactionStatus=${searchParams.get('vnp_TransactionStatus')}&vnp_TxnRef=${searchParams.get('vnp_TxnRef')}&vnp_SecureHash=${searchParams.get('vnp_SecureHash')}`;
-        const response = await fetchCreatePayment(vnPayIPN);
-        if (response.rspCode === '00') {
-          setOpenSnackbar(true);
-        }
-        //end here
-
-        const data = await fetchBookingData(id);
+        
         if (vnpAmount && vnpCode === '00') {
-          //setOpenSnackbar(true);
           const paidAmount = parseInt(vnpAmount) / 100;
           data.paymentMethod = "VNPay";
           data.paidAmount = paidAmount;
         }
+        else if (vnpCode !== null){
+          navigate(`/dat-tour/thanh-toan/${id}?vnpCode=${vnpCode}`);
+        }
         setBookingData(data);
       } catch (error) {
-        console.error("Error fetching booking details:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -139,10 +137,8 @@ const BookingDetail = () => {
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Chi tiết booking</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -151,10 +147,11 @@ const BookingDetail = () => {
 
   return (
     <Box sx={{ width: "89vw" }}>
+      <Helmet> <title>Chi tiết booking</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>
-          <div
+          {/* <div
             onClick={handleGoBack}
             style={{
               textDecoration: "none",
@@ -167,7 +164,7 @@ const BookingDetail = () => {
             }}
           >
             <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
-          </div>
+          </div> */}
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>
@@ -215,7 +212,7 @@ const BookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
-                  <Typography>{bookingData.totalPrice.toLocaleString()} đ</Typography>
+                  <Typography>{bookingData?.totalPrice?.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
@@ -223,16 +220,12 @@ const BookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Số tiền đã thanh toán:</Typography>
-                  <Typography>{bookingData.paidAmount.toLocaleString()} đ</Typography>
+                  <Typography>{bookingData?.paidAmount?.toLocaleString()} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Tình trạng:</Typography>
                   <Typography sx={{ color: getBookingStatusInfo(bookingData.status).color }}>{getBookingStatusInfo(bookingData.status).text}</Typography>
                 </SummaryItem>
-                {/* <SummaryItem>
-                  <Typography>Số tiền còn lại:</Typography>
-                  <Typography>{(bookingData.totalPrice - bookingData.paidAmount).toLocaleString()} đ</Typography>
-                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
@@ -258,6 +251,30 @@ const BookingDetail = () => {
                   </Box>
                 ))}
               </SummaryBox>
+              <SummaryBox>
+                <SummaryTitle variant="h6">LỊCH SỬ THANH TOÁN</SummaryTitle>
+                {payments.map((payment, index) => (
+                  <Box key={index} mb={2}>
+                    <SummaryItem>
+                      <Typography>Số tiền:</Typography>
+                      <Typography>{payment?.amount?.toLocaleString()} đ</Typography>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <Typography>Thời gian:</Typography>
+                      <Typography>{dayjs(payment.payTime).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <Typography>Ngân hàng:</Typography>
+                      <Typography>{payment.bankCode}</Typography>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <Typography>Mã giao dịch:</Typography>
+                      <Typography>{payment.thirdPartyTransactionNumber}</Typography>
+                    </SummaryItem>
+                    {index < payments.length - 1 && <Divider sx={{ my: 1 }} />}
+                  </Box>
+                ))}
+              </SummaryBox>
             </Grid>
             <Grid item xs={12} md={4}>
               <SummaryBox>
@@ -276,7 +293,7 @@ const BookingDetail = () => {
                   Mã tour: {bookingData.code}
                 </Typography>
                 <TotalPrice variant="h6">
-                  Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
+                  Tổng tiền: {bookingData?.totalPrice?.toLocaleString()} đ
                 </TotalPrice>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
@@ -290,15 +307,12 @@ const BookingDetail = () => {
       <Footer />
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
         <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
+          onClose={handleCloseSnackbar} severity="success"
           sx={{
             width: '500px', fontSize: '1.5rem', display: 'flex',
             alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
           }}
-          iconMapping={{
-            success: <CheckCircleIcon fontSize="large" />
-          }}
+          iconMapping={{success: <CheckCircleIcon fontSize="large" />}}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
             Thanh toán thành công!

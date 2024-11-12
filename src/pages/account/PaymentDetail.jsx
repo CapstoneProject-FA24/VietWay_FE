@@ -6,6 +6,7 @@ import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { mockPaymentDetails } from '@hooks/MockProfile';
 import { getCookie } from '@services/AuthenService';
+import { Helmet } from 'react-helmet';
 
 const PaymentDetail = () => {
   const { id } = useParams();
@@ -42,6 +43,9 @@ const PaymentDetail = () => {
 
   return (
     <Box sx={{ width: '98vw', ml: '-60px', mr: '-60px'}}>
+      <Helmet>
+        <title>Thông tin thanh toán</title>
+      </Helmet>
       <Header />
       <Container maxWidth="md" sx={{ my: 5 }}>
         <Button
