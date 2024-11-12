@@ -11,6 +11,7 @@ import { cancelBooking } from '@services/BookingService';
 import { BookingStatus } from '../../hooks/Statuses';
 import { getBookingStatusInfo } from "@services/StatusService";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ViewFeedback from '@components/profiles/ViewFeedback';
 
 const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -21,6 +22,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
     message: '',
     severity: 'success'
   });
+  const [isViewFeedbackOpen, setIsViewFeedbackOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
@@ -29,6 +31,8 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const handleCancelOpen = () => setIsCancelOpen(true);
   const handleCancelClose = () => setIsCancelOpen(false);
   const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
+  const handleViewFeedbackOpen = () => setIsViewFeedbackOpen(true);
+  const handleViewFeedbackClose = () => setIsViewFeedbackOpen(false);
 
   const handleCancelConfirm = async (reason) => {
     try {
@@ -89,8 +93,6 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
                       {tour.totalPrice.toLocaleString()} đ
                     </Typography>
                   </Box>
-                  {/* <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} /> */}
-                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian khởi hành" value={`${formatDate(tour.startDate)}`} />
                 </Grid>
               </Grid>
             </CardContent>
@@ -99,7 +101,24 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
             {renderActionButtons(handleFeedbackOpen, handlePayment, handleCancelOpen, tour)}
           </Grid>
         </Grid>
-        {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
+        {isFeedbackOpen && 
+          <FeedbackPopup 
+            onClose={handleFeedbackClose} 
+            tourId={tour.id} 
+            onSubmitSuccess={() => {
+              handleFeedbackClose();
+              if (onBookingCancelled) {
+                onBookingCancelled();
+              }
+            }} 
+          />
+        }
+        {isViewFeedbackOpen && 
+          <ViewFeedback 
+            onClose={handleViewFeedbackClose}
+            feedback={tour.feedback}
+          />
+        }
         <CancelBooking
           open={isCancelOpen}
           onClose={handleCancelClose}
@@ -161,8 +180,13 @@ const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen
     case BookingStatus.Completed:
       return (
         <>
-          <ActionButton onClick={handleFeedbackOpen} variant="contained" color="primary">Đánh giá</ActionButton>
-          {/* <ActionButton variant="outlined" component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`} color="primary">Đặt Lại</ActionButton> */}
+          <ActionButton 
+            onClick={tour.hasFeedback ? handleViewFeedbackOpen : handleFeedbackOpen} 
+            variant="contained" 
+            color="primary"
+          >
+            {tour.hasFeedback ? 'Xem lại đánh giá' : 'Đánh giá'}
+          </ActionButton>
         </>
       );
     case BookingStatus.Confirmed:
@@ -175,7 +199,6 @@ const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen
         </>
       );
     default:
-      //return <ActionButton variant="contained" component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`} color="primary">Đặt Lại</ActionButton>;
       return <></>;
   }
 };
