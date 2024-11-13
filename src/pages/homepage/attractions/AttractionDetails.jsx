@@ -302,7 +302,8 @@ const AttractionDetails = () => {
                               <><CheckCircleIcon /> <Typography>Đang mở cửa</Typography></>
                             ) : (
                               <><CancelIcon /> <Typography>Đã đóng cửa</Typography></>
-                            )}</>
+                            )}
+                          </>
                         ) : (
                           <Typography>Không có thông tin giờ mở cửa</Typography>
                         )}

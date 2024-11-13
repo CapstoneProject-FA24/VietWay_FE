@@ -14,6 +14,7 @@ import SuggestTours from '@components/homepage/SuggestTours'
 import SuggestProvinces from '@components/homepage/SuggestProvinces';
 import FilterBar from '@components/homepage/FilterBar';
 import { Helmet } from 'react-helmet';
+import Map from '@components/Map';
 
 const Homepage = () => {
   const [loading, setLoading] = useState(true);
@@ -121,6 +122,10 @@ const Homepage = () => {
             <Button component={Link} to={"/tour-du-lich"} className="view-all-button" sx={{ marginBottom: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestTours/>
+        </Box>
+
+        <Box className="featured-destinations" sx={{ width: '100%', height: '500px' }}>
+          <Map/>
         </Box>
 
         <Box component="section" className="featured-destinations">
