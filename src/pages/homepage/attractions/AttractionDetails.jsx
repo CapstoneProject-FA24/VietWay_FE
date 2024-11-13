@@ -21,6 +21,7 @@ import { fetchPlaceDetails } from '@services/GooglePlaceService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { CircularProgress } from '@mui/material';
+import Map from '@components/Map';
 
 const AttractionDetails = () => {
   const [attraction, setAttraction] = useState(null);
@@ -342,6 +343,13 @@ const AttractionDetails = () => {
               )}
             </Paper>
           </Grid>
+          {attraction.googlePlaceId && (
+            <Grid item xs={12} md={12}>
+              <Box sx={{ width: '100%', height: '82vh', mb: 10, borderRadius: '10px', overflow: 'hidden' }}>
+                <Map placeId={attraction.googlePlaceId} />
+              </Box>
+            </Grid>
+          )}
         </Grid>
 
         <Box sx={{ my: 4 }}>

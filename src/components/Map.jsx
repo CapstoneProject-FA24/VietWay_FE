@@ -117,6 +117,7 @@ function Map({ placeId }) {
     const [nearbyPlaces, setNearbyPlaces] = useState([]);
     const [buttonContainer, setButtonContainer] = useState(null);
     const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
+    const [userLocation, setUserLocation] = useState(null);
 
     const markerStyle = useMemo(() => isLoaded ? {
         default: {
@@ -148,6 +149,7 @@ function Map({ placeId }) {
     } : null, [isLoaded]);
 
     const onLoad = useCallback((map) => {
+        // Initialize Places service immediately after map loads
         const placesService = new window.google.maps.places.PlacesService(map);
 
         // Function to handle place selection and marker placement
@@ -199,20 +201,23 @@ function Map({ placeId }) {
             handlePlaceSelection(place);
         });
 
-        // If placeId is provided, fetch and display the place
+        // Modify placeId handling
         if (placeId) {
-            const request = {
-                placeId: placeId,
-                fields: ["place_id", "geometry", "formatted_address", "name", "address_components"]
-            };
+            // Ensure placesService is available before making the request
+            if (placesService) {
+                const request = {
+                    placeId: placeId,
+                    fields: ["place_id", "geometry", "formatted_address", "name", "address_components"]
+                };
 
-            placesService.getDetails(request, (place, status) => {
-                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                    handlePlaceSelection(place);
-                } else {
-                    console.error("Place details request failed:", status);
-                }
-            });
+                placesService.getDetails(request, (place, status) => {
+                    if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                        handlePlaceSelection(place);
+                    } else {
+                        console.error("Place details request failed:", status);
+                    }
+                });
+            }
         }
 
         // Update searchNearbyPlaces to use current map center
@@ -259,17 +264,57 @@ function Map({ placeId }) {
             return button;
         };
 
+        // Add new state for geolocation marker
+        const createLocationButton = () => {
+            const button = document.createElement('button');
+            button.textContent = '🔵 Vị trí của bạn';
+            button.style.margin = '5px';
+            button.style.marginLeft = '50px';
+            button.style.padding = '8px 16px';
+            button.style.borderRadius = '20px';
+            button.style.border = 'none';
+            button.style.backgroundColor = '#fff';
+            button.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.3)';
+            button.style.cursor = 'pointer';
+            button.style.fontSize = '14px';
+
+            button.addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const pos = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                            };
+                            setUserLocation(pos);
+                            map.setCenter(pos);
+                            map.setZoom(15);
+                        },
+                        (error) => {
+                            console.error("Error getting location:", error);
+                            alert("Không thể lấy vị trí của bạn.");
+                        }
+                    );
+                } else {
+                    alert("Trình duyệt của bạn không hỗ trợ định vị.");
+                }
+            });
+
+            return button;
+        };
+
         // Check if buttonContainer already exists
         if (!buttonContainer) {
             const newButtonContainer = document.createElement('div');
-            newButtonContainer.id = 'map-button-container'; // Add an ID for easy checking
+            newButtonContainer.id = 'map-button-container';
             newButtonContainer.style.display = 'flex';
-            newButtonContainer.style.marginLeft = '100px';
+            newButtonContainer.style.marginLeft = '270px';
             newButtonContainer.style.marginTop = '10px';
             newButtonContainer.appendChild(createSearchButton('museum', 'Bảo tàng'));
             newButtonContainer.appendChild(createSearchButton('restaurant', 'Nhà hàng'));
             newButtonContainer.appendChild(createSearchButton('tourist_attraction', 'Điểm tham quan'));
             newButtonContainer.appendChild(createSearchButton('lodging', 'Khách sạn'));
+            newButtonContainer.appendChild(createLocationButton());
             // Check if buttons are already on the map
             const existingButtons = map.controls[window.google.maps.ControlPosition.TOP_CENTER].getArray();
             if (!existingButtons.some(el => el.id === 'map-button-container')) {
@@ -279,7 +324,7 @@ function Map({ placeId }) {
         }
 
         setMap(map);
-    }, [buttonContainer]);
+    }, [buttonContainer, placeId]);
 
     const onUnmount = useCallback(() => {
         if (map && buttonContainer) {
@@ -350,6 +395,17 @@ function Map({ placeId }) {
                     }
                 }}
             >
+                {userLocation && (
+                    <Marker
+                        position={userLocation}
+                        icon={{
+                            url: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='8' fill='%234285F4' stroke='white' stroke-width='2'/%3E%3C/svg%3E",
+                            scaledSize: new window.google.maps.Size(24, 24),
+                            anchor: new window.google.maps.Point(12, 12),
+                        }}
+                        title="Vị trí của bạn"
+                    />
+                )}
                 {marker && (
                     <Marker
                         position={marker.position}
