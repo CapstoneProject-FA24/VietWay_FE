@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { GoogleMap, useJsApiLoader, InfoWindow, Marker } from '@react-google-maps/api';
 import { GOOGLE_MAPS_LIBRARIES, DEFAULT_MAP_OPTIONS, DEFAULT_CENTER } from '@config/mapConfig';
 
@@ -118,13 +118,41 @@ function Map({ placeId }) {
     const [buttonContainer, setButtonContainer] = useState(null);
     const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
 
+    const markerStyle = useMemo(() => isLoaded ? {
+        default: {
+            url: '/default.svg',
+            scaledSize: new window.google.maps.Size(32, 40),
+            anchor: new window.google.maps.Point(16, 40),
+            animation: window.google.maps.Animation.DROP
+        },
+        museum: {
+            url: '/museum.svg',
+            scaledSize: new window.google.maps.Size(32, 40),
+            anchor: new window.google.maps.Point(16, 40)
+        },
+        restaurant: {
+            url: '/restaurant.svg',
+            scaledSize: new window.google.maps.Size(32, 40),
+            anchor: new window.google.maps.Point(16, 40)
+        },
+        tourist_attraction: {
+            url: '/attraction.svg',
+            scaledSize: new window.google.maps.Size(32, 40),
+            anchor: new window.google.maps.Point(16, 40)
+        },
+        lodging: {
+            url: '/hotel.svg',
+            scaledSize: new window.google.maps.Size(32, 40),
+            anchor: new window.google.maps.Point(16, 40)
+        }
+    } : null, [isLoaded]);
+
     const onLoad = useCallback((map) => {
         const placesService = new window.google.maps.places.PlacesService(map);
 
         // Function to handle place selection and marker placement
         const handlePlaceSelection = (place) => {
             if (!place.geometry || !place.geometry.location) {
-                console.log("Returned place contains no geometry");
                 return;
             }
 
@@ -192,7 +220,7 @@ function Map({ placeId }) {
             const currentCenter = map.getCenter();
             const request = {
                 location: currentCenter,
-                radius: 5000, // 5km radius
+                radius: 5000,
                 type: type
             };
 
@@ -204,7 +232,8 @@ function Map({ placeId }) {
                         name: place.name,
                         place_id: place.place_id,
                         rating: place.rating,
-                        address: place.vicinity
+                        address: place.vicinity,
+                        types: [type, ...place.types]
                     })));
                 }
             });
@@ -214,13 +243,14 @@ function Map({ placeId }) {
         const createSearchButton = (type, label) => {
             const button = document.createElement('button');
             button.textContent = label;
-            button.style.margin = '10px';
+            button.style.margin = '5px';
             button.style.padding = '8px 16px';
             button.style.borderRadius = '20px';
             button.style.border = 'none';
             button.style.backgroundColor = '#fff';
             button.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.3)';
             button.style.cursor = 'pointer';
+            button.style.fontSize = '14px';
 
             button.addEventListener('click', () => {
                 searchNearbyPlaces(type);
@@ -234,10 +264,12 @@ function Map({ placeId }) {
             const newButtonContainer = document.createElement('div');
             newButtonContainer.id = 'map-button-container'; // Add an ID for easy checking
             newButtonContainer.style.display = 'flex';
-            newButtonContainer.appendChild(createSearchButton('museum', 'Museums'));
-            newButtonContainer.appendChild(createSearchButton('restaurant', 'Restaurants'));
-            newButtonContainer.appendChild(createSearchButton('tourist_attraction', 'Attractions'));
-            
+            newButtonContainer.style.marginLeft = '100px';
+            newButtonContainer.style.marginTop = '10px';
+            newButtonContainer.appendChild(createSearchButton('museum', 'Bảo tàng'));
+            newButtonContainer.appendChild(createSearchButton('restaurant', 'Nhà hàng'));
+            newButtonContainer.appendChild(createSearchButton('tourist_attraction', 'Điểm tham quan'));
+            newButtonContainer.appendChild(createSearchButton('lodging', 'Khách sạn'));
             // Check if buttons are already on the map
             const existingButtons = map.controls[window.google.maps.ControlPosition.TOP_CENTER].getArray();
             if (!existingButtons.some(el => el.id === 'map-button-container')) {
@@ -293,7 +325,7 @@ function Map({ placeId }) {
                     style={{
                         marginTop: "10px",
                         marginLeft: "10px",
-                        width: "350px",
+                        width: "340px",
                         height: "45px",
                         padding: "0 20px",
                         border: "none",
@@ -325,17 +357,27 @@ function Map({ placeId }) {
                         onClick={() => setSelectedPlace(marker)}
                     />
                 )}
-                {nearbyPlaces.map((place, index) => (
-                    <Marker
-                        key={`${place.place_id}-${index}`}
-                        position={place.position}
-                        title={place.name}
-                        onClick={() => setSelectedPlace({
-                            ...place,
-                            address_components: [{ long_name: place.address }]
-                        })}
-                    />
-                ))}
+                {nearbyPlaces.map((place, index) => {
+                    const markerIcon = place.types && place.types.length > 0 && markerStyle[place.types[0]]
+                        ? markerStyle[place.types[0]]
+                        : markerStyle.default;
+
+                    return (
+                        <Marker
+                            key={`${place.place_id}-${index}`}
+                            position={place.position}
+                            title={place.name}
+                            onClick={() => setSelectedPlace({
+                                ...place,
+                                address_components: [{ long_name: place.address }]
+                            })}
+                            icon={markerIcon}
+                            animation={selectedPlace?.place_id === place.place_id 
+                                ? window.google.maps.Animation.BOUNCE 
+                                : window.google.maps.Animation.DROP}
+                        />
+                    );
+                })}
                 {selectedPlace && selectedPlace.position && (
                     <InfoWindow
                         position={selectedPlace.position}

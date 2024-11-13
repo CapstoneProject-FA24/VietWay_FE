@@ -5,7 +5,7 @@ const GMap = () => {
 
 
   return (
-    <Box sx={{ width: '100vw', height: '100vh', m: '-60px' }}>
+    <Box sx={{ width: '100vw', height: '70vh', m: '-60px' }}>
         <Map />
     </Box>
   );
