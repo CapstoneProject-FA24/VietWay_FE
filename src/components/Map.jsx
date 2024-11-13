@@ -229,19 +229,25 @@ function Map({ placeId }) {
             return button;
         };
 
-        // Create button container
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.display = 'flex';
-        buttonContainer.appendChild(createSearchButton('museum', 'Bảo tàng'));
-        buttonContainer.appendChild(createSearchButton('restaurant', 'Nhà hàng'));
-        buttonContainer.appendChild(createSearchButton('tourist_attraction', 'Điểm tham quan'));
-
-        // Add button container to map controls
-        map.controls[window.google.maps.ControlPosition.TOP_CENTER].push(buttonContainer);
-        setButtonContainer(buttonContainer);
+        // Check if buttonContainer already exists
+        if (!buttonContainer) {
+            const newButtonContainer = document.createElement('div');
+            newButtonContainer.id = 'map-button-container'; // Add an ID for easy checking
+            newButtonContainer.style.display = 'flex';
+            newButtonContainer.appendChild(createSearchButton('museum', 'Museums'));
+            newButtonContainer.appendChild(createSearchButton('restaurant', 'Restaurants'));
+            newButtonContainer.appendChild(createSearchButton('tourist_attraction', 'Attractions'));
+            
+            // Check if buttons are already on the map
+            const existingButtons = map.controls[window.google.maps.ControlPosition.TOP_CENTER].getArray();
+            if (!existingButtons.some(el => el.id === 'map-button-container')) {
+                map.controls[window.google.maps.ControlPosition.TOP_CENTER].push(newButtonContainer);
+                setButtonContainer(newButtonContainer);
+            }
+        }
 
         setMap(map);
-    }, [placeId]);
+    }, [buttonContainer]);
 
     const onUnmount = useCallback(() => {
         if (map && buttonContainer) {
