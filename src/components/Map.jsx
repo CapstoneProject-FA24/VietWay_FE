@@ -304,27 +304,26 @@ function Map({ placeId }) {
         };
 
         // Check if buttonContainer already exists
-        if (!buttonContainer) {
-            const newButtonContainer = document.createElement('div');
-            newButtonContainer.id = 'map-button-container';
-            newButtonContainer.style.display = 'flex';
-            newButtonContainer.style.marginLeft = '270px';
-            newButtonContainer.style.marginTop = '10px';
-            newButtonContainer.appendChild(createSearchButton('museum', 'Bảo tàng'));
-            newButtonContainer.appendChild(createSearchButton('restaurant', 'Nhà hàng'));
-            newButtonContainer.appendChild(createSearchButton('tourist_attraction', 'Điểm tham quan'));
-            newButtonContainer.appendChild(createSearchButton('lodging', 'Khách sạn'));
-            newButtonContainer.appendChild(createLocationButton());
-            // Check if buttons are already on the map
-            const existingButtons = map.controls[window.google.maps.ControlPosition.TOP_CENTER].getArray();
-            if (!existingButtons.some(el => el.id === 'map-button-container')) {
-                map.controls[window.google.maps.ControlPosition.TOP_CENTER].push(newButtonContainer);
-                setButtonContainer(newButtonContainer);
-            }
+        const newButtonContainer = document.createElement('div');
+        newButtonContainer.id = 'map-button-container';
+        newButtonContainer.style.display = 'flex';
+        newButtonContainer.style.marginLeft = '270px';
+        newButtonContainer.style.marginTop = '10px';
+        newButtonContainer.appendChild(createSearchButton('museum', 'Bảo tàng'));
+        newButtonContainer.appendChild(createSearchButton('restaurant', 'Nhà hàng'));
+        newButtonContainer.appendChild(createSearchButton('tourist_attraction', 'Điểm tham quan'));
+        newButtonContainer.appendChild(createSearchButton('lodging', 'Khách sạn'));
+        newButtonContainer.appendChild(createLocationButton());
+
+        // Check if buttons are already on the map
+        const existingButtons = map.controls[window.google.maps.ControlPosition.TOP_CENTER].getArray();
+        if (!existingButtons.some(el => el.id === 'map-button-container')) {
+            map.controls[window.google.maps.ControlPosition.TOP_CENTER].push(newButtonContainer);
+            setButtonContainer(newButtonContainer);
         }
 
         setMap(map);
-    }, [buttonContainer, placeId]);
+    }, [placeId]);
 
     const onUnmount = useCallback(() => {
         if (map && buttonContainer) {

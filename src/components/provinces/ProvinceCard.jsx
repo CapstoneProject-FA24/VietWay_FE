@@ -66,23 +66,23 @@ const ProvinceCard = ({ province }) => {
                     transform: isHovered ? 'translateY(0)' : 'translateY(20px)',
                     transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
                 }}>
-                    <img src="/province-detail.png" alt="Province detail" style={{ width: '13.5rem', height: '13.5rem', marginTop: 15 }} />
-                    <Box sx={{ position: 'absolute', right: 85, top: 5 }}>
+                    <img src="/province-detail.png" alt="Province detail" style={{ width: '13.5rem', height: '13.5rem', marginTop: 15, marginRight: 10 }} />
+                    <Box sx={{ position: 'absolute', right: 110, top: 5 }}>
                         <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.attractionsCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }} >Điểm đến</Typography>
                     </Box>
-                    <Box sx={{ position: 'absolute', right: -25, top: 68 }}>
+                    <Box sx={{ position: 'absolute', right: -15, top: 68 }}>
                         <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.toursCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }} >Tour</Typography>
                     </Box>
-                    <Box sx={{ position: 'absolute', right: -10, bottom: 15 }}>
+                    <Box sx={{ position: 'absolute', right: 40, bottom: 15 }}>
                         <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.postsCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }}>Bài viết</Typography>
-                    </Box>
+                    </Box>{/* 
                     <Box sx={{ position: 'absolute', right: 222, bottom: 33, textAlign: 'right' }}>
                         <Typography sx={{ color: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>{province.eventsCount}</Typography>
                         <Typography sx={{ color: 'white', mt: -1, fontSize: '0.9rem' }} >Sự kiện</Typography>
-                    </Box>
+                    </Box> */}
                 </Box>
 
                 <Box sx={{
