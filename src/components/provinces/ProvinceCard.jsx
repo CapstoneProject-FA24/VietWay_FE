@@ -43,7 +43,7 @@ const ProvinceCard = ({ province }) => {
                 p: 2,
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                    background: 'linear-gradient(90deg, rgba(4, 6, 21,0.1) 5%, rgba(4, 6, 21,0.7) 35%, rgba(4, 6, 21,0.85) 80%)',
+                    background: 'linear-gradient(90deg, rgba(4, 6, 21,0.1) 10%, rgba(4, 6, 21,0.7) 50%, rgba(4, 6, 21,0.85) 85%)',
                 },
             }}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
