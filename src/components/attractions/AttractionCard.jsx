@@ -1,29 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardMedia, Typography, Chip, Box, IconButton, Alert, Snackbar } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Link } from 'react-router-dom';
-import SideSavedTab from '@components/saved/SideSavedTab';
+import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
+import { saveAttraction, removeFromStorage, isItemSaved } from '@services/StorageService';
 
 const AttractionCard = ({ attraction }) => {
-    const [isLiked, setIsLiked] = useState(false);
-    const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [savedCount, setSavedCount] = useState(0);
-    const [lastSavedTabOpenTime, setLastSavedTabOpenTime] = useState(null);
-    const THIRTY_MINUTES = 30 * 60 * 1000;
+    const [isUnsaveConfirmOpen, setIsUnsaveConfirmOpen] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+
+    useEffect(() => {
+        setIsSaved(isItemSaved('attraction', attraction.attractionId));
+    }, [attraction.attractionId]);
 
     const handleLikeClick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         
         try {
-            if (!isLiked) {
-                setIsLiked(true);
-                setSavedCount(prev => prev + 1);
-                setShowNotification(true);
+            if (isSaved) {
+                setIsUnsaveConfirmOpen(true);
             } else {
+                const count = saveAttraction(attraction);
+                setIsSaved(true);
+                setSavedCount(count);
                 setShowNotification(true);
             }
         } catch (error) {
@@ -31,16 +35,16 @@ const AttractionCard = ({ attraction }) => {
         }
     };
 
-    const handleUnlike = (attractionId) => {
-        if (attractionId === attraction.attractionId) {
-            setIsLiked(false);
-            setSavedCount(prev => Math.max(0, prev - 1));
-            setIsSavedTabOpen(false);
+    const handleUnsave = () => {
+        try {
+            const count = removeFromStorage('attraction', attraction.attractionId);
+            setIsSaved(false);
+            setSavedCount(count);
+            setIsUnsaveConfirmOpen(false);
+            setShowNotification(true);
+        } catch (error) {
+            console.error('Error handling unsave:', error);
         }
-    };
-
-    const handleCloseSavedTab = () => {
-        setIsSavedTabOpen(false);
     };
 
     const handleCloseNotification = (event, reason) => {
@@ -50,18 +54,9 @@ const AttractionCard = ({ attraction }) => {
         setShowNotification(false);
     };
 
-    const handleNotificationClick = (e) => {
+    const handleOpenStorage = (e) => {
         e.preventDefault();
-        e.stopPropagation();
-        
-        const currentTime = Date.now();
-        
-        if (!lastSavedTabOpenTime || (currentTime - lastSavedTabOpenTime) >= THIRTY_MINUTES) {
-            setIsSavedTabOpen(true);
-            setLastSavedTabOpenTime(currentTime);
-        }
-        
-        setShowNotification(false);
+        window.open('/luu-tru', '_blank', 'noopener,noreferrer');
     };
 
     return (
@@ -108,7 +103,7 @@ const AttractionCard = ({ attraction }) => {
                     onClick={handleLikeClick}
                     sx={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'white', width: '35px', height: '35px', zIndex: 2,
                         '&:hover': { backgroundColor: 'white' } }}>
-                    {isLiked ? (
+                    {isSaved ? (
                         <FavoriteIcon sx={{ color: 'red', fontSize: '23px' }} />
                     ) : (
                         <FavoriteBorderIcon sx={{ color: '#666', fontSize: '23px' }} />
@@ -116,62 +111,62 @@ const AttractionCard = ({ attraction }) => {
                 </IconButton>
             </Card>
             
-            {isSavedTabOpen && (
-                <SideSavedTab 
-                    onClose={handleCloseSavedTab}
-                    attraction={{
-                        attractionId: attraction.attractionId,
-                        name: attraction.name,
-                        imageUrl: attraction.imageUrl,
-                        address: attraction.address,
-                        province: attraction.province,
-                        attractionType: attraction.attractionType
-                    }}
-                    isLiked={isLiked}
-                    onUnlike={handleUnlike}
-                />
-            )}
-
             <Snackbar
                 open={showNotification}
                 autoHideDuration={3000}
                 onClose={handleCloseNotification}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                sx={{ position: 'fixed', top: '24px', right: '24px' }}
+                sx={{ 
+                    position: 'fixed', 
+                    top: '24px', 
+                    right: '24px',
+                    '& .MuiPaper-root': {
+                        minWidth: '300px'
+                    }
+                }}
             >
                 <Alert 
                     onClose={handleCloseNotification} 
-                    severity="success" 
-                    action={
-                        <Typography
-                            component="span"
-                            sx={{
-                                cursor: 'pointer',
-                                color: 'primary.main',
-                                fontWeight: 600,
-                                '&:hover': { textDecoration: 'underline' }
-                            }}
-                            onClick={handleNotificationClick}
-                        >
-                            Mở thanh lưu trữ
-                        </Typography>
-                    }
+                    severity="success"
                     sx={{ 
                         width: '100%', 
-                        bgcolor: 'white', 
-                        color: 'black', 
+                        bgcolor: 'rgba(0, 0, 0, 0.8)', 
+                        color: 'white',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
-                        '& .MuiAlert-icon': { color: 'success.main' },
-                        '& .MuiAlert-action': { 
-                            alignItems: 'center', 
-                            paddingTop: 0,
-                            marginLeft: 1 
-                        }
+                        '& .MuiAlert-icon': { 
+                            color: '#4caf50'
+                        },
+                        '& .MuiSvgIcon-root': { 
+                            color: 'white'
+                        },
+                        fontSize: '0.95rem',
+                        py: 1.5
                     }}
                 >
-                    Đã lưu vào lưu trữ của bạn ({savedCount} địa điểm)
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        Đã lưu vào lưu trữ của bạn ({savedCount} địa điểm) - 
+                        <Box
+                            component="span"
+                            onClick={handleOpenStorage}
+                            sx={{
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    opacity: 0.8
+                                }
+                            }}
+                        >
+                            Mở lưu trữ
+                        </Box>
+                    </Box>
                 </Alert>
             </Snackbar>
+
+            <UnsavedConfirmPopup 
+                open={isUnsaveConfirmOpen}
+                onClose={() => setIsUnsaveConfirmOpen(false)}
+                onConfirm={handleUnsave}
+            />
         </>
     );
 };

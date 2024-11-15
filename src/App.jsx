@@ -24,6 +24,7 @@ import BookingDetailPayLater from "@pages/homepage/tours/BookingDetailPayLater";
 import { useEffect } from 'react';
 import { saveNavigationHistory } from '@utils/NavigationHistory';
 import EventDetail from "@pages/homepage/events/EventDetail";
+import Storage from "@pages/homepage/storage/Storage";
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -34,6 +35,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      <Route path="/luu-tru" element={<Storage />} />
       <Route path="/trang-chu" element={<Homepage />} />
       <Route path="/" element={<Navigate to="/trang-chu" />} />
       <Route path="*" element={<Navigate to="/trang-chu" />} />
@@ -49,14 +51,10 @@ const AppRoutes = () => {
       <Route path="/tai-khoan/*" element={<Profile />} />
       <Route path="/tai-khoan/thanh-toan/:id" element={<PaymentDetail />} />
       <Route path="/dat-tour/:id" element={<BookTour />} />
-
       <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
       <Route path="/thanh-toan/:id" element={<Payment />} />
-
       <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />
-
       <Route path="/dat-tour/hoan-thanh/:id" element={<BookingDetailPayLater />} />
-
       <Route path="/bai-viet/:id" element={<PostDetail />} />
       <Route path="/bai-viet" element={<Posts />} />
       <Route path="/tinh-thanh" element={<Provinces />} />

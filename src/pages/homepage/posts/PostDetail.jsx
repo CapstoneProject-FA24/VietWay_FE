@@ -12,19 +12,21 @@ import { faCalendarAlt, faTag, faMapLocation } from '@fortawesome/free-solid-svg
 import MediaShare from '@components/posts/MediaShare';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import SideSavedTab from '@components/saved/SideSavedTab';
 import { CircularProgress } from '@mui/material';
+import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
 
 export default function PostDetail() {
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const pageTopRef = useRef(null);
-    const [isBookmarked, setIsBookmarked] = useState(false);
-    const [isSavedTabOpen, setIsSavedTabOpen] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [savedCount, setSavedCount] = useState(0);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationType, setNotificationType] = useState('success');
     const TEN_MINUTES = 10 * 60 * 1000;
+    const [openUnsaveDialog, setOpenUnsaveDialog] = useState(false);
 
     useEffect(() => {
         const loadPost = async () => {
@@ -49,29 +51,17 @@ export default function PostDetail() {
 
     const handleBookmarkClick = async () => {
         try {
-            if (isBookmarked) {
-                setIsSavedTabOpen(true);
+            if (isSaved) {
+                setOpenUnsaveDialog(true);
                 return;
             }
-
-            setIsBookmarked(true);
-
-            const currentTime = Date.now();
-
-            if (!lastShownTime || (currentTime - lastShownTime) >= TEN_MINUTES) {
-                setIsSavedTabOpen(true);
-                setSavedCount(1);
-            } else {
-                setSavedCount(prev => prev + 1);
-                setShowNotification(true);
-            }
+            
+            setIsSaved(true);
+            setShowNotification(true);
+            setSavedCount(prev => prev + 1);
         } catch (error) {
             console.error('Error bookmarking post:', error);
         }
-    };
-
-    const handleCloseSavedTab = () => {
-        setIsSavedTabOpen(false);
     };
 
     const handleCloseNotification = () => {
@@ -79,14 +69,24 @@ export default function PostDetail() {
     };
 
     const handleNotificationClick = () => {
-        setIsSavedTabOpen(true);
+        setIsSaved(true);
         setShowNotification(false);
     };
 
-    const handleUnbookmark = () => {
-        setIsBookmarked(false);
-        setSavedCount(prev => prev - 1);
-        setIsSavedTabOpen(false);
+    const handleOpenStorage = (e) => {
+        e.preventDefault();
+        window.open('/luu-tru', '_blank', 'noopener,noreferrer');
+    };
+
+    const handleConfirmUnsave = () => {
+        setIsSaved(false);
+        setShowNotification(true);
+        setSavedCount(prev => Math.max(0, prev - 1));
+        setOpenUnsaveDialog(false);
+    };
+
+    const handleCloseUnsaveDialog = () => {
+        setOpenUnsaveDialog(false);
     };
 
     if (loading) {
@@ -187,7 +187,7 @@ export default function PostDetail() {
                                             backgroundColor: 'rgba(0, 0, 0, 0.04)'
                                         }, padding: '6px 16px'
                                     }}
-                                    startIcon={isBookmarked ?
+                                    startIcon={isSaved ?
                                         <BookmarkIcon sx={{ color: 'primary.main' }} /> :
                                         <BookmarkBorderIcon />
                                     }
@@ -309,62 +309,62 @@ export default function PostDetail() {
                 </Box>
             </Container>
 
-            {isSavedTabOpen &&
-                <SideSavedTab
-                    onClose={handleCloseSavedTab}
-                    post={{
-                        postId: post.id,
-                        title: post.title,
-                        imageUrl: post.image,
-                        postCategory: post.category,
-                        provinceName: post.provinceName
-                    }}
-                    isBookmarked={isBookmarked}
-                    onUnbookmark={handleUnbookmark}
-                    initialTab={1}
-                />
-            }
-
             <Snackbar
                 open={showNotification}
                 autoHideDuration={3000}
                 onClose={handleCloseNotification}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                sx={{ position: 'fixed', top: '24px', right: '24px' }}
-            >
-                <Alert
-                    onClose={handleCloseNotification}
-                    severity="success"
-                    action={
-                        <Typography
-                            component="span"
-                            sx={{
-                                cursor: 'pointer',
-                                color: 'primary.main',
-                                fontWeight: 600,
-                                '&:hover': { textDecoration: 'underline' }
-                            }}
-                            onClick={handleNotificationClick}
-                        >
-                            Mở thanh lưu trữ
-                        </Typography>
+                sx={{ 
+                    position: 'fixed', 
+                    top: '24px', 
+                    right: '24px',
+                    '& .MuiPaper-root': {
+                        minWidth: '300px'
                     }
-                    sx={{
-                        width: '100%',
-                        bgcolor: 'white',
-                        color: 'black',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                        '& .MuiAlert-icon': { color: 'success.main' },
-                        '& .MuiAlert-action': {
-                            alignItems: 'center',
-                            paddingTop: 0,
-                            marginLeft: 1
-                        }
+                }}
+            >
+                <Alert 
+                    onClose={handleCloseNotification} 
+                    severity="success"
+                    sx={{ 
+                        width: '100%', 
+                        bgcolor: 'rgba(0, 0, 0, 0.8)', 
+                        color: 'white',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
+                        '& .MuiAlert-icon': { 
+                            color: '#4caf50'
+                        },
+                        '& .MuiSvgIcon-root': { 
+                            color: 'white'
+                        },
+                        fontSize: '0.95rem',
+                        py: 1.5
                     }}
                 >
-                    Đã lưu vào lưu trữ của bạn ({savedCount} bài viết)
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        Đã lưu vào lưu trữ của bạn ({savedCount} bài viết) - 
+                        <Box
+                            component="span"
+                            onClick={handleOpenStorage}
+                            sx={{
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    opacity: 0.8
+                                }
+                            }}
+                        >
+                            Mở lưu trữ
+                        </Box>
+                    </Box>
                 </Alert>
             </Snackbar>
+
+            <UnsavedConfirmPopup 
+                open={openUnsaveDialog}
+                onClose={handleCloseUnsaveDialog}
+                onConfirm={handleConfirmUnsave}
+            />
 
             <Footer />
         </Box>
