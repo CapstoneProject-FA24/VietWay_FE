@@ -140,11 +140,8 @@ export default function Login() {
       
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      
       const idToken = await user.getIdToken();
-      
       const response = await loginWithGoogle(idToken);
-      
       if (response.data) {
         const targetPage = getPreviousPage() || '/';
         clearNavigationHistory();
@@ -155,7 +152,12 @@ export default function Login() {
       if (error.code === 'auth/popup-closed-by-user') {
         setError('Đăng nhập đã bị hủy.');
       } else {
-        setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+        if(error.status === 401){
+          navigate("/dang-ky");
+        }
+        else{
+          setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+        }
       }
     } finally {
       setLoading(false);
