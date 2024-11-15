@@ -12,8 +12,7 @@ import { fetchToursByTemplateId, calculateEndDate } from '@services/TourService'
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/tours/OtherTours';
-import ReviewList from '@components/reviews/ReviewList';
-import ReviewBreakdownTour from '@components/reviews/ReviewBreakdownTour';
+import ReviewListTour from '@components/reviews/ReviewListTour';
 import MediaShare from '@components/posts/MediaShare';
 import { getCookie } from '@services/AuthenService';
 
@@ -382,8 +381,8 @@ const TourDetails = () => {
             Đánh giá từ khách hàng
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={8}>
-              <ReviewList />
+            <Grid item xs={12} md={12}>
+              <ReviewListTour tourTemplateId={tour.tourTemplateId} />
             </Grid>
           </Grid>
         </Box>

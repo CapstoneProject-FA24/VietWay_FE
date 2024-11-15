@@ -98,17 +98,26 @@ const BookingDetail = () => {
         const data = await fetchBookingData(id);
         const paymentData = await fetchBookingPayments(id);
         setPayments(paymentData.items);
-        
+
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
-        
+
         if (vnpAmount && vnpCode === '00') {
           const paidAmount = parseInt(vnpAmount) / 100;
           data.paymentMethod = "VNPay";
           data.paidAmount = paidAmount;
+
+          //remove when use online payment
+          //start from here
+          const vnPayIPN = `?vnp_TmnCode=${searchParams.get('vnp_TmnCode')}&vnp_Amount=${searchParams.get('vnp_Amount')}&vnp_BankCode=${searchParams.get('vnp_BankCode')}&vnp_BankTranNo=${searchParams.get('vnp_BankTranNo')}&vnp_CardType=${searchParams.get('vnp_CardType')}&vnp_PayDate=${searchParams.get('vnp_PayDate')}&vnp_OrderInfo=${searchParams.get('vnp_OrderInfo').replace(/\+/g, '%2B')}&vnp_TransactionNo=${searchParams.get('vnp_TransactionNo')}&vnp_ResponseCode=${searchParams.get('vnp_ResponseCode')}&vnp_TransactionStatus=${searchParams.get('vnp_TransactionStatus')}&vnp_TxnRef=${searchParams.get('vnp_TxnRef')}&vnp_SecureHash=${searchParams.get('vnp_SecureHash')}`;
+          const response = await fetchCreatePayment(vnPayIPN);
+          if (response.rspCode === '00') {
+            setOpenSnackbar(true);
+          }
+          //end here
         }
-        else if (vnpCode !== null){
+        else if (vnpCode !== null) {
           navigate(`/dat-tour/thanh-toan/${id}?vnpCode=${vnpCode}`);
         }
         setBookingData(data);
@@ -271,6 +280,12 @@ const BookingDetail = () => {
                       <Typography>Mã giao dịch:</Typography>
                       <Typography>{payment.thirdPartyTransactionNumber}</Typography>
                     </SummaryItem>
+                    <SummaryItem>
+                      <Typography>Trạng thái:</Typography>
+                      <Typography sx={{ color: payment.status === 1 ? 'success.main' : 'error.main' }}>
+                        {payment.status === 1 ? 'Thành công' : 'Thất bại'}
+                      </Typography>
+                    </SummaryItem>
                     {index < payments.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
                 ))}
@@ -312,7 +327,7 @@ const BookingDetail = () => {
             width: '500px', fontSize: '1.5rem', display: 'flex',
             alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
           }}
-          iconMapping={{success: <CheckCircleIcon fontSize="large" />}}
+          iconMapping={{ success: <CheckCircleIcon fontSize="large" /> }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
             Thanh toán thành công!

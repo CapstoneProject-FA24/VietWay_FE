@@ -104,7 +104,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
         {isFeedbackOpen && 
           <FeedbackPopup 
             onClose={handleFeedbackClose} 
-            tourId={tour.id} 
+            bookingId={tour.bookingId} 
             onSubmitSuccess={() => {
               handleFeedbackClose();
               if (onBookingCancelled) {

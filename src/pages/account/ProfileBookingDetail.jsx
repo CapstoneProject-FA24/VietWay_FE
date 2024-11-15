@@ -401,12 +401,8 @@ const ProfileBookingDetail = () => {
                         <Typography>{dayjs(payment.payTime).format('DD/MM/YYYY HH:mm:ss')}</Typography>
                       </SummaryItem>
                       <SummaryItem>
-                        <Typography>Phương thức:</Typography>
+                        <Typography>Ngân hàng:</Typography>
                         <Typography>{payment.bankCode || 'VNPay'}</Typography>
-                      </SummaryItem>
-                      <SummaryItem>
-                        <Typography>Mã giao dịch:</Typography>
-                        <Typography>{payment.thirdPartyTransactionNumber}</Typography>
                       </SummaryItem>
                       <SummaryItem>
                         <Typography>Trạng thái:</Typography>
@@ -529,7 +525,7 @@ const ProfileBookingDetail = () => {
       {isFeedbackOpen && (
         <FeedbackPopup 
           onClose={handleFeedbackClose} 
-          tourId={bookingData.tourId} 
+          bookingId={bookingData.bookingId} 
         />
       )}
     </Box>

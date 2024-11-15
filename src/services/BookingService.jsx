@@ -166,3 +166,55 @@ export const fetchBookingPayments = async (bookingId, pageIndex = 1, pageSize = 
         throw error;
     }
 };
+
+export const submitBookingReview = async (bookingId, rating, content, isPublic) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.post(
+            `${baseURL}/api/bookings/${bookingId}/review`,
+            {
+                rating,
+                content,
+                isPublic
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting booking review:', error);
+        throw error;
+    }
+};
+
+export const getBookingReview = async (bookingId) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(
+            `${baseURL}/api/bookings/${bookingId}/review`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        const reviewData = response.data.data;
+        return {
+            statusCode: 200,
+            message: "Success",
+            data: {
+                reviewId: reviewData.reviewId,
+                rating: reviewData.rating,
+                review: reviewData.review,
+                createdAt: reviewData.createdAt,
+                reviewer: reviewData.reviewer
+            }
+        };
+    } catch (error) {
+        console.error('Error fetching booking review:', error);
+        throw error;
+    }
+};

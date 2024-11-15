@@ -54,15 +54,17 @@ const ReviewCard = ({ review }) => {
         <Typography variant="body1">
           {review.review}
         </Typography>
+        {review.likeCount && (
+          <Stack direction="row" spacing={1} alignItems="center">
+            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+              <ThumbUpIcon fontSize="small" />
+            </IconButton>
 
-        <Stack direction="row" spacing={1} alignItems="center">
-          <IconButton size="small" sx={{ color: 'text.secondary' }}>
-            <ThumbUpIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="body2" color="text.secondary">
-            Hữu ích {`(${review.likeCount})`}
-          </Typography>
-        </Stack>
+            <Typography variant="body2" color="text.secondary">
+              Hữu ích {`(${review.likeCount})`}
+            </Typography>
+          </Stack>
+        )}
       </Stack>
     </Paper>
   );

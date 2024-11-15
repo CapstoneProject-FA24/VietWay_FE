@@ -121,3 +121,43 @@ export const fetchToursByAttractionId = async (attractionId, previewCount) => {
         throw error;
     }
 };
+
+export const fetchTourReviews = async (params) => {
+    try {
+        const queryParams = new URLSearchParams();
+        
+        if (params.ratingValues && params.ratingValues.length > 0) {
+            params.ratingValues.forEach(value => queryParams.append('ratingValue', value));
+        }
+        
+        if (params.hasReviewContent !== undefined) {
+            queryParams.append('hasReviewContent', params.hasReviewContent);
+        }
+        
+        if (params.pageSize) {
+            queryParams.append('pageSize', params.pageSize);
+        }
+        
+        if (params.pageIndex) {
+            queryParams.append('pageIndex', params.pageIndex);
+        }
+        
+        const response = await axios.get(`${baseURL}/api/tour-templates/${params.tourTemplateId}/reviews?${queryParams.toString()}`);
+        const data = response.data.data;
+        return {
+            total: data.total,
+            pageSize: data.pageSize,
+            pageIndex: data.pageIndex,
+            items: data.items.map(item => ({
+                reviewId: item.reviewId,
+                rating: item.rating,
+                review: item.review,
+                createdAt: item.createdAt,
+                reviewer: item.reviewer
+            }))
+        };
+    } catch (error) {
+        console.error('Error fetching tour reviews:', error);
+        throw error;
+    }
+};
