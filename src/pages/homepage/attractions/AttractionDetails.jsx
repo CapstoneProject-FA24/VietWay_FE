@@ -20,7 +20,6 @@ import { fetchPlaceDetails } from '@services/GooglePlaceService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { CircularProgress } from '@mui/material';
-import Map from '@components/Map';
 import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
 
 const AttractionDetails = () => {
@@ -143,11 +142,18 @@ const AttractionDetails = () => {
   if (loading) {
     return (
         <>
-            <Helmet> <title>Chi tiết điểm tham quan</title> </Helmet> <Header />
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+            <Helmet>
+                <title>Chi tiết điểm tham quan</title>
+            </Helmet>
+            <Header />
+            <Box 
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%' }}
+            >
+                <CircularProgress size={50} thickness={4} color="primary" />
+            </Box>
         </>
     );
-}
+  }
 
   if (!attraction) {
     return (
