@@ -7,7 +7,7 @@ import OtherAttractions from '@components/attractions/OtherAttractions';
 import Footer from '@layouts/Footer';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import ToursVisitAttraction from '@components/attractions/ToursVisitAttraction';
+//import ToursVisitAttraction from '@components/attractions/ToursVisitAttraction';
 import { getAttractionById } from '@services/AttractionService';
 import ReviewList from '@components/reviews/ReviewList';
 import { Typography, Grid, Paper, Box, Button } from '@mui/material';
@@ -21,9 +21,11 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { CircularProgress } from '@mui/material';
 import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
+import ToursVisitAttractionCol from '@components/attractions/ToursVisitAttractionCol';
 import Map from '@components/Map';
 
 const AttractionDetails = () => {
+   const [notificationMessage, setNotificationMessage] = useState('');
   const [attraction, setAttraction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -32,7 +34,6 @@ const AttractionDetails = () => {
   const pageTopRef = useRef(null);
   const [showNotification, setShowNotification] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
-  const TEN_MINUTES = 10 * 60 * 1000;
   const [openingHours, setOpeningHours] = useState(null);
   const [openUnsaveDialog, setOpenUnsaveDialog] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -106,6 +107,7 @@ const AttractionDetails = () => {
         return;
       }
       setIsSaved(true);
+      setNotificationMessage(`Đã lưu vào lưu trữ của bạn (${savedCount + 1} địa điểm) -`);
       setShowNotification(true);
       setSavedCount(prev => prev + 1);
     } catch (error) {
@@ -183,13 +185,13 @@ const AttractionDetails = () => {
       </Helmet>
       <Header />
       <Box sx={{ p: 3, flexGrow: 1, mt: 5 }}>
-        <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '10px', textAlign: 'left' }}>
+        {/*<Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '10px', textAlign: 'left' }}>
           <a href="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</a>
           &gt;
           <a href="/diem-tham-quan" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Điểm tham quan</a>
           &gt; <strong>{attraction.name}</strong>
         </Typography>
-        <ToursVisitAttraction />
+        <ToursVisitAttraction />*/}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="body1" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'gray', fontSize: '1.2rem' }}>
             {attraction.attractionTypeName}
@@ -354,6 +356,7 @@ const AttractionDetails = () => {
                 </Box>
               )}
             </Paper>
+            <ToursVisitAttractionCol />
           </Grid>
           {attraction.googlePlaceId && (
             <Grid item xs={12} md={12}>
