@@ -25,6 +25,7 @@ import { useEffect } from 'react';
 import { saveNavigationHistory } from '@utils/NavigationHistory';
 import EventDetail from "@pages/homepage/events/EventDetail";
 import Storage from "@pages/homepage/storage/Storage";
+import RegisterWithGoogle from '@pages/authen/RegisterWithGoogle';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -44,6 +45,7 @@ const AppRoutes = () => {
       <Route path="/diem-tham-quan/:id" element={<AttractionDetails />} />
       <Route path="/dang-nhap" element={<Login />} />
       <Route path="/dang-ky" element={<Register />} />
+      <Route path="/dang-ky-google" element={<RegisterWithGoogle />} />
       <Route path="/quen-mat-khau" element={<ForgetPass />} />
       <Route path="/dat-lai-mat-khau" element={<ResetPass />} />
       <Route path="/tour-du-lich" element={<Tours />} />

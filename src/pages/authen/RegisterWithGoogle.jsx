@@ -14,7 +14,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import { register } from '@services/AuthenService';
+import { registerWithGoogle } from '@services/AuthenService';
 import { getPreviousPage } from '@utils/NavigationHistory';
 import { getCookie } from '@services/AuthenService';
 import { initializeApp } from 'firebase/app';
@@ -38,7 +38,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-export default function Register() {
+export default function RegisterWithGoogle() {
     const settingRegister = {
         dots: true,
         dotsClass: 'slick-dots custom-dots',
@@ -58,20 +58,19 @@ export default function Register() {
         { url: './register3.png' },
     ];
 
-    const [showPassword, setShowPassword] = React.useState(false);
     const [gender, setGender] = React.useState('');
     const [provinces, setProvinces] = React.useState([]);
     const [selectedProvince, setSelectedProvince] = React.useState('');
     const [dob, setDob] = React.useState(null);
     const [errors, setErrors] = React.useState({});
     const navigate = useNavigate();
-    const location = useLocation();
     const [snackbar, setSnackbar] = React.useState({
         open: false,
         message: '',
         severity: 'success'
     });
     const [googleEmail, setGoogleEmail] = React.useState('');
+    const [googleData, setGoogleData] = React.useState(null);
 
     React.useEffect(() => {
         const token = getCookie('customerToken');
@@ -90,10 +89,19 @@ export default function Register() {
         getProvinces();
     }, []);
 
-    const validateEmail = (email) => {
-        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return re.test(String(email).toLowerCase());
-    };
+    React.useEffect(() => {
+        // Check if we have Google data in sessionStorage
+        const storedGoogleData = sessionStorage.getItem('googleSignInData');
+        console.log(storedGoogleData);
+        if (!storedGoogleData) {
+            // If no Google data, redirect to regular register page
+            navigate('/dang-ky');
+        } else {
+            const parsedData = JSON.parse(storedGoogleData);
+            setGoogleData(parsedData);
+            setGoogleEmail(parsedData.email);
+        }
+    }, []);
 
     const validatePhone = (phone) => {
         return phone.length === 10 && phone.startsWith('0') && /^\d+$/.test(phone);
@@ -106,31 +114,6 @@ export default function Register() {
         return age >= 12;
     };
 
-    const handleGoogleSignIn = async () => {
-        try {
-            const result = await signInWithPopup(auth, provider);
-            console.log(result);
-            const user = result.user;
-            
-            sessionStorage.setItem('googleSignInData', JSON.stringify({
-                email: user.email,
-                uid: user.uid,
-                displayName: user.displayName,
-                idToken: user.accessToken
-            }));
-            
-            // Redirect to Google registration page
-            navigate('/dang-ky-google');
-        } catch (error) {
-            console.error('Google sign in error:', error);
-            setSnackbar({
-                open: true,
-                message: 'Đăng nhập Google thất bại. Vui lòng thử lại.',
-                severity: 'error'
-            });
-        }
-    };
-
     const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -138,13 +121,6 @@ export default function Register() {
 
         if (!data.get('lastName')) newErrors.lastName = 'Họ là bắt buộc';
         if (!data.get('firstName')) newErrors.firstName = 'Tên là bắt buộc';
-
-        const email = data.get('email');
-        if (!email) {
-            newErrors.email = 'Email là bắt buộc';
-        } else if (!validateEmail(email)) {
-            newErrors.email = 'Email không hợp lệ';
-        }
 
         const phone = data.get('phone');
         if (!phone) {
@@ -162,40 +138,27 @@ export default function Register() {
             newErrors.dob = 'Bạn phải từ 12 tuổi trở lên';
         }
 
-        const password = data.get('password');
-        const passwordConfirm = data.get('passwordConfirm');
-
-        if (!password) {
-            newErrors.password = 'Mật khẩu là bắt buộc';
-        } else if (password.length < 8) {
-            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
-        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?])/.test(password)) {
-            newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt';
-        }
-        if (!passwordConfirm) newErrors.passwordConfirm = 'Xác nhận mật khẩu là bắt buộc';
-        if (password !== passwordConfirm) newErrors.passwordConfirm = 'Mật khẩu không khớp';
-
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
             try {
                 const userData = {
-                    email: googleEmail || data.get('email'),
+                    idToken: googleData.idToken,
                     phoneNumber: data.get('phone'),
-                    password: data.get('password'),
                     fullName: `${data.get('lastName')} ${data.get('firstName')}`,
                     dateOfBirth: dob.format('YYYY-MM-DD'),
                     gender: gender,
-                    provinceId: selectedProvince,
-                    isGoogleAccount: !!googleEmail
+                    provinceId: selectedProvince
                 };
 
-                const response = await register(userData);
+                const response = await registerWithGoogle(userData);
                 setSnackbar({
                     open: true,
                     message: 'Đăng ký thành công!',
                     severity: 'success'
                 });
+                // Clear Google data from session storage
+                sessionStorage.removeItem('googleSignInData');
                 setTimeout(() => {
                     handleSuccessfulRegistration();
                 }, 2000);
@@ -207,13 +170,7 @@ export default function Register() {
                     severity: 'error'
                 });
             }
-        } else {
-            setErrors(newErrors);
         }
-    };
-
-    const handleClickShowPassword = () => {
-        setShowPassword(!showPassword);
     };
 
     const handleBackClick = () => {
@@ -234,9 +191,9 @@ export default function Register() {
     return (
         <>
             <Helmet>
-                <title>Đăng ký</title>
+                <title>Đăng ký với Google</title>
             </Helmet>
-            <Grid component="main" sx={{ width: '150vh' }}>
+            <Grid component="main" sx={{ width: '70vw', mt: -5 }}>
                 <Grid item square md={12} sx={{ display: 'flex ', ml: '-5%' }}>
                     <Box sx={{ width: 6 }}>
                         <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', width: 200 }}>
@@ -260,7 +217,7 @@ export default function Register() {
                             width: '100%', ml: '50%', mr: '-5%'
                         }}
                     >
-                        <Box sx={{ display: 'flex', flexDirection: 'column', mt: 4 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', mt: 15 }}>
                             <Typography component="h1" variant="h4" sx={{ fontWeight: 700 }}>
                                 Đăng ký
                             </Typography>
@@ -285,17 +242,12 @@ export default function Register() {
                             </Box>
                             <TextField
                                 margin="normal"
-                                required
                                 fullWidth
                                 id="email"
                                 label="Email"
-                                name="email"
-                                autoComplete="email"
-                                type="email"
-                                value={googleEmail || ''}
-                                disabled={!!googleEmail}
-                                error={!!errors.email}
-                                helperText={errors.email}
+                                value={googleEmail}
+                                disabled
+                                sx={{ backgroundColor: '#f5f5f5' }}
                             />
                             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <TextField
@@ -364,83 +316,14 @@ export default function Register() {
                                     />
                                 </LocalizationProvider>
                             </Box>
-                            <TextField
-                                margin="normal" required fullWidth name="password" label="Mật khẩu"
-                                type={showPassword ? 'text' : 'password'} id="password"
-                                autoComplete="new-password"
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton aria-label="toggle password visibility"
-                                                onClick={handleClickShowPassword} edge="end"
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{ marginBottom: '-2px' }}
-                                error={!!errors.password}
-                                helperText={'Mật khẩu cần ít nhất 8 ký tự, gồm 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt'}
-                            />
-                            <TextField
-                                margin="normal" required fullWidth name="passwordConfirm"
-                                label="Nhập lại mật khẩu" type={showPassword ? 'text' : 'password'}
-                                id="passwordConfirm"
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={handleClickShowPassword} edge="end"
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{ marginBottom: '-2px' }}
-                                error={!!errors.passwordConfirm}
-                                helperText={errors.passwordConfirm}
-                            />
-                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 1, height: 45 }}>
-                                Đăng ký
+                            <Button 
+                                type="submit" 
+                                fullWidth 
+                                variant="contained" 
+                                sx={{ mt: 2, mb: 1, height: 45 }}
+                            >
+                                Hoàn tất đăng ký
                             </Button>
-                            <Grid container>
-                                <Grid item sx={{ width: '100%', textAlign: 'center' }}>
-                                    Đã có tài khoản?
-                                    <Link 
-                                        sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} 
-                                        onClick={() => navigate('/dang-nhap')}
-                                        variant="body2" 
-                                        color='#FF8682'
-                                    >
-                                        {"Đăng nhập ngay"}
-                                    </Link>
-                                </Grid>
-                                <Grid item sx={{ display: 'flex', alignItems: 'center', width: '100%', marginTop: 3 }}>
-                                    <hr style={{ flex: 1, border: 'none', borderTop: '1px solid gray' }} />
-                                    <Typography sx={{ px: 2, color: 'gray ' }}>Đăng ký bằng</Typography>
-                                    <hr style={{ flex: 1, border: 'none', borderTop: '1px solid gray' }} />
-                                </Grid>
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    onClick={handleGoogleSignIn}
-                                    sx={{
-                                        mt: 2,
-                                        height: 45,
-                                        backgroundColor: 'transparent',
-                                        border: '1px solid #BDBDBD',
-                                        '&:hover': {
-                                            backgroundColor: 'lightgray',
-                                            border: '1px solid #BDBDBD',
-                                        },
-                                    }}
-                                >
-                                    <img style={{ width: 20 }} src='/Logo-google-icon-PNG.png' alt="Logo" />
-                                </Button>
-                            </Grid>
                         </Box>
                     </Box>
                 </Grid>
