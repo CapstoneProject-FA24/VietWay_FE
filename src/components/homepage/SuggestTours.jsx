@@ -17,7 +17,6 @@ const SuggestTours = () => {
     try {
       const params = { pageSize: 6, pageIndex: 1, searchTerm: '' };
       const response = await fetchTourTemplates(params);
-      console.log(response);
       setTours(response.data);
     } catch (error) {
       console.error("Error fetching tours:", error);

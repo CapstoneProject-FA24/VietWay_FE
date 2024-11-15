@@ -7,9 +7,25 @@ import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { login } from '@services/AuthenService';
+import { login, loginWithGoogle } from '@services/AuthenService';
 import { getPreviousPage, clearNavigationHistory } from '@utils/NavigationHistory';
 import { getCookie } from '@services/AuthenService';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
 export default function Login() {
   const settingLogin = {
     dots: true,
@@ -117,6 +133,35 @@ export default function Login() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      const idToken = await user.getIdToken();
+      
+      const response = await loginWithGoogle(idToken);
+      
+      if (response.data) {
+        const targetPage = getPreviousPage() || '/';
+        clearNavigationHistory();
+        navigate(targetPage);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Đăng nhập đã bị hủy.');
+      } else {
+        setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -201,15 +246,19 @@ export default function Login() {
                   <hr style={{ flex: 1, border: 'none', borderTop: '1px solid gray' }} />
                 </Grid>
                 <Button
-                  type="submit"
                   fullWidth
                   variant="contained"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
                   sx={{
-                    mt: 2, height: 45, backgroundColor: 'transparent', border: '1px solid #BDBDBD ',
-                    '&:hover': { backgroundColor: 'lightgray', border: '1px solid #BDBDBD ', },
+                    mt: 2,
+                    height: 45,
+                    backgroundColor: 'transparent',
+                    border: '1px solid #BDBDBD',
+                    '&:hover': { backgroundColor: 'lightgray', border: '1px solid #BDBDBD' },
                   }}
                 >
-                  <img style={{ width: 20 }} src='/Logo-google-icon-PNG.png' alt="Logo" />
+                  {loading ? <CircularProgress size={24} /> : <img style={{ width: 20 }} src='/Logo-google-icon-PNG.png' alt="Logo" />}
                 </Button>
               </Grid>
             </Box>

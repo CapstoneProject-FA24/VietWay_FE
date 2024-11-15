@@ -39,6 +39,44 @@ export const register = async (userData) => {
     }
 };
 
+export const loginWithGoogle = async (idToken) => {
+    try {
+        const response = await axios.post(`${baseURL}/api/account/login-with-google`, idToken, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = response.data;
+        if (data.data) {
+            setCookie('customerToken', data.data);
+        }
+        return data;
+    } catch (error) {
+        console.error('Google login failed:', error);
+        throw error;
+    }
+};
+
+
+export const registerWithGoogle = async (googleUserData) => {
+    try {
+        const registerRequest = {
+            idToken: googleUserData.idToken,
+            phoneNumber: googleUserData.phoneNumber,
+            fullName: googleUserData.fullName,
+            dateOfBirth: googleUserData.dateOfBirth,
+            gender: googleUserData.gender,
+            provinceId: googleUserData.provinceId
+        };
+        const response = await axios.post(`${baseURL}/api/account/register-with-google`, registerRequest);
+        const data = response.data;
+        return data;
+    } catch (error) {
+        console.error('Google registration failed:', error);
+        throw error;
+    }
+};
+
 export const setCookie = (name, value, days = 1) => {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));

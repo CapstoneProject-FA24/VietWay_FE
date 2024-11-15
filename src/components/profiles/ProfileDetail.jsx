@@ -46,7 +46,7 @@ const ProfileDetail = ({ profile, onProfileUpdate }) => {
 
   const fields = [
     { key: 'fullName', label: 'Tên', icon: <PersonIcon />, editable: true },
-    { key: 'email', label: 'Email', icon: <EmailIcon />, editable: true },
+    { key: 'email', label: 'Email', icon: <EmailIcon />, editable: !displayProfile.loginWithGoogle },
     { key: 'phone', label: 'Số điện thoại', icon: <PhoneIcon />, editable: false },
     { key: 'birthday', label: 'Ngày sinh', format: (value) => dayjs(value).format('DD/MM/YYYY'), icon: <CakeIcon />, editable: true, type: 'date' },
     { key: 'genderId', label: 'Giới tính', icon: <WcIcon />, editable: true, type: 'select', options: genderOptions },
@@ -194,14 +194,24 @@ const ProfileDetail = ({ profile, onProfileUpdate }) => {
                           />
                         )
                       ) : (
-                        <Typography variant="body1" sx={{ fontWeight: 'medium', fontSize: '1.3rem' }}>
-                          {getDisplayValue(field, displayProfile[field.key])}
-                        </Typography>
+                        <>
+                          <Typography variant="body1" sx={{ fontWeight: 'medium', fontSize: '1.3rem' }}>
+                            {getDisplayValue(field, displayProfile[field.key])}
+                          </Typography>
+                          {field.helperText && (
+                            <Typography variant="caption" color="text.secondary">
+                              {field.helperText}
+                            </Typography>
+                          )}
+                        </>
                       )}
                     </Box>
                   </Box>
                   {field.editable && (
-                    <IconButton onClick={() => editMode[field.key] ? handleCancel(field.key) : handleEdit(field.key)}>
+                    <IconButton 
+                      onClick={() => editMode[field.key] ? handleCancel(field.key) : handleEdit(field.key)}
+                      disabled={!field.editable}
+                    >
                       {editMode[field.key] ? <CloseIcon /> : <EditIcon />}
                     </IconButton>
                   )}
