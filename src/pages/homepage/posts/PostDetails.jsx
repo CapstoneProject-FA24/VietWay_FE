@@ -15,7 +15,7 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { CircularProgress } from '@mui/material';
 import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
 
-export default function PostDetail() {
+export default function PostDetailss() {
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -23,10 +23,8 @@ export default function PostDetail() {
     const [isSaved, setIsSaved] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [savedCount, setSavedCount] = useState(0);
-    const [notificationMessage, setNotificationMessage] = useState('');
-    const [notificationType, setNotificationType] = useState('success');
-    const TEN_MINUTES = 10 * 60 * 1000;
     const [openUnsaveDialog, setOpenUnsaveDialog] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     useEffect(() => {
         const loadPost = async () => {
@@ -57,6 +55,7 @@ export default function PostDetail() {
             }
             
             setIsSaved(true);
+            setAlertMessage(`Đã lưu vào lưu trữ của bạn (${savedCount + 1} bài viết) -`);
             setShowNotification(true);
             setSavedCount(prev => prev + 1);
         } catch (error) {
@@ -68,11 +67,6 @@ export default function PostDetail() {
         setShowNotification(false);
     };
 
-    const handleNotificationClick = () => {
-        setIsSaved(true);
-        setShowNotification(false);
-    };
-
     const handleOpenStorage = (e) => {
         e.preventDefault();
         window.open('/luu-tru', '_blank', 'noopener,noreferrer');
@@ -80,6 +74,7 @@ export default function PostDetail() {
 
     const handleConfirmUnsave = () => {
         setIsSaved(false);
+        setAlertMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${savedCount - 1} bài viết) -`);
         setShowNotification(true);
         setSavedCount(prev => Math.max(0, prev - 1));
         setOpenUnsaveDialog(false);
@@ -342,7 +337,7 @@ export default function PostDetail() {
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        Đã lưu vào lưu trữ của bạn ({savedCount} bài viết) - 
+                        {alertMessage}
                         <Box
                             component="span"
                             onClick={handleOpenStorage}

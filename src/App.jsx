@@ -13,7 +13,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "r
 import Profile from "@pages/account/Profile.jsx";
 import BookTour from "@pages/homepage/tours/BookTour";
 import BookingDetail from "@pages/homepage/tours/BookingDetail";
-import PostDetail from "@pages/homepage/posts/PostDetail";
+import PostDetails from "@pages/homepage/posts/PostDetails";
 import Posts from "@pages/homepage/posts/Posts";
 import ProvinceDetail from "@pages/homepage/provinces/ProvinceDetail";
 import Provinces from "@pages/homepage/provinces/Provinces.jsx";
@@ -57,7 +57,7 @@ const AppRoutes = () => {
       <Route path="/thanh-toan/:id" element={<Payment />} />
       <Route path="/dat-tour/thanh-toan/hoan-thanh/:id" element={<BookingDetail />} />
       <Route path="/dat-tour/hoan-thanh/:id" element={<BookingDetailPayLater />} />
-      <Route path="/bai-viet/:id" element={<PostDetail />} />
+      <Route path="/bai-viet/:id" element={<PostDetails />} />
       <Route path="/bai-viet" element={<Posts />} />
       <Route path="/tinh-thanh" element={<Provinces />} />
       <Route path="/su-kien" element={<Events />} />

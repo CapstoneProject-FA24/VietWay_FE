@@ -12,6 +12,7 @@ const PostListCard = ({ post }) => {
     const [showNotification, setShowNotification] = useState(false);
     const [savedCount, setSavedCount] = useState(0);
     const [isUnsaveConfirmOpen, setIsUnsaveConfirmOpen] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState('');
 
     useEffect(() => {
         setIsSaved(isItemSaved('post', post.postId));
@@ -35,6 +36,7 @@ const PostListCard = ({ post }) => {
                 const count = savePost(post);
                 setIsSaved(true);
                 setSavedCount(count);
+                setNotificationMessage(`Đã lưu vào lưu trữ của bạn (${count} bài viết)`);
                 setShowNotification(true);
             }
         } catch (error) {
@@ -48,6 +50,7 @@ const PostListCard = ({ post }) => {
             setIsSaved(false);
             setSavedCount(count);
             setIsUnsaveConfirmOpen(false);
+            setNotificationMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${count} bài viết)`);
             setShowNotification(true);
         } catch (error) {
             console.error('Error handling unsave:', error);
@@ -156,7 +159,7 @@ const PostListCard = ({ post }) => {
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        Đã lưu vào lưu trữ của bạn ({savedCount} bài viết)  -  
+                        {notificationMessage} - 
                         <Box
                             component="span"
                             onClick={handleOpenStorage}

@@ -12,6 +12,7 @@ const AttractionCard = ({ attraction }) => {
     const [savedCount, setSavedCount] = useState(0);
     const [isUnsaveConfirmOpen, setIsUnsaveConfirmOpen] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState('');
 
     useEffect(() => {
         setIsSaved(isItemSaved('attraction', attraction.attractionId));
@@ -28,6 +29,7 @@ const AttractionCard = ({ attraction }) => {
                 const count = saveAttraction(attraction);
                 setIsSaved(true);
                 setSavedCount(count);
+                setNotificationMessage(`Đã lưu vào lưu trữ của bạn (${count} địa điểm)`);
                 setShowNotification(true);
             }
         } catch (error) {
@@ -41,6 +43,7 @@ const AttractionCard = ({ attraction }) => {
             setIsSaved(false);
             setSavedCount(count);
             setIsUnsaveConfirmOpen(false);
+            setNotificationMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${count} địa điểm)`);
             setShowNotification(true);
         } catch (error) {
             console.error('Error handling unsave:', error);
@@ -144,7 +147,7 @@ const AttractionCard = ({ attraction }) => {
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        Đã lưu vào lưu trữ của bạn ({savedCount} địa điểm) - 
+                        {notificationMessage} - 
                         <Box
                             component="span"
                             onClick={handleOpenStorage}

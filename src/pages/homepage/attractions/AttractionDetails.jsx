@@ -114,10 +114,16 @@ const AttractionDetails = () => {
   };
 
   const handleConfirmUnsave = () => {
-    setIsSaved(false);
-    setShowNotification(true);
-    setSavedCount(prev => Math.max(0, prev - 1));
-    setOpenUnsaveDialog(false);
+    try {
+      const count = removeFromStorage('attraction', attraction.attractionId);
+      setIsSaved(false);
+      setSavedCount(count);
+      setOpenUnsaveDialog(false);
+      setNotificationMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${count} địa điểm)`);
+      setShowNotification(true);
+    } catch (error) {
+      console.error('Error handling unsave:', error);
+    }
   };
 
   const handleCloseUnsaveDialog = () => {
@@ -407,7 +413,7 @@ const AttractionDetails = () => {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            Đã lưu vào lưu trữ của bạn ({savedCount} địa điểm) - 
+            {notificationMessage} - 
             <Box
               component="span"
               onClick={handleOpenStorage}
