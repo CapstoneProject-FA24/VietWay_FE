@@ -71,7 +71,7 @@ const BookTour = () => {
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({
     fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "",
-    passengers: [{ type: 'adult', name: '', gender: 0, birthday: '' }]
+    passengers: [{ type: 'người lớn', name: '', gender: 0, birthday: '' }]
   });
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
@@ -96,21 +96,33 @@ const BookTour = () => {
         const tour = await fetchTourById(id);
         const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
         const data = {
-          tourTemplateId: tour.tourTemplateId, imageUrls: tourTemplate.imageUrls,
-          tourName: tourTemplate.tourName, code: tourTemplate.code,
-          duration: tourTemplate.duration, startLocation: tour.startLocation,
-          startTime: tour.startTime, startDate: tour.startDate,
-          endDate: tour.endDate, price: tour.price,
-          infantPrice: tour.price / 10,
-          childPrice: tour.price * (70 / 100)
+          tourTemplateId: tour.tourTemplateId, 
+          imageUrls: tourTemplate.imageUrls,
+          tourName: tourTemplate.tourName, 
+          code: tourTemplate.code,
+          duration: tourTemplate.duration, 
+          startLocation: tour.startLocation,
+          startTime: tour.startTime, 
+          startDate: tour.startDate,
+          endDate: tour.endDate, 
+          price: tour.price,
+          pricesByAge: tour.pricesByAge,
+          refundPolicies: tour.refundPolicies,
+          registerOpenDate: tour.registerOpenDate,
+          registerCloseDate: tour.registerCloseDate,
+          maxParticipant: tour.maxParticipant,
+          minParticipant: tour.minParticipant,
+          currentParticipant: tour.currentParticipant
         }
         setBookingData(data);
+        const adultType = tour.pricesByAge?.find(p => p.ageFrom >= 12)?.name?.toLowerCase() || 'người lớn';
+        
         setFormData(prevState => ({
           ...prevState,
           fullName: customer.fullName, email: customer.email,
           phone: customer.phone, address: customer.address || "",
           passengers: [{
-            type: 'adult',
+            type: adultType,
             name: customer.fullName,
             gender: customer.genderId,
             birthday: dayjs(customer.birthday).format('YYYY-MM-DD')
@@ -137,7 +149,9 @@ const BookTour = () => {
   };
 
   const handlePassengerInfoChange = (index, field, value) => {
-    if (index === 0 && field === 'type' && value !== 'adult') {
+    const adultType = bookingData?.pricesByAge?.find(p => p.ageFrom >= 12)?.name || 'Người lớn';
+    
+    if (index === 0 && field === 'type' && value !== adultType.toLowerCase()) {
       setSnackbarMessage('Hành khách đầu tiên phải là người lớn');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
@@ -182,30 +196,14 @@ const BookTour = () => {
           error = 'Vui lòng chọn ngày sinh';
         } else {
           const birthDate = new Date(value);
-          const today = new Date();
-          let age = today.getFullYear() - birthDate.getFullYear();
-          const monthDiff = today.getMonth() - birthDate.getMonth();
-
-          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-          }
-
-          switch (passengerType) {
-            case 'adult':
-              if (age < 12) {
-                error = 'Người lớn phải từ 12 tuổi trở lên';
-              }
-              break;
-            case 'child':
-              if (age < 2 || age >= 12) {
-                error = 'Trẻ em phải từ 2 đến 11 tuổi';
-              }
-              break;
-            case 'infant':
-              if (age >= 2) {
-                error = 'Em bé phải dưới 2 tuổi';
-              }
-              break;
+          const age = calculateAge(birthDate);
+          const selectedType = passengerType?.toLowerCase();
+          const priceByAge = bookingData?.pricesByAge?.find(p => 
+            p.name.toLowerCase() === selectedType
+          );
+          
+          if (priceByAge && (age < priceByAge.ageFrom || age > priceByAge.ageTo)) {
+            error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} đến ${priceByAge.ageTo} tuổi`;
           }
         }
         break;
@@ -240,24 +238,42 @@ const BookTour = () => {
   };
 
   const calculatePassengerSummary = () => {
-    const summary = {
-      adult: { count: 0, total: 0 },
-      child: { count: 0, total: 0 },
-      infant: { count: 0, total: 0 }
-    };
+    const summary = {};
+    
+    bookingData?.pricesByAge?.forEach(priceType => {
+      summary[priceType.name.toLowerCase()] = { count: 0, total: 0 };
+    });
 
     formData.passengers.forEach(passenger => {
       if (passenger.type) {
-        summary[passenger.type].count += 1;
-        summary[passenger.type].total += bookingData.price || 0;
+        const type = passenger.type.toLowerCase();
+        if (summary[type]) {
+          summary[type].count += 1;
+          const priceByAge = bookingData.pricesByAge?.find(price => 
+            price.name.toLowerCase() === type
+          );
+          summary[type].total += priceByAge?.price || 0;
+        }
       }
     });
     return summary;
   };
 
+  const calculateAge = (birthDate) => {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+  };
+
   const calculateTotal = () => {
     const summary = calculatePassengerSummary();
-    return summary.adult.total + summary.child.total + summary.infant.total;
+    return Object.values(summary).reduce((total, typeData) => {
+      return total + (typeData.total || 0);
+    }, 0);
   };
 
   const validateAllFields = () => {
@@ -416,9 +432,11 @@ if (!bookingData) {
                           onChange={(e) => handlePassengerInfoChange(index, 'type', e.target.value)}
                           onBlur={() => validatePassengerField(index, 'type', passenger.type)}
                         >
-                          <MenuItem value="adult">Người lớn (Từ 12 tuổi) - {bookingData.price?.toLocaleString()} đ</MenuItem>
-                          <MenuItem value="child">Trẻ em (Từ 2 - 11 tuổi) - {bookingData.childPrice?.toLocaleString()} đ</MenuItem>
-                          <MenuItem value="infant">Em bé (Dưới 2 tuổi) - {bookingData.infantPrice?.toLocaleString()} đ</MenuItem>
+                          {bookingData.pricesByAge?.map(priceByAge => (
+                            <MenuItem key={priceByAge.name} value={priceByAge.name.toLowerCase()}>
+                              {priceByAge.name} (Từ {priceByAge.ageFrom} - {priceByAge.ageTo} tuổi) - {priceByAge.price?.toLocaleString()} đ
+                            </MenuItem>
+                          ))}
                         </Select>
                         {errors[`passenger${index}-type`] && (
                           <FormHelperText>{errors[`passenger${index}-type`]}</FormHelperText>
@@ -468,12 +486,15 @@ if (!bookingData) {
                           }}
                           format="DD/MM/YYYY"
                           maxDate={dayjs()}
-                          minDate={passenger.type === 'adult'
-                            ? dayjs().subtract(100, 'year')
-                            : passenger.type === 'child'
-                              ? dayjs().subtract(11, 'year')
-                              : dayjs().subtract(1, 'year')
-                          }
+                          minDate={(() => {
+                            const priceByAge = bookingData.pricesByAge?.find(
+                              p => p.name.toLowerCase() === passenger.type?.toLowerCase()
+                            );
+                            if (priceByAge) {
+                              return dayjs().subtract(priceByAge.ageTo + 1, 'year');
+                            }
+                            return dayjs().subtract(100, 'year');
+                          })()}
                           slotProps={{
                             textField: {
                               fullWidth: true,
@@ -581,9 +602,11 @@ if (!bookingData) {
                 {Object.entries(calculatePassengerSummary()).map(([type, data]) => (
                   data.count > 0 && (
                     <SummaryItem key={type}>
-                      <Typography variant="body2">{type === 'adult' ? 'Người lớn' : type === 'child' ? 'Trẻ em' : 'Em bé'}:</Typography>
                       <Typography variant="body2">
-                        {data.count} x {bookingData[type === 'adult' ? 'price' : type === 'child' ? 'childPrice' : 'infantPrice']?.toLocaleString()} đ
+                        {bookingData.pricesByAge?.find(p => p.name.toLowerCase() === type)?.name || type}:
+                      </Typography>
+                      <Typography variant="body2">
+                        {data.count} x {(data.total / data.count).toLocaleString()} đ
                       </Typography>
                     </SummaryItem>
                   )

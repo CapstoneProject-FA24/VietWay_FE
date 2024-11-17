@@ -28,7 +28,7 @@ export const fetchTourById = async (id) => {
     try {
         const response = await axios.get(`${baseURL}/api/tours/${id}`);
         const item = response.data.data;
-        const tours = {
+        const tour = {
             id: item.tourId,
             tourTemplateId: item.tourTemplateId,
             startLocation: item.startLocation,
@@ -38,13 +38,20 @@ export const fetchTourById = async (id) => {
             maxParticipant: item.maxParticipant,
             minParticipant: item.minParticipant,
             currentParticipant: item.currentParticipant,
-            status: item.status,
-            refundPolicies: item.refundPolicies,
-            pricesByAge: item.pricesByAge,
-            registerOpenDate: item.registerOpenDate,
-            registerCloseDate: item.registerCloseDate
+            refundPolicies: item.refundPolicies.map(policy => ({
+                cancelBefore: new Date(policy.cancelBefore),
+                refundPercent: policy.refundPercent
+            })),
+            pricesByAge: item.pricesByAge.map(price => ({
+                name: price.name,
+                price: price.price,
+                ageFrom: price.ageFrom,
+                ageTo: price.ageTo
+            })),
+            registerOpenDate: new Date(item.registerOpenDate),
+            registerCloseDate: new Date(item.registerCloseDate)
         };
-        return tours;
+        return tour;
     } catch (error) {
         console.error('Error fetching tour:', error);
         throw error;
