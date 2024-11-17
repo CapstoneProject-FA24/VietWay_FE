@@ -80,11 +80,11 @@ const Profile = () => {
             </Box>
             <Container sx={{ mt: -29, position: "relative", zIndex: 1 }}>
                 <Tabs value={tabValue} onChange={handleTabChange} centered indicatorColor="secondary">
-                    <Tab label="Tài khoản" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
+                    <Tab label="Tài khoản" sx={{ color: '#D4D4D4', width: '50%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                     <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                    <Tab label="Tour Đăng Ký" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
+                    <Tab label="Tour Đăng Ký" sx={{ color: '#D4D4D4', width: '50%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />{/* 
                     <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                    <Tab label="Lịch Sử Thanh Toán" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
+                    <Tab label="Lịch Sử Thanh Toán" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} /> */}
                 </Tabs>
                 <Routes>
                     <Route path="/" element={
@@ -93,7 +93,7 @@ const Profile = () => {
                             {tabValue === 2 && (
                                 <BookedTour />
                             )}
-                            {tabValue === 4 && <PaymentHistory payments={payments} />}
+                            {/* {tabValue === 4 && <PaymentHistory payments={payments} />} */}
                         </>
                     } />
                 </Routes>

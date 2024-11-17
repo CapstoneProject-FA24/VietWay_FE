@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, Box, Chip, CardMedia, Grid, Container, Snackbar, Alert, Button } from '@mui/material';
 import { Helmet } from 'react-helmet';
-import { fetchPostById } from '@services/PostService';
+import { fetchPostById, likePost } from '@services/PostService';
+import { getCookie } from '@services/AuthenService';
 import RelatedPosts from '@components/posts/RelatedPosts';
 import EventDetails from '@components/posts/EventDetails';
 import Header from '@layouts/Header';
@@ -15,16 +16,16 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { CircularProgress } from '@mui/material';
 import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
 
-export default function PostDetailss() {
+export default function PostDetails() {
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const pageTopRef = useRef(null);
     const [isSaved, setIsSaved] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
-    const [savedCount, setSavedCount] = useState(0);
     const [openUnsaveDialog, setOpenUnsaveDialog] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [isApiError, setIsApiError] = useState(false);
 
     useEffect(() => {
         const loadPost = async () => {
@@ -32,6 +33,7 @@ export default function PostDetailss() {
             try {
                 const fetchedPost = await fetchPostById(id);
                 setPost(fetchedPost);
+                setIsSaved(fetchedPost.isLiked);
             } catch (error) {
                 console.error("Error fetching post data:", error);
             } finally {
@@ -48,36 +50,51 @@ export default function PostDetailss() {
     }, [post]);
 
     const handleBookmarkClick = async () => {
+        const customerToken = getCookie('customerToken');
+        if (!customerToken) {
+            setIsApiError(true);
+            setAlertMessage('Vui lòng đăng nhập để lưu bài viết');
+            setShowNotification(true);
+            return;
+        }
+
         try {
             if (isSaved) {
                 setOpenUnsaveDialog(true);
                 return;
             }
-            
+
+            await likePost(post.id, true);
             setIsSaved(true);
-            setAlertMessage(`Đã lưu vào lưu trữ của bạn (${savedCount + 1} bài viết) -`);
+            setAlertMessage('Đã lưu vào lưu trữ của bạn');
             setShowNotification(true);
-            setSavedCount(prev => prev + 1);
+            setIsApiError(false);
         } catch (error) {
             console.error('Error bookmarking post:', error);
+            setIsApiError(true);
+            setAlertMessage('Không thể lưu bài viết. Vui lòng thử lại sau');
+            setShowNotification(true);
+        }
+    };
+
+    const handleConfirmUnsave = async () => {
+        try {
+            await likePost(post.id, false);
+            setIsSaved(false);
+            setAlertMessage('Đã xóa khỏi lưu trữ của bạn');
+            setShowNotification(true);
+            setOpenUnsaveDialog(false);
+            setIsApiError(false);
+        } catch (error) {
+            console.error('Error handling unsave:', error);
+            setIsApiError(true);
+            setAlertMessage('Không thể xóa bài viết. Vui lòng thử lại sau');
+            setShowNotification(true);
         }
     };
 
     const handleCloseNotification = () => {
         setShowNotification(false);
-    };
-
-    const handleOpenStorage = (e) => {
-        e.preventDefault();
-        window.open('/luu-tru', '_blank', 'noopener,noreferrer');
-    };
-
-    const handleConfirmUnsave = () => {
-        setIsSaved(false);
-        setAlertMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${savedCount - 1} bài viết) -`);
-        setShowNotification(true);
-        setSavedCount(prev => Math.max(0, prev - 1));
-        setOpenUnsaveDialog(false);
     };
 
     const handleCloseUnsaveDialog = () => {
@@ -320,14 +337,14 @@ export default function PostDetailss() {
             >
                 <Alert 
                     onClose={handleCloseNotification} 
-                    severity="success"
+                    severity={isApiError ? "error" : "success"}
                     sx={{ 
-                        width: '100%', 
+                        width: '100%', mt: 10,
                         bgcolor: 'rgba(0, 0, 0, 0.8)', 
                         color: 'white',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
                         '& .MuiAlert-icon': { 
-                            color: '#4caf50'
+                            color: isApiError ? '#f44336' : '#4caf50'
                         },
                         '& .MuiSvgIcon-root': { 
                             color: 'white'
@@ -337,20 +354,23 @@ export default function PostDetailss() {
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        {alertMessage}
-                        <Box
-                            component="span"
-                            onClick={handleOpenStorage}
-                            sx={{
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                                '&:hover': {
-                                    opacity: 0.8
-                                }
-                            }}
-                        >
-                            Mở lưu trữ
-                        </Box>
+                        {alertMessage} {!isApiError && getCookie('customerToken') && (
+                            <> - 
+                                <Box
+                                    component="span"
+                                    onClick={handleOpenStorage}
+                                    sx={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            opacity: 0.8
+                                        }
+                                    }}
+                                >
+                                    Mở lưu trữ
+                                </Box>
+                            </>
+                        )}
                     </Box>
                 </Alert>
             </Snackbar>

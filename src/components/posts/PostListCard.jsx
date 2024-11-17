@@ -4,19 +4,20 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { Link } from 'react-router-dom';
 import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
-import { savePost, removeFromStorage, isItemSaved } from '@services/StorageService';
+import { likePost } from '@services/PostService';
+import { getCookie } from '@services/AuthenService';
 
 const PostListCard = ({ post }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
-    const [savedCount, setSavedCount] = useState(0);
     const [isUnsaveConfirmOpen, setIsUnsaveConfirmOpen] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
+    const [isApiError, setIsApiError] = useState(false);
 
     useEffect(() => {
-        setIsSaved(isItemSaved('post', post.postId));
-    }, [post.postId]);
+        setIsSaved(post.isLiked);
+    }, [post.isLiked]);
 
     const handleCloseNotification = (event, reason) => {
         if (reason === 'clickaway') {
@@ -29,31 +30,45 @@ const PostListCard = ({ post }) => {
         e.preventDefault();
         e.stopPropagation();
         
+        const customerToken = getCookie('customerToken');
+        if (!customerToken) {
+            setIsApiError(true);
+            setNotificationMessage('Vui lòng đăng nhập để lưu bài viết');
+            setShowNotification(true);
+            return;
+        }
+
         try {
             if (isSaved) {
                 setIsUnsaveConfirmOpen(true);
             } else {
-                const count = savePost(post);
+                await likePost(post.postId, true);
                 setIsSaved(true);
-                setSavedCount(count);
-                setNotificationMessage(`Đã lưu vào lưu trữ của bạn (${count} bài viết)`);
+                setNotificationMessage('Đã lưu vào lưu trữ của bạn');
                 setShowNotification(true);
             }
         } catch (error) {
             console.error('Error handling bookmark:', error);
+            setIsApiError(true);
+            setNotificationMessage('Không thể lưu bài viết. Vui lòng thử lại sau');
+            setShowNotification(true);
         }
     };
 
-    const handleUnsave = () => {
+    const handleUnsave = async () => {
+        const customerToken = getCookie('customerToken');
+        if (!customerToken) return;
+
         try {
-            const count = removeFromStorage('post', post.postId);
+            await likePost(post.postId, false);
             setIsSaved(false);
-            setSavedCount(count);
             setIsUnsaveConfirmOpen(false);
-            setNotificationMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${count} bài viết)`);
+            setNotificationMessage('Đã xóa khỏi lưu trữ của bạn');
             setShowNotification(true);
         } catch (error) {
             console.error('Error handling unsave:', error);
+            setNotificationMessage('Không thể xóa bài viết. Vui lòng thử lại sau');
+            setShowNotification(true);
         }
     };
 
@@ -142,14 +157,14 @@ const PostListCard = ({ post }) => {
             >
                 <Alert 
                     onClose={handleCloseNotification} 
-                    severity="success"
+                    severity={isApiError ? "error" : "success"}
                     sx={{ 
-                        width: '100%', 
+                        width: '100%', mt: 10,
                         bgcolor: 'rgba(0, 0, 0, 0.8)', 
                         color: 'white',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
                         '& .MuiAlert-icon': { 
-                            color: '#4caf50'
+                            color: isApiError ? '#f44336' : '#4caf50'
                         },
                         '& .MuiSvgIcon-root': { 
                             color: 'white'
@@ -159,20 +174,23 @@ const PostListCard = ({ post }) => {
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        {notificationMessage} - 
-                        <Box
-                            component="span"
-                            onClick={handleOpenStorage}
-                            sx={{
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                                '&:hover': {
-                                    opacity: 0.8
-                                }
-                            }}
-                        >
-                            Mở lưu trữ
-                        </Box>
+                        {notificationMessage} {!isApiError && getCookie('customerToken') && (
+                            <> - 
+                                <Box
+                                    component="span"
+                                    onClick={handleOpenStorage}
+                                    sx={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            opacity: 0.8
+                                        }
+                                    }}
+                                >
+                                    Mở lưu trữ
+                                </Box>
+                            </>
+                        )}
                     </Box>
                 </Alert>
             </Snackbar>

@@ -5,48 +5,63 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Link } from 'react-router-dom';
 import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
-import { saveAttraction, removeFromStorage, isItemSaved } from '@services/StorageService';
+import { likeAttraction } from '@services/AttractionService';
+import { getCookie } from '@services/AuthenService';
 
 const AttractionCard = ({ attraction }) => {
     const [showNotification, setShowNotification] = useState(false);
-    const [savedCount, setSavedCount] = useState(0);
-    const [isUnsaveConfirmOpen, setIsUnsaveConfirmOpen] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+    const [isUnsaveConfirmOpen, setIsUnsaveConfirmOpen] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
+    const [isApiError, setIsApiError] = useState(false);
 
     useEffect(() => {
-        setIsSaved(isItemSaved('attraction', attraction.attractionId));
+        setIsSaved(attraction.isLiked);
     }, [attraction.attractionId]);
 
     const handleLikeClick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
+        const customerToken = getCookie('customerToken');
+        if (!customerToken) {
+            setIsApiError(true);
+            setNotificationMessage('Vui lòng đăng nhập để lưu điểm tham quan');
+            setShowNotification(true);
+            return;
+        }
+
         try {
             if (isSaved) {
                 setIsUnsaveConfirmOpen(true);
             } else {
-                const count = saveAttraction(attraction);
+                await likeAttraction(attraction.attractionId, true);
                 setIsSaved(true);
-                setSavedCount(count);
-                setNotificationMessage(`Đã lưu vào lưu trữ của bạn (${count} địa điểm)`);
+                setNotificationMessage('Đã lưu vào lưu trữ của bạn');
                 setShowNotification(true);
             }
         } catch (error) {
             console.error('Error handling like:', error);
+            setIsApiError(true);
+            setNotificationMessage('Không thể lưu điểm tham quan. Vui lòng thử lại sau');
+            setShowNotification(true);
         }
     };
 
-    const handleUnsave = () => {
+    const handleUnsave = async () => {
+        const customerToken = getCookie('customerToken');
+        if (!customerToken) return;
+
         try {
-            const count = removeFromStorage('attraction', attraction.attractionId);
+            await likeAttraction(attraction.attractionId, false);
             setIsSaved(false);
-            setSavedCount(count);
             setIsUnsaveConfirmOpen(false);
-            setNotificationMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${count} địa điểm)`);
+            setNotificationMessage('Đã xóa khỏi lưu trữ của bạn');
             setShowNotification(true);
         } catch (error) {
             console.error('Error handling unsave:', error);
+            setNotificationMessage('Không thể xóa điểm tham quan. Vui lòng thử lại sau');
+            setShowNotification(true);
         }
     };
 
@@ -89,7 +104,8 @@ const AttractionCard = ({ attraction }) => {
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <LocationOnIcon sx={{ color: 'lightGray', marginRight: '8px', fontSize: '1rem' }} />
-                        <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'lightGray',
+                        <Typography variant="body2" sx={{
+                            fontSize: '0.9rem', color: 'lightGray',
                             overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
                         }}>
                             {attraction.address}
@@ -102,10 +118,12 @@ const AttractionCard = ({ attraction }) => {
                             fontSize: '0.75rem', fontWeight: 'bold', bgcolor: 'rgba(255,255,255,0.8)', color: 'black', height: '25px'
                         }} />
                 </CardContent>
-                <IconButton 
+                <IconButton
                     onClick={handleLikeClick}
-                    sx={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'white', width: '35px', height: '35px', zIndex: 2,
-                        '&:hover': { backgroundColor: 'white' } }}>
+                    sx={{
+                        position: 'absolute', top: '16px', right: '16px', backgroundColor: 'white', width: '35px', height: '35px', zIndex: 2,
+                        '&:hover': { backgroundColor: 'white' }
+                    }}>
                     {isSaved ? (
                         <FavoriteIcon sx={{ color: 'red', fontSize: '23px' }} />
                     ) : (
@@ -113,33 +131,33 @@ const AttractionCard = ({ attraction }) => {
                     )}
                 </IconButton>
             </Card>
-            
+
             <Snackbar
                 open={showNotification}
                 autoHideDuration={3000}
                 onClose={handleCloseNotification}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                sx={{ 
-                    position: 'fixed', 
-                    top: '24px', 
+                sx={{
+                    position: 'fixed',
+                    top: '24px',
                     right: '24px',
                     '& .MuiPaper-root': {
                         minWidth: '300px'
                     }
                 }}
             >
-                <Alert 
-                    onClose={handleCloseNotification} 
-                    severity="success"
-                    sx={{ 
-                        width: '100%', 
-                        bgcolor: 'rgba(0, 0, 0, 0.8)', 
+                <Alert
+                    onClose={handleCloseNotification}
+                    severity={isApiError ? "error" : "success"}
+                    sx={{
+                        width: '100%', mt: 10,
+                        bgcolor: 'rgba(0, 0, 0, 0.8)',
                         color: 'white',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
-                        '& .MuiAlert-icon': { 
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        '& .MuiAlert-icon': {
                             color: '#4caf50'
                         },
-                        '& .MuiSvgIcon-root': { 
+                        '& .MuiSvgIcon-root': {
                             color: 'white'
                         },
                         fontSize: '0.95rem',
@@ -147,25 +165,28 @@ const AttractionCard = ({ attraction }) => {
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        {notificationMessage} - 
-                        <Box
-                            component="span"
-                            onClick={handleOpenStorage}
-                            sx={{
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                                '&:hover': {
-                                    opacity: 0.8
-                                }
-                            }}
-                        >
-                            Mở lưu trữ
-                        </Box>
+                        {notificationMessage} {getCookie('customerToken') && (
+                            <> - 
+                                <Box
+                                    component="span"
+                                    onClick={handleOpenStorage}
+                                    sx={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            opacity: 0.8
+                                        }
+                                    }}
+                                >
+                                    Mở lưu trữ
+                                </Box>
+                            </>
+                        )}
                     </Box>
                 </Alert>
             </Snackbar>
 
-            <UnsavedConfirmPopup 
+            <UnsavedConfirmPopup
                 open={isUnsaveConfirmOpen}
                 onClose={() => setIsUnsaveConfirmOpen(false)}
                 onConfirm={handleUnsave}

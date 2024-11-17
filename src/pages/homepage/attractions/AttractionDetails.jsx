@@ -8,7 +8,7 @@ import Footer from '@layouts/Footer';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 //import ToursVisitAttraction from '@components/attractions/ToursVisitAttraction';
-import { getAttractionById } from '@services/AttractionService';
+import { getAttractionById, likeAttraction } from '@services/AttractionService';
 import ReviewList from '@components/reviews/ReviewList';
 import { Typography, Grid, Paper, Box, Button } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -23,9 +23,10 @@ import { CircularProgress } from '@mui/material';
 import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
 import ToursVisitAttractionCol from '@components/attractions/ToursVisitAttractionCol';
 import Map from '@components/Map';
+import { getCookie } from '@services/AuthenService';
 
 const AttractionDetails = () => {
-   const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
   const [attraction, setAttraction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -38,6 +39,7 @@ const AttractionDetails = () => {
   const [openUnsaveDialog, setOpenUnsaveDialog] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const navigate = useNavigate();
+  const [isApiError, setIsApiError] = useState(false);
 
   useEffect(() => {
     const fetchAttractionData = async () => {
@@ -45,6 +47,8 @@ const AttractionDetails = () => {
         setLoading(true);
         await new Promise(resolve => setTimeout(resolve, 1000));
         const response = await getAttractionById(id);
+        console.log(response);
+        setIsSaved(response.isLiked);
         setAttraction(response);
       } catch (error) {
         console.error("Error fetching attraction data:", error);
@@ -101,30 +105,48 @@ const AttractionDetails = () => {
   };
 
   const handleLikeClick = async () => {
+    const customerToken = getCookie('customerToken');
+    if (!customerToken) {
+      setIsApiError(true);
+      setNotificationMessage('Vui lòng đăng nhập để lưu điểm tham quan');
+      setShowNotification(true);
+      return;
+    }
+
     try {
       if (isSaved) {
         setOpenUnsaveDialog(true);
         return;
       }
+
+      await likeAttraction(attraction.attractionId, true);
       setIsSaved(true);
-      setNotificationMessage(`Đã lưu vào lưu trữ của bạn (${savedCount + 1} địa điểm) -`);
+      setNotificationMessage('Đã lưu vào lưu trữ của bạn');
       setShowNotification(true);
       setSavedCount(prev => prev + 1);
+      setIsApiError(false);
     } catch (error) {
       console.error('Error liking attraction:', error);
+      setIsApiError(true);
+      setNotificationMessage('Không thể lưu điểm tham quan. Vui lòng thử lại sau');
+      setShowNotification(true);
     }
   };
 
-  const handleConfirmUnsave = () => {
+  const handleConfirmUnsave = async () => {
     try {
-      const count = removeFromStorage('attraction', attraction.attractionId);
+      await likeAttraction(attraction.attractionId, false);
       setIsSaved(false);
-      setSavedCount(count);
+      setSavedCount(prev => prev - 1);
       setOpenUnsaveDialog(false);
-      setNotificationMessage(`Đã xóa khỏi lưu trữ của bạn (còn ${count} địa điểm)`);
+      setNotificationMessage('Đã xóa khỏi lưu trữ của bạn');
       setShowNotification(true);
+      setIsApiError(false);
     } catch (error) {
       console.error('Error handling unsave:', error);
+      setIsApiError(true);
+      setNotificationMessage('Không thể xóa điểm tham quan. Vui lòng thử lại sau');
+      setShowNotification(true);
     }
   };
 
@@ -145,22 +167,22 @@ const AttractionDetails = () => {
   };
 
   const handleOpenStorage = () => {
-    navigate('/storage');
+    navigate('/luu-tru');
   };
 
   if (loading) {
     return (
-        <>
-            <Helmet>
-                <title>Chi tiết điểm tham quan</title>
-            </Helmet>
-            <Header />
-            <Box 
-                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%' }}
-            >
-                <CircularProgress size={50} thickness={4} color="primary" />
-            </Box>
-        </>
+      <>
+        <Helmet>
+          <title>Chi tiết điểm tham quan</title>
+        </Helmet>
+        <Header />
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100%' }}
+        >
+          <CircularProgress size={50} thickness={4} color="primary" />
+        </Box>
+      </>
     );
   }
 
@@ -185,13 +207,13 @@ const AttractionDetails = () => {
       </Helmet>
       <Header />
       <Box sx={{ p: 3, flexGrow: 1, mt: 5 }}>
-        {/*<Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '10px', textAlign: 'left' }}>
+        <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', marginBottom: '10px', textAlign: 'left', ml: -0.5 }}>
           <a href="/trang-chu" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Trang chủ</a>
           &gt;
           <a href="/diem-tham-quan" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Điểm tham quan</a>
           &gt; <strong>{attraction.name}</strong>
         </Typography>
-        <ToursVisitAttraction />*/}
+        {/* <ToursVisitAttraction /> */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="body1" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'gray', fontSize: '1.2rem' }}>
             {attraction.attractionTypeName}
@@ -388,9 +410,9 @@ const AttractionDetails = () => {
         autoHideDuration={3000}
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ 
-          position: 'fixed', 
-          top: '24px', 
+        sx={{
+          position: 'fixed',
+          top: '24px',
           right: '24px',
           '& .MuiPaper-root': {
             minWidth: '300px'
@@ -399,16 +421,16 @@ const AttractionDetails = () => {
       >
         <Alert
           onClose={handleCloseNotification}
-          severity="success"
-          sx={{ 
-            width: '100%', 
-            bgcolor: 'rgba(0, 0, 0, 0.8)', 
+          severity={isApiError ? "error" : "success"}
+          sx={{
+            width: '100%', mt: 10,
+            bgcolor: 'rgba(0, 0, 0, 0.8)',
             color: 'white',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
-            '& .MuiAlert-icon': { 
-              color: '#4caf50'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            '& .MuiAlert-icon': {
+              color: isApiError ? '#f44336' : '#4caf50'
             },
-            '& .MuiSvgIcon-root': { 
+            '& .MuiSvgIcon-root': {
               color: 'white'
             },
             fontSize: '0.95rem',
@@ -416,25 +438,28 @@ const AttractionDetails = () => {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            {notificationMessage} - 
-            <Box
-              component="span"
-              onClick={handleOpenStorage}
-              sx={{
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                '&:hover': {
-                  opacity: 0.8
-                }
-              }}
-            >
-              Mở lưu trữ
-            </Box>
+            {notificationMessage} {!isApiError && getCookie('customerToken') && (
+              <> - 
+                <Box
+                  component="span"
+                  onClick={handleOpenStorage}
+                  sx={{
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      opacity: 0.8
+                    }
+                  }}
+                >
+                  Mở lưu trữ
+                </Box>
+              </>
+            )}
           </Box>
         </Alert>
       </Snackbar>
 
-      <UnsavedConfirmPopup 
+      <UnsavedConfirmPopup
         open={openUnsaveDialog}
         onClose={handleCloseUnsaveDialog}
         onConfirm={handleConfirmUnsave}

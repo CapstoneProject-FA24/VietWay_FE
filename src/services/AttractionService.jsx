@@ -3,6 +3,7 @@ const baseURL = import.meta.env.VITE_API_URL;
 import { getCookie } from '@services/AuthenService';
 
 export const fetchAttractions = async (params) => {
+    const customerToken = getCookie('customerToken');
     try {
         const queryParams = new URLSearchParams();
 
@@ -20,7 +21,14 @@ export const fetchAttractions = async (params) => {
 
         if (params.status !== undefined && params.status !== null) queryParams.append('status', params.status);
 
-        const response = await axios.get(`${baseURL}/api/attractions?${queryParams.toString()}`);
+        const headers = {};
+        if (customerToken) {
+            headers['Authorization'] = `Bearer ${customerToken}`;
+        }
+
+        const response = await axios.get(`${baseURL}/api/attractions?${queryParams.toString()}`, {
+            headers
+        });
         const items = response.data?.data?.items;
 
         if (!items || !Array.isArray(items)) {
@@ -36,7 +44,8 @@ export const fetchAttractions = async (params) => {
             status: item.status,
             createdDate: item.createdDate,
             creatorName: item.creatorName,
-            imageUrl: item.imageUrl
+            imageUrl: item.imageUrl,
+            isLiked: item.isLiked
         }));
 
         return {
@@ -53,8 +62,12 @@ export const fetchAttractions = async (params) => {
 };
 
 export const getAttractionById = async (id) => {
+    const customerToken = getCookie('customerToken');
     try {
-        const response = await axios.get(`${baseURL}/api/attractions/${id}`);
+        const headers = createHeaders(customerToken);
+        const response = await axios.get(`${baseURL}/api/attractions/${id}`, {
+            headers
+        });
         const data = response.data.data;
         const attraction = {
             attractionId: data.attractionId,
@@ -71,7 +84,8 @@ export const getAttractionById = async (id) => {
             images: data.images.map(image => ({
                 imageId: image.imageId,
                 url: image.url
-            }))
+            })),
+            isLiked: data.isLiked
         };
         return attraction;
     } catch (error) {
@@ -98,11 +112,9 @@ export const getAttractionReviews = async (attractionId, params) => {
             params.ratingValues.forEach(rating => queryParams.append('ratingValue', rating));
         }
 
-        const response = await axios.get(`${baseURL}/api/attractions/${attractionId}/reviews?${queryParams.toString()}`,
-        {
-            headers: {
-                'Authorization': `Bearer ${customerToken}`
-            }
+        const headers = createHeaders(customerToken);
+        const response = await axios.get(`${baseURL}/api/attractions/${attractionId}/reviews?${queryParams.toString()}`, {
+            headers
         });
         return {
             total: response.data.data.total,
@@ -114,7 +126,8 @@ export const getAttractionReviews = async (attractionId, params) => {
                 review: item.review,
                 createdAt: item.createdAt,
                 reviewer: item.reviewer,
-                likeCount: item.likeCount
+                likeCount: item.likeCount,
+                isLiked: item.isLiked
             }))
         };
     } catch (error) {
@@ -127,9 +140,7 @@ export const getCurrentCustomerAttractionReviews = async (attractionId) => {
     const customerToken = getCookie('customerToken');
     try {
         const response = await axios.get(`${baseURL}/api/attractions/${attractionId}/customer-reviews`, {
-            headers: {
-                'Authorization': `Bearer ${customerToken}`
-            }
+            headers: createHeaders(customerToken)
         });
         return {
             reviewId: response.data.data.reviewId,
@@ -153,9 +164,7 @@ export const addAttractionReview = async (attractionId, reviewData) => {
             review: reviewData.review
         },
         {
-            headers: {
-                'Authorization': `Bearer ${customerToken}`
-            }
+            headers: createHeaders(customerToken)
         });
         return response.data;
     } catch (error) {
@@ -173,13 +182,67 @@ export const updateAttractionReview = async (attractionId, reviewData) => {
             review: reviewData.review
         },
         {
-            headers: {
-                'Authorization': `Bearer ${customerToken}`
-            }
+            headers: createHeaders(customerToken)
         });
         return response.data;
     } catch (error) {
         console.error('Error adding attraction review:', error);
         throw error;
     }
+};
+
+export const likeAttraction = async (attractionId, isLike) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.patch(`${baseURL}/api/attractions/${attractionId}/likes`, {
+            isLike: isLike
+        }, {
+            headers: createHeaders(customerToken)
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error liking attraction:', error);
+        throw error;
+    }
+};
+
+export const likeReview = async (reviewId, isLike) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.patch(`${baseURL}/api/attractions/reviews/${reviewId}/like`, {
+            isLike: isLike
+        }, {
+            headers: createHeaders(customerToken)
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error liking review:', error);
+        throw error;
+    }
+};
+
+export const getLikedAttractions = async (pageSize = 10, pageIndex = 1) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(`${baseURL}/api/attractions/liked`, {
+            params: {
+                pageSize: pageSize,
+                pageIndex: pageIndex
+            },
+            headers: createHeaders(customerToken)
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching liked attractions:', error);
+        throw error;
+    }
+};
+
+// Helper function to create headers
+const createHeaders = (token) => {
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
 };

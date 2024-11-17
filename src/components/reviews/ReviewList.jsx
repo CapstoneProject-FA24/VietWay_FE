@@ -3,7 +3,7 @@ import { Box, Button, Typography, Chip, Menu, MenuItem, CircularProgress, Grid, 
 import ReviewCard from '@components/reviews/ReviewCard';
 import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { getAttractionReviews, getCurrentCustomerAttractionReviews } from '@services/AttractionService';
+import { getAttractionReviews, getCurrentCustomerAttractionReviews, likeReview } from '@services/AttractionService';
 import ReviewInput from '@components/reviews/ReviewInput';
 import { getCookie } from '@services/AuthenService';
 
@@ -21,6 +21,9 @@ const ReviewList = ({ attractionId }) => {
   const [reviewData, setReviewData] = useState({ rating: 0, content: '' });
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [existingReview, setExistingReview] = useState(null);
+  const [isApiError, setIsApiError] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [showNotification, setShowNotification] = useState(false);
 
   const fetchReviews = async () => {
     try {
@@ -122,6 +125,38 @@ const ReviewList = ({ attractionId }) => {
     await fetchReviews();
   };
 
+  const handleLike = async (reviewId, isLike) => {
+    const customerToken = getCookie('customerToken');
+    if (!customerToken) {
+      setNotificationMessage('Vui lòng đăng nhập để thích đánh giá');
+      setIsApiError(true);
+      setShowNotification(true);
+      return false;
+    }
+
+    try {
+      await likeReview(reviewId, isLike);
+      await fetchReviews();
+      setIsApiError(false);
+      setNotificationMessage(isLike ? 'Đã thích đánh giá' : 'Đã bỏ thích đánh giá');
+      setShowNotification(true);
+      return true;
+    } catch (error) {
+      console.error('Error handling review like:', error);
+      setIsApiError(true);
+      setNotificationMessage('Không thể thực hiện. Vui lòng thử lại sau');
+      setShowNotification(true);
+      return false;
+    }
+  };
+
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowNotification(false);
+  };
+
   return (
     <>
       <Grid container spacing={3}>
@@ -198,11 +233,12 @@ const ReviewList = ({ attractionId }) => {
                   key={review.reviewId}
                   review={{
                     ...review,
-                    helpful: review.likeCount,
+                    likeCount: review.likeCount,
                     date: new Date(review.createdAt).toLocaleDateString('vi-VN'),
                     userName: review.reviewer.fullName,
                     userAvatar: review.reviewer.avatarUrl
                   }}
+                  onLike={(isLike) => handleLike(review.reviewId, isLike)}
                 />
               ))}
 
@@ -263,6 +299,42 @@ const ReviewList = ({ attractionId }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={showNotification}
+        autoHideDuration={3000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ 
+          position: 'fixed', 
+          top: '24px', 
+          right: '24px',
+          '& .MuiPaper-root': {
+            minWidth: '300px'
+          }
+        }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={isApiError ? "error" : "success"}
+          sx={{ 
+            width: '100%', mt: 10,
+            bgcolor: 'rgba(0, 0, 0, 0.8)', 
+            color: 'white',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
+            '& .MuiAlert-icon': { 
+              color: isApiError ? '#f44336' : '#4caf50'
+            },
+            '& .MuiSvgIcon-root': { 
+              color: 'white'
+            },
+            fontSize: '0.95rem',
+            py: 1.5
+          }}
+        >
+          {notificationMessage}
+        </Alert>
+      </Snackbar>
 
       <Snackbar
         open={showLoginAlert}

@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Tabs, Tab, Typography, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
+import { Container, Box, Tabs, Tab, Typography, FormControl, InputLabel, Select, MenuItem, Grid, Alert, Pagination } from '@mui/material';
 import AttractionStorageCard from '@components/saved/AttractionStorageCard';
 import PostStorageCard from '@components/saved/PostStorageCard';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
-import { getSavedItems, removeFromStorage } from '@services/StorageService';
 import { Helmet } from 'react-helmet';
 import { CircularProgress, Button, Checkbox, IconButton } from '@mui/material';
+import { getLikedAttractions } from '@services/AttractionService';
+import { getCookie } from '@services/AuthenService';
+import { likeAttraction } from '@services/AttractionService';
+import { fetchLikedPosts, likePost } from '@services/PostService';
+import { fetchProvinces } from '@services/ProvinceService';
+import { fetchPostCategories } from '@services/PostCategoryService';
+import { fetchAttractionType } from '@services/AttractionTypeService';
+import { useNavigate } from 'react-router-dom';
 
 const Storage = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -21,26 +28,100 @@ const Storage = () => {
     const [postSort, setPostSort] = useState('newest');
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [apiError, setApiError] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [showNotification, setShowNotification] = useState(false);
+    const [provinces, setProvinces] = useState([]);
+    const [postCategories, setPostCategories] = useState([]);
+    const [attractionTypes, setAttractionTypes] = useState([]);
+    const [attractionPage, setAttractionPage] = useState(1);
+    const [postPage, setPostPage] = useState(1);
+    const [attractionTotal, setAttractionTotal] = useState(0);
+    const [postTotal, setPostTotal] = useState(0);
+    const PAGE_SIZE = 9; // Items per page
+    const navigate = useNavigate();
 
-    // Fetch saved items when component mounts
     useEffect(() => {
-        try {
-            const attractions = getSavedItems('attraction');
-            const posts = getSavedItems('post');
-            
-            setSavedAttractions(attractions);
-            setSavedPosts(posts);
-        } catch (error) {
-            console.error('Error loading saved items:', error);
-        } finally {
-            setLoading(false);
+        const customerToken = getCookie('customerToken');
+        if (!customerToken) {
+            navigate('/');
         }
     }, []);
 
-    const provinces = [...new Set(savedAttractions.map(item => item.province))];
-    const attractionTypes = [...new Set(savedAttractions.map(item => item.attractionType))];
-    const postProvinces = [...new Set(savedPosts.map(item => item.provinceName))];
-    const postTypes = [...new Set(savedPosts.map(item => item.postCategory))];
+    useEffect(() => {
+        const fetchSavedItems = async () => {
+            try {
+                const customerToken = getCookie('customerToken');
+                if (customerToken) {
+                    // Fetch liked attractions
+                    const attractionsResponse = await getLikedAttractions(PAGE_SIZE, attractionPage);
+                    const serverAttractions = attractionsResponse.data.items.map(item => ({
+                        attractionId: item.attractionId,
+                        name: item.name,
+                        address: item.address,
+                        province: item.province,
+                        attractionType: item.attractionCategory,
+                        imageUrl: item.imageUrl,
+                        createdAt: item.createdDate
+                    }));
+                    setSavedAttractions(serverAttractions);
+                    setAttractionTotal(attractionsResponse.data.total);
+
+                    // Fetch liked posts
+                    const postsResponse = await fetchLikedPosts(PAGE_SIZE, postPage);
+                    const serverPosts = postsResponse.items.map(item => ({
+                        postId: item.postId,
+                        title: item.title,
+                        imageUrl: item.imageUrl,
+                        postCategory: item.postCategoryName,
+                        provinceName: item.provinceName,
+                        description: item.description,
+                        createdAt: item.createdAt
+                    }));
+                    setSavedPosts(serverPosts);
+                    setPostTotal(postsResponse.total);
+                } else {
+                    setSavedAttractions([]);
+                    setSavedPosts([]);
+                }
+            } catch (error) {
+                console.error('Error fetching saved items:', error);
+                setApiError(true);
+                setSavedAttractions([]);
+                setSavedPosts([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSavedItems();
+    }, [attractionPage, postPage]); // Refetch when page changes
+
+    useEffect(() => {
+        const fetchFilterData = async () => {
+            try {
+                // Fetch all filter data in parallel
+                const [
+                    provincesData,
+                    postCategoriesData,
+                    attractionTypesData
+                ] = await Promise.all([
+                    fetchProvinces(),
+                    fetchPostCategories(),
+                    fetchAttractionType()
+                ]);
+
+                setProvinces(provincesData);
+                setPostCategories(postCategoriesData);
+                setAttractionTypes(attractionTypesData);
+            } catch (error) {
+                console.error('Error fetching filter data:', error);
+                setApiError(true);
+            }
+        };
+
+        fetchFilterData();
+    }, []);
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
@@ -80,8 +161,6 @@ const Storage = () => {
         postSort
     );
 
-    const savedCount = activeTab === 0 ? filteredAttractions.length : filteredPosts.length;
-
     const SortSelect = ({ value, onChange }) => (
         <FormControl fullWidth size="small">
             <InputLabel>Sắp xếp theo</InputLabel>
@@ -112,21 +191,34 @@ const Storage = () => {
         });
     };
 
-    const handleRemoveSelected = () => {
-        const type = activeTab === 0 ? 'attraction' : 'post';
-        selectedItems.forEach(id => {
-            removeFromStorage(type, id);
-        });
-        
-        // Update the state to remove selected items
-        if (activeTab === 0) {
-            setSavedAttractions(prev => prev.filter(item => !selectedItems.includes(item.attractionId)));
-        } else {
-            setSavedPosts(prev => prev.filter(item => !selectedItems.includes(item.postId)));
+    const handleRemoveSelected = async () => {
+        try {
+            if (activeTab === 0) {
+                // Unlike attractions
+                for (const attractionId of selectedItems) {
+                    await likeAttraction(attractionId, false);
+                }
+                setSavedAttractions(prev => prev.filter(item => !selectedItems.includes(item.attractionId)));
+            } else {
+                // Unlike posts
+                for (const postId of selectedItems) {
+                    await likePost(postId, false);
+                }
+                setSavedPosts(prev => prev.filter(item => !selectedItems.includes(item.postId)));
+            }
+            
+            setSelectedItems([]);
+            setIsEditMode(false);
+            
+            // Show success notification
+            setNotificationMessage(`Đã xóa các ${activeTab === 0 ? 'điểm tham quan' : 'bài viết'} khỏi danh sách yêu thích`);
+            setShowNotification(true);
+        } catch (error) {
+            console.error('Error removing items:', error);
+            setApiError(true);
+            setNotificationMessage(`Không thể xóa một số ${activeTab === 0 ? 'điểm tham quan' : 'bài viết'}. Vui lòng thử lại sau`);
+            setShowNotification(true);
         }
-        
-        setSelectedItems([]);
-        setIsEditMode(false);
     };
 
     const renderActionButtons = () => (
@@ -159,9 +251,29 @@ const Storage = () => {
         </Box>
     );
 
+    // Optional: Add error message display
+    const renderErrorMessage = () => {
+        if (apiError) {
+            return (
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Không thể kết nối với máy chủ. Đang hiển thị dữ liệu từ bộ nhớ cục bộ.
+                </Alert>
+            );
+        }
+        return null;
+    };
+
+    const handleAttractionPageChange = (event, newPage) => {
+        setAttractionPage(newPage);
+    };
+
+    const handlePostPageChange = (event, newPage) => {
+        setPostPage(newPage);
+    };
+
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89vw' }}>
                 <Helmet><title>Lưu trữ</title></Helmet>
                 <Header />
                 <Box sx={{ 
@@ -178,7 +290,7 @@ const Storage = () => {
     }
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '90vw' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89vw' }}>
             <Helmet><title>Lưu trữ</title></Helmet>
             <Header />
             
@@ -208,11 +320,11 @@ const Storage = () => {
                                     <Grid item xs={12} md={4}>
                                         <FormControl fullWidth size="small">
                                             <InputLabel>Tỉnh thành</InputLabel>
-                                            <Select value={selectedPostProvince} label="Tỉnh thành" onChange={(e) => setSelectedPostProvince(e.target.value)}>
+                                            <Select value={selectedProvince} label="Tỉnh thành" onChange={(e) => setSelectedProvince(e.target.value)}>
                                                 <MenuItem value="all">Tất cả</MenuItem>
-                                                {postProvinces.map((province) => (
-                                                    <MenuItem key={province} value={province}>
-                                                        {province}
+                                                {provinces.map((province) => (
+                                                    <MenuItem key={province.provinceId} value={province.provinceName}>
+                                                        {province.provinceName}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -220,12 +332,12 @@ const Storage = () => {
                                     </Grid>
                                     <Grid item xs={12} md={4}>
                                         <FormControl fullWidth size="small">
-                                            <InputLabel>Loại điêm tham quan</InputLabel>
-                                            <Select value={selectedAttractionType} label="Loại điêm tham quan" onChange={(e) => setSelectedAttractionType(e.target.value)}>
+                                            <InputLabel>Loại điểm tham quan</InputLabel>
+                                            <Select value={selectedAttractionType} label="Loại điểm tham quan" onChange={(e) => setSelectedAttractionType(e.target.value)}>
                                                 <MenuItem value="all">Tất cả</MenuItem>
                                                 {attractionTypes.map((type) => (
-                                                    <MenuItem key={type} value={type}>
-                                                        {type}
+                                                    <MenuItem key={type.attractionTypeId} value={type.name}>
+                                                        {type.name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -240,16 +352,28 @@ const Storage = () => {
 
                                 <Grid container spacing={3}>
                                     {filteredAttractions.length > 0 ? (
-                                        filteredAttractions.map((attraction) => (
-                                            <Grid item xs={12} sm={6} md={4} key={attraction.attractionId} sx={{ display: 'flex', '& > *': { width: '100%', height: '100%' } }}>
-                                                <AttractionStorageCard 
-                                                    attraction={attraction}
-                                                    isEditMode={isEditMode}
-                                                    isSelected={selectedItems.includes(attraction.attractionId)}
-                                                    onSelect={() => handleSelectItem(attraction.attractionId)}
-                                                />
+                                        <>
+                                            {filteredAttractions.map((attraction) => (
+                                                <Grid item xs={12} sm={6} md={4} key={attraction.attractionId}>
+                                                    <AttractionStorageCard 
+                                                        attraction={attraction}
+                                                        isEditMode={isEditMode}
+                                                        isSelected={selectedItems.includes(attraction.attractionId)}
+                                                        onSelect={() => handleSelectItem(attraction.attractionId)}
+                                                    />
+                                                </Grid>
+                                            ))}
+                                            <Grid item xs={12}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                                                    <Pagination 
+                                                        count={Math.ceil(attractionTotal / PAGE_SIZE)}
+                                                        page={attractionPage}
+                                                        onChange={handleAttractionPageChange}
+                                                        color="primary"
+                                                    />
+                                                </Box>
                                             </Grid>
-                                        ))
+                                        </>
                                     ) : (
                                         <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                                             <Typography sx={{ fontSize: '2rem', textAlign: 'center', p: 5 }}>
@@ -272,9 +396,9 @@ const Storage = () => {
                                             <InputLabel>Tỉnh thành</InputLabel>
                                             <Select value={selectedPostProvince} label="Tỉnh thành" onChange={(e) => setSelectedPostProvince(e.target.value)}>
                                                 <MenuItem value="all">Tất cả</MenuItem>
-                                                {postProvinces.map((province) => (
-                                                    <MenuItem key={province} value={province}>
-                                                        {province}
+                                                {provinces.map((province) => (
+                                                    <MenuItem key={province.provinceId} value={province.provinceName}>
+                                                        {province.provinceName}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -285,9 +409,9 @@ const Storage = () => {
                                             <InputLabel>Loại bài viết</InputLabel>
                                             <Select value={selectedPostType} label="Loại bài viết" onChange={(e) => setSelectedPostType(e.target.value)}>
                                                 <MenuItem value="all">Tất cả</MenuItem>
-                                                {postTypes.map((type) => (
-                                                    <MenuItem key={type} value={type}>
-                                                        {type}
+                                                {postCategories.map((category) => (
+                                                    <MenuItem key={category.postCategoryId} value={category.name}>
+                                                        {category.name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -302,16 +426,28 @@ const Storage = () => {
 
                                 <Grid container spacing={2}>
                                     {filteredPosts.length > 0 ? (
-                                        filteredPosts.map((post) => (
-                                            <Grid item xs={12} md={6} lg={4} key={post.postId}>
-                                                <PostStorageCard 
-                                                    post={post}
-                                                    isEditMode={isEditMode}
-                                                    isSelected={selectedItems.includes(post.postId)}
-                                                    onSelect={() => handleSelectItem(post.postId)}
-                                                />
+                                        <>
+                                            {filteredPosts.map((post) => (
+                                                <Grid item xs={12} md={6} lg={4} key={post.postId}>
+                                                    <PostStorageCard 
+                                                        post={post}
+                                                        isEditMode={isEditMode}
+                                                        isSelected={selectedItems.includes(post.postId)}
+                                                        onSelect={() => handleSelectItem(post.postId)}
+                                                    />
+                                                </Grid>
+                                            ))}
+                                            <Grid item xs={12}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                                                    <Pagination 
+                                                        count={Math.ceil(postTotal / PAGE_SIZE)}
+                                                        page={postPage}
+                                                        onChange={handlePostPageChange}
+                                                        color="primary"
+                                                    />
+                                                </Box>
                                             </Grid>
-                                        ))
+                                        </>
                                     ) : (
                                         <Box sx={{ minHeight: '30rem', width: '100%' }}>
                                             <Typography sx={{ fontSize: '2rem', textAlign: 'center', width: '100%', p: 5 }}>

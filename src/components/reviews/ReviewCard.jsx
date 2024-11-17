@@ -1,9 +1,13 @@
-import React from 'react';
-import { Paper, Stack, Avatar, Typography, IconButton, Rating } from '@mui/material';
+import React, { useState } from 'react';
+import { Paper, Stack, Avatar, Typography, IconButton, Rating, Box, Button } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-const ReviewCard = ({ review }) => {
+const ReviewCard = ({ review, onLike }) => {
+  const [isLiked, setIsLiked] = useState(review.isLiked);
+  const [likeCount, setLikeCount] = useState(review.likeCount);
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN', {
@@ -11,6 +15,18 @@ const ReviewCard = ({ review }) => {
       month: '2-digit',
       year: 'numeric'
     }).replace(/\//g, '/');
+  };
+
+  const handleLikeClick = async () => {
+    try {
+      const success = await onLike(!isLiked);
+      if (success) {
+        setIsLiked(!isLiked);
+        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      }
+    } catch (error) {
+      console.error('Error handling like:', error);
+    }
   };
 
   return (
@@ -54,17 +70,21 @@ const ReviewCard = ({ review }) => {
         <Typography variant="body1">
           {review.review}
         </Typography>
-        {review.likeCount && (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <IconButton size="small" sx={{ color: 'text.secondary' }}>
-              <ThumbUpIcon fontSize="small" />
-            </IconButton>
-
-            <Typography variant="body2" color="text.secondary">
-              Hữu ích {`(${review.likeCount})`}
-            </Typography>
-          </Stack>
-        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+          <Button
+            startIcon={isLiked ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
+            onClick={handleLikeClick}
+            sx={{
+              color: isLiked ? 'primary.main' : 'text.secondary',
+              '&:hover': {
+                bgcolor: 'transparent',
+                color: 'primary.main'
+              }
+            }}
+          >
+            {likeCount > 0 && likeCount}
+          </Button>
+        </Box>
       </Stack>
     </Paper>
   );

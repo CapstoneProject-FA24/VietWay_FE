@@ -390,12 +390,23 @@ const TourDetails = () => {
       </Box>
       <Footer />
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         open={openSnackbar}
         autoHideDuration={5000}
         onClose={handleCloseSnackbar}
       >
-        <Alert onClose={handleCloseSnackbar} variant="filled" severity="warning" sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseSnackbar} variant="filled" severity="error"
+          sx={{
+            width: '100%', mt: 10,
+            bgcolor: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            '& .MuiSvgIcon-root': {
+              color: 'white'
+            },
+            fontSize: '0.95rem',
+            py: 1.5
+          }}>
           {alertMessage}
         </Alert>
       </Snackbar>
