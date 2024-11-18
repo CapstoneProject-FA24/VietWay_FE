@@ -260,10 +260,12 @@ const TourDetails = () => {
                 </Box>
               ))}
             </Box>
-            <Box sx={{ mb: 5 }}>
+            {/* <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Chính sách</Typography>
-              <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>{tour.policy}</Typography>
-            </Box>
+              {tour.tour.refundPolicies.map((policy, index) => (
+                <Typography key={index} paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>Hủy trước {policy.cancelBefore}, hoàn {policy.refundPercent}</Typography>
+              ))}
+            </Box> */}
             <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Lưu ý</Typography>
               <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>{tour.note}</Typography>
