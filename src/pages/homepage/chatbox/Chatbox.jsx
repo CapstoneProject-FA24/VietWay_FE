@@ -190,7 +190,7 @@ const Chatbox = () => {
   return (
     <div className="chatbox-container">
       <div className="chatbox-header">
-        <h2>Tư Vấn Tour Du Lịch</h2>
+        <h2>Tư vấn tour du lịch</h2>
         <p className="header-description">Hãy để AI của chúng tôi giúp bạn tìm tour du lịch phù hợp nhất</p>
       </div>
 
@@ -204,7 +204,7 @@ const Chatbox = () => {
         <div className="welcome-message">
           {isFirstVisit && <h3>Xin chào! Tôi có thể giúp gì cho bạn?</h3>}
           <div className="suggestions-header">
-            <p>Bạn có thể chọn một trong những câu hỏi gợi ý dưới đây hoặc tự đặt câu hỏi:</p>
+            <p>Bạn có thể chọn một trong các câu hỏi gợi ý dưới đây hoặc tự đặt câu hỏi riêng của mình:</p>
             {!isFirstVisit && (
               <button className="close-suggestions-btn" onClick={() => {
                 setShowSuggestions(false);
