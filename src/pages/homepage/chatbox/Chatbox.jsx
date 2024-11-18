@@ -169,16 +169,24 @@ const Chatbox = () => {
   };
 
   const formatAIResponse = (text) => {
+    // Format emphasis text
     let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<span class="emphasis">$1</span>');
     
-    formattedText = formattedText.replace(/\* /g, '• ');
-    
+    // Format bullet points
     formattedText = formattedText.split('\n').map(line => {
+      if (line.trim().startsWith('*')) {
+        return `<li>${line.substring(1).trim()}</li>`;
+      }
       if (line.includes(':')) {
         return `<div class="section">${line}</div>`;
       }
-      return line;
-    }).join('\n');
+      return `<p>${line}</p>`;
+    }).join('');
+    
+    // Wrap bullet points in ul tags
+    formattedText = formattedText.replace(/<li>.*?<\/li>/g, match => {
+      return `<ul>${match}</ul>`;
+    });
     
     return formattedText;
   };
