@@ -127,7 +127,7 @@ const Header = () => {
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Typography variant="h6" component={Link} to="/trang-chu" sx={{ color: 'text.primary' }}>
-          <img src={location.pathname === '/trang-chu' && scrollY === 0 ? "/logo2.png" : "/logo2_color.png"} alt="Logo" style={{ height: '55px', marginTop: '15px' }} />
+          <img src={location.pathname === '/trang-chu' && scrollY === 0 ? "/logo2.png" : "/logo2_color.png"} alt="Logo" style={{ height: '55px', marginTop: '10px' }} />
         </Typography>    
         <Box sx={{ display: 'flex', ml: 0.5 }}>
           <StyledButton component={Link} to="/trang-chu" sx={{ textTransform: 'none',
