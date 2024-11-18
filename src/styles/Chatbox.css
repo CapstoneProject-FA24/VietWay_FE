@@ -9,10 +9,12 @@
     border-radius: 12px;
     background: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .chatbox-header {
     padding: 1rem;
+    padding-right: 120px;
     background: #f8f9fa;
     border-bottom: 1px solid #ddd;
     border-radius: 8px 8px 0 0;
@@ -33,10 +35,20 @@
 }
 
 .message {
-    max-width: 70%;
-    padding: 0.5rem 1rem;
+    max-width: 80%;
+    padding: 1rem;
     border-radius: 1rem;
     margin: 0.5rem 0;
+    white-space: pre-wrap;
+}
+
+.message-content {
+    position: relative;
+}
+
+.message-content p {
+    margin: 0;
+    line-height: 1.5;
 }
 
 .user-message {
@@ -48,19 +60,37 @@
 .ai-message {
     align-self: flex-start;
     background: #f0f7ff;
-    border: 1px solid #e1e9ff;
-    color: #333;
+    color: #2c3e50;
+    border-left: 4px solid #007bff;
 }
 
-.message-content {
-    position: relative;
+.ai-message .message-content p {
+    text-align: left;
+}
+
+.ai-message .message-content p ul,
+.ai-message .message-content p li {
+    margin-left: 1rem;
+    padding-left: 0.5rem;
+}
+
+.ai-message .message-content .emphasis {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.ai-message .message-content .section {
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid #ddd;
 }
 
 .timestamp {
     font-size: 0.75rem;
-    opacity: 0.7;
-    margin-top: 0.25rem;
-    display: block;
+    color: #666;
+    position: absolute;
+    bottom: -1.2rem;
+    right: 0;
 }
 
 .input-container {
@@ -68,6 +98,8 @@
     border-top: 1px solid #ddd;
     display: flex;
     gap: 0.5rem;
+    position: relative;
+    z-index: 2;
 }
 
 .input-container input {
@@ -186,4 +218,69 @@
 
 body {
     font-family: 'Roboto', 'Arial', sans-serif;
+}
+
+.suggestion-toggle-btn {
+    margin: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #007bff;
+    color: #007bff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    align-self: flex-start;
+}
+
+.suggestion-toggle-btn:hover {
+    background: #007bff;
+    color: white;
+}
+
+.suggestions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.close-suggestions-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.close-suggestions-btn:hover {
+    color: #333;
+}
+
+.welcome-message {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 0 1rem;
+    animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+    }
+}
+
+.message:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
