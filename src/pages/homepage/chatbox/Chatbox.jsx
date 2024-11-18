@@ -195,10 +195,7 @@ const Chatbox = () => {
       </div>
 
       {!isFirstVisit && !showSuggestions && (
-        <button 
-          className="suggestion-toggle-btn"
-          onClick={toggleSuggestions}
-        >
+        <button className="suggestion-toggle-btn" onClick={toggleSuggestions}>
           Gợi ý câu hỏi
         </button>
       )}
@@ -209,24 +206,15 @@ const Chatbox = () => {
           <div className="suggestions-header">
             <p>Bạn có thể chọn một trong những câu hỏi gợi ý dưới đây hoặc tự đặt câu hỏi:</p>
             {!isFirstVisit && (
-              <button 
-                className="close-suggestions-btn"
-                onClick={() => {
-                  setShowSuggestions(false);
-                  setShowSuggestionsBox(false);
-                }}
-              >
-                ×
-              </button>
+              <button className="close-suggestions-btn" onClick={() => {
+                setShowSuggestions(false);
+                setShowSuggestionsBox(false);
+              }}> × </button>
             )}
           </div>
           <div className="suggested-questions">
             {suggestedQuestions.map((question, index) => (
-              <button
-                key={index}
-                className="suggested-question-btn"
-                onClick={() => handleSuggestedQuestion(question)}
-              >
+              <button key={index} className="suggested-question-btn" onClick={() => handleSuggestedQuestion(question)}>
                 {question}
               </button>
             ))}
@@ -236,15 +224,10 @@ const Chatbox = () => {
 
       <div className="messages-container">
         {messages.map((message, index) => (
-          <div 
-            key={index} 
-            className={`message ${message.sender}-message`}
-          >
+          <div key={index} className={`message ${message.sender}-message`}>
             <div className="message-content">
               {message.sender === 'ai' ? (
-                <p dangerouslySetInnerHTML={{ 
-                  __html: formatAIResponse(message.text) 
-                }} />
+                <p dangerouslySetInnerHTML={{ __html: formatAIResponse(message.text) }} />
               ) : (
                 <p>{message.text}</p>
               )}
@@ -265,16 +248,9 @@ const Chatbox = () => {
       </div>
 
       <form onSubmit={handleSend} className="input-container">
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          placeholder="Nhập câu hỏi của bạn tại đây..."
-          disabled={isLoading}
-        />
-        <button type="submit" disabled={isLoading || !inputMessage.trim()}>
-          Gửi
-        </button>
+        <input type="text" value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} 
+        placeholder="Nhập câu hỏi của bạn tại đây..." disabled={isLoading} />
+        <button type="submit" disabled={isLoading || !inputMessage.trim()}>Gửi</button>
       </form>
     </div>
   );
