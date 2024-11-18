@@ -96,15 +96,15 @@ const BookTour = () => {
         const tour = await fetchTourById(id);
         const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
         const data = {
-          tourTemplateId: tour.tourTemplateId, 
+          tourTemplateId: tour.tourTemplateId,
           imageUrls: tourTemplate.imageUrls,
-          tourName: tourTemplate.tourName, 
+          tourName: tourTemplate.tourName,
           code: tourTemplate.code,
-          duration: tourTemplate.duration, 
+          duration: tourTemplate.duration,
           startLocation: tour.startLocation,
-          startTime: tour.startTime, 
+          startTime: tour.startTime,
           startDate: tour.startDate,
-          endDate: tour.endDate, 
+          endDate: tour.endDate,
           price: tour.price,
           pricesByAge: tour.pricesByAge,
           refundPolicies: tour.refundPolicies,
@@ -116,7 +116,7 @@ const BookTour = () => {
         }
         setBookingData(data);
         const adultType = tour.pricesByAge?.find(p => p.ageFrom >= 12)?.name?.toLowerCase() || 'người lớn';
-        
+
         setFormData(prevState => ({
           ...prevState,
           fullName: customer.fullName, email: customer.email,
@@ -150,7 +150,7 @@ const BookTour = () => {
 
   const handlePassengerInfoChange = (index, field, value) => {
     const adultType = bookingData?.pricesByAge?.find(p => p.ageFrom >= 12)?.name || 'Người lớn';
-    
+
     if (index === 0 && field === 'type' && value !== adultType.toLowerCase()) {
       setSnackbarMessage('Hành khách đầu tiên phải là người lớn');
       setSnackbarSeverity('error');
@@ -198,10 +198,10 @@ const BookTour = () => {
           const birthDate = new Date(value);
           const age = calculateAge(birthDate);
           const selectedType = passengerType?.toLowerCase();
-          const priceByAge = bookingData?.pricesByAge?.find(p => 
+          const priceByAge = bookingData?.pricesByAge?.find(p =>
             p.name.toLowerCase() === selectedType
           );
-          
+
           if (priceByAge && (age < priceByAge.ageFrom || age > priceByAge.ageTo)) {
             error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} đến ${priceByAge.ageTo} tuổi`;
           }
@@ -239,7 +239,7 @@ const BookTour = () => {
 
   const calculatePassengerSummary = () => {
     const summary = {};
-    
+
     bookingData?.pricesByAge?.forEach(priceType => {
       summary[priceType.name.toLowerCase()] = { count: 0, total: 0 };
     });
@@ -249,7 +249,7 @@ const BookTour = () => {
         const type = passenger.type.toLowerCase();
         if (summary[type]) {
           summary[type].count += 1;
-          const priceByAge = bookingData.pricesByAge?.find(price => 
+          const priceByAge = bookingData.pricesByAge?.find(price =>
             price.name.toLowerCase() === type
           );
           summary[type].total += priceByAge?.price || 0;
@@ -264,7 +264,7 @@ const BookTour = () => {
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
+      age--;
     }
     return age;
   };
@@ -350,26 +350,26 @@ const BookTour = () => {
 
   if (loading) {
     return (
-        <>
-            <Helmet> <title>Đặt tour</title> </Helmet> <Header />
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
-        </>
+      <>
+        <Helmet> <title>Đặt tour</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+      </>
     );
-}
+  }
 
-if (!bookingData) {
+  if (!bookingData) {
     return (
-        <>
-          <Header />
-          <Helmet>
-            <title>Không tìm thấy tour</title>
-          </Helmet>
-          <Box sx={{ p: 3 }}>
-            <Typography variant="h4">Không tìm thấy thông tin tour</Typography>
-          </Box>
-        </>
-      );
-}
+      <>
+        <Header />
+        <Helmet>
+          <title>Không tìm thấy tour</title>
+        </Helmet>
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h4">Không tìm thấy thông tin tour</Typography>
+        </Box>
+      </>
+    );
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", width: "89vw" }} ref={topRef}>
@@ -556,6 +556,15 @@ if (!bookingData) {
                 </Box>
               </RadioGroup>
               {errors.paymentMethod && <ErrorText>{errors.paymentMethod}</ErrorText>}
+
+              {/* <Box sx={{ mb: 5, mt: 2 }}>
+                <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Chính sách hoàn tiền</Typography>
+                {bookingData.refundPolicies.map((policy, index) => (
+                  <Typography key={index} paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>
+                    Hủy trước {policy.cancelBefore.toLocaleDateString('vi-VN')}, hoàn {policy.refundPercent}%
+                  </Typography>
+                ))}
+              </Box> */}
             </Grid>
             <Grid item xs={12} md={4} sx={{ width: "100%" }}>
               <SummaryTitle variant="h5" style={{ alignContent: "center" }}>
