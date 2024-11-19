@@ -26,6 +26,7 @@ import { saveNavigationHistory } from '@utils/NavigationHistory';
 import EventDetail from "@pages/homepage/events/EventDetail";
 import Storage from "@pages/homepage/storage/Storage";
 import RegisterWithGoogle from '@pages/authen/RegisterWithGoogle';
+import ChangePass from '@pages/authen/ChangePass';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -63,6 +64,7 @@ const AppRoutes = () => {
       <Route path="/su-kien" element={<Events />} />
       <Route path="/su-kien/:id" element={<EventDetail />} />
       <Route path="/booking/:id" element={<ProfileBookingDetail />} />
+      <Route path="/doi-mat-khau" element={<ChangePass />} />
     </Routes>
   );
 };

@@ -15,8 +15,10 @@ import WcIcon from '@mui/icons-material/Wc';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { fetchProvinces } from '@services/ProvinceService';
 import { getCustomerInfo, updateCustomerInfo } from '@services/CustomerService';
+import { useNavigate } from 'react-router-dom';
 
 const ProfileDetail = ({ profile, onProfileUpdate }) => {
+  const navigate = useNavigate();
   const [editMode, setEditMode] = useState({});
   const [editedProfile, setEditedProfile] = useState({});
   const [displayProfile, setDisplayProfile] = useState({});
@@ -141,6 +143,10 @@ const ProfileDetail = ({ profile, onProfileUpdate }) => {
     });
   };
 
+  const handleChangePassword = () => {
+    navigate('/doi-mat-khau');
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ my: 5 }}>
@@ -220,6 +226,15 @@ const ProfileDetail = ({ profile, onProfileUpdate }) => {
             ))}
           </Grid>
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleChangePassword}
+              sx={{ borderRadius: '20px', marginRight: 2 }}
+            >
+              Đổi mật khẩu
+            </Button>
+            
             <Button 
               variant="contained" 
               startIcon={<SaveIcon />} 
