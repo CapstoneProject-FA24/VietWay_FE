@@ -43,7 +43,8 @@ export default function ForgetPass() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
-  const [countdown, setCountdown] = useState(90); // 90 seconds = 1:30
+  const [countdown, setCountdown] = useState(180); // 180 seconds = 3 minutes
+  const [otpExpired, setOtpExpired] = useState(false);
   const [canResend, setCanResend] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -59,18 +60,50 @@ export default function ForgetPass() {
     newPassword: '',
     confirmPassword: ''
   });
+  const [resendCooldown, setResendCooldown] = useState(0); // Cooldown in seconds
 
   useEffect(() => {
     let timer;
-    if (step === 2 && countdown > 0) {
+    if ((step === 2 || step === 3) && countdown > 0) {
       timer = setInterval(() => {
-        setCountdown(prev => prev - 1);
+        setCountdown(prev => {
+          if (prev <= 1) {
+            // OTP expired
+            setOtpExpired(true);
+            setCanResend(true);
+            // If on password step, go back to OTP step
+            if (step === 3) {
+              setStep(2);
+              setSnackbar({
+                open: true,
+                message: 'Mã OTP đã hết hạn, vui lòng yêu cầu mã mới',
+                severity: 'warning'
+              });
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-    } else if (countdown === 0) {
-      setCanResend(true);
     }
     return () => clearInterval(timer);
   }, [step, countdown]);
+
+  useEffect(() => {
+    let cooldownTimer;
+    if (resendCooldown > 0) {
+      cooldownTimer = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(cooldownTimer);
+  }, [resendCooldown]);
 
   const navigate = useNavigate();
 
@@ -118,8 +151,10 @@ export default function ForgetPass() {
         // Request OTP
         await requestPasswordReset(phoneNumber);
         setStep(2);
-        setCountdown(90);
+        setCountdown(180);
         setCanResend(false);
+        setResendCooldown(60); // Start initial 1-minute cooldown
+        setOtpExpired(false);
         setSnackbar({
           open: true,
           message: 'Mã OTP đã được gửi đến số điện thoại của bạn',
@@ -127,74 +162,100 @@ export default function ForgetPass() {
         });
       } 
       else if (step === 2) {
+        if (otpExpired || countdown === 0) {
+          setSnackbar({
+            open: true,
+            message: 'Mã OTP đã hết hạn, vui lòng yêu cầu mã mới',
+            severity: 'error'
+          });
+          return;
+        }
         // Validate OTP
         if (!otp) {
           setErrors(prev => ({ ...prev, otp: 'Vui lòng nhập mã OTP' }));
           return;
         }
         setErrors(prev => ({ ...prev, otp: '' }));
+        
         // Verify OTP
         const response = await confirmResetPasswordOTP(phoneNumber, otp);
-        if (response.data) {
-          console.log(response.data);
-          setResetToken(response.data);
-          setStep(3);
-          setSnackbar({
-            open: true,
-            message: 'Xác thực OTP thành công',
-            severity: 'success'
-          });
-        }
+        setResetToken(response.token);
+        setStep(3);
       } 
       else {
-        // Validate new password
+        if (otpExpired || countdown === 0) {
+          setStep(2);
+          setSnackbar({
+            open: true,
+            message: 'Mã OTP đã hết hạn, vui lòng yêu cầu mã mới',
+            severity: 'warning'
+          });
+          return;
+        }
+
+        // Password validation
         const passwordError = validatePassword(newPassword);
         if (passwordError) {
           setErrors(prev => ({ ...prev, newPassword: passwordError }));
           return;
         }
-
-        // Validate confirm password
+        
         if (!confirmPassword) {
-          setErrors(prev => ({ ...prev, confirmPassword: 'Xác nhận mật khẩu là bắt buộc' }));
+          setErrors(prev => ({ ...prev, confirmPassword: 'Vui lòng xác nhận mật khẩu' }));
           return;
         }
-
+        
         if (newPassword !== confirmPassword) {
           setErrors(prev => ({ ...prev, confirmPassword: 'Mật khẩu không khớp' }));
           return;
         }
 
-        setErrors(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
-        
-        // Reset password
-        await resetPassword(phoneNumber, newPassword, resetToken);
-        setSnackbar({
-          open: true,
-          message: 'Đặt lại mật khẩu thành công',
-          severity: 'success'
-        });
-        navigate('/dang-nhap');
+        try {
+          await resetPassword(phoneNumber, newPassword, resetToken);
+          setSnackbar({
+            open: true,
+            message: 'Đặt lại mật khẩu thành công',
+            severity: 'success'
+          });
+          navigate('/dang-nhap');
+        } catch (error) {
+          if (error.response?.status === 500 && error.response?.data?.error?.includes('Invalid phone number')) {
+            setStep(2);
+            setSnackbar({
+              open: true,
+              message: 'Mã OTP đã hết hạn, vui lòng yêu cầu mã mới',
+              severity: 'warning'
+            });
+          } else {
+            setSnackbar({
+              open: true,
+              message: 'Đã có lỗi xảy ra, vui lòng thử lại',
+              severity: 'error'
+            });
+          }
+        }
       }
     } catch (error) {
-      console.error('Error:', error);
       setSnackbar({
         open: true,
-        message: error.response?.data?.message || 'Có lỗi xảy ra',
+        message: 'Đã có lỗi xảy ra, vui lòng thử lại',
         severity: 'error'
       });
     }
   };
 
   const handleResendOTP = async () => {
-    if (canResend) {
+    if (canResend && resendCooldown === 0) {
       try {
         await requestPasswordReset(phoneNumber);
-        setCountdown(90);
+        setCountdown(180); // Reset main OTP timer
         setCanResend(false);
+        setOtpExpired(false);
+        setResendCooldown(60); // Start 1-minute cooldown
+        setOtp(''); // Clear previous OTP
         setSnackbar({
           open: true,
-          message: 'Đã gửi lại mã OTP',
+          message: 'Mã OTP mới đã được gửi đến số điện thoại của bạn',
           severity: 'success'
         });
       } catch (error) {
@@ -214,7 +275,24 @@ export default function ForgetPass() {
   };
 
   const handleBackClick = () => {
-    navigate('/dang-nhap');
+    if (step === 1) {
+      navigate('/dang-nhap');
+    } else {
+      // Reset states when going back to step 1
+      setStep(1);
+      setOtp('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setCountdown(180);
+      setOtpExpired(false);
+      setCanResend(false);
+      setErrors({
+        phoneNumber: '',
+        otp: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    }
   };
 
   const getStepTitle = () => {
@@ -278,8 +356,17 @@ export default function ForgetPass() {
         <Grid item square md={12} sx={{ display: 'flex ' }}>
           <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', alignItems: 'left', textAlign: 'left', width: '47%', marginRight: 10, marginLeft: -6 }}>
             <img style={{ width: 90, marginBottom: 40 }} src='/logo1_color.png' alt="Logo" />
-            <Button variant="text" startIcon={<ArrowBackIosNewIcon/>} onClick={step === 1 ? handleBackClick : () => setStep(1)} sx={{color: '#4B4B4B', marginBottom: 1, justifyContent: 'flex-start'}}>
-              Quay lại
+            <Button 
+              variant="text" 
+              startIcon={<ArrowBackIosNewIcon/>} 
+              onClick={handleBackClick}
+              sx={{
+                color: '#4B4B4B', 
+                marginBottom: 1, 
+                justifyContent: 'flex-start'
+              }}
+            >
+              {step === 1 ? 'Quay lại đăng nhập' : 'Nhập số điện thoại khác'}
             </Button>
             <Typography component="h1" variant="h4" sx={{ fontWeight: 700 }}>
               {getStepTitle()}
@@ -316,22 +403,46 @@ export default function ForgetPass() {
                     label="Nhập mã OTP" 
                     name="otp" 
                     autoFocus 
-                    value={otp} 
+                    value={otp}
+                    disabled={otpExpired}
                     onChange={(e) => {
                       setOtp(e.target.value);
                       setErrors(prev => ({ ...prev, otp: '' }));
                     }}
-                    error={!!errors.otp}
-                    helperText={errors.otp}
+                    error={!!errors.otp || otpExpired}
+                    helperText={otpExpired ? 'Mã OTP đã hết hạn' : errors.otp}
                   />
-                  <Typography sx={{ mt: 2, color: 'gray', fontSize: '0.875rem' }}>
-                    Hãy đợi sau {formatTime(countdown)} để
-                    <Button onClick={handleResendOTP} disabled={!canResend} 
-                    sx={{ textTransform: 'none', p: 0, ml: 0.5, color: canResend ? 'primary.main' : 'gray' }}>
-                      Gửi lại
-                    </Button>
-                    mã OTP
-                  </Typography>
+                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography sx={{ color: 'gray', fontSize: '0.875rem' }}>
+                      {otpExpired ? (
+                        'Mã OTP đã hết hạn'
+                      ) : (
+                        `Mã OTP còn hiệu lực trong ${formatTime(countdown)}`
+                      )}
+                    </Typography>
+                    <Box>
+                      {resendCooldown > 0 ? (
+                        <Typography sx={{ color: 'gray', fontSize: '0.875rem' }}>
+                          Gửi lại mã sau {resendCooldown}s
+                        </Typography>
+                      ) : (
+                        <Button 
+                          onClick={handleResendOTP}
+                          disabled={!canResend || resendCooldown > 0}
+                          sx={{ 
+                            textTransform: 'none',
+                            fontSize: '0.875rem',
+                            color: 'primary.main',
+                            '&.Mui-disabled': {
+                              color: 'gray'
+                            }
+                          }}
+                        >
+                          Gửi lại mã OTP
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
                 </>
               ) : (
                 <>
@@ -382,6 +493,17 @@ export default function ForgetPass() {
                       ),
                     }} 
                   />
+                  <Typography sx={{ mt: 2, color: 'gray', fontSize: '0.875rem' }}>
+                    Mã OTP sẽ hết hạn trong {formatTime(countdown)}, quý khách vui lòng hoàn tất đặt lại mật khẩu mới trong thời gian này.
+                    {(otpExpired || countdown === 0) && (
+                      <Button 
+                        onClick={() => setStep(2)}
+                        sx={{ textTransform: 'none', p: 0, ml: 1, color: 'primary.main' }}
+                      >
+                        Gửi lại mã OTP
+                      </Button>
+                    )}
+                  </Typography>
                 </>
               )}
               <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 1, height: 45 }}>
