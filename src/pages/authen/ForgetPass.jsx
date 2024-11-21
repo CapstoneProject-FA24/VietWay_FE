@@ -180,6 +180,8 @@ export default function ForgetPass() {
         try {
           const response = await confirmResetPasswordOTP(phoneNumber, otp);
           setResetToken(response.data);
+          setShowNewPassword(false);
+          setShowConfirmPassword(false);
           setStep(3);
         } catch (error) {
           if (error.response?.status === 500 && error.response?.data?.error?.includes('Invalid OTP')) {
