@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Box, Chip, CardMedia, Grid, Container, Snackbar, Alert, Button } from '@mui/material';
 import { Helmet } from 'react-helmet';
 import { fetchPostById, likePost } from '@services/PostService';
@@ -18,6 +18,7 @@ import UnsavedConfirmPopup from '@components/saved/UnsavedConfirmPopup';
 
 export default function PostDetails() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const pageTopRef = useRef(null);
@@ -99,6 +100,10 @@ export default function PostDetails() {
 
     const handleCloseUnsaveDialog = () => {
         setOpenUnsaveDialog(false);
+    };
+
+    const handleOpenStorage = () => {
+        navigate('/storage');
     };
 
     if (loading) {
