@@ -140,9 +140,7 @@ export default function Register() {
         if (!data.get('firstName')) newErrors.firstName = 'Tên là bắt buộc';
 
         const email = data.get('email');
-        if (!email) {
-            newErrors.email = 'Email là bắt buộc';
-        } else if (!validateEmail(email)) {
+        if (!validateEmail(email) && !!email) {
             newErrors.email = 'Email không hợp lệ';
         }
 
@@ -166,11 +164,11 @@ export default function Register() {
         const passwordConfirm = data.get('passwordConfirm');
 
         if (!password) {
-            newErrors.password = 'Mật khẩu là bắt buộc';
+            newErrors.password = 'Mật khẩu là bắt buộc.';
         } else if (password.length < 8) {
-            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự và phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
         } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?])/.test(password)) {
-            newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt';
+            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự và phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
         }
         if (!passwordConfirm) newErrors.passwordConfirm = 'Xác nhận mật khẩu là bắt buộc';
         if (password !== passwordConfirm) newErrors.passwordConfirm = 'Mật khẩu không khớp';
@@ -285,14 +283,13 @@ export default function Register() {
                             </Box>
                             <TextField
                                 margin="normal"
-                                required
                                 fullWidth
                                 id="email"
                                 label="Email"
                                 name="email"
                                 autoComplete="email"
                                 type="email"
-                                value={googleEmail || ''}
+                                value={googleEmail || undefined}
                                 disabled={!!googleEmail}
                                 error={!!errors.email}
                                 helperText={errors.email}

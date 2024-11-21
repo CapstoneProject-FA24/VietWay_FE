@@ -112,3 +112,44 @@ export const getCookie = (name) => {
 export const removeCookie = (name) => {
     document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
 };
+
+export const requestPasswordReset = async (phoneNumber) => {
+    try {
+        const response = await axios.post(`${baseURL}/api/account/request-password-reset`, {
+            phoneNumber: phoneNumber
+        });
+        return response;
+    } catch (error) {
+        console.error('Password reset request failed:', error);
+        throw error;
+    }
+};
+
+export const confirmResetPasswordOTP = async (phoneNumber, otp) => {
+    try {
+        const response = await axios.post(`${baseURL}/api/account/confirm-reset-password-otp`, {
+            phoneNumber: phoneNumber,
+            otp: otp
+        });
+        return response.data;
+    } catch (error) {
+        console.error('OTP confirmation failed:', error);
+        throw error;
+    }
+};
+
+export const resetPassword = async (phoneNumber, newPassword, token) => {
+    try {
+        const response = await axios.post(`${baseURL}/api/account/reset-password`, {
+            phoneNumber: phoneNumber,
+            newPassword: newPassword
+        },
+        {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Password reset failed:', error);
+        throw error;
+    }
+};
