@@ -177,10 +177,26 @@ export default function ForgetPass() {
         }
         setErrors(prev => ({ ...prev, otp: '' }));
         
-        // Verify OTP
-        const response = await confirmResetPasswordOTP(phoneNumber, otp);
-        setResetToken(response.token);
-        setStep(3);
+        try {
+          const response = await confirmResetPasswordOTP(phoneNumber, otp);
+          setResetToken(response.data);
+          setStep(3);
+        } catch (error) {
+          if (error.response?.status === 500 && error.response?.data?.error?.includes('Invalid OTP')) {
+            setErrors(prev => ({ ...prev, otp: 'Mã OTP không đúng' }));
+            setSnackbar({
+              open: true,
+              message: 'Mã OTP không đúng, vui lòng kiểm tra lại',
+              severity: 'error'
+            });
+          } else {
+            setSnackbar({
+              open: true,
+              message: 'Đã có lỗi xảy ra, vui lòng thử lại',
+              severity: 'error'
+            });
+          }
+        }
       } 
       else {
         if (otpExpired || countdown === 0) {
