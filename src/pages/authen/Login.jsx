@@ -107,7 +107,7 @@ export default function Login() {
           const history = JSON.parse(sessionStorage.getItem('navigationHistory') || '[]');
           let targetPage = '/';
 
-          while (history.length > 0 && (history[history.length - 1] === '/dang-nhap' || history[history.length - 1] === '/dang-ky')) {
+          while (history.length > 0 && (history[history.length - 1] === '/dang-nhap' || history[history.length - 1] === '/dang-ky'  || history[history.length - 1] === '/quen-mat-khau')) {
             history.pop();
           }
 
@@ -122,7 +122,7 @@ export default function Login() {
         }
       }
     } catch (error) {
-      if (error.response.data.statusCode === 401 && error.response.data.message === 'Email or password is incorrect') {
+      if (error.response.data.statusCode === 401 || error.response.data.message === 'Email or password is incorrect') {
         setError('Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại');
       }
       else {
