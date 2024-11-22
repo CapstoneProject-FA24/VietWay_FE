@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, CircularProgress, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText, Snackbar, Alert } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -71,7 +71,7 @@ const BookTour = () => {
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({
     fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "",
-    passengers: [{ type: 'người lớn', name: '', gender: 0, birthday: '' }]
+    passengers: [{ type: 'Người lớn', name: '', gender: 0, birthday: '' }]
   });
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
@@ -95,34 +95,36 @@ const BookTour = () => {
         const customer = await getCustomerInfo();
         const tour = await fetchTourById(id);
         const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
+        
+        const completepricesByAge = [
+          {
+            name: "Người lớn",
+            price: tour.price,
+            ageFrom: 12,
+            ageTo: 100
+          },
+          ...(tour.pricesByAge || [])
+        ];
+
         const data = {
+          ...tour,
           tourTemplateId: tour.tourTemplateId,
           imageUrls: tourTemplate.imageUrls,
           tourName: tourTemplate.tourName,
           code: tourTemplate.code,
           duration: tourTemplate.duration,
-          startLocation: tour.startLocation,
-          startTime: tour.startTime,
-          startDate: tour.startDate,
-          endDate: tour.endDate,
-          price: tour.price,
-          pricesByAge: tour.pricesByAge,
-          refundPolicies: tour.refundPolicies,
-          registerOpenDate: tour.registerOpenDate,
-          registerCloseDate: tour.registerCloseDate,
-          maxParticipant: tour.maxParticipant,
-          minParticipant: tour.minParticipant,
-          currentParticipant: tour.currentParticipant
-        }
+          pricesByAge: completepricesByAge
+        };
+        
         setBookingData(data);
-        const adultType = tour.pricesByAge?.find(p => p.ageFrom >= 12)?.name?.toLowerCase() || 'người lớn';
-
         setFormData(prevState => ({
           ...prevState,
-          fullName: customer.fullName, email: customer.email,
-          phone: customer.phone, address: customer.address || "",
+          fullName: customer.fullName,
+          email: customer.email,
+          phone: customer.phone,
+          address: customer.address || "",
           passengers: [{
-            type: adultType,
+            type: 'người lớn',
             name: customer.fullName,
             gender: customer.genderId,
             birthday: dayjs(customer.birthday).format('YYYY-MM-DD')
@@ -202,8 +204,16 @@ const BookTour = () => {
             p.name.toLowerCase() === selectedType
           );
 
-          if (priceByAge && (age < priceByAge.ageFrom || age > priceByAge.ageTo)) {
-            error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} đến ${priceByAge.ageTo} tuổi`;
+          if (priceByAge) {
+            if (priceByAge.name === 'Người lớn') {
+              if (age < priceByAge.ageFrom) {
+                error = `${priceByAge.name} phải trên ${priceByAge.ageFrom} tuổi`;
+              }
+            } else {
+              if (age < priceByAge.ageFrom || age > priceByAge.ageTo) {
+                error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi`;
+              }
+            }
           }
         }
         break;
@@ -239,22 +249,21 @@ const BookTour = () => {
 
   const calculatePassengerSummary = () => {
     const summary = {};
-
-    bookingData?.pricesByAge?.forEach(priceType => {
-      summary[priceType.name.toLowerCase()] = { count: 0, total: 0 };
-    });
-
     formData.passengers.forEach(passenger => {
-      if (passenger.type) {
-        const type = passenger.type.toLowerCase();
-        if (summary[type]) {
-          summary[type].count += 1;
-          const priceByAge = bookingData.pricesByAge?.find(price =>
-            price.name.toLowerCase() === type
-          );
-          summary[type].total += priceByAge?.price || 0;
-        }
+      const type = passenger.type.toLowerCase();
+      const priceByAge = bookingData.pricesByAge.find(
+        p => p.name.toLowerCase() === type
+      );
+      
+      if (!summary[type]) {
+        summary[type] = {
+          count: 0,
+          total: 0
+        };
       }
+      
+      summary[type].count += 1;
+      summary[type].total += priceByAge ? priceByAge.price : bookingData.defaultTouristPrice;
     });
     return summary;
   };
@@ -434,7 +443,10 @@ const BookTour = () => {
                         >
                           {bookingData.pricesByAge?.map(priceByAge => (
                             <MenuItem key={priceByAge.name} value={priceByAge.name.toLowerCase()}>
-                              {priceByAge.name} (Từ {priceByAge.ageFrom} - {priceByAge.ageTo} tuổi) - {priceByAge.price?.toLocaleString()} đ
+                              {priceByAge.name === 'Người lớn' ? 
+                                `${priceByAge.name} (Trên ${priceByAge.ageFrom} tuổi) - ${priceByAge.price?.toLocaleString()} đ` :
+                                `${priceByAge.name} (Từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi) - ${priceByAge.price?.toLocaleString()} đ`
+                              }
                             </MenuItem>
                           ))}
                         </Select>
