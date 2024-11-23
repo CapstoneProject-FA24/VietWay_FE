@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Portal } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -74,6 +74,10 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
   fontSize: "1.2rem",
   color: theme.palette.primary.main,
 }));
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const BookingDetail = () => {
   const [bookingData, setBookingData] = useState(null);
@@ -320,20 +324,13 @@ const BookingDetail = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
-        <MuiAlert
-          onClose={handleCloseSnackbar} severity="success" variant="filled"
-          sx={{
-            width: '500px', fontSize: '1.5rem', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
-          }}
-          iconMapping={{ success: <CheckCircleIcon fontSize="large" /> }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
+      <Portal>
+        <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ zIndex: (theme) => theme.zIndex.tooltip + 1000, position: 'fixed' }}>
+          <Alert onClose={handleCloseSnackbar} severity="success" variant="filled" sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
             Thanh toán thành công!
-          </Box>
-        </MuiAlert>
-      </Snackbar>
+          </Alert>
+        </Snackbar>
+      </Portal>
     </Box>
   );
 };
