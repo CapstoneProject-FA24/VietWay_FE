@@ -162,23 +162,12 @@ const ReviewInput = ({
             <>
               <Typography 
                 variant="body1" 
-                sx={{ 
-                  whiteSpace: 'pre-wrap',
-                  my: 2,
-                  p: 2,
-                  backgroundColor: 'grey.50',
-                  borderRadius: 2
-                }}
+                sx={{ whiteSpace: 'pre-wrap', my: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}
               >
                 {content}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <StyledButton
-                  variant="outlined"
-                  onClick={handleToggleEdit}
-                  color="primary"
-                  endIcon={<EditIcon />}
-                >
+                <StyledButton variant="outlined" onClick={handleToggleEdit} color="primary" endIcon={<EditIcon />}>
                   Chỉnh sửa
                 </StyledButton>
               </Box>
@@ -186,39 +175,19 @@ const ReviewInput = ({
           ) : (
             <form onSubmit={handleSubmit}>
               <Stack spacing={2}>
-                <StyledTextField
-                  multiline
-                  rows={3}
-                  value={content}
-                  onChange={handleContentChange}
-                  placeholder="Chia sẻ trải nghiệm của bạn..."
-                  error={isOverLimit}
-                  helperText={
+                <StyledTextField multiline rows={3} value={content} onChange={handleContentChange} placeholder="Chia sẻ trải nghiệm của bạn..." error={isOverLimit} helperText={
                     <Typography variant="caption" color={isOverLimit ? 'error' : 'textSecondary'}>
                       {`${wordCount}/${WORD_LIMIT} từ${isOverLimit ? ' - Vượt quá giới hạn' : ''}`}
                     </Typography>
-                  }
-                  fullWidth
-                  variant="outlined"
-                />
+                  } fullWidth variant="outlined" />
 
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                   {hasExistingReview && (
-                    <StyledButton
-                      variant="outlined"
-                      onClick={handleToggleEdit}
-                      color="inherit"
-                    >
+                    <StyledButton variant="outlined" onClick={handleToggleEdit} color="inherit">
                       Hủy
                     </StyledButton>
                   )}
-                  <StyledButton
-                    variant="contained"
-                    type="submit"
-                    disabled={isOverLimit || !rating || !content.trim()}
-                    color="primary"
-                    endIcon={<EditIcon />}
-                  >
+                  <StyledButton variant="contained" type="submit" disabled={isOverLimit || !rating || !content.trim()} color="primary" endIcon={<EditIcon />}>
                     {hasExistingReview ? 'Cập nhật' : 'Gửi đánh giá'}
                   </StyledButton>
                 </Box>
@@ -228,17 +197,8 @@ const ReviewInput = ({
         </Stack>
       </StyledPaper>
 
-      <Snackbar
-        open={snackbarState.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarState.severity}
-          sx={{ width: '100%', mt: 10 }}
-        >
+      <Snackbar open={snackbarState.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarState.severity} variant="filled" sx={{ width: '100%', mt: 10 }}>
           {snackbarState.message}
         </Alert>
       </Snackbar>

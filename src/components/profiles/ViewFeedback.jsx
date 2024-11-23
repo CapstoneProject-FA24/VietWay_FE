@@ -67,7 +67,9 @@ const ViewFeedback = ({ onClose, feedback }) => {
             backgroundColor: '#f5f5f5',
             p: 2,
             borderRadius: '8px',
-            minHeight: '100px'
+            minHeight: '100px',
+            userSelect: 'none',
+            pointerEvents: 'none'
           }}>
             {feedback.comment}
           </Typography>

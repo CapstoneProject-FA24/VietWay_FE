@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Tabs, Tab, Snackbar } from '@mui/material';
+import { Box, Container, Typography, Tabs, Tab, Snackbar, Portal } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
@@ -82,8 +82,8 @@ const Profile = () => {
                 <Tabs value={tabValue} onChange={handleTabChange} centered indicatorColor="secondary">
                     <Tab label="Tài khoản" sx={{ color: '#D4D4D4', width: '50%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                     <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                    <Tab label="Tour Đăng Ký" sx={{ color: '#D4D4D4', width: '50%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />{/* 
-                    <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
+                    <Tab label="Tour Đăng Ký" sx={{ color: '#D4D4D4', width: '50%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
+                    {/* <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
                     <Tab label="Lịch Sử Thanh Toán" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} /> */}
                 </Tabs>
                 <Routes>
@@ -99,11 +99,13 @@ const Profile = () => {
                 </Routes>
             </Container>
             <Footer />
-            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+            <Portal>
+                <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ zIndex: (theme) => theme.zIndex.tooltip + 1000, position: 'fixed' }}>
+                    <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%', zIndex: (theme) => theme.zIndex.tooltip + 1000 }}>
+                        {snackbar.message}
+                    </Alert>
+                </Snackbar>
+            </Portal>
         </Box>
     );
 };

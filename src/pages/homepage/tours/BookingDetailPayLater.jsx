@@ -302,8 +302,7 @@ const BookingDetailPayLater = () => {
       <Footer />
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
         <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
+          onClose={handleCloseSnackbar} severity="success" variant="filled"
           sx={{
             width: '500px', fontSize: '1.5rem', display: 'flex',
             alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'

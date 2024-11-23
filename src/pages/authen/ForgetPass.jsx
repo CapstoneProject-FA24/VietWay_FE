@@ -44,6 +44,19 @@ export default function ForgetPass() {
   const [canResend, setCanResend] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' | 'error' | 'info' | 'warning'
+  });
+  const [errors, setErrors] = useState({
+    phoneNumber: '',
+    otp: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [resendCooldown, setResendCooldown] = useState(0); // Cooldown in seconds
 
   useEffect(() => {
     let timer;
@@ -76,14 +89,8 @@ export default function ForgetPass() {
       // Reset password
       if (newPassword === confirmPassword) {
         try {
-          // Call API to reset password
-          await resetPassword(email, newPassword); // Your API call here
-          
-          // Show success message if needed
-          // For example using a toast or alert
-          
-          // Redirect to login page
-          navigate('/dang-nhap'); // or whatever your login route is
+          const response = await confirmResetPasswordOTP(phoneNumber, otp);
+          setResetToken(response.data); setShowNewPassword(false); setShowConfirmPassword(false); setStep(3);
         } catch (error) {
           console.error('Error resetting password:', error);
           // Handle error (show error message to user)
@@ -153,8 +160,8 @@ export default function ForgetPass() {
         <Grid item square md={12} sx={{ display: 'flex ' }}>
           <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', alignItems: 'left', textAlign: 'left', width: '47%', marginRight: 10, marginLeft: -6 }}>
             <img style={{ width: 90, marginBottom: 40 }} src='/logo1_color.png' alt="Logo" />
-            <Button variant="text" startIcon={<ArrowBackIosNewIcon/>} onClick={step === 1 ? handleBackClick : () => setStep(1)} sx={{color: '#4B4B4B', marginBottom: 1, justifyContent: 'flex-start'}}>
-              Quay lại
+            <Button variant="text" startIcon={<ArrowBackIosNewIcon/>} onClick={handleBackClick} sx={{ color: '#4B4B4B', marginBottom: 1, justifyContent: 'flex-start' }}>
+              {step === 1 ? 'Quay lại đăng nhập' : 'Nhập số điện thoại khác'}
             </Button>
             <Typography component="h1" variant="h4" sx={{ fontWeight: 700 }}>
               {getStepTitle()}
@@ -164,35 +171,54 @@ export default function ForgetPass() {
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               {step === 1 ? (
-                <TextField margin="normal" required fullWidth id="email" label="Email" name="email" 
-                autoComplete="email" autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
+                <TextField margin="normal" required fullWidth id="phoneNumber" label="Số điện thoại" name="phoneNumber" autoComplete="phoneNumber" autoFocus value={phoneNumber} onChange={(e) => {
+                  setPhoneNumber(e.target.value);
+                    setErrors(prev => ({ ...prev, phoneNumber: '' }));
+                  }} error={!!errors.phoneNumber} helperText={errors.phoneNumber} />
               ) : step === 2 ? (
                 <>
-                  <TextField margin="normal" required fullWidth id="otp" label="Nhập mã OTP" name="otp" 
-                  autoFocus value={otp} onChange={(e) => setOtp(e.target.value)} />
-                  <Typography sx={{ mt: 2, color: 'gray', fontSize: '0.875rem' }}>
-                    Hãy đợi sau {formatTime(countdown)} để
-                    <Button onClick={handleResendOTP} disabled={!canResend} 
-                    sx={{ textTransform: 'none', p: 0, ml: 0.5, color: canResend ? 'primary.main' : 'gray' }}>
-                      Gửi lại
-                    </Button>
-                    mã OTP
-                  </Typography>
+                  <TextField margin="normal" required fullWidth id="otp" label="Nhập mã OTP" name="otp" autoFocus value={otp} disabled={otpExpired} onChange={(e) => {
+                    setOtp(e.target.value);
+                    setErrors(prev => ({ ...prev, otp: '' }));
+                  }} error={!!errors.otp || otpExpired} helperText={otpExpired ? 'Mã OTP đã hết hạn' : errors.otp} />
+                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography sx={{ color: 'gray', fontSize: '0.875rem' }}>
+                      {otpExpired ? (
+                        'Mã OTP đã hết hạn'
+                      ) : (
+                        `Mã OTP còn hiệu lực trong ${formatTime(countdown)}`
+                      )}
+                    </Typography>
+                    <Box>
+                      {resendCooldown > 0 ? (
+                        <Typography sx={{ color: 'gray', fontSize: '0.875rem' }}>
+                          Gửi lại mã sau {resendCooldown}s
+                        </Typography>
+                      ) : (
+                        <Button onClick={handleResendOTP} disabled={!canResend || resendCooldown > 0} sx={{ textTransform: 'none', p: 0, ml: 1, color: 'primary.main' }}>
+                          Gửi lại mã OTP
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
                 </>
               ) : (
                 <>
                   <TextField margin="normal" required fullWidth name="newPassword" label="Nhập mật khẩu mới" 
-                    type={showNewPassword ? 'text' : 'password'} id="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton aria-label="toggle password visibility" onClick={() => setShowNewPassword(!showNewPassword)} edge="end">
+                  type={showNewPassword ? 'text' : 'password'} id="newPassword" value={newPassword} 
+                  onChange={handlePasswordChange} error={!!errors.newPassword} helperText={errors.newPassword} 
+                  InputProps={{ endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowNewPassword(!showNewPassword)} edge="end">
                             {showNewPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }} />
-                  <TextField margin="normal" required fullWidth name="confirmPassword" label="Nhập lại mật khẩu mới" 
-                    type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} InputProps={{
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }} />
+                  <TextField margin="normal" required fullWidth name="confirmPassword" label="Nhập lại mật khẩu mới" type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" value={confirmPassword} onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setErrors(prev => ({ ...prev, confirmPassword: '' }));
+                  }} error={!!errors.confirmPassword} helperText={errors.confirmPassword} InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton aria-label="toggle password visibility" onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
@@ -201,6 +227,14 @@ export default function ForgetPass() {
                         </InputAdornment>
                       ),
                     }} />
+                  <Typography sx={{ mt: 2, color: 'gray', fontSize: '0.875rem' }}>
+                    Mã OTP sẽ hết hạn trong {formatTime(countdown)}, quý khách vui lòng hoàn tất đặt lại mật khẩu mới trong thời gian này.
+                    {(otpExpired || countdown === 0) && (
+                      <Button onClick={() => setStep(2)} sx={{ textTransform: 'none', p: 0, ml: 1, color: 'primary.main' }}>
+                        Gửi lại mã OTP
+                      </Button>
+                    )}
+                  </Typography>
                 </>
               )}
               <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 1, height: 45 }}>
@@ -219,6 +253,11 @@ export default function ForgetPass() {
           </Box>
         </Grid>
       </Grid>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
