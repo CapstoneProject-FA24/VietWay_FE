@@ -46,19 +46,7 @@ const ReviewCard = ({ review, onLike }) => {
                 {review.reviewer}
               </Typography>
               <Stack direction="row" alignItems="center" spacing={1}>
-                <Rating
-                  value={review.rating}
-                  readOnly
-                  size="small"
-                  sx={{
-                    '& .MuiRating-iconFilled': {
-                      color: 'primary.main',
-                    },
-                    '& .MuiRating-iconEmpty': {
-                      color: 'primary.main',
-                    },
-                  }}
-                />
+                <Rating value={review.rating} readOnly size="small" sx={{ '& .MuiRating-iconFilled': { color: 'primary.main', }, '& .MuiRating-iconEmpty': { color: 'primary.main', }, }} />
                 <Typography variant="body2" color="text.secondary">
                   • {formatDate(review.createdAt)}
                 </Typography>
@@ -75,6 +63,7 @@ const ReviewCard = ({ review, onLike }) => {
             startIcon={isLiked ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
             onClick={handleLikeClick}
             sx={{
+              marginLeft: -0.7,
               color: isLiked ? 'primary.main' : 'text.secondary',
               '&:hover': {
                 bgcolor: 'transparent',
@@ -82,7 +71,7 @@ const ReviewCard = ({ review, onLike }) => {
               }
             }}
           >
-            {likeCount > 0 && likeCount}
+            {likeCount > 0 && likeCount} <span style={{ fontSize: '12px',  }}>Hữu ích</span>
           </Button>
         </Box>
       </Stack>

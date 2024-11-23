@@ -149,20 +149,12 @@ const AttractionCard = ({ attraction }) => {
                 <Alert
                     onClose={handleCloseNotification}
                     severity={isApiError ? "error" : "success"}
-                    sx={{
-                        width: '100%', mt: 10,
-                        bgcolor: 'rgba(0, 0, 0, 0.8)',
-                        color: 'white',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                        '& .MuiAlert-icon': {
-                            color: '#4caf50'
-                        },
-                        '& .MuiSvgIcon-root': {
-                            color: 'white'
-                        },
-                        fontSize: '0.95rem',
-                        py: 1.5
+                    sx={{ width: '100%', mt: 10, bgcolor: 'rgba(0, 0, 0, 0.8)', color: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        '& .MuiAlert-icon': { color: '#4caf50' },
+                        '& .MuiSvgIcon-root': { color: 'white' },
+                        fontSize: '0.95rem', py: 1.5
                     }}
+                    variant="filled"
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         {notificationMessage} {getCookie('customerToken') && (
@@ -172,6 +164,8 @@ const AttractionCard = ({ attraction }) => {
                                     onClick={handleOpenStorage}
                                     sx={{
                                         textDecoration: 'underline',
+                                        fontWeight: 'bold',
+                                        fontStyle: 'italic',
                                         cursor: 'pointer',
                                         '&:hover': {
                                             opacity: 0.8

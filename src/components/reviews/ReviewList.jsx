@@ -317,42 +317,14 @@ const ReviewList = ({ attractionId }) => {
         <Alert 
           onClose={handleCloseNotification} 
           severity={isApiError ? "error" : "success"}
-          sx={{ 
-            width: '100%', mt: 10,
-            bgcolor: 'rgba(0, 0, 0, 0.8)', 
-            color: 'white',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
-            '& .MuiAlert-icon': { 
-              color: isApiError ? '#f44336' : '#4caf50'
-            },
-            '& .MuiSvgIcon-root': { 
-              color: 'white'
-            },
-            fontSize: '0.95rem',
-            py: 1.5
-          }}
+          sx={{ width: '100%', mt: 10, bgcolor: 'rgba(0, 0, 0, 0.8)', color: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', '& .MuiAlert-icon': { color: isApiError ? '#f44336' : '#4caf50' }, '& .MuiSvgIcon-root': { color: 'white' }, fontSize: '0.95rem', py: 1.5 }}
         >
           {notificationMessage}
         </Alert>
       </Snackbar>
 
-      <Snackbar
-        open={showLoginAlert}
-        autoHideDuration={3000}
-        onClose={() => setShowLoginAlert(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert
-          onClose={() => setShowLoginAlert(false)}
-          severity="warning"
-          sx={{
-            width: '100%',
-            bgcolor: '#ffeee1',
-            color: 'black',
-            mt: 10,
-            '& .MuiAlert-icon': { color: 'warning.main' }
-          }}
-        >
+      <Snackbar open={showLoginAlert} autoHideDuration={3000} onClose={() => setShowLoginAlert(false)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={() => setShowLoginAlert(false)} severity="warning" variant="filled" sx={{ width: '100%', bgcolor: '#ffeee1', color: 'black', mt: 10, '& .MuiAlert-icon': { color: 'warning.main' } }}>
           Vui lòng đăng nhập để thêm đánh giá
         </Alert>
       </Snackbar>

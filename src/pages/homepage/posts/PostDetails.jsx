@@ -366,6 +366,8 @@ export default function PostDetails() {
                                     onClick={handleOpenStorage}
                                     sx={{
                                         textDecoration: 'underline',
+                                        fontWeight: 'bold',
+                                        fontStyle: 'italic',
                                         cursor: 'pointer',
                                         '&:hover': {
                                             opacity: 0.8

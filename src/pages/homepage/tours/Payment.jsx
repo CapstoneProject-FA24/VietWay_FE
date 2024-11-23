@@ -334,7 +334,7 @@ const PayBooking = () => {
       </ContentContainer>
       <Footer />
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={3000} open={openSnackbar} onClose={handleCloseSnackbar}>
-        <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
           {snackbarMessage || 'Vui lòng chọn phương thức thanh toán'}
         </MuiAlert>
       </Snackbar>

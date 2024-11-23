@@ -328,11 +328,13 @@ export default function RegisterWithGoogle() {
                     </Box>
                 </Grid>
             </Grid>
-            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+            <Portal>
+                <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ zIndex: (theme) => theme.zIndex.tooltip + 1000, position: 'fixed' }}>
+                    <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%', zIndex: (theme) => theme.zIndex.tooltip + 1000 }}>
+                        {snackbar.message}
+                    </Alert>
+                </Snackbar> 
+            </Portal>
         </>
     );
 }

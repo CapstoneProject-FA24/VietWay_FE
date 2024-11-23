@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider, Snackbar, Alert } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider, Snackbar, Alert, Portal } from '@mui/material';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
@@ -126,16 +126,29 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
           loading={cancelLoading}
           tour={tour}
         />
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+        <Portal>
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right'}}
+            sx={{ 
+              zIndex: (theme) => theme.zIndex.tooltip + 1000,
+              position: 'fixed'
+            }}
+          >
+            <Alert 
+              onClose={handleSnackbarClose} 
+              severity={snackbar.severity} 
+              variant="filled"
+              sx={{ 
+                zIndex: (theme) => theme.zIndex.tooltip + 1000 
+              }}
+            >
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
+        </Portal>
       </Card>
     </Box>
   );

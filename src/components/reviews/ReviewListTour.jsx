@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Typography, Chip, Menu, MenuItem, CircularProgress, Grid, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Snackbar, Alert } from '@mui/material';
+import { Box, Button, Typography, Chip, Menu, MenuItem, CircularProgress, Grid} from '@mui/material';
 import ReviewCard from '@components/reviews/ReviewCard';
 import ReviewBreakdown from '@components/reviews/ReviewBreakdown';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { fetchTourReviews } from '@services/TourTemplateService';
 import ReviewInput from '@components/reviews/ReviewInput';
-import { getCookie } from '@services/AuthenService';
 
 const ReviewListTour = ({ tourTemplateId }) => {
   const [reviews, setReviews] = useState([]);
@@ -17,9 +16,7 @@ const ReviewListTour = ({ tourTemplateId }) => {
   const [pageSize] = useState(100);
   const [pageIndex, setPageIndex] = useState(1);
   const [showReviewInput, setShowReviewInput] = useState(false);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [reviewData, setReviewData] = useState({ rating: 0, content: '' });
-  const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [existingReview, setExistingReview] = useState(null);
 
   const fetchReviews = async () => {
@@ -74,16 +71,6 @@ const ReviewListTour = ({ tourTemplateId }) => {
 
   const closeAdditionalReviews = () => {
     setVisibleReviews(3);
-  };
-
-  const handleCloseConfirmDialog = () => {
-    setOpenConfirmDialog(false);
-  };
-
-  const handleConfirmClose = () => {
-    setShowReviewInput(false);
-    setReviewData({ rating: 0, content: '' });
-    setOpenConfirmDialog(false);
   };
 
   const handleReviewDataChange = (data) => {
@@ -194,49 +181,6 @@ const ReviewListTour = ({ tourTemplateId }) => {
           )}
         </Grid>
       </Grid>
-
-      <Dialog
-        open={openConfirmDialog}
-        onClose={handleCloseConfirmDialog}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Xác nhận đóng đánh giá"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Bạn có chắc muốn đóng review này?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmDialog}>Hủy</Button>
-          <Button onClick={handleConfirmClose} autoFocus>
-            Đồng ý
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={showLoginAlert}
-        autoHideDuration={3000}
-        onClose={() => setShowLoginAlert(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert
-          onClose={() => setShowLoginAlert(false)}
-          severity="warning"
-          sx={{
-            width: '100%',
-            bgcolor: '#ffeee1',
-            color: 'black',
-            mt: 10,
-            '& .MuiAlert-icon': { color: 'warning.main' }
-          }}
-        >
-          Vui lòng đăng nhập để thêm đánh giá
-        </Alert>
-      </Snackbar>
     </>
   );
 };

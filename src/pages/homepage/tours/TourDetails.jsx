@@ -290,14 +290,7 @@ const TourDetails = () => {
                   availableTours.length > 0 ? (
                     <FormControl fullWidth sx={{ mb: 2 }}>
                       <InputLabel id="tour-select-label">Chọn ngày đi</InputLabel>
-                      <Select
-                        labelId="tour-select-label"
-                        id="tour-select"
-                        value={selectedTour}
-                        label="Chọn ngày đi"
-                        onChange={handleTourChange}
-                        inputRef={tourSelectRef}
-                      >
+                      <Select labelId="tour-select-label" id="tour-select" value={selectedTour} label="Chọn ngày đi" onChange={handleTourChange} inputRef={tourSelectRef}>
                         {availableTours.map((t) => (
                           <MenuItem key={t.id} value={t.id}>
                             {`${new Date(t.startDate).toLocaleDateString('vi-VN')} - ${formatPrice(t.price)}`}
@@ -391,24 +384,8 @@ const TourDetails = () => {
         <OtherTours pros={tour.provinces.map(province => province.provinceId.toString())} tourId={tour.tourTemplateId} />
       </Box>
       <Footer />
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={openSnackbar}
-        autoHideDuration={5000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} variant="filled" severity="error"
-          sx={{
-            width: '100%', mt: 10,
-            bgcolor: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            '& .MuiSvgIcon-root': {
-              color: 'white'
-            },
-            fontSize: '0.95rem',
-            py: 1.5
-          }}>
+      <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} variant="filled" severity="error" sx={{ width: '100%', mt: 10, bgcolor: 'rgba(0, 0, 0, 0.8)', color: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', '& .MuiSvgIcon-root': { color: 'white' }, fontSize: '0.95rem', py: 1.5 }}>
           {alertMessage}
         </Alert>
       </Snackbar>
