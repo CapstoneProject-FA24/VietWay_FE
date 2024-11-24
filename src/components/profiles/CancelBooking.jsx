@@ -80,7 +80,7 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
                             </Typography>
                             {tourInfo.refundPolicies.map((policy, index) => (
                                 <Typography key={index} variant="body2" sx={{ mb: 0.5 }}>
-                                    • Hủy trước {policy.cancelBefore} ngày: Hoàn {policy.refundPercent}% tổng tiền
+                                    • Hủy trước {policy.cancelBefore.toString()} ngày: Hoàn {policy.refundPercent}% tổng tiền
                                 </Typography>
                             ))}
                         </Box>
