@@ -58,7 +58,7 @@ const TableOfContents = ({ headings }) => (
     </Paper>
 );
 
-export default function PostDetail() {
+export default function EventDetail() {
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);

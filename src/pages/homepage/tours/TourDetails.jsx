@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar } from '@mui/material';
+import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar, CircularProgress } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQrcode, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
@@ -8,11 +8,13 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import '@styles/Homepage.css'
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
-import { fetchToursByTemplateId } from '@services/TourService';
+import { fetchToursByTemplateId, calculateEndDate } from '@services/TourService';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/tours/OtherTours';
-import FeedbackList from '@components/tours/FeedbackList';
+import ReviewListTour from '@components/reviews/ReviewListTour';
+import MediaShare from '@components/posts/MediaShare';
+import { getCookie } from '@services/AuthenService';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -53,7 +55,6 @@ const TourDetails = () => {
           };
         }));
 
-        // Set default selected month to the first available month
         if (months.length > 0) {
           setSelectedMonth(months[0]);
         }
@@ -74,12 +75,11 @@ const TourDetails = () => {
 
   useEffect(() => {
     if (tour && selectedMonth) {
-      const token = localStorage.getItem('token');
+      const token = getCookie('customerToken');
       setIsLoggedIn(!!token);
       const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
       setAvailableTours(filteredTours);
 
-      // Set default selected tour to the first available tour
       if (filteredTours.length > 0) {
         setSelectedTour(filteredTours[0].id);
       } else {
@@ -122,10 +122,27 @@ const TourDetails = () => {
     setOpenSnackbar(false);
   };
 
+  if (loading) {
+    return (
+      <>
+        <Helmet> <title>Chi tiết tour</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+      </>
+    );
+  }
+
   if (!tour) {
-    return <Typography sx={{ width: '100vw', textAlign: 'center' }}>
-      <img src="/loading.gif" alt="Loading..." />
-    </Typography>;
+    return (
+      <>
+        <Header />
+        <Helmet>
+          <title>Không tìm thấy tour</title>
+        </Helmet>
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h4">Không tìm thấy thông tin tour</Typography>
+        </Box>
+      </>
+    );
   }
 
   const getMinTourPrice = () => {
@@ -140,9 +157,9 @@ const TourDetails = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} ref={pageTopRef}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '99.6%' }} ref={pageTopRef}>
       <Helmet>
-        <title>Chi tiết tour mẫu</title>
+        <title>{tour.tourName}</title>
       </Helmet>
       <Header />
       <Box sx={{ p: 3, flexGrow: 1, mt: 4 }}>
@@ -152,11 +169,12 @@ const TourDetails = () => {
           <strong> {tour.tourName}</strong>
         </Typography>
         <Typography gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'grey', fontSize: '1.15rem' }}>
-          {tour.provinces.map(province => province.provinceName).join(' - ')}
+          {tour.provinces.map(province => province.name).join(' - ')}
         </Typography>
         <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
           {tour.tourName}
         </Typography>
+        <MediaShare tourName={tour.tourName} />
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', minWidth: '100%', height: '450px', mb: 3 }}>
@@ -242,10 +260,12 @@ const TourDetails = () => {
                 </Box>
               ))}
             </Box>
-            <Box sx={{ mb: 5 }}>
+            {/* <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Chính sách</Typography>
-              <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>{tour.policy}</Typography>
-            </Box>
+              {tour.tour.refundPolicies.map((policy, index) => (
+                <Typography key={index} paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>Hủy trước {policy.cancelBefore}, hoàn {policy.refundPercent}</Typography>
+              ))}
+            </Box> */}
             <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Lưu ý</Typography>
               <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>{tour.note}</Typography>
@@ -270,14 +290,7 @@ const TourDetails = () => {
                   availableTours.length > 0 ? (
                     <FormControl fullWidth sx={{ mb: 2 }}>
                       <InputLabel id="tour-select-label">Chọn ngày đi</InputLabel>
-                      <Select
-                        labelId="tour-select-label"
-                        id="tour-select"
-                        value={selectedTour}
-                        label="Chọn ngày đi"
-                        onChange={handleTourChange}
-                        inputRef={tourSelectRef}
-                      >
+                      <Select labelId="tour-select-label" id="tour-select" value={selectedTour} label="Chọn ngày đi" onChange={handleTourChange} inputRef={tourSelectRef}>
                         {availableTours.map((t) => (
                           <MenuItem key={t.id} value={t.id}>
                             {`${new Date(t.startDate).toLocaleDateString('vi-VN')} - ${formatPrice(t.price)}`}
@@ -312,7 +325,16 @@ const TourDetails = () => {
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
                 <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '10px', color: '#3572EF' }} />
                 <Typography sx={{ color: '#05073C' }}>
-                  Kết thúc ngày: {availableTours.find(t => t.id === selectedTour)?.endDate ? new Date(availableTours.find(t => t.id === selectedTour).endDate).toLocaleDateString('vi-VN') : ''}
+                  Kết thúc ngày: {
+                    (() => {
+                      const selectedTourData = availableTours.find(t => t.id === selectedTour);
+                      if (selectedTourData) {
+                        const endDate = calculateEndDate(selectedTourData.startDate, { durationName: tour.duration });
+                        return endDate ? endDate.toLocaleDateString('vi-VN') : '';
+                      }
+                      return '';
+                    })()
+                  }
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
@@ -349,17 +371,21 @@ const TourDetails = () => {
         </Grid>
       </Box>
       <Box sx={{ width: '100%' }}>
-        <FeedbackList tourTemplateId={tour.tourTemplateId} />
+        <Box>
+          <Typography variant="h4" sx={{ mb: 2, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>
+            Đánh giá từ khách hàng
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={12}>
+              <ReviewListTour tourTemplateId={tour.tourTemplateId} />
+            </Grid>
+          </Grid>
+        </Box>
         <OtherTours pros={tour.provinces.map(province => province.provinceId.toString())} tourId={tour.tourTemplateId} />
       </Box>
       <Footer />
-      <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        open={openSnackbar}
-        autoHideDuration={5000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} variant="filled" severity="warning" sx={{ width: '100%' }}>
+      <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} variant="filled" severity="error" sx={{ width: '100%', mt: 10, bgcolor: 'rgba(0, 0, 0, 0.8)', color: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', '& .MuiSvgIcon-root': { color: 'white' }, fontSize: '0.95rem', py: 1.5 }}>
           {alertMessage}
         </Alert>
       </Snackbar>

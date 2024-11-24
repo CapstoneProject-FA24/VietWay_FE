@@ -32,9 +32,9 @@ const TourCard = ({ tour }) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', width: '47%', p: 1.5 }}>
         <Chip  label={tour.tourCategory}  size="small" 
           sx={{ alignSelf: 'flex-start', mb: 1, fontSize: '1rem', pt: 1.8, pb: 1.8, pl: 0.5, pr: 0.5 }} />
-        <Typography variant="h5"  component={Link}  to={`/tour-du-lich/${tour.tourTemplateId}`} gutterBottom 
+        <Typography variant="h5"  component={Link}  to={`/tour-du-lich/${tour.tourTemplateId}`} 
           sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', lineHeight: 1.2, height: '2.4em' }}>
+            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', lineHeight: 1.2, height: '5rem' }}>
           {tour.tourName}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -43,7 +43,7 @@ const TourCard = ({ tour }) => {
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 1  }}>
           <MapOutlinedIcon sx={{ marginRight: '8px' }} />
-          Điểm đến: {tour.provinces.join(', ')}
+          Điểm đến: {tour.provinces.join(' - ')}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <CalendarMonthOutlinedIcon sx={{ marginRight: '8px' }} />

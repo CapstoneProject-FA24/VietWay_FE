@@ -3,7 +3,7 @@ import { Box, Container, Grid, Typography, Link, TextField, Button } from '@mui/
 
 const Footer = () => {
   return (
-    <Box component="footer" sx={{ bgcolor: '#f2fbff', py: 6, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)', marginLeft: '-60px', marginRight: '-60px', textAlign: 'left', mt: 10, mb: -14 }}>
+    <Box component="footer" sx={{ bgcolor: '#f2fbff', py: 6, boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.3)', marginLeft: '-65px', marginRight: '-65px', textAlign: 'left', mt: 10, mb: -14 }}>
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           <Grid item xs={12} sm={6} md={4}>

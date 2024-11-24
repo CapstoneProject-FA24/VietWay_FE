@@ -1,4 +1,4 @@
-import baseURL from '@api/BaseURL'
+const baseURL = import.meta.env.VITE_API_URL;
 import axios from 'axios';
 
 export const fetchProvinces = async () => {
@@ -6,7 +6,7 @@ export const fetchProvinces = async () => {
         const response = await axios.get(`${baseURL}/api/provinces`);
         const provinces = response.data.data.map(province => ({
             provinceId: province.provinceId,
-            provinceName: province.provinceName,
+            provinceName: province.name,
             imageURL: province.imageUrl
         }));
         return provinces;
@@ -49,6 +49,21 @@ export const fetchProvinceWithCountDetails = async (params) => {
         };
     } catch (error) {
         console.error('Error fetching provinces:', error);
+        throw error;
+    }
+};
+
+export const fetchProvinceInfo = async (provinceId) => {
+    try {
+        const response = await axios.get(`${baseURL}/api/provinces/${provinceId}/images/?imageCount=20`);
+        const provinceInfo = response.data.data;
+        return {
+            provinceId: provinceInfo.provinceId,
+            provinceName: provinceInfo.name,
+            imageUrls: provinceInfo.images.map(image => image.url)
+        };
+    } catch (error) {
+        console.error('Error fetching province info:', error);
         throw error;
     }
 };

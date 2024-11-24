@@ -4,35 +4,68 @@ import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { styled, alpha } from '@mui/material/styles';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
-/* const Search = styled('div')(({ theme }) => ({
-  position: 'relative', borderRadius: theme.shape.borderRadius * 3,
-  backgroundColor: '#CAECFF',
-  '&:hover': { backgroundColor: alpha('#CAECFF', 0.9)},
-  marginRight: theme.spacing(2), marginLeft: 0, width: '100%',
-  [theme.breakpoints.up('sm')]: { marginLeft: theme.spacing(3), width: '100'},
-  [theme.breakpoints.up('md')]: { width: '100%' },
-  display: 'flex', alignItems: 'center', height: '36px', marginTop: '10px',
-})); */
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  width: '100%',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 2),
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
-  },
-}));
+import { getCookie, removeCookie } from '@services/AuthenService';
 
 const StyledButton = styled(Button)(({ theme }) => ({
   fontFamily: 'Inter, sans-serif',
   fontSize: '16px',
   marginTop: '10px',
   marginLeft: '3rem',
+}));
+
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  '& .MuiPaper-root': {
+    borderRadius: 12,
+    marginTop: 8,
+    minWidth: 160,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+    '& .MuiMenu-list': {
+      padding: '8px',
+    },
+    '& .MuiMenuItem-root': {
+      fontSize: '16px',
+      padding: '12px 16px',
+      borderRadius: 8,
+      '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.04),
+      },
+    },
+    '&::before': {
+      content: '""',
+      display: 'block',
+      position: 'absolute',
+      top: 0,
+      right: 20,
+      width: 10,
+      height: 10,
+      backgroundColor: theme.palette.background.paper,
+      transform: 'translateY(-50%) rotate(45deg)',
+      zIndex: 0,
+    },
+  },
+}));
+
+const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
+  fontSize: '16px',
+  fontFamily: 'Inter, sans-serif',
+  color: theme.palette.text.primary,
+  '&:not(:last-child)': {
+    marginBottom: '4px',
+  },
 }));
 
 const Header = () => {
@@ -43,8 +76,8 @@ const Header = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
+    const customerToken = getCookie('customerToken');
+    setIsLoggedIn(!!customerToken);
 
     const handleScroll = () => {
       setScrollY(window.pageYOffset);
@@ -66,7 +99,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    removeCookie('customerToken');
     setIsLoggedIn(false);
     handleClose();
     navigate('/trang-chu');
@@ -75,6 +108,11 @@ const Header = () => {
   const handleAccount = () => {
     handleClose();
     navigate('/tai-khoan');
+  };
+
+  const handleSaved = () => {
+    handleClose();
+    navigate('/luu-tru');
   };
 
   return (
@@ -89,18 +127,18 @@ const Header = () => {
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Typography variant="h6" component={Link} to="/trang-chu" sx={{ color: 'text.primary' }}>
-          <img src={location.pathname === '/trang-chu' && scrollY === 0 ? "/logo2.png" : "/logo2_color.png"} alt="Logo" style={{ height: '55px', marginTop: '15px' }} />
+          <img src={location.pathname === '/trang-chu' && scrollY === 0 ? "/logo2.png" : "/logo2_color.png"} alt="Logo" style={{ height: '55px', marginTop: '10px' }} />
         </Typography>    
-        <Box sx={{ display: 'flex', ml: 5 }}>
+        <Box sx={{ display: 'flex', ml: 0.5 }}>
           <StyledButton component={Link} to="/trang-chu" sx={{ textTransform: 'none',
-              fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal', ml: 2, mr: 2,
+              fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal', mr: 1.5,
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black' }}>
             Trang chủ
           </StyledButton>
           <StyledButton
             color="inherit" component={Link} to="/tinh-thanh"
             sx={{
-              textTransform: 'none', ml: 2, mr: 2,
+              textTransform: 'none', ml: 1.5, mr: 1.5,
               fontWeight: location.pathname === '/tinh-thanh' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
@@ -110,7 +148,7 @@ const Header = () => {
           <StyledButton
             color="inherit" component={Link} to="/diem-tham-quan"
             sx={{
-              textTransform: 'none', ml: 2, mr: 2,
+              textTransform: 'none', ml: 1.5, mr: 1.5,
               fontWeight: location.pathname === '/diem-tham-quan' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
@@ -120,7 +158,7 @@ const Header = () => {
           <StyledButton
             color="inherit" component={Link} to="/tour-du-lich"
             sx={{
-              textTransform: 'none', ml: 2, mr: 2,
+              textTransform: 'none', ml: 1.5, mr: 1.5,
               fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
@@ -129,43 +167,76 @@ const Header = () => {
           </StyledButton>
           <StyledButton
             color="inherit" component={Link} to="/bai-viet"
-            sx={{ textTransform: 'none', ml: 2, mr: 2,
+            sx={{ textTransform: 'none', ml: 1.5, mr: 1.5,
               fontWeight: location.pathname === '/bai-viet' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
           >
             Bài viết
           </StyledButton>
-          <StyledButton
+          {/* <StyledButton
             color="inherit" component={Link} to="/su-kien"
-            sx={{ textTransform: 'none', ml: 2, mr: 2,
+            sx={{ textTransform: 'none', ml: 1.5, mr: 1.5,
               fontWeight: location.pathname === '/su-kien' ? 'bold' : 'normal', 
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
           >
-            Sự kiện
-          </StyledButton>
+            Tin tức sự kiện
+          </StyledButton> */}
         </Box>
         
-        <Box sx={{ display: 'flex', ml: 1 }}>
+        <Box sx={{ display: 'flex' }}>
           {isLoggedIn ? (
             <>
               <IconButton
-                size="large" aria-label="account of current user" aria-controls="menu-appbar"
-                aria-haspopup="true" onClick={handleMenu}  sx={{ border: location.pathname === '/trang-chu' && scrollY === 0  ? '3px solid white' : '3px solid grey' }}
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                sx={{
+                  border: location.pathname === '/trang-chu' && scrollY === 0 
+                    ? '2px solid white' 
+                    : '2px solid #666',
+                  padding: '8px',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  },
+                }}
               >
-                <AccountCircleIcon sx={{ color: location.pathname === '/trang-chu' && scrollY === 0  ? "white" : "grey" }}/>
+                <AccountCircleIcon 
+                  sx={{ 
+                    color: location.pathname === '/trang-chu' && scrollY === 0 
+                      ? "white" 
+                      : "#666",
+                    fontSize: 28
+                  }}
+                />
               </IconButton>
-              <Menu
-                id="menu-appbar" anchorEl={anchorEl}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }} keepMounted
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              <StyledMenu
+                id="menu-appbar"
+                anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
+                onClick={handleClose}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                  },
+                }}
               >
-                <MenuItem onClick={handleAccount}>Tài khoản</MenuItem>
-                <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
-              </Menu>
+                <StyledMenuItem onClick={handleAccount}>
+                  Tài khoản
+                </StyledMenuItem>
+                <StyledMenuItem onClick={handleSaved}>
+                  Lưu trữ
+                </StyledMenuItem>
+                <StyledMenuItem onClick={handleLogout}>
+                  Đăng xuất
+                </StyledMenuItem>
+              </StyledMenu>
             </>
           ) : (
             <>

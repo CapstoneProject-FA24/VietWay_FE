@@ -1,5 +1,5 @@
 import axios from 'axios';
-import baseURL from '@api/BaseURL';
+const baseURL = import.meta.env.VITE_API_URL;
 
 const getStatusText = (status) => {
     switch (status) {
@@ -74,7 +74,6 @@ export const fetchTourTemplates = async (params) => {
 export const fetchTourTemplateById = async (id) => {
     try {
         const response = await axios.get(`${baseURL}/api/tour-templates/${id}`);
-        console.log(response);
         return {
             tourTemplateId: response.data.data.tourTemplateId,
             code: response.data.data.code,
@@ -82,7 +81,7 @@ export const fetchTourTemplateById = async (id) => {
             description: response.data.data.description,
             duration: response.data.data.duration.durationName,
             tourCategoryId: response.data.data.tourCategory.tourCategoryId,
-            tourCategoryName: response.data.data.tourCategory.tourCategoryName,
+            tourCategoryName: response.data.data.tourCategory.name,
             policy: response.data.data.policy,
             note: response.data.data.note,
             status: response.data.data.status,
@@ -114,10 +113,51 @@ export const fetchToursByAttractionId = async (attractionId, previewCount) => {
             tourCategory: item.tourCategory,
             provinces: item.provinces,
             imageUrl: item.imageUrl,
+            price: item.price
         }));
         return templates;
     } catch (error) {
         console.error('Error fetching tour templates by attraction ID:', error);
+        throw error;
+    }
+};
+
+export const fetchTourReviews = async (params) => {
+    try {
+        const queryParams = new URLSearchParams();
+        
+        if (params.ratingValues && params.ratingValues.length > 0) {
+            params.ratingValues.forEach(value => queryParams.append('ratingValue', value));
+        }
+        
+        if (params.hasReviewContent !== undefined) {
+            queryParams.append('hasReviewContent', params.hasReviewContent);
+        }
+        
+        if (params.pageSize) {
+            queryParams.append('pageSize', params.pageSize);
+        }
+        
+        if (params.pageIndex) {
+            queryParams.append('pageIndex', params.pageIndex);
+        }
+        
+        const response = await axios.get(`${baseURL}/api/tour-templates/${params.tourTemplateId}/reviews?${queryParams.toString()}`);
+        const data = response.data.data;
+        return {
+            total: data.total,
+            pageSize: data.pageSize,
+            pageIndex: data.pageIndex,
+            items: data.items.map(item => ({
+                reviewId: item.reviewId,
+                rating: item.rating,
+                review: item.review,
+                createdAt: item.createdAt,
+                reviewer: item.reviewer
+            }))
+        };
+    } catch (error) {
+        console.error('Error fetching tour reviews:', error);
         throw error;
     }
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -8,37 +8,24 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchBookingData } from "@services/BookingService";
+import { fetchBookingData, fetchBookingPayments, cancelBooking } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
+import { getCookie } from "@services/AuthenService"; getCookie
+import { getPreviousPage } from "@utils/NavigationHistory";
+import dayjs from "dayjs";
+import { Helmet } from 'react-helmet';
+import { BookingStatus } from '@hooks/Statuses';
+import CancelBooking from '@components/profiles/CancelBooking';
+import FeedbackPopup from '@components/profiles/FeedbackPopup';
+import { VnPayCode } from "@hooks/VnPayCode";
 
-// Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: "100%",
   margin: "0 auto",
   boxSizing: "border-box",
 }));
-
-const StepBox = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: theme.spacing(4),
-}));
-
-const StepItem = styled(Typography)(({ theme, active }) => ({
-  margin: "0 10px",
-  color: active ? "#3572EF" : "#999",
-  fontWeight: "bold",
-  fontSize: 30,
-}));
-
-const ArrowIcon = styled("img")({
-  width: "30px",
-  height: "30px",
-  margin: "0 15px",
-});
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   boxSizing: "border-box",
@@ -78,20 +65,34 @@ const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
   },
 }));
 
+const ActionButton = styled(Button)(({ theme }) => ({
+  marginBottom: theme.spacing(1),
+  width: '100%',
+  height: '40px',
+  borderRadius: '8px'
+}));
+
 const ProfileBookingDetail = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [payments, setPayments] = useState([]);
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-    }
+    const customerToken = getCookie('customerToken');
+    if (!customerToken) { navigate('/'); }
   }, []);
 
   const handlePayment = async () => {
@@ -107,12 +108,29 @@ const ProfileBookingDetail = () => {
     const fetchData = async () => {
       try {
         const data = await fetchBookingData(id);
+        const paymentData = await fetchBookingPayments(id);
+        setPayments(paymentData.items);
+
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
-        if (vnpCode === "00") {
-          setOpenSnackbar(true);
+        
+        // Handle VNPay response
+        if (vnpCode) {
+          const message = VnPayCode[vnpCode] || 'Giao dịch thất bại';
+          setSnackbar({
+            open: true,
+            message: message,
+            severity: vnpCode === '00' ? 'success' : 'error'
+          });
+          
+          // Refresh data after successful payment
+          if (vnpCode === '00') {
+            const updatedData = await fetchBookingData(id);
+            setBookingData(updatedData);
+          }
         }
+
         if (vnpAmount) {
           const paidAmount = parseInt(vnpAmount) / 100;
           data.paymentMethod = "VNPay";
@@ -122,6 +140,11 @@ const ProfileBookingDetail = () => {
         setBookingData(data);
       } catch (error) {
         console.error("Error fetching booking details:", error);
+        setSnackbar({
+          open: true,
+          message: 'Có lỗi xảy ra khi tải thông tin đặt tour',
+          severity: 'error'
+        });
       } finally {
         setLoading(false);
       }
@@ -137,13 +160,115 @@ const ProfileBookingDetail = () => {
     setOpenSnackbar(false);
   };
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  const handleCancelOpen = () => setIsCancelOpen(true);
+  const handleCancelClose = () => setIsCancelOpen(false);
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
+
+  const handleCancelConfirm = async (reason) => {
+    try {
+      setCancelLoading(true);
+      await cancelBooking(bookingData.bookingId, reason);
+      handleCancelClose();
+      setSnackbar({
+        open: true,
+        message: 'Hủy đặt tour thành công',
+        severity: 'success'
+      });
+      // Refresh the booking data after cancellation
+      const updatedData = await fetchBookingData(id);
+      setBookingData(updatedData);
+    } catch (error) {
+      console.error('Failed to cancel booking:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const handleFeedbackOpen = () => setIsFeedbackOpen(true);
+  const handleFeedbackClose = () => setIsFeedbackOpen(false);
+
+  const renderActionButtons = () => {
+    if (!bookingData) return null;
+
+    const buttonContainer = {
+      display: 'flex',
+      flexDirection: 'column',
+      mt: 2,
+      px: 2,
+      pb: 2
+    };
+
+    switch (bookingData.status) {
+      case BookingStatus.Completed:
+        return (
+          <Box sx={buttonContainer}>
+            <ActionButton
+              variant="contained"
+              color="primary"
+              component={Link}
+              to={`/feedback/${bookingData.tourId}`}
+            >
+              Đánh giá
+            </ActionButton>
+            <ActionButton
+              variant="outlined"
+              color="primary"
+              onClick={handleFeedbackOpen}
+            >
+              Đánh giá
+            </ActionButton>
+          </Box>
+        );
+      case BookingStatus.Confirmed:
+        return (
+          <Box sx={buttonContainer}>
+            <ActionButton
+              variant="outlined"
+              color="primary"
+              onClick={handleCancelOpen}
+            >
+              Hủy Đặt
+            </ActionButton>
+          </Box>
+        );
+      case BookingStatus.Pending:
+        return (
+          <Box sx={buttonContainer}>
+            <ActionButton
+              variant="contained"
+              color="error"
+              onClick={handlePayment}
+            >
+              Thanh Toán
+            </ActionButton>
+            <ActionButton
+              variant="outlined"
+              color="primary"
+              onClick={handleCancelOpen}
+            >
+              Hủy Đặt
+            </ActionButton>
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Thông tin booking</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -151,13 +276,25 @@ const ProfileBookingDetail = () => {
   if (!bookingData) return null;
 
   return (
-    <Box>
+    <Box sx={{ width: '89vw' }}>
+      <Helmet> <title>Thông tin booking</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Link to={`/trang-chu`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
-            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại trang chủ
-          </Link>
+          {/* <div
+            onClick={handleGoBack}
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 16,
+              marginTop: 10,
+              cursor: "pointer"
+            }}
+          >
+            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
+          </div> */}
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             THÔNG TIN BOOKING
           </Typography>
@@ -194,11 +331,11 @@ const ProfileBookingDetail = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Ngày đặt tour:</Typography>
-                  <Typography>{new Date(bookingData.createdOn).toLocaleDateString()}</Typography>
+                  <Typography>{dayjs(bookingData.createdOn).format('DD/MM/YYYY')}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
-                  <Typography>{bookingData.totalPrice.toLocaleString()} đ</Typography>
+                  <Typography>{bookingData?.totalPrice?.toLocaleString() || 0} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Hình thức thanh toán:</Typography>
@@ -212,7 +349,7 @@ const ProfileBookingDetail = () => {
                   <SummaryItem>
                     <Typography>Thời hạn thanh toán:</Typography>
                     <Typography>
-                      {new Date(new Date(bookingData.createdOn).getTime() + 24 * 60 * 60 * 1000).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} (Theo giờ Việt Nam)
+                      {dayjs(bookingData.createdOn).add(24, 'hour').format('DD/MM/YYYY HH:mm')} (Theo giờ Việt Nam)
                     </Typography>
                   </SummaryItem>
                 )}
@@ -244,11 +381,43 @@ const ProfileBookingDetail = () => {
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
+                      <Typography>{dayjs(participant.dateOfBirth).format('DD/MM/YYYY')}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
                 ))}
+              </SummaryBox>
+              <SummaryBox>
+                <SummaryTitle variant="h6">LỊCH SỬ THANH TOÁN</SummaryTitle>
+                {payments.length > 0 ? (
+                  payments.map((payment, index) => (
+                    <Box key={index}>
+                      <SummaryItem>
+                        <Typography>Số tiền:</Typography>
+                        <Typography>{payment?.amount?.toLocaleString()} đ</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Thời gian:</Typography>
+                        <Typography>{dayjs(payment.payTime).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Ngân hàng:</Typography>
+                        <Typography>{payment.bankCode || 'VNPay'}</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Trạng thái:</Typography>
+                        <Typography sx={{ color: payment.status === 1 ? 'success.main' : 'error.main' }}>
+                          {payment.status === 1 ? 'Thành công' : 'Thất bại'}
+                        </Typography>
+                      </SummaryItem>
+                      {index < payments.length - 1 && <Divider sx={{ my: 2 }} />}
+                    </Box>
+                  ))
+                ) : (
+                  <Typography variant="body1" sx={{ textAlign: 'center', py: 2 }}>
+                    Chưa có lịch sử thanh toán
+                  </Typography>
+                )}
               </SummaryBox>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -268,15 +437,33 @@ const ProfileBookingDetail = () => {
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString()}
+                  {dayjs(bookingData.startDate).format('DD/MM/YYYY')}
                 </Typography>
-                <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                {/* <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {bookingData.endDate.toLocaleDateString()}
-                </Typography>
+                  {dayjs(bookingData.endDate).format('DD/MM/YYYY')}
+                </Typography> */}
                 <TotalPrice variant="h6">
-                  Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
+                  Tổng tiền: {bookingData?.totalPrice?.toLocaleString() || 0} đ
                 </TotalPrice>
+                {bookingData.status === 2 && (
+                  <ActionButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleFeedbackOpen}
+                  >
+                    Đánh giá
+                  </ActionButton>
+                )}
+                {bookingData.status === 1 && (
+                  <ActionButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleCancelOpen}
+                  >
+                    Hủy Đặt
+                  </ActionButton>
+                )}
                 {bookingData.status === 0 && (
                   <Box sx={{ mt: 5 }}>
                     <Typography>Chọn hình thức thanh toán</Typography>
@@ -296,9 +483,16 @@ const ProfileBookingDetail = () => {
                         <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
                       </Box>
                     </Box>
-                    <Button onClick={handlePayment} variant="contained" fullWidth>
+                    <ActionButton onClick={handlePayment} variant="contained" fullWidth>
                       Thanh toán ngay
-                    </Button>
+                    </ActionButton>
+                    <ActionButton
+                      variant="outlined"
+                      color="primary"
+                      onClick={handleCancelOpen}
+                    >
+                      Hủy Đặt
+                    </ActionButton>
                   </Box>
                 )}
               </SummaryBox>
@@ -311,23 +505,29 @@ const ProfileBookingDetail = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
-        <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{
-            width: '500px', fontSize: '1.5rem', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
-          }}
-          iconMapping={{
-            success: <CheckCircleIcon fontSize="large" />
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
-            Thanh toán thành công!
-          </Box>
-        </MuiAlert>
+      <CancelBooking
+        open={isCancelOpen}
+        onClose={handleCancelClose}
+        onConfirm={handleCancelConfirm}
+        loading={cancelLoading}
+        tour={bookingData}
+      />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} variant="filled">
+          {snackbar.message}
+        </Alert>
       </Snackbar>
+      {isFeedbackOpen && (
+        <FeedbackPopup 
+          onClose={handleFeedbackClose} 
+          bookingId={bookingData.bookingId} 
+        />
+      )}
     </Box>
   );
 };

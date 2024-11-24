@@ -1,11 +1,11 @@
 import axios from 'axios';
-import baseURL from '@api/BaseURL'
+const baseURL = import.meta.env.VITE_API_URL;
 
 export const fetchAttractionType = async () => {
     try {
         const response = await axios.get(`${baseURL}/api/attraction-types`);
         const attractionTypes = response.data.data.map(item => ({
-            attractionTypeId: item.tourTemplateId,
+            attractionTypeId: item.attractionCategoryId,
             name: item.name,
             description: item.description,
         }));

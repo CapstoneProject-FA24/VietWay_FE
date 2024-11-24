@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Rating, TextField, Button, IconButton, styled, Box, Divider } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Rating, TextField, Button, IconButton, styled, Box, Divider, CircularProgress } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
+import Checkbox from '@mui/material/Checkbox';
+import { submitBookingReview, getBookingReview } from '@services/BookingService';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -50,20 +52,47 @@ const StyledRating = styled(Rating)(({ theme }) => ({
   },
 }));
 
-const FeedbackPopup = ({ onClose, id }) => {
+const FeedbackPopup = ({ onClose, bookingId }) => {
+  const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [existingReview, setExistingReview] = useState(null);
 
-  const handleSubmit = () => {
-    console.log('Tour ID:', id);
-    console.log('Rating:', rating);
-    console.log('Feedback:', feedback);
-    onClose();
+  useEffect(() => {
+    const fetchReview = async () => {
+      try {
+        const response = await getBookingReview(bookingId);
+        if (response.data) {
+          setExistingReview(response.data);
+          setRating(response.data.rating);
+          setFeedback(response.data.review);
+        }
+      } catch (error) {
+        console.error('Error fetching review:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReview();
+  }, [bookingId]);
+
+  const handleSubmit = async () => {
+    try {
+      setSubmitting(true);
+      await submitBookingReview(bookingId, rating, feedback, isPublic);
+      onClose();
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
-    if (rating > 0 || feedback.trim() !== '') {
+    if (!existingReview && (rating > 0 || feedback.trim() !== '')) {
       setConfirmOpen(true);
     } else {
       onClose();
@@ -95,74 +124,79 @@ const FeedbackPopup = ({ onClose, id }) => {
       <StyledDialog onClose={handleClose} open={true} maxWidth="sm" fullWidth>
         <DialogTitle>
           <Title variant="h6">Đánh giá tour</Title>
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
+          <IconButton aria-label="close" onClick={handleClose} sx={{ position: 'absolute', right: 8, top: 8, color: (theme) => theme.palette.grey[500] }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <Subtitle color="primary" gutterBottom>
-            Cảm ơn bạn đã chọn đặt tour trên Vietway
-          </Subtitle>
-          <Divider sx={{ my: 2 }} />
-          <Typography gutterBottom align="center">Chuyến đi của bạn như thế nào?</Typography>
-          <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
-            <StyledRating
-              name="simple-controlled"
-              value={rating}
-              onChange={(event, newValue) => {
-                setRating(newValue);
-              }}
-              size="large"
-              emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-            />
-          </Box>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="feedback"
-            label="Chia sẻ những ý kiến chi tiết về trải nghiệm của bạn"
-            type="text"
-            fullWidth
-            variant="outlined"
-            multiline
-            rows={4}
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-          />
-          <ContactInfo sx={{ color: (theme) => theme.palette.primary.main }}>
-            Liên hệ hotline <strong>1900 123 456</strong> hoặc <strong>emailsupport@vietwaytour.com</strong>
-            <br />
-            để được hỗ trợ thêm
-          </ContactInfo>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              <Subtitle color="primary" gutterBottom>
+                Cảm ơn bạn đã chọn đặt tour trên Vietway
+              </Subtitle>
+              <Divider sx={{ my: 2 }} />
+              <Typography gutterBottom align="center">Chuyến đi của bạn như thế nào?</Typography>
+              <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
+                <StyledRating name="simple-controlled" value={rating} onChange={(event, newValue) => { setRating(newValue); }} size="large" emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />} />
+              </Box>
+              <TextField autoFocus margin="dense" id="feedback" 
+              label="Chia sẻ những ý kiến chi tiết về trải nghiệm của bạn" type="text" 
+              fullWidth variant="outlined" multiline rows={4} value={feedback} 
+              onChange={(e) => setFeedback(e.target.value)} />
+              <ContactInfo sx={{ color: (theme) => theme.palette.primary.main }}>
+                Liên hệ hotline <strong>1900 123 456</strong> hoặc <strong>emailsupport@vietwaytour.com</strong>
+                <br />
+                để được hỗ trợ thêm
+              </ContactInfo>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
+                <Checkbox
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                  inputProps={{ 'aria-label': 'Công khai đánh giá' }}
+                />
+                <Typography>
+                  Công khai đánh giá của tôi
+                </Typography>
+              </Box>
+            </>
+          )}
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center' }}>
-          <Button onClick={handleClose} variant="outlined" sx={{ width: '120px' }}>
-            Hủy
-          </Button>
-          <Button 
-            onClick={handleSubmit} 
-            variant="contained" 
-            disabled={rating === 0} 
-            sx={{ 
-              width: '120px', 
-              backgroundColor: '#3ABEF9',
-              '&:hover': {
-                backgroundColor: '#2196f3',
-              },
-            }}
-          >
-            Gửi
-          </Button>
-        </DialogActions>
+        {!loading && (
+          <DialogActions sx={{ justifyContent: 'center' }}>
+            {existingReview ? (
+              <Typography sx={{ color: 'text.secondary' }}>
+                Đã đánh giá ngày: {new Date(existingReview.createdAt).toLocaleDateString('vi-VN')}
+              </Typography>
+            ) : (
+              <>
+                <Button 
+                  onClick={handleClose} 
+                  variant="outlined" 
+                  sx={{ width: '120px' }}
+                  disabled={submitting}
+                >
+                  Hủy
+                </Button>
+                <Button 
+                  onClick={handleSubmit} 
+                  variant="contained" 
+                  disabled={rating === 0 || submitting}
+                  sx={{ 
+                    width: '120px', 
+                    backgroundColor: '#3ABEF9', 
+                    '&:hover': { backgroundColor: '#2196f3' } 
+                  }}
+                >
+                  {submitting ? 'Đang gửi...' : 'Gửi'}
+                </Button>
+              </>
+            )}
+          </DialogActions>
+        )}
       </StyledDialog>
       <ConfirmDialog />
     </>

@@ -1,19 +1,19 @@
 import axios from 'axios';
-import baseURL from '@api/BaseURL';
-const token = localStorage.getItem('token');
+const baseURL = import.meta.env.VITE_API_URL;
+import { getCookie } from '@services/AuthenService';
 
 export const fetchBookingData = async (bookingId) => {
+    const customerToken = getCookie('customerToken');
     try {
         const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
         const bookingData = response.data.data;
         return {
             bookingId: bookingData.bookingId,
             tourId: bookingData.tourId,
-            customerId: bookingData.customerId,
             numberOfParticipants: bookingData.numberOfParticipants,
             contactFullName: bookingData.contactFullName,
             contactEmail: bookingData.contactEmail,
@@ -24,7 +24,6 @@ export const fetchBookingData = async (bookingId) => {
             createdOn: bookingData.createdOn,
             startLocation: bookingData.startLocation,
             startDate: new Date(bookingData.startDate),
-            endDate: new Date(bookingData.endDate),
             tourName: bookingData.tourName,
             imageUrl: bookingData.imageUrl,
             code: bookingData.code,
@@ -42,10 +41,10 @@ export const fetchBookingData = async (bookingId) => {
 };
 
 export const createBooking = async (bookingData) => {
+    const customerToken = getCookie('customerToken');
     try {
         const requestData = {
             tourId: bookingData.tourId,
-            customerId: "1298280622971682816",
             numberOfParticipants: bookingData.passengers.length,
             tourParticipants: bookingData.passengers.map(passenger => ({
                 fullName: passenger.fullName,
@@ -61,7 +60,7 @@ export const createBooking = async (bookingData) => {
         };
         const response = await axios.post(`${baseURL}/api/bookings`, requestData, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
 
@@ -72,7 +71,8 @@ export const createBooking = async (bookingData) => {
     }
 };
 
-export const fetchBookingList = async (pageCount = 100, pageIndex = 1) => {
+export const fetchBookingList = async (pageCount, pageIndex) => {
+    const customerToken = getCookie('customerToken');
     try {
         const response = await axios.get(`${baseURL}/api/bookings`, {
             params: {
@@ -80,7 +80,7 @@ export const fetchBookingList = async (pageCount = 100, pageIndex = 1) => {
                 pageIndex
             },
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
         
@@ -99,11 +99,122 @@ export const fetchBookingList = async (pageCount = 100, pageIndex = 1) => {
                 bookingDate: booking.createdOn,
                 tourName: booking.tourName,
                 imageUrl: booking.imageUrl,
-                code: booking.code
+                code: booking.code,
+                startDate: booking.startDate,
             }))
         };
     } catch (error) {
         console.error('Error fetching booking list:', error);
+        throw error;
+    }
+};
+
+export const cancelBooking = async (bookingId, reason) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.patch(
+            `${baseURL}/api/bookings/${bookingId}`,
+            {
+                reason: `${reason}`
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error canceling booking:', error);
+        throw error;
+    }
+};
+
+export const fetchBookingPayments = async (bookingId, pageIndex = 1, pageSize = 10) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(`${baseURL}/api/bookings/${bookingId}/payments`, {
+            params: {
+                pageSize,
+                pageIndex
+            },
+            headers: {
+                'Authorization': `Bearer ${customerToken}`
+            }
+        });
+
+        const paymentListData = response.data.data;
+        return {
+            total: paymentListData.total,
+            pageSize: paymentListData.pageSize, 
+            pageIndex: paymentListData.pageIndex,
+            items: paymentListData.items.map(payment => ({
+                paymentId: payment.paymentId,
+                bookingId: payment.bookingId,
+                amount: payment.amount,
+                note: payment.note,
+                createAt: payment.createAt,
+                bankCode: payment.bankCode,
+                bankTransactionNumber: payment.bankTransactionNumber,
+                payTime: payment.payTime,
+                thirdPartyTransactionNumber: payment.thirdPartyTransactionNumber,
+                status: payment.status
+            }))
+        };
+    } catch (error) {
+        console.error('Error fetching booking payments:', error);
+        throw error;
+    }
+};
+
+export const submitBookingReview = async (bookingId, rating, content, isPublic) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.post(
+            `${baseURL}/api/bookings/${bookingId}/review`,
+            {
+                rating,
+                content,
+                isPublic
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting booking review:', error);
+        throw error;
+    }
+};
+
+export const getBookingReview = async (bookingId) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(
+            `${baseURL}/api/bookings/${bookingId}/review`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        const reviewData = response.data.data;
+        return {
+            statusCode: 200,
+            message: "Success",
+            data: {
+                reviewId: reviewData.reviewId,
+                rating: reviewData.rating,
+                review: reviewData.review,
+                createdAt: reviewData.createdAt,
+                reviewer: reviewData.reviewer
+            }
+        };
+    } catch (error) {
+        console.error('Error fetching booking review:', error);
         throw error;
     }
 };

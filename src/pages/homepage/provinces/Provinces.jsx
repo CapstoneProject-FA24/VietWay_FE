@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Pagination, TextField, InputAdornment, IconButton, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Grid, Pagination, TextField, InputAdornment, IconButton, Select, MenuItem, CircularProgress } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { provinces } from '@hooks/MockProvinces';
 import SearchIcon from '@mui/icons-material/Search';
 import ProvinceCard from '@components/provinces/ProvinceCard';
-import { fetchProvinceWithCountDetails } from '@services/ProvinceService'; // Import the fetch function
+import { fetchProvinceWithCountDetails } from '@services/ProvinceService';
 
 const Provinces = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,24 +67,19 @@ const Provinces = () => {
   if (loading) {
     return (
       <>
-        <Helmet>
-          <title>Danh sách tỉnh thành</title>
-        </Helmet>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Tỉnh thành</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </>
     );
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89.5vw' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '89vw' }}>
       <Helmet>
         <title>Tỉnh thành</title>
       </Helmet>
       <Header />
-      <Box sx={{ flexGrow: 1, mt: 8, ml: 10, mr: 10 }}>
+      <Box sx={{ flexGrow: 1, mt: 8, ml: 5, mr: 5 }}>
         <Typography variant="body2" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', color: '#05073C', textAlign: 'left', mb: 2 }}>
           <Link to="/trang-chu" style={{ color: '#05073C', textDecoration: 'none' }}>Trang chủ </Link>
           &gt; <strong>Tỉnh thành</strong>
@@ -124,7 +118,7 @@ const Provinces = () => {
         </Box>
         {provinces.length > 0 ? (
           <>
-            <Grid container spacing={2}>
+            <Grid container spacing={3}>
               {provinces.map(province => (
                 <Grid item xs={12} sm={6} md={6} key={province.provinceId}>
                   <ProvinceCard province={province} />

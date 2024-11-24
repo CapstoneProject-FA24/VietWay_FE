@@ -40,12 +40,12 @@ const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
       <ScrollMenu>
         {categories.map((category, index) => (
           <Chip key={category} icon={getCategoryIcon(category)} label={
-              <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
+              <Typography variant="body1" sx={{ fontWeight: activeIndex === index ? 'bold' : 'normal', fontSize: '1rem', color: activeIndex === index ? 'black' : 'grey' }}>
                 {category}
               </Typography>
             }
             onClick={() => handleDotClick(index)}
-            sx={{ m: 0.5, p: 2, borderRadius: '20px', backgroundColor: 'white', border: activeIndex === index ? '2px solid #000' : '1px solid #ccc',
+            sx={{ m: 0.5, pt: 1, pb: 1, borderRadius: '20px', backgroundColor: 'white', border: activeIndex === index ? '2px solid #000' : '0.13rem solid #ccc',
               '&:hover': { backgroundColor: '#e0e0e0' },transition: 'all 0.3s', '& .MuiChip-icon': { fontSize: '1.5rem', marginRight: '8px' }
             }}/>
         ))}

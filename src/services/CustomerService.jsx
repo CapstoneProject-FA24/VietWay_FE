@@ -1,5 +1,6 @@
-import baseURL from '@api/BaseURL';
+const baseURL = import.meta.env.VITE_API_URL;
 import axios from 'axios';
+import { getCookie } from '@services/AuthenService';
 
 const getGender = (gender) => {
     switch (gender) {
@@ -10,11 +11,11 @@ const getGender = (gender) => {
 };
 
 export const getCustomerInfo = async () => {
+    const customerToken = getCookie('customerToken');
     try {
-        const token = localStorage.getItem('token');
         const response = await axios.get(`${baseURL}/api/Customer/profile`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${customerToken}`
             }
         });
         return {
@@ -25,7 +26,8 @@ export const getCustomerInfo = async () => {
             genderId: response.data.data.gender,
             genderName: getGender(response.data.data.gender),
             provinceId: response.data.data.provinceId,
-            provinceName: response.data.data.provinceName
+            provinceName: response.data.data.provinceName,
+            loginWithGoogle: response.data.data.loginWithGoogle,
         }
     } catch (error) {
         console.error('Get customer information failed:', error);
@@ -34,8 +36,8 @@ export const getCustomerInfo = async () => {
 };
 
 export const updateCustomerInfo = async (customerData) => {
+    const customerToken = getCookie('customerToken');
     try {
-        const token = localStorage.getItem('token');
         const response = await axios.put(`${baseURL}/api/Customer/profile`, {
             fullName: customerData.fullName,
             dateOfBirth: customerData.birthday,
@@ -44,7 +46,7 @@ export const updateCustomerInfo = async (customerData) => {
             email: customerData.email
         }, {
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${customerToken}`,
                 'Content-Type': 'application/json'
             }
         });

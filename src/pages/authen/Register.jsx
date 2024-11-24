@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, CssBaseline, TextField, Link, Box, Grid, Typography, InputAdornment, IconButton, MenuItem, Select, FormControl, InputLabel, Snackbar } from '@mui/material';
+import { Button, CssBaseline, TextField, Link, Box, Grid, Typography, InputAdornment, IconButton, MenuItem, Select, FormControl, InputLabel, Snackbar, Portal } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import { Visibility, VisibilityOff, ArrowBackIosNew as ArrowBackIosNewIcon } from '@mui/icons-material';
 import Slider from 'react-slick';
@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Gender } from '@hooks/Statuses';
 import { fetchProvinces } from '@services/ProvinceService';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,10 +15,28 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import { register } from '@services/AuthenService';
+import { getPreviousPage } from '@utils/NavigationHistory';
+import { getCookie } from '@services/AuthenService';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
+
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
 export default function Register() {
     const settingRegister = {
@@ -47,11 +65,18 @@ export default function Register() {
     const [dob, setDob] = React.useState(null);
     const [errors, setErrors] = React.useState({});
     const navigate = useNavigate();
+    const location = useLocation();
     const [snackbar, setSnackbar] = React.useState({
         open: false,
         message: '',
         severity: 'success'
     });
+    const [googleEmail, setGoogleEmail] = React.useState('');
+
+    React.useEffect(() => {
+        const token = getCookie('customerToken');
+        if (token) { navigate('/'); }
+    }, []);
 
     React.useEffect(() => {
         const getProvinces = async () => {
@@ -71,7 +96,7 @@ export default function Register() {
     };
 
     const validatePhone = (phone) => {
-        return phone.length === 10 && /^\d+$/.test(phone);
+        return phone.length === 10 && phone.startsWith('0') && /^\d+$/.test(phone);
     };
 
     const validateAge = (birthDate) => {
@@ -79,6 +104,31 @@ export default function Register() {
         const today = dayjs();
         const age = today.diff(birthDate, 'year');
         return age >= 12;
+    };
+
+    const handleGoogleSignIn = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            console.log(result);
+            const user = result.user;
+            
+            sessionStorage.setItem('googleSignInData', JSON.stringify({
+                email: user.email,
+                uid: user.uid,
+                displayName: user.displayName,
+                idToken: user.accessToken
+            }));
+            
+            // Redirect to Google registration page
+            navigate('/dang-ky-google');
+        } catch (error) {
+            console.error('Google sign in error:', error);
+            setSnackbar({
+                open: true,
+                message: 'Đăng nhập Google thất bại. Vui lòng thử lại.',
+                severity: 'error'
+            });
+        }
     };
 
     const handleSubmit = async (event) => {
@@ -90,9 +140,7 @@ export default function Register() {
         if (!data.get('firstName')) newErrors.firstName = 'Tên là bắt buộc';
 
         const email = data.get('email');
-        if (!email) {
-            newErrors.email = 'Email là bắt buộc';
-        } else if (!validateEmail(email)) {
+        if (!validateEmail(email) && !!email) {
             newErrors.email = 'Email không hợp lệ';
         }
 
@@ -100,7 +148,7 @@ export default function Register() {
         if (!phone) {
             newErrors.phone = 'Số điện thoại là bắt buộc';
         } else if (!validatePhone(phone)) {
-            newErrors.phone = 'Số điện thoại phải có 10 chữ số';
+            newErrors.phone = 'Số điện thoại phải có 10 chữ số và bắt đầu bằng 0';
         }
 
         if (!selectedProvince) newErrors.province = 'Tỉnh/Thành phố là bắt buộc';
@@ -116,11 +164,11 @@ export default function Register() {
         const passwordConfirm = data.get('passwordConfirm');
 
         if (!password) {
-            newErrors.password = 'Mật khẩu là bắt buộc';
+            newErrors.password = 'Mật khẩu là bắt buộc.';
         } else if (password.length < 8) {
-            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự và phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
         } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?])/.test(password)) {
-            newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt';
+            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự và phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
         }
         if (!passwordConfirm) newErrors.passwordConfirm = 'Xác nhận mật khẩu là bắt buộc';
         if (password !== passwordConfirm) newErrors.passwordConfirm = 'Mật khẩu không khớp';
@@ -130,13 +178,14 @@ export default function Register() {
         if (Object.keys(newErrors).length === 0) {
             try {
                 const userData = {
-                    email: data.get('email'),
+                    email: googleEmail || data.get('email'),
                     phoneNumber: data.get('phone'),
                     password: data.get('password'),
                     fullName: `${data.get('lastName')} ${data.get('firstName')}`,
                     dateOfBirth: dob.format('YYYY-MM-DD'),
                     gender: gender,
-                    provinceId: selectedProvince
+                    provinceId: selectedProvince,
+                    isGoogleAccount: !!googleEmail
                 };
 
                 const response = await register(userData);
@@ -146,7 +195,7 @@ export default function Register() {
                     severity: 'success'
                 });
                 setTimeout(() => {
-                    navigate('/dang-nhap');
+                    handleSuccessfulRegistration();
                 }, 2000);
             } catch (error) {
                 console.error('Registration failed:', error);
@@ -166,7 +215,7 @@ export default function Register() {
     };
 
     const handleBackClick = () => {
-        navigate('/');
+        navigate(-1);
     };
 
     const handleCloseSnackbar = (event, reason) => {
@@ -174,6 +223,10 @@ export default function Register() {
             return;
         }
         setSnackbar({ ...snackbar, open: false });
+    };
+
+    const handleSuccessfulRegistration = () => {
+        navigate('/dang-nhap');
     };
 
     return (
@@ -229,8 +282,15 @@ export default function Register() {
                                 />
                             </Box>
                             <TextField
-                                margin="normal" required fullWidth id="email"
-                                label="Email" name="email" autoComplete="email" type="email"
+                                margin="normal"
+                                fullWidth
+                                id="email"
+                                label="Email"
+                                name="email"
+                                autoComplete="email"
+                                type="email"
+                                value={googleEmail || undefined}
+                                disabled={!!googleEmail}
                                 error={!!errors.email}
                                 helperText={errors.email}
                             />
@@ -282,7 +342,7 @@ export default function Register() {
                                         label="Ngày sinh *"
                                         value={dob}
                                         onChange={(newValue) => setDob(newValue)}
-                                        renderInput={(params) => <TextField {...params} sx={{ width: '48%' }} />}
+                                        format="DD/MM/YYYY"
                                         slotProps={{
                                             textField: {
                                                 error: !!errors.dob,
@@ -318,7 +378,7 @@ export default function Register() {
                                 }}
                                 sx={{ marginBottom: '-2px' }}
                                 error={!!errors.password}
-                                helperText={errors.password}
+                                helperText={'Mật khẩu cần ít nhất 8 ký tự, gồm 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt'}
                             />
                             <TextField
                                 margin="normal" required fullWidth name="passwordConfirm"
@@ -346,7 +406,12 @@ export default function Register() {
                             <Grid container>
                                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                                     Đã có tài khoản?
-                                    <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-nhap" variant="body2" color='#FF8682'>
+                                    <Link 
+                                        sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} 
+                                        onClick={() => navigate('/dang-nhap')}
+                                        variant="body2" 
+                                        color='#FF8682'
+                                    >
                                         {"Đăng nhập ngay"}
                                     </Link>
                                 </Grid>
@@ -356,12 +421,17 @@ export default function Register() {
                                     <hr style={{ flex: 1, border: 'none', borderTop: '1px solid gray' }} />
                                 </Grid>
                                 <Button
-                                    type="submit" fullWidth variant="contained"
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={handleGoogleSignIn}
                                     sx={{
-                                        mt: 2, height: 45, backgroundColor: 'transparent', border: '1px solid #BDBDBD ',
+                                        mt: 2,
+                                        height: 45,
+                                        backgroundColor: 'transparent',
+                                        border: '1px solid #BDBDBD',
                                         '&:hover': {
                                             backgroundColor: 'lightgray',
-                                            border: '1px solid #BDBDBD ',
+                                            border: '1px solid #BDBDBD',
                                         },
                                     }}
                                 >
@@ -372,11 +442,14 @@ export default function Register() {
                     </Box>
                 </Grid>
             </Grid>
-            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+            <Portal>
+                <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ zIndex: (theme) => theme.zIndex.tooltip + 1000, position: 'fixed' }}>
+                    <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%', zIndex: (theme) => theme.zIndex.tooltip + 1000 }}>
+                        {snackbar.message}
+                    </Alert>
+                </Snackbar>
+            </Portal>
         </>
     );
 }
+

@@ -11,6 +11,10 @@ import { fetchPaymentURL } from "@services/PaymentService";
 import '@styles/Homepage.css'
 import { styled } from "@mui/material/styles";
 import { getBookingStatusInfo } from "@services/StatusService";
+import { BookingStatus } from "@hooks/Statuses";
+import { getCookie } from "@services/AuthenService";
+import { Helmet } from 'react-helmet';
+import { VnPayCode } from "@hooks/VnPayCode";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -80,11 +84,14 @@ const PayBooking = () => {
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('warning');
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const currentPath = window.location.pathname;
+  
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('customerToken');
     if (!token) {
       navigate('/');
     }
@@ -94,6 +101,9 @@ const PayBooking = () => {
     const fetchData = async () => {
       try {
         const data = await fetchBookingData(id);
+        if (data.status !== BookingStatus.Pending) {
+          navigate(`/booking/${id}`);
+        };
         setBookingData(data);
         const storedPaymentMethod = sessionStorage.getItem('paymentMethod');
         if (storedPaymentMethod) {
@@ -108,6 +118,25 @@ const PayBooking = () => {
 
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const vnpCode = queryParams.get('vnpCode');
+    
+    if (vnpCode) {
+      const message = VnPayCode[vnpCode] || 'Giao dịch thất bại';
+      setSnackbarMessage(message);
+      setSnackbarSeverity(vnpCode === '00' ? 'success' : 'error');
+      setOpenSnackbar(true);
+      
+      // Redirect after payment result
+      if (vnpCode === '00') {
+        setTimeout(() => {
+          navigate(`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${id}`);
+        }, 2000);
+      }
+    }
+  }, []);
 
   const handlePayment = async () => {
     if (paymentMethod !== '') {
@@ -132,10 +161,8 @@ const PayBooking = () => {
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Thanh toán</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -144,12 +171,13 @@ const PayBooking = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", width: '89vw' }}>
+      <Helmet> <title>Thanh toán</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Link to={`/trang-chu`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
-            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại trang chủ
-          </Link>
+          {/* <Link to={`${currentPath.includes('dat-tour') ? `/dat-tour/${bookingData.bookingId}` : `/tai-khoan`}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
+            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
+          </Link> */}
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>
@@ -230,7 +258,7 @@ const PayBooking = () => {
                       <Typography>{participant.fullName}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography sx={{fontWeight: 'bold'}}>Số điện thoại:</Typography>
+                      <Typography sx={{ fontWeight: 'bold' }}>Số điện thoại:</Typography>
                       <Typography>{participant.phoneNumber}</Typography>
                     </SummaryItem>
                     <SummaryItem>
@@ -238,8 +266,8 @@ const PayBooking = () => {
                       <Typography>{participant.gender === 0 ? 'Nam' : 'Nữ'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
-                      <Typography sx={{fontWeight: 'bold'}}>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
+                      <Typography sx={{ fontWeight: 'bold' }}>Ngày sinh:</Typography>
+                      <Typography>{participant.dateOfBirth.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'}) || 'Không xác định'}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
@@ -266,11 +294,16 @@ const PayBooking = () => {
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString()}
+                  {bookingData.startDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </Typography>
                 <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {bookingData.endDate.toLocaleDateString()}
+                  {
+                    (() => {
+                      const end = sessionStorage.getItem('endDate');
+                      return end ? end : '';
+                    })()
+                  }
                 </Typography>
                 <TotalPrice variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền:</span>
@@ -281,7 +314,13 @@ const PayBooking = () => {
                 <Button onClick={() => { handlePayment() }} variant="contained" fullWidth>
                   Thanh toán ngay
                 </Button>
-                <Button component={Link} to={`/dat-tour/hoan-thanh/${bookingData.bookingId}`} variant="outlined" fullWidth sx={{ mt: 1 }}>
+                <Button 
+                  component={Link} 
+                  to={`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${bookingData.bookingId}`} 
+                  variant="outlined" 
+                  fullWidth 
+                  sx={{ mt: 1 }}
+                >
                   Thanh toán sau
                 </Button>
               </SummaryBox>
@@ -295,8 +334,8 @@ const PayBooking = () => {
       </ContentContainer>
       <Footer />
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={3000} open={openSnackbar} onClose={handleCloseSnackbar}>
-        <MuiAlert onClose={handleCloseSnackbar} severity="warning" sx={{ width: '100%' }}>
-          Vui lòng chọn phương thức thanh toán
+        <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
+          {snackbarMessage || 'Vui lòng chọn phương thức thanh toán'}
         </MuiAlert>
       </Snackbar>
     </Box>

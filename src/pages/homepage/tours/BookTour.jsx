@@ -1,19 +1,24 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, Grid, TextField, Button, Select, MenuItem, FormControl, InputLabel, CircularProgress, FormControlLabel, Divider, Radio, RadioGroup, FormHelperText, Snackbar, Alert } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import PhoneIcon from '@mui/icons-material/Phone';
 import { getCustomerInfo } from '@services/CustomerService';
-import { fetchTourById } from '@services/TourService';
+import { fetchTourById, calculateEndDate } from '@services/TourService';
 import { createBooking } from '@services/BookingService';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import '@styles/Homepage.css'
 import { useNavigate } from 'react-router-dom';
+import { getCookie } from "@services/AuthenService";
+import dayjs from 'dayjs';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Helmet } from 'react-helmet';
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -66,7 +71,7 @@ const BookTour = () => {
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({
     fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "",
-    passengers: [{ type: 'adult', name: '', gender: 0, birthday: '' }]
+    passengers: [{ type: 'Người lớn', name: '', gender: 0, birthday: '' }]
   });
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
@@ -74,9 +79,10 @@ const BookTour = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('error');
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('customerToken');
     if (!token) {
       navigate('/');
     }
@@ -84,25 +90,51 @@ const BookTour = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const customer = await getCustomerInfo();
-      const tour = await fetchTourById(id);
-      const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
-      const data = {
-        tourTemplateId: tour.tourTemplateId, imageUrls: tourTemplate.imageUrls,
-        tourName: tourTemplate.tourName, code: tourTemplate.code,
-        duration: tourTemplate.duration, startLocation: tour.startLocation,
-        startTime: tour.startTime, startDate: tour.startDate,
-        endDate: tour.endDate, price: tour.price,
-        infantPrice: tour.price / 10,
-        childPrice: tour.price * (70 / 100)
+      try {
+        setLoading(true);
+        const customer = await getCustomerInfo();
+        const tour = await fetchTourById(id);
+        const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
+        
+        const completepricesByAge = [
+          {
+            name: "Người lớn",
+            price: tour.price,
+            ageFrom: 12,
+            ageTo: 100
+          },
+          ...(tour.pricesByAge || [])
+        ];
+
+        const data = {
+          ...tour,
+          tourTemplateId: tour.tourTemplateId,
+          imageUrls: tourTemplate.imageUrls,
+          tourName: tourTemplate.tourName,
+          code: tourTemplate.code,
+          duration: tourTemplate.duration,
+          pricesByAge: completepricesByAge
+        };
+        
+        setBookingData(data);
+        setFormData(prevState => ({
+          ...prevState,
+          fullName: customer.fullName,
+          email: customer.email,
+          phone: customer.phone,
+          address: customer.address || "",
+          passengers: [{
+            type: 'người lớn',
+            name: customer.fullName,
+            gender: customer.genderId,
+            birthday: dayjs(customer.birthday).format('YYYY-MM-DD')
+          }]
+        }));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
-      setBookingData(data);
-      setFormData(prevState => ({
-        ...prevState,
-        fullName: customer.fullName, email: customer.email,
-        phone: customer.phone, address: customer.address || "",
-        passengers: [{ type: 'adult', name: customer.fullName, gender: customer.genderId, birthday: new Date(customer.birthday).toISOString().slice(0, 10) }]
-      }));
     };
     fetchData();
     if (topRef.current) {
@@ -118,15 +150,10 @@ const BookTour = () => {
     }
   };
 
-  const handlePassengerTypeChange = (index, value) => {
-    const newPassengers = [...formData.passengers];
-    newPassengers[index] = { ...newPassengers[index], type: value, birthday: '' };
-    setFormData({ ...formData, passengers: newPassengers });
-    validatePassengerField(index, 'passengerType', value);
-  };
-
   const handlePassengerInfoChange = (index, field, value) => {
-    if (index === 0 && field === 'type' && value !== 'adult') {
+    const adultType = bookingData?.pricesByAge?.find(p => p.ageFrom >= 12)?.name || 'Người lớn';
+
+    if (index === 0 && field === 'type' && value !== adultType.toLowerCase()) {
       setSnackbarMessage('Hành khách đầu tiên phải là người lớn');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
@@ -149,9 +176,11 @@ const BookTour = () => {
         break;
       case 'phone':
         if (!value) { error = 'Vui lòng điền số điện thoại'; }
+        else if (!/^[0-9]{10}$/.test(value)) { error = 'Số điện thoại không hợp lệ'; }
         break;
       case 'email':
         if (!value) { error = 'Vui lòng điền email'; }
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { error = 'Email không hợp lệ'; }
         break;
       case 'passengerType':
         if (!value) { error = 'Vui lòng chọn loại hành khách'; }
@@ -169,30 +198,22 @@ const BookTour = () => {
           error = 'Vui lòng chọn ngày sinh';
         } else {
           const birthDate = new Date(value);
-          const today = new Date();
-          let age = today.getFullYear() - birthDate.getFullYear();
-          const monthDiff = today.getMonth() - birthDate.getMonth();
+          const age = calculateAge(birthDate);
+          const selectedType = passengerType?.toLowerCase();
+          const priceByAge = bookingData?.pricesByAge?.find(p =>
+            p.name.toLowerCase() === selectedType
+          );
 
-          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-          }
-
-          switch (passengerType) {
-            case 'adult':
-              if (age < 12) {
-                error = 'Người lớn phải từ 12 tuổi trở lên';
+          if (priceByAge) {
+            if (priceByAge.name === 'Người lớn') {
+              if (age < priceByAge.ageFrom) {
+                error = `${priceByAge.name} phải trên ${priceByAge.ageFrom} tuổi`;
               }
-              break;
-            case 'child':
-              if (age < 2 || age >= 12) {
-                error = 'Trẻ em phải từ 2 đến 11 tuổi';
+            } else {
+              if (age < priceByAge.ageFrom || age > priceByAge.ageTo) {
+                error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi`;
               }
-              break;
-            case 'infant':
-              if (age >= 2) {
-                error = 'Em bé phải dưới 2 tuổi';
-              }
-              break;
+            }
           }
         }
         break;
@@ -227,24 +248,41 @@ const BookTour = () => {
   };
 
   const calculatePassengerSummary = () => {
-    const summary = {
-      adult: { count: 0, total: 0 },
-      child: { count: 0, total: 0 },
-      infant: { count: 0, total: 0 }
-    };
-
+    const summary = {};
     formData.passengers.forEach(passenger => {
-      if (passenger.type) {
-        summary[passenger.type].count += 1;
-        summary[passenger.type].total += bookingData.price || 0;
+      const type = passenger.type.toLowerCase();
+      const priceByAge = bookingData.pricesByAge.find(
+        p => p.name.toLowerCase() === type
+      );
+      
+      if (!summary[type]) {
+        summary[type] = {
+          count: 0,
+          total: 0
+        };
       }
+      
+      summary[type].count += 1;
+      summary[type].total += priceByAge ? priceByAge.price : bookingData.defaultTouristPrice;
     });
     return summary;
   };
 
+  const calculateAge = (birthDate) => {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const calculateTotal = () => {
     const summary = calculatePassengerSummary();
-    return summary.adult.total + summary.child.total + summary.infant.total;
+    return Object.values(summary).reduce((total, typeData) => {
+      return total + (typeData.total || 0);
+    }, 0);
   };
 
   const validateAllFields = () => {
@@ -255,7 +293,7 @@ const BookTour = () => {
     });
     formData.passengers.forEach((passenger, index) => {
       ['type', 'name', 'gender', 'birthday'].forEach(field => {
-        const error = validateField(field, passenger[field]);
+        const error = validateField(field, passenger[field], passenger.type);
         if (error) newErrors[`passenger${index}-${field}`] = error;
       });
     });
@@ -271,7 +309,6 @@ const BookTour = () => {
       try {
         const bookingData = {
           tourId: id,
-          customerId: '1', // Replace with actual customer ID
           passengers: formData.passengers.map(passenger => ({
             fullName: passenger.name,
             phoneNumber: formData.phone,
@@ -298,7 +335,7 @@ const BookTour = () => {
         setOpenSnackbar(true);
       }
     } else {
-      setSnackbarMessage('Vui lòng điền đầy đủ thông tin trước khi đặt tour.');
+      setSnackbarMessage('Thông tin đặt tour không chính xác. Vui lòng kiểm tra lại trước khi đặt tour.');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
     }
@@ -320,21 +357,34 @@ const BookTour = () => {
     setOpenSnackbar(false);
   };
 
+  if (loading) {
+    return (
+      <>
+        <Helmet> <title>Đặt tour</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
+      </>
+    );
+  }
+
   if (!bookingData) {
     return (
       <>
         <Header />
-        <div style={{ display: "flex", alignItems: "center", height: "80vh" }}>
-          <img src="public/loading.gif" alt="Loading..." />
-        </div>
+        <Helmet>
+          <title>Không tìm thấy tour</title>
+        </Helmet>
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h4">Không tìm thấy thông tin tour</Typography>
+        </Box>
       </>
     );
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }} ref={topRef}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", width: "89vw" }} ref={topRef}>
+      <Helmet><title>Đặt tour</title></Helmet>
       <Header />
-      <ContentContainer>
+      <ContentContainer sx={{ width: "100%" }}>
         <StyledBox>
           <Link to={`/tour-du-lich/${bookingData.tourTemplateId}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", marginBottom: 16, marginTop: 10 }}>
             <ArrowBackIcon style={{ marginLeft: 8 }} /> Quay lại
@@ -349,8 +399,8 @@ const BookTour = () => {
             <ArrowIcon src="/icon/arrow-right.png" alt="arrow" />
             <StepItem>HOÀN TẤT</StepItem>
           </StepBox>
-          <Grid container spacing={3} sx={{ maxWidth: "100%" }}>
-            <Grid item xs={12} md={8} sx={{ maxWidth: "100%" }}>
+          <Grid container spacing={3} sx={{ width: "100%" }}>
+            <Grid item xs={12} md={8} sx={{ width: "100%" }}>
               <SectionTitle variant="h5">THÔNG TIN LIÊN LẠC</SectionTitle>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -391,9 +441,14 @@ const BookTour = () => {
                           onChange={(e) => handlePassengerInfoChange(index, 'type', e.target.value)}
                           onBlur={() => validatePassengerField(index, 'type', passenger.type)}
                         >
-                          <MenuItem value="adult">Người lớn (Từ 12 tuổi) - {bookingData.price?.toLocaleString()} đ</MenuItem>
-                          <MenuItem value="child">Trẻ em (Từ 2 - 11 tuổi) - {bookingData.childPrice?.toLocaleString()} đ</MenuItem>
-                          <MenuItem value="infant">Em bé (Dưới 2 tuổi) - {bookingData.infantPrice?.toLocaleString()} đ</MenuItem>
+                          {bookingData.pricesByAge?.map(priceByAge => (
+                            <MenuItem key={priceByAge.name} value={priceByAge.name.toLowerCase()}>
+                              {priceByAge.name === 'Người lớn' ? 
+                                `${priceByAge.name} (Trên ${priceByAge.ageFrom} tuổi) - ${priceByAge.price?.toLocaleString()} đ` :
+                                `${priceByAge.name} (Từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi) - ${priceByAge.price?.toLocaleString()} đ`
+                              }
+                            </MenuItem>
+                          ))}
                         </Select>
                         {errors[`passenger${index}-type`] && (
                           <FormHelperText>{errors[`passenger${index}-type`]}</FormHelperText>
@@ -434,25 +489,34 @@ const BookTour = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <CustomTextField
-                        fullWidth label="Ngày sinh" type="date"
-                        InputLabelProps={{ shrink: true }}
-                        name={`passengerBirthday-${index}`}
-                        value={passenger.birthday || ''}
-                        onChange={(e) => handlePassengerInfoChange(index, 'birthday', e.target.value)}
-                        onBlur={() => validatePassengerField(index, 'birthday', passenger.birthday)}
-                        error={!!errors[`passenger${index}-birthday`]}
-                        helperText={errors[`passenger${index}-birthday`]}
-                        required
-                        inputProps={{
-                          max: new Date().toISOString().split('T')[0],
-                          min: passenger.type === 'adult'
-                            ? new Date(new Date().setFullYear(new Date().getFullYear() - 100)).toISOString().split('T')[0]
-                            : passenger.type === 'child'
-                              ? new Date(new Date().setFullYear(new Date().getFullYear() - 11)).toISOString().split('T')[0]
-                              : new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0]
-                        }}
-                      />
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Ngày sinh *"
+                          value={dayjs(passenger.birthday)}
+                          onChange={(newValue) => {
+                            handlePassengerInfoChange(index, 'birthday', newValue.format('YYYY-MM-DD'));
+                          }}
+                          format="DD/MM/YYYY"
+                          maxDate={dayjs()}
+                          minDate={(() => {
+                            const priceByAge = bookingData.pricesByAge?.find(
+                              p => p.name.toLowerCase() === passenger.type?.toLowerCase()
+                            );
+                            if (priceByAge) {
+                              return dayjs().subtract(priceByAge.ageTo + 1, 'year');
+                            }
+                            return dayjs().subtract(100, 'year');
+                          })()}
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              error: !!errors[`passenger${index}-birthday`],
+                              helperText: errors[`passenger${index}-birthday`],
+                              required: true
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
                     </Grid>
                     <Grid item xs={12}>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -504,8 +568,17 @@ const BookTour = () => {
                 </Box>
               </RadioGroup>
               {errors.paymentMethod && <ErrorText>{errors.paymentMethod}</ErrorText>}
+
+              {/* <Box sx={{ mb: 5, mt: 2 }}>
+                <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Chính sách hoàn tiền</Typography>
+                {bookingData.refundPolicies.map((policy, index) => (
+                  <Typography key={index} paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>
+                    Hủy trước {policy.cancelBefore.toLocaleDateString('vi-VN')}, hoàn {policy.refundPercent}%
+                  </Typography>
+                ))}
+              </Box> */}
             </Grid>
-            <Grid item xs={12} md={4} sx={{ maxWidth: "100%" }}>
+            <Grid item xs={12} md={4} sx={{ width: "100%" }}>
               <SummaryTitle variant="h5" style={{ alignContent: "center" }}>
                 THÔNG TIN CHUYẾN ĐI
               </SummaryTitle>
@@ -526,7 +599,16 @@ const BookTour = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Ngày kết thúc:</Typography>
-                  <Typography variant="body2">{bookingData.endDate.toLocaleDateString('vi-VN')}</Typography>
+                  <Typography variant="body2">{
+                    (() => {
+                      if (bookingData) {
+                        const endDate = calculateEndDate(bookingData.startDate, { durationName: bookingData.duration });
+                        sessionStorage.setItem('endDate', endDate ? endDate.toLocaleDateString('vi-VN') : '');
+                        return endDate ? endDate.toLocaleDateString('vi-VN') : '';
+                      }
+                      return '';
+                    })()
+                  }</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Thời lượng:</Typography>
@@ -541,9 +623,11 @@ const BookTour = () => {
                 {Object.entries(calculatePassengerSummary()).map(([type, data]) => (
                   data.count > 0 && (
                     <SummaryItem key={type}>
-                      <Typography variant="body2">{type === 'adult' ? 'Người lớn' : type === 'child' ? 'Trẻ em' : 'Em bé'}:</Typography>
                       <Typography variant="body2">
-                        {data.count} x {bookingData[type === 'adult' ? 'price' : type === 'child' ? 'childPrice' : 'infantPrice']?.toLocaleString()} đ
+                        {bookingData.pricesByAge?.find(p => p.name.toLowerCase() === type)?.name || type}:
+                      </Typography>
+                      <Typography variant="body2">
+                        {data.count} x {(data.total / data.count).toLocaleString()} đ
                       </Typography>
                     </SummaryItem>
                   )
@@ -566,10 +650,7 @@ const BookTour = () => {
       </ContentContainer>
       <Footer />
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        open={openSnackbar}
-        autoHideDuration={5000}
-        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}
       >
         <Alert onClose={handleCloseSnackbar} variant="filled" severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}

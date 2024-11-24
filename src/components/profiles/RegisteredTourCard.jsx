@@ -1,71 +1,156 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Button, Box, Grid, Chip, Divider, Snackbar, Alert, Portal } from '@mui/material';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import CancelBooking from '@components/profiles/CancelBooking';
+import { cancelBooking } from '@services/BookingService';
+import { BookingStatus } from '@hooks/Statuses';
+import { getBookingStatusInfo } from "@services/StatusService";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ViewFeedback from '@components/profiles/ViewFeedback';
 
-const RegisteredTourCard = ({ tour }) => {
+const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const [isViewFeedbackOpen, setIsViewFeedbackOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
-  console.log(tour);
+  const handlePayment = () => navigate(`/thanh-toan/${tour.bookingId}`);
+  const handleCancelOpen = () => setIsCancelOpen(true);
+  const handleCancelClose = () => setIsCancelOpen(false);
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
+  const handleViewFeedbackOpen = () => setIsViewFeedbackOpen(true);
+  const handleViewFeedbackClose = () => setIsViewFeedbackOpen(false);
+
+  const handleCancelConfirm = async (reason) => {
+    try {
+      setCancelLoading(true);
+      await cancelBooking(tour.bookingId, reason);
+      handleCancelClose();
+      setSnackbar({
+        open: true,
+        message: 'Hủy đặt tour thành công',
+        severity: 'success'
+      });
+      // Refresh the booking list
+      if (onBookingCancelled) {
+        onBookingCancelled();
+      }
+    } catch (error) {
+      console.error('Failed to cancel booking:', error);
+      setSnackbar({
+        open: true,
+        message: 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
   return (
-    <Card component={Link} to={`/booking/${tour.bookingId}`}
-      sx={{ mb: 2, borderRadius: '12px', overflow: 'hidden', boxShadow: 3, position: 'relative' }}>
-      <StatusChip status={tour.bookedTourStatus} />
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={3} md={3}>
-          <CardMedia
-            component="img"
-            sx={{
-              margin: '12px',
-              borderRadius: '8px',
-              width: '100%',
-              height: '200px',
-              objectFit: 'cover'
-            }}
-            image={tour.imageUrl}
-            alt={tour.name}
+    <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
+      <Card
+        sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'none', position: 'relative' }}>
+        <StatusChip status={tour.bookedTourStatus} />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={3} md={3} component={Link} to={`/booking/${tour.bookingId}`}>
+            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }}
+              image={tour.imageUrl} alt={tour.name} />
+          </Grid>
+          <Grid item xs={12} md={7}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }} component={Link} to={`/booking/${tour.bookingId}`}>
+                {tour.name}
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6} component={Link} to={`/booking/${tour.bookingId}`}>
+                  <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã booking" value={tour.bookingId} />
+                  <InfoItem icon={<TourOutlinedIcon />} label="Mã tour" value={tour.code} />
+                  <InfoItem icon={<CalendarMonthOutlinedIcon />} label="Ngày đặt" value={formatDate(tour.bookingDate)} />
+                </Grid>
+                <Grid item xs={12} md={6} component={Link} to={`/booking/${tour.bookingId}`}>
+                  <InfoItem icon={<GroupOutlinedIcon />} label="Số lượng khách" value={tour.numberOfParticipants} />
+                  <InfoItem icon={<AccessTimeIcon />} label="Thời gian khởi hành" value={`${formatDate(tour.startDate)}`} />
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
+                      Tổng tiền:
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', display: 'inline', ml: 1 }}>
+                      {tour.totalPrice.toLocaleString()} đ
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Grid>
+          <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
+            {renderActionButtons(handleFeedbackOpen, handlePayment, handleCancelOpen, tour)}
+          </Grid>
+        </Grid>
+        {isFeedbackOpen && 
+          <FeedbackPopup 
+            onClose={handleFeedbackClose} 
+            bookingId={tour.bookingId} 
+            onSubmitSuccess={() => {
+              handleFeedbackClose();
+              if (onBookingCancelled) {
+                onBookingCancelled();
+              }
+            }} 
           />
-        </Grid>
-        <Grid item xs={12} md={7}>
-          <CardContent>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
-              {tour.name}
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <InfoItem icon={<SubtitlesOutlinedIcon />} label="Mã booking" value={tour.bookingId} />
-                <InfoItem icon={<TourOutlinedIcon />} label="Mã tour" value={tour.code} />
-                <InfoItem icon={<CalendarMonthOutlinedIcon />} label="Ngày đặt" value={formatDate(tour.bookingDate)} />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <InfoItem icon={<GroupOutlinedIcon />} label="Số lượng khách" value={tour.numberOfParticipants} />
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'inline' }}>
-                    Tổng tiền:
-                  </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', display: 'inline', ml: 1 }}>
-                    {tour.totalPrice.toLocaleString()} đ
-                  </Typography>
-                </Box>
-                {/* <InfoItem icon={<MapOutlinedIcon />} label="Khởi hành từ" value={tour.startProvince} />
-                <InfoItem icon={<AccessTimeIcon />} label="Thời gian tour" value={`${formatDate(tour.startDate)} - ${formatDate(tour.endDate)}`} /> */}
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Grid>
-        <Grid item xs={12} sm={2} md={2} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', p: 2, pb: 5 }}>
-          {renderActionButtons(tour.bookedTourStatus, handleFeedbackOpen)}
-        </Grid>
-      </Grid>
-      {isFeedbackOpen && <FeedbackPopup onClose={handleFeedbackClose} tourId={tour.id} />}
-    </Card>
+        }
+        {isViewFeedbackOpen && 
+          <ViewFeedback 
+            onClose={handleViewFeedbackClose}
+            feedback={tour.feedback}
+          />
+        }
+        <CancelBooking
+          open={isCancelOpen}
+          onClose={handleCancelClose}
+          onConfirm={handleCancelConfirm}
+          loading={cancelLoading}
+          tour={tour}
+        />
+        <Portal>
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right'}}
+            sx={{ 
+              zIndex: (theme) => theme.zIndex.tooltip + 1000,
+              position: 'fixed'
+            }}
+          >
+            <Alert 
+              onClose={handleSnackbarClose} 
+              severity={snackbar.severity} 
+              variant="filled"
+              sx={{ 
+                zIndex: (theme) => theme.zIndex.tooltip + 1000 
+              }}
+            >
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
+        </Portal>
+      </Card>
+    </Box>
   );
 };
 
@@ -85,46 +170,49 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-const StatusChip = ({ status }) => (
-  <Chip
-    label={status}
-    color={
-      status === "Đã hoàn tất" ? "success" :
-        status === "Đã thanh toán" ? "primary" :
-          status === "Đã hủy" || status === "Quá hạn thanh toán" ? "error" : "warning"
-    }
-    sx={{
-      position: 'absolute',
-      top: 20,
-      right: 15,
-      zIndex: 1,
-      fontSize: '0.75rem',
-      height: '24px'
-    }}
-  />
-);
+const StatusChip = ({ status }) => {
+  return (
+    <Chip
+      label={getBookingStatusInfo(status).text}
+      sx={{
+        position: 'absolute',
+        top: 20,
+        right: 15,
+        zIndex: 1,
+        fontSize: '0.75rem',
+        height: '24px',
+        backgroundColor: getBookingStatusInfo(status).color,
+        color: 'white',
+      }}
+    />
+  );
+};
 
-const renderActionButtons = (status, handleFeedbackOpen) => {
-  switch (status) {
-    case "Đã hoàn tất":
+const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen, tour) => {
+  switch (tour.bookedTourStatus) {
+    case BookingStatus.Completed:
       return (
         <>
-          <ActionButton onClick={handleFeedbackOpen} variant="contained" color="primary">Đánh giá</ActionButton>
-          <ActionButton variant="outlined" color="primary">Đặt Lại</ActionButton>
+          <ActionButton 
+            onClick={tour.hasFeedback ? handleViewFeedbackOpen : handleFeedbackOpen} 
+            variant="contained" 
+            color="primary"
+          >
+            {tour.hasFeedback ? 'Xem lại đánh giá' : 'Đánh giá'}
+          </ActionButton>
         </>
       );
-    case "Đã thanh toán":
-      return <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>;
-    case "Đã hủy":
-    case "Quá hạn thanh toán":
-      return <ActionButton variant="contained" color="primary">Đặt Lại</ActionButton>;
+    case BookingStatus.Confirmed:
+      return <ActionButton onClick={handleCancelOpen} variant="outlined" color="primary">Hủy Đặt</ActionButton>;
+    case BookingStatus.Pending:
+      return (
+        <>
+          <ActionButton variant="contained" color="error" onClick={handlePayment}>Thanh Toán</ActionButton>
+          <ActionButton variant="outlined" color="primary" onClick={handleCancelOpen}>Hủy Đặt</ActionButton>
+        </>
+      );
     default:
-      return (
-        <>
-          <ActionButton variant="contained" color="error">Thanh Toán</ActionButton>
-          <ActionButton variant="outlined" color="primary">Hủy Đặt</ActionButton>
-        </>
-      );
+      return <></>;
   }
 };
 

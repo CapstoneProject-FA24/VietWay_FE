@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Pagination, Select, MenuItem, FormControl, Button, TextField, InputAdornment, IconButton } from '@mui/material';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import TourCard from '@components/tours/TourCard';
 import { fetchTourTemplates } from '@services/TourTemplateService';
 import { fetchProvinces } from '@services/ProvinceService';
 import { fetchTourCategory } from '@services/TourCategoryService';
 import SearchIcon from '@mui/icons-material/Search';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import SortIcon from '@mui/icons-material/Sort';
 
 const Tours = () => {
   const [tours, setTours] = useState([]);
@@ -27,6 +32,13 @@ const Tours = () => {
   const [duration, setDuration] = useState('all');
   const [provinces, setProvinces] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [provinceSearchTerm, setProvinceSearchTerm] = useState('');
+  const [isProvinceDropdownOpen, setIsProvinceDropdownOpen] = useState(false);
+  const provinceRef = useRef(null);
+  const [sortOrder, setSortOrder] = useState('nameAsc');
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const priceRanges = [
     { value: '0,1000000', label: 'Dưới 1 triệu' },
@@ -44,30 +56,62 @@ const Tours = () => {
   ];
 
   useEffect(() => {
-    fetchTours();
+    const searchParams = new URLSearchParams(location.search);
+    const name = searchParams.get('name');
+    const startDate = searchParams.get('startDate');
+    const priceRange = searchParams.get('priceRange');
+    const provinceId = searchParams.get('provinceId');
+    const applySearch = searchParams.get('applySearch');
+
+    if (applySearch === 'true') {
+      setSearchInput(name || '');
+      setStartDate(startDate || '');
+      setPriceRange(priceRange || 'all');
+      setSelectedProvince(provinceId || 'all');
+      setSearchTerm(name || '');
+      setPage(1);
+
+      searchParams.delete('applySearch');
+      navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+
+      fetchTours({
+        searchTerm: name || '',
+        startDateFrom: startDate || '',
+        priceRange: priceRange || 'all',
+        provinceIds: provinceId !== 'all' ? provinceId === null ||  provinceId === '' ? null :[provinceId] : [],
+      });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (!location.search.includes('applySearch=true')) {
+      fetchTours();
+    }
     fetchProvinceData();
     fetchCategoryData();
-  }, [page, pageSize, searchTerm]);
+  }, [page, pageSize]);
 
-  const fetchTours = async () => {
+  const fetchTours = async (overrideParams = {}) => {
     try {
       setLoading(true);
+      let min = null;
+      let max = null;
+      if (overrideParams.priceRange !== 'all' && overrideParams.priceRange) {
+        [min, max] = overrideParams.priceRange.split(',');
+      } else if (priceRange !== 'all' && priceRange) {
+        [min, max] = priceRange.split(',');
+      }
       const params = {
         pageSize,
         pageIndex: page,
-        searchTerm: searchTerm,
-        startDateFrom: startDate,
-        provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+        searchTerm: overrideParams.searchTerm || searchTerm,
+        startDateFrom: overrideParams.startDateFrom || startDate,
+        provinceIds: overrideParams.provinceIds || (selectedProvince !== 'all' ? [selectedProvince] : []),
         templateCategoryIds: selectedCategory !== 'all' ? [selectedCategory] : [],
         numberOfDay: duration !== 'all' ? duration.split(',').map(Number) : [],
+        minPrice: min ? parseInt(min) : undefined,
+        maxPrice: max ? parseInt(max) : undefined
       };
-
-      if (priceRange !== 'all' && priceRange) {
-        const [min, max] = priceRange.split(',');
-        params.minPrice = min;
-        params.maxPrice = max;
-      }
-
       const response = await fetchTourTemplates(params);
       setTours(response.data);
       setTotalItems(response.total);
@@ -124,17 +168,72 @@ const Tours = () => {
 
   const handleApplyFilters = () => {
     setPage(1);
-    fetchTours();
+    setSearchTerm(searchInput);
+    let min = null;
+    let max = null;
+    if (priceRange !== 'all') {
+      [min, max] = priceRange.split(',');
+    }
+    fetchTours({
+      searchTerm: searchInput,
+      startDateFrom: startDate,
+      provinceIds: selectedProvince !== 'all' ? [selectedProvince] : [],
+      templateCategoryIds: selectedCategory !== 'all' ? [selectedCategory] : [],
+      numberOfDay: duration !== 'all' ? duration.split(',').map(Number) : [],
+      minPrice: min ? parseInt(min) : undefined,
+      maxPrice: max ? parseInt(max) : undefined
+    });
   };
+
+  const handleProvinceDropdownToggle = () => {
+    setIsProvinceDropdownOpen(!isProvinceDropdownOpen);
+    if (!isProvinceDropdownOpen) {
+      setProvinceSearchTerm('');
+    }
+  };
+
+  const handleProvinceSearchChange = (event) => {
+    setProvinceSearchTerm(event.target.value);
+  };
+
+  const handleClickOutside = (event) => {
+    if (provinceRef.current && !provinceRef.current.contains(event.target)) {
+      setIsProvinceDropdownOpen(false);
+    }
+  };
+
+  const handleSortChange = (event) => {
+    const newSortOrder = event.target.value;
+    setSortOrder(newSortOrder);
+    const sortedTours = [...tours].sort((a, b) => {
+      switch (newSortOrder) {
+        case 'nameAsc':
+          return a.tourName.localeCompare(b.tourName);
+        case 'nameDesc':
+          return b.tourName.localeCompare(a.tourName);
+        case 'priceLow':
+          return a.minPrice - b.minPrice;
+        case 'priceHigh':
+          return b.minPrice - a.minPrice;
+        default:
+          return 0;
+      }
+    });
+    setTours(sortedTours);
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   if (loading) {
     return (
       <>
-        <Helmet> <title>Tour du lịch</title> </Helmet>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Tour du lịch</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </>
     );
   }
@@ -173,93 +272,153 @@ const Tours = () => {
             />
           </Grid>
           <Grid item xs={12} md={3.5}>
-            <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
-              <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', mb: 2, backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
-              <Box sx={{ p: 1 }}>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Tỉnh thành</Typography>
-                  <Select
-                    value={selectedProvince}
-                    onChange={(e) => setSelectedProvince(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    <MenuItem value="all">Tất cả</MenuItem>
-                    {provinces.map((province) => (
-                      <MenuItem key={province.provinceId} value={province.provinceId}>{province.provinceName}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Loại tour</Typography>
-                  <Select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    <MenuItem value="all">Tất cả</MenuItem>
-                    {categories.map((category) => (
-                      <MenuItem key={category.tourCategoryId} value={category.tourCategoryId}>{category.tourCategoryName}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Giá tour</Typography>
-                  <Select
-                    value={priceRange}
-                    onChange={(e) => setPriceRange(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    <MenuItem value="all">Tất cả</MenuItem>
-                    {priceRanges.map((range) => (
-                      <MenuItem key={range.value} value={range.value}>{range.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Ngày bắt đầu</Typography>
-                  <TextField
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                    sx={{ '& .MuiInputBase-input': { height: '30px', padding: '8px' } }}
-                  />
-                </FormControl>
-                <FormControl fullWidth sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 1, fontSize: '18px' }}>Số ngày</Typography>
-                  <Select
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    sx={{ height: '40px' }}
-                  >
-                    {durationOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <Box sx={{ pl: 2, pr: 2, mt: 2 }}>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={handleApplyFilters}
-                    sx={{
-                      backgroundColor: '#3572EF',
-                      '&:hover': { backgroundColor: '#1C3F94' }
-                    }}
-                  >
-                    Áp dụng bộ lọc
-                  </Button>
+            <Box sx={{ position: 'sticky', top: 10, maxHeight: '100vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
+              <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
+                <Box sx={{ mt: -1, p: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <FormControl fullWidth ref={provinceRef}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Tỉnh thành</Typography>
+                    <Box sx={{ position: 'relative', mb: isProvinceDropdownOpen ? '14.4%' : 0 }}>
+                      {!isProvinceDropdownOpen ? (
+                        <Button
+                          onClick={handleProvinceDropdownToggle}
+                          sx={{
+                            justifyContent: 'space-between', textAlign: 'left',
+                            color: 'black', backgroundColor: 'white', border: '1px solid #ccc',
+                            '&:hover': { borderRadius: '5px', backgroundColor: '#f5f5f5' }, pl: 1.7,
+                            height: '40px', width: '100%', textTransform: 'none', fontSize: '17px'
+                          }}
+                        >
+                          {selectedProvince === 'all' ? 'Tất cả' : provinces.find(p => p.provinceId === selectedProvince)?.provinceName || 'Tất cả'}
+                          <ExpandMoreIcon />
+                        </Button>
+                      ) : (
+                        <Box sx={{ position: 'absolute', left: 0, right: 0, zIndex: 1000, backgroundColor: 'white', boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)' }}>
+                          <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="Tìm kiếm tỉnh thành..."
+                            value={provinceSearchTerm}
+                            onChange={handleProvinceSearchChange}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <SearchIcon />
+                                </InputAdornment>
+                              ),
+                            }}
+                            sx={{ mb: 1, '& .MuiInputBase-root': { height: '40px' } }}
+                          />
+                          <Paper sx={{ maxHeight: 150, overflow: 'auto' }}>
+                            <List dense>
+                              <ListItem button onClick={() => { setSelectedProvince('all'); handleProvinceDropdownToggle(); }}>
+                                <ListItemText primary="Tất cả" primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }} />
+                              </ListItem>
+                              {provinces
+                                .filter(province => province.provinceName.toLowerCase().includes(provinceSearchTerm.toLowerCase()))
+                                .map((province) => (
+                                  <ListItem
+                                    button
+                                    key={province.provinceId}
+                                    onClick={() => { setSelectedProvince(province.provinceId); handleProvinceDropdownToggle(); }}
+                                    selected={selectedProvince === province.provinceId}
+                                  >
+                                    <ListItemText primary={province.provinceName} primaryTypographyProps={{ height: '1.3rem', fontSize: '17px' }} />
+                                  </ListItem>
+                                ))}
+                            </List>
+                          </Paper>
+                        </Box>
+                      )}
+                    </Box>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Loại tour</Typography>
+                    <Select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      sx={{ height: '40px' }}
+                    >
+                      <MenuItem value="all">Tất cả</MenuItem>
+                      {categories.map((category) => (
+                        <MenuItem key={category.tourCategoryId} value={category.tourCategoryId}>{category.tourCategoryName}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Giá tour</Typography>
+                    <Select
+                      value={priceRange}
+                      onChange={(e) => setPriceRange(e.target.value)}
+                      sx={{ height: '40px' }}
+                    >
+                      <MenuItem value="all">Tất cả</MenuItem>
+                      {priceRanges.map((range) => (
+                        <MenuItem key={range.value} value={range.value}>{range.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Ngày bắt đầu</Typography>
+                    <TextField
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      sx={{ '& .MuiInputBase-input': { height: '27px', padding: '8px' } }}
+                    />
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mt: 2 }}>
+                    <Typography sx={{ fontWeight: '500', textAlign: 'left', color: 'black', mb: 0.4, fontSize: '17px' }}>Số ngày</Typography>
+                    <Select
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      sx={{ height: '40px' }}
+                    >
+                      {durationOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Box sx={{ mt: 2, mb: -2 }}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={handleApplyFilters}
+                      sx={{
+                        backgroundColor: '#3572EF', height: '50px',
+                        '&:hover': { borderRadius: '5px', backgroundColor: '#1C3F94' }
+                      }}
+                    >
+                      Áp dụng bộ lọc
+                    </Button>
+                  </Box>
                 </Box>
-              </Box>
-            </Paper>
+              </Paper>
+            </Box>
           </Grid>
           <Grid item xs={12} md={8.5}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả
               </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SortIcon sx={{ mr: 1 }} />
+                <Select
+                  value={sortOrder}
+                  onChange={handleSortChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ height: '40px' }}
+                >
+                  <MenuItem value="nameAsc">Tên A-Z</MenuItem>
+                  <MenuItem value="nameDesc">Tên Z-A</MenuItem>
+                  <MenuItem value="priceLow">Giá thấp đến cao</MenuItem>
+                  <MenuItem value="priceHigh">Giá cao đến thấp</MenuItem>
+                </Select>
+              </Box>
             </Box>
             <Grid container spacing={1}>
               {tours.length > 0 ? (
@@ -272,7 +431,7 @@ const Tours = () => {
                     Không tìm thấy tour nào!
                   </Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
-                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }}/>
+                    <img src="/location-not-found.png" alt="No results found" style={{ maxWidth: '300px', height: 'auto' }} />
                   </Box>
                 </Box>
               )}

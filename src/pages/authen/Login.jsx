@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Box, Grid, Typography, InputAdornment, IconButton, CircularProgress } from '@mui/material';
 import { Visibility, VisibilityOff, ArrowBackIosNew as ArrowBackIosNewIcon } from '@mui/icons-material';
 import Slider from 'react-slick';
@@ -6,8 +6,25 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '@styles/Slider.css';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
-import { login } from '@services/AuthenService';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { login, loginWithGoogle } from '@services/AuthenService';
+import { getPreviousPage, clearNavigationHistory } from '@utils/NavigationHistory';
+import { getCookie } from '@services/AuthenService';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
 export default function Login() {
   const settingLogin = {
@@ -45,9 +62,10 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleBackClick = () => {
-    navigate('/');
+    navigate(-1);
   };
 
   const handleClickShowPassword = () => {
@@ -86,17 +104,60 @@ export default function Login() {
       if (email && password) {
         const response = await login({ email, password });
         if (response.data) {
-          navigate('/');
+          const history = JSON.parse(sessionStorage.getItem('navigationHistory') || '[]');
+          let targetPage = '/';
+
+          while (history.length > 0 && (history[history.length - 1] === '/dang-nhap' || history[history.length - 1] === '/dang-ky'  || history[history.length - 1] === '/quen-mat-khau')) {
+            history.pop();
+          }
+
+          if (history.length > 0) {
+            targetPage = history[history.length - 1];
+          }
+
+          clearNavigationHistory();
+          navigate(targetPage);
         } else {
           setError('Đã xảy ra lỗi. Vui lòng thử lại.');
         }
       }
     } catch (error) {
-      if (error.response.data.statusCode === 401 && error.response.data.message === 'Email or password is incorrect') {
+      if (error.response.data.statusCode === 401 || error.response.data.message === 'Email or password is incorrect') {
         setError('Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại');
       }
       else {
         setError('Đã xảy ra lỗi. Vui lòng thử lại.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+      const response = await loginWithGoogle(idToken);
+      if (response.data) {
+        const targetPage = getPreviousPage() || '/';
+        clearNavigationHistory();
+        navigate(targetPage);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Đăng nhập đã bị hủy.');
+      } else {
+        if(error.status === 401){
+          navigate("/dang-ky");
+        }
+        else{
+          setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+        }
       }
     } finally {
       setLoading(false);
@@ -156,7 +217,7 @@ export default function Login() {
                 }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Lưu mật khẩu" />
+                {/* <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Lưu mật khẩu" /> */}
                 <Grid item>
                   <Link href="/quen-mat-khau" variant="body2" color="#FF8682" sx={{ textDecoration: 'none' }}>
                     Quên mật khẩu?
@@ -172,7 +233,12 @@ export default function Login() {
               <Grid container>
                 <Grid item sx={{ width: '100%', textAlign: 'center' }}>
                   Chưa có tài khoản?
-                  <Link sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }} href="/dang-ky" variant="body2" color='#FF8682'>
+                  <Link
+                    sx={{ marginLeft: '7px', fontSize: '16px', textDecoration: 'none' }}
+                    onClick={() => navigate('/dang-ky')}
+                    variant="body2"
+                    color='#FF8682'
+                  >
                     {"Đăng ký ngay"}
                   </Link>
                 </Grid>
@@ -182,15 +248,19 @@ export default function Login() {
                   <hr style={{ flex: 1, border: 'none', borderTop: '1px solid gray' }} />
                 </Grid>
                 <Button
-                  type="submit"
                   fullWidth
                   variant="contained"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
                   sx={{
-                    mt: 2, height: 45, backgroundColor: 'transparent', border: '1px solid #BDBDBD ',
-                    '&:hover': { backgroundColor: 'lightgray', border: '1px solid #BDBDBD ', },
+                    mt: 2,
+                    height: 45,
+                    backgroundColor: 'transparent',
+                    border: '1px solid #BDBDBD',
+                    '&:hover': { backgroundColor: 'lightgray', border: '1px solid #BDBDBD' },
                   }}
                 >
-                  <img style={{ width: 20 }} src='/Logo-google-icon-PNG.png' alt="Logo" />
+                  {loading ? <CircularProgress size={24} /> : <img style={{ width: 20 }} src='/Logo-google-icon-PNG.png' alt="Logo" />}
                 </Button>
               </Grid>
             </Box>

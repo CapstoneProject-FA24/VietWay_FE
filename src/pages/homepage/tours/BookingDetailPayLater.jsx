@@ -11,6 +11,8 @@ import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { fetchBookingData } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
+import { getCookie } from "@services/AuthenService";
+import { Helmet } from 'react-helmet';
 
 // Styled components (reuse from BookTour)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -88,7 +90,7 @@ const BookingDetailPayLater = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('customerToken');
     if (!token) {
       navigate('/');
     }
@@ -140,10 +142,8 @@ const BookingDetailPayLater = () => {
   if (loading) {
     return (
       <Box>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <img src="/loading.gif" alt="Loading..." />
-        </Box>
+        <Helmet> <title>Hoàn thành</title> </Helmet> <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
   }
@@ -151,7 +151,8 @@ const BookingDetailPayLater = () => {
   if (!bookingData) return null;
 
   return (
-    <Box>
+    <Box sx={{ width: '89vw' }}>
+      <Helmet> <title>Hoàn thành</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>
@@ -277,10 +278,15 @@ const BookingDetailPayLater = () => {
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
                   {bookingData.startDate.toLocaleDateString()}
                 </Typography>
-                <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                {/* <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {bookingData.endDate.toLocaleDateString()}
-                </Typography>
+                  {
+                    (() => {
+                      const end = sessionStorage.getItem('endDate');
+                      return end ? end : '';
+                    })()
+                  }
+                </Typography> */}
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ
                 </TotalPrice>
@@ -296,8 +302,7 @@ const BookingDetailPayLater = () => {
       <Footer />
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
         <MuiAlert
-          onClose={handleCloseSnackbar}
-          severity="success"
+          onClose={handleCloseSnackbar} severity="success" variant="filled"
           sx={{
             width: '500px', fontSize: '1.5rem', display: 'flex',
             alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
