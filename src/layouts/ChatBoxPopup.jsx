@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, IconButton, Paper, Typography, TextField, Button } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
-import ChatBox from "@pages/homepage/chatbox/ChatBox";
+import Chatbox from "@pages/homepage/chatbox/Chatbox";
 
 const ChatBoxPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +61,7 @@ const ChatBoxPopup = () => {
           boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
         }}
       >
-        <ChatBox/>
+        <Chatbox/>
       </Paper>
     </>
   );
