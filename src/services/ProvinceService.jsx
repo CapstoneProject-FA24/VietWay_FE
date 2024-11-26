@@ -4,14 +4,18 @@ import axios from 'axios';
 export const fetchProvinces = async () => {
     try {
         const response = await axios.get(`${baseURL}/api/provinces`);
+        console.log('API Response:', response.data);
+        
         const provinces = response.data.data.map(province => ({
             provinceId: province.provinceId,
-            provinceName: province.name,
+            provinceName: province.name || province.provinceName,
+            description: province.description,
             imageURL: province.imageUrl
         }));
         return provinces;
     } catch (error) {
         console.error('Error fetching provinces:', error);
+        console.error('Full error details:', error.response);
         throw error;
     }
 };
@@ -34,6 +38,7 @@ export const fetchProvinceWithCountDetails = async (params) => {
         const provinces = items.map(province => ({
             provinceId: province.provinceId,
             provinceName: province.provinceName,
+            description: province.description,
             imageURL: province.imageUrl,
             postsCount: province.postsCount,
             eventsCount: province.eventsCount,
@@ -60,6 +65,7 @@ export const fetchProvinceInfo = async (provinceId) => {
         return {
             provinceId: provinceInfo.provinceId,
             provinceName: provinceInfo.name,
+            description: provinceInfo.description,
             imageUrls: provinceInfo.images.map(image => image.url)
         };
     } catch (error) {

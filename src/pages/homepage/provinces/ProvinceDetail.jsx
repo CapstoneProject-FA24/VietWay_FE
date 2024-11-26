@@ -45,9 +45,11 @@ const ProvinceDetail = () => {
     try {
       setLoading(true);
       const response = await fetchProvinceInfo(id);
+      console.log('Province Response:', response);
       setProvince(response);
     } catch (error) {
       console.error('Failed to fetch province info:', error);
+      console.error('Full error details:', error.response);
     } finally {
       setLoading(false);
     }
@@ -249,9 +251,20 @@ const ProvinceDetail = () => {
             <Typography variant="h2" gutterBottom sx={{ fontWeight: 'bold', mb: 1 }}>
               {province.provinceName}
             </Typography>
-            <Typography variant="body1" paragraph>
-              Miêu tả về {province.provinceName}
-            </Typography>
+            <Box sx={{ mt: 3, mb: 5 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+                Giới thiệu về {province.provinceName}
+              </Typography>
+              {province.description ? (
+                <Typography variant="body1" paragraph sx={{ lineHeight: 1.8, textAlign: 'justify', color: 'text.primary', whiteSpace: 'pre-line' }}>
+                  {province.description}
+                </Typography>
+              ) : (
+                <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                  Chưa có thông tin mô tả về {province.provinceName}
+                </Typography>
+              )}
+            </Box>
             <Box sx={{ mt: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: '1.8rem' }}>
                 Điểm đến nổi bật
