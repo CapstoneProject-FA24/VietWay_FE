@@ -293,8 +293,12 @@ const PayBooking = () => {
                   {bookingData.code}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Thời lượng:</span>
+                  {bookingData.durationName}
+                </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Thời gian khởi hành:</span>
+                  {bookingData.startDate.toLocaleDateString('vi-VN')} - {new Date(bookingData.startDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
                 </Typography>
                 <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>

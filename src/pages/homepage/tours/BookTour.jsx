@@ -66,12 +66,29 @@ const ErrorText = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(0.5),
 }));
 
+const isCCCDRequired = (birthday) => {
+  if (!birthday) return false;
+  
+  const birthDate = new Date(birthday);
+  const today = new Date();
+  
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  const dayDiff = today.getDate() - birthDate.getDate();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age--;
+  }
+  
+  return age >= 14;
+}
+
 const BookTour = () => {
   const { id } = useParams();
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({
     fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "",
-    passengers: [{ type: 'Người lớn', name: '', gender: 0, birthday: '' }]
+    passengers: [{ type: 'Người lớn', name: '', gender: 0, birthday: '', cccd: '' }]
   });
   const topRef = useRef(null);
   const [errors, setErrors] = useState({});
@@ -113,6 +130,7 @@ const BookTour = () => {
           tourName: tourTemplate.tourName,
           code: tourTemplate.code,
           duration: tourTemplate.duration,
+          numberOfDay: tourTemplate.numberOfDay,
           pricesByAge: completepricesByAge
         };
         
@@ -127,7 +145,8 @@ const BookTour = () => {
             type: 'người lớn',
             name: customer.fullName,
             gender: customer.genderId,
-            birthday: dayjs(customer.birthday).format('YYYY-MM-DD')
+            birthday: dayjs(customer.birthday).format('YYYY-MM-DD'),
+            cccd: customer.cccd
           }]
         }));
       } catch (error) {
@@ -228,6 +247,25 @@ const BookTour = () => {
       ...prevErrors,
       [`passenger${index}-${field}`]: error
     }));
+    
+    if (field === 'cccd') {
+      const passenger = formData.passengers[index];
+      const requiresCCCD = isCCCDRequired(passenger.birthday);
+      
+      if (requiresCCCD) {
+        if (!value) {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [`passenger${index}-cccd`]: 'Vui lòng nhập số CCCD vì hành khách đã đủ 14 tuổi'
+          }));
+        } else if (!/^\d{12}$/.test(value)) {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [`passenger${index}-cccd`]: 'CCCD phải có đúng 12 chữ số'
+          }));
+        }
+      }
+    }
   };
 
   const handleAddPassenger = () => {
@@ -235,7 +273,7 @@ const BookTour = () => {
       ...prevState,
       passengers: [
         ...prevState.passengers,
-        { type: '', name: '', gender: '', birthday: '' }
+        { type: '', name: '', gender: '', birthday: '', cccd: '' }
       ]
     }));
   };
@@ -491,7 +529,7 @@ const BookTour = () => {
                     <Grid item xs={12} sm={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          label="Ngày sinh *"
+                          label="Ngày sinh"
                           value={dayjs(passenger.birthday)}
                           onChange={(newValue) => {
                             handlePassengerInfoChange(index, 'birthday', newValue.format('YYYY-MM-DD'));
@@ -517,6 +555,22 @@ const BookTour = () => {
                           }}
                         />
                       </LocalizationProvider>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        fullWidth
+                        label={`Số CCCD`}
+                        name={`passengerCCCD-${index}`}
+                        value={passenger.cccd || ''}
+                        onChange={(e) => handlePassengerInfoChange(index, 'cccd', e.target.value)}
+                        onBlur={() => validatePassengerField(index, 'cccd', passenger.cccd)}
+                        error={!!errors[`passenger${index}-cccd`]}
+                        helperText={errors[`passenger${index}-cccd`] || 
+                          (isCCCDRequired(passenger.birthday) ? 
+                            'Bắt buộc nhập CCCD vì hành khách đã đủ 14 tuổi' : 
+                            'Không bắt buộc nhập CCCD')}
+                        required={isCCCDRequired(passenger.birthday)}
+                      />
                     </Grid>
                     <Grid item xs={12}>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -594,25 +648,18 @@ const BookTour = () => {
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <SummaryItem>
+                  <Typography variant="body2">Thời lượng:</Typography>
+                  <Typography variant="body2">{bookingData.duration}</Typography>
+                </SummaryItem>
+                <SummaryItem>
                   <Typography variant="body2">Thời gian khởi hành:</Typography>
                   <Typography variant="body2">{bookingData.startDate.toLocaleDateString('vi-VN')} - {new Date(`1970-01-01T${bookingData.startTime}`).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2">Ngày kết thúc:</Typography>
-                  <Typography variant="body2">{
-                    (() => {
-                      if (bookingData) {
-                        const endDate = calculateEndDate(bookingData.startDate, { durationName: bookingData.duration });
-                        sessionStorage.setItem('endDate', endDate ? endDate.toLocaleDateString('vi-VN') : '');
-                        return endDate ? endDate.toLocaleDateString('vi-VN') : '';
-                      }
-                      return '';
-                    })()
-                  }</Typography>
-                </SummaryItem>
-                <SummaryItem>
-                  <Typography variant="body2">Thời lượng:</Typography>
-                  <Typography variant="body2">{bookingData.duration}</Typography>
+                  <Typography variant="body2">
+                    {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                  </Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography variant="body2" sx={{ minWidth: '6rem' }}>Khởi hành từ:</Typography>

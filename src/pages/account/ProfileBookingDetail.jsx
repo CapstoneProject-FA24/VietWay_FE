@@ -435,14 +435,17 @@ const ProfileBookingDetail = () => {
                 <Typography variant="body1" color="textPrimary" gutterBottom>
                   Mã tour: {bookingData.code}
                 </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom>
+                  Thời lượng: {bookingData.durationName}
+                </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {dayjs(bookingData.startDate).format('DD/MM/YYYY')}
+                  {bookingData.startDate.toLocaleDateString()}
                 </Typography>
-                {/* <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {dayjs(bookingData.endDate).format('DD/MM/YYYY')}
-                </Typography> */}
+                  {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                </Typography>
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData?.totalPrice?.toLocaleString() || 0} đ
                 </TotalPrice>
