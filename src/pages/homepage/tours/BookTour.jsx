@@ -617,8 +617,12 @@ const BookTour = () => {
                   <img src="/vnpay.jpg" alt="VNPay" style={{ width: '40px', height: '40px', position: 'absolute', marginRight: 25 }} />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                  <PaymentMethod value="Momo" control={<Radio />} label="Momo" />
-                  <img src="/momo.png" alt="Momo" style={{ width: '35px', height: '35px', position: 'absolute', marginRight: 30 }} />
+                  <PaymentMethod value="ZaloPay" control={<Radio />} label="ZaloPay" />
+                  <img src="/zalopay.png" alt="ZaloPay" style={{ width: '35px', height: '35px', position: 'absolute', marginRight: 30 }} />
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                  <PaymentMethod value="PayOS" control={<Radio />} label="PayOS" />
+                  <img src="/payos.jpg" alt="PayOS" style={{ width: '40px', height: '40px', position: 'absolute', marginRight: 25 }} />
                 </Box>
               </RadioGroup>
               {errors.paymentMethod && <ErrorText>{errors.paymentMethod}</ErrorText>}
