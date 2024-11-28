@@ -80,6 +80,7 @@ export const fetchTourTemplateById = async (id) => {
             tourName: response.data.data.tourName,
             description: response.data.data.description,
             duration: response.data.data.duration.durationName,
+            numberOfDay: response.data.data.duration.numberOfDay,
             tourCategoryId: response.data.data.tourCategory.tourCategoryId,
             tourCategoryName: response.data.data.tourCategory.name,
             policy: response.data.data.policy,

@@ -27,7 +27,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
 
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
-  const handlePayment = () => navigate(`/thanh-toan/${tour.bookingId}`);
+  const handlePayment = () => navigate(`/booking/${tour.bookingId}`);
   const handleCancelOpen = () => setIsCancelOpen(true);
   const handleCancelClose = () => setIsCancelOpen(false);
   const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });

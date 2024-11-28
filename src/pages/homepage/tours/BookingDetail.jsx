@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Portal } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -74,6 +74,10 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
   fontSize: "1.2rem",
   color: theme.palette.primary.main,
 }));
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const BookingDetail = () => {
   const [bookingData, setBookingData] = useState(null);
@@ -300,6 +304,17 @@ const BookingDetail = () => {
                 <Typography variant="body1" color="textPrimary" gutterBottom>
                   Mã tour: {bookingData.code}
                 </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom>
+                  Thời lượng: {bookingData.durationName}
+                </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
+                  {bookingData.startDate.toLocaleDateString()}
+                </Typography>
+                <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
+                  {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                </Typography>
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData?.totalPrice?.toLocaleString()} đ
                 </TotalPrice>
@@ -313,20 +328,13 @@ const BookingDetail = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
-        <MuiAlert
-          onClose={handleCloseSnackbar} severity="success" variant="filled"
-          sx={{
-            width: '500px', fontSize: '1.5rem', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', backgroundColor: '#CEECA2'
-          }}
-          iconMapping={{ success: <CheckCircleIcon fontSize="large" /> }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 5 }}>
+      <Portal>
+        <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ zIndex: (theme) => theme.zIndex.tooltip + 1000, position: 'fixed' }}>
+          <Alert onClose={handleCloseSnackbar} severity="success" variant="filled" sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
             Thanh toán thành công!
-          </Box>
-        </MuiAlert>
-      </Snackbar>
+          </Alert>
+        </Snackbar>
+      </Portal>
     </Box>
   );
 };

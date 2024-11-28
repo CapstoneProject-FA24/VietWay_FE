@@ -78,11 +78,13 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
                             <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
                                 Chính sách hoàn tiền:
                             </Typography>
-                            {tourInfo.refundPolicies.map((policy, index) => (
-                                <Typography key={index} variant="body2" sx={{ mb: 0.5 }}>
-                                    • Hủy trước {policy.cancelBefore.toString()} ngày: Hoàn {policy.refundPercent}% tổng tiền
-                                </Typography>
-                            ))}
+                            {tourInfo.refundPolicies
+                                .sort((a, b) => b.refundPercent - a.refundPercent)
+                                .map((policy, index) => (
+                                    <Typography key={index} variant="body2" sx={{ mb: 0.5 }}>
+                                        • Hủy trước ngày {new Date(policy.cancelBefore).toLocaleDateString()}: Hoàn {policy.refundPercent}% tổng tiền
+                                    </Typography>
+                                ))}
                         </Box>
                     ) : null}
 
