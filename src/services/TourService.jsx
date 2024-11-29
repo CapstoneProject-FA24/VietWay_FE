@@ -37,6 +37,7 @@ export const fetchTourById = async (id) => {
             price: item.defaultTouristPrice,
             maxParticipant: item.maxParticipant,
             minParticipant: item.minParticipant,
+            createdAt: new Date(item.createdAt),
             currentParticipant: item.currentParticipant,
             refundPolicies: item.refundPolicies.map(policy => ({
                 cancelBefore: new Date(policy.cancelBefore),
