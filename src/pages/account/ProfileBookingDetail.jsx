@@ -473,10 +473,10 @@ const ProfileBookingDetail = () => {
                     <Box sx={{ ml: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
                         <PaymentMethod
-                          value="Momo" label="Momo"
-                          control={<Radio checked={paymentMethod === 'Momo'} onChange={(e) => setPaymentMethod(e.target.value)} />}
+                          value="ZaloPay" label="ZaloPay"
+                          control={<Radio checked={paymentMethod === 'ZaloPay'} onChange={(e) => setPaymentMethod(e.target.value)} />}
                         />
-                        <img src="/momo.png" alt="Momo" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
+                        <img src="/zalopay.png" alt="ZaloPay" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%', mb: 2 }}>
                         <PaymentMethod
@@ -484,6 +484,13 @@ const ProfileBookingDetail = () => {
                           control={<Radio checked={paymentMethod === 'VNPay'} onChange={(e) => setPaymentMethod(e.target.value)} />}
                         />
                         <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
+                        <PaymentMethod
+                          value="PayOS" label="PayOS"
+                          control={<Radio checked={paymentMethod === 'PayOS'} onChange={(e) => setPaymentMethod(e.target.value)} />}
+                        />
+                        <img src="/payos.jpg" alt="PayOS" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
                       </Box>
                     </Box>
                     <ActionButton onClick={handlePayment} variant="contained" fullWidth>
