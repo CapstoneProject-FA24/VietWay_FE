@@ -225,8 +225,9 @@ const PayBooking = () => {
                   <Typography sx={{ fontWeight: 'bold' }}>Hình thức thanh toán:</Typography>
                   <Typography>
                     {paymentMethod === 'VNPay' ? 'VNPay' :
-                      paymentMethod === 'Momo' ? 'Momo' :
-                        'Thanh toán sau'}
+                      paymentMethod === 'ZaloPay' ? 'ZaloPay' :
+                        paymentMethod === 'PayOS' ? 'PayOS' :
+                          'Thanh toán sau'}
                   </Typography>
                 </SummaryItem>
                 <RadioGroup
@@ -240,8 +241,12 @@ const PayBooking = () => {
                     <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="Momo" control={<Radio />} label="Momo" />
-                    <img src="/momo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
+                    <PaymentMethod value="ZaloPay" control={<Radio />} label="ZaloPay" />
+                    <img src="/zalopay.png" alt="ZaloPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                    <PaymentMethod value="PayOS" control={<Radio />} label="PayOS" />
+                    <img src="/payos.jpg" alt="PayOS" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
                   </Box>
                 </RadioGroup>
                 <SummaryItem>

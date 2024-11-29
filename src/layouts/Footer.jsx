@@ -43,8 +43,9 @@ const Footer = () => {
             <Typography variant="h6" sx={{ color: '#0b1a57', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1, mb: 2 }}>
               Cổng thanh toán
             </Typography>
-            <img src="https://upload.wikimedia.org/wikipedia/vi/7/77/ZaloPay_Logo.png" alt="ZaloPay" style={{ width: 'auto', height: '3rem' }} />
-            <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style={{ width: 'auto', height: '3.3rem' }} />
+            <img src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg" alt="ZaloPay" style={{ width: 'auto', height: '3rem', marginRight: '12px' }} />
+            <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png" alt="VnPay" style={{ width: 'auto', height: '3rem', marginRight: '12px' }} />
+            <img src="/payos.jpg" alt="PayOS" style={{ width: 'auto', height: '3rem', marginRight: '12px' }} />
           </Grid>
         </Grid>
       </Container>
