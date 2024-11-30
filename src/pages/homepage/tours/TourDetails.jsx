@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar, CircularProgress } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQrcode, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { faQrcode, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone, faBus } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -169,7 +169,7 @@ const TourDetails = () => {
           <strong> {tour.tourName}</strong>
         </Typography>
         <Typography gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'grey', fontSize: '1.15rem' }}>
-          {tour.provinces.map(province => province.name).join(' - ')}
+          Từ {tour.startingProvince} đi {tour.provinces.map(province => province.name).join(' - ')}
         </Typography>
         <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
           {tour.tourName}
@@ -200,18 +200,29 @@ const TourDetails = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
                 <FontAwesomeIcon icon={faClock} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C', fontWeight: 600, mr: 1, ml: 1 }}>Thời lượng:</Typography>
-                <Typography sx={{ color: '#05073C' }}>{tour.duration}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2 }}>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Thời lượng:</Typography>
+                  <Typography sx={{ color: '#05073C' }}>{tour.duration}</Typography>
+                </Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
                 <FontAwesomeIcon icon={faMoneyBill1} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C', fontWeight: 600, mr: 1, ml: 1 }}>Loại tour:</Typography>
-                <Typography sx={{ color: '#05073C' }}>{tour.tourCategoryName}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2  }}>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Loại tour:</Typography>
+                  <Typography sx={{ color: '#05073C' }}>{tour.tourCategoryName}</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
+                <FontAwesomeIcon icon={faBus} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2  }}>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Phương tiện di chuyển:</Typography>
+                  <Typography sx={{ color: '#05073C' }}>{tour.transportation}</Typography>
+                </Box>
               </Box>
             </Box>
             <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Tổng quan</Typography>
-              <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>{tour.description}</Typography>
+              <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }} dangerouslySetInnerHTML={{ __html: tour.description }} />
             </Box>
             <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C', mb: 3 }}>Lịch trình</Typography>
