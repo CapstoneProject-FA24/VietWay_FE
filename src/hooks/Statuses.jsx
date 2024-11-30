@@ -28,21 +28,20 @@ export const AttractionStatus = {
 export const TourStatus = {
   Pending: 0,
   Rejected: 1,
-  Scheduled: 2,
-  Closed: 3,
-  OnGoing: 4,
-  Completed: 5,
-  Cancelled: 6
+  Accepted: 2,
+  Opened: 3,
+  Closed: 4,
+  OnGoing: 5,
+  Completed: 6,
+  Cancelled: 7
 };
 
 export const BookingStatus = {
   Pending: 0,
-  Confirmed: 1,
-  Completed: 2,
-  Expired: 3,
-  Cancelled: 4,
-  PendingRefund: 5,
-  Refunded: 6
+  Deposited: 1,
+  Paid: 2,
+  Completed: 3,
+  Cancelled: 4
 };
 
 export const PaymentStatus = {
@@ -66,7 +65,8 @@ export const EntityType = {
   TourBooking: 10,
   TourCategory: 11,
   TourDuration: 12,
-  TourTemplate: 13
+  TourTemplate: 13,
+  BookingRefund: 14
 };
 
 export const EventStatus = {
@@ -88,4 +88,16 @@ export const EntityModifyAction = {
   Update: 1,
   ChangeStatus: 2,
   Delete: 3
+};
+
+export const PaymentMethod = {
+  VNPay: 0,
+  Momo: 1,
+  ZaloPay: 2,
+  PayOS: 3
+};
+
+export const RefundStatus = {
+  Pending: 0,
+  Refunded: 1
 };

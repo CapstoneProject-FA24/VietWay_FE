@@ -74,9 +74,19 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
 }));
 
 const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
-  border: "1px solid #ccc", borderRadius: theme.shape.borderRadius,
-  width: "100%", height: '3rem', margin: "0 0 8px 0", padding: theme.spacing(1)
+  border: "1px solid #ccc", 
+  borderRadius: theme.shape.borderRadius,
+  width: "100%", 
+  height: '4.5rem', 
+  margin: "0 0 8px 0", 
+  padding: theme.spacing(1)
 }));
+
+const PaymentMethodEnum = {
+  VNPay: 0,
+  ZaloPay: 2,
+  PayOS: 3
+};
 
 const PayBooking = () => {
   const [bookingData, setBookingData] = useState(null);
@@ -143,13 +153,23 @@ const PayBooking = () => {
 
   const handlePayment = async () => {
     if (paymentMethod !== '') {
-      if (paymentMethod === 'VNPay') {
-        const response = await fetchPaymentURL(id);
-        if (response !== null || response !== '') {
+      try {
+        const paymentMethodId = PaymentMethodEnum[paymentMethod];
+        const isFullPayment = formData.paymentAmount === '100';
+        
+        const response = await fetchPaymentURL(id, paymentMethodId, isFullPayment);
+        
+        if (response !== null && response !== '') {
           window.location.href = response;
         }
+      } catch (error) {
+        setSnackbarMessage('Có lỗi xảy ra khi tạo URL thanh toán');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
       }
     } else {
+      setSnackbarMessage('Vui lòng chọn phương thức thanh toán');
+      setSnackbarSeverity('warning');
       setOpenSnackbar(true);
     }
   };
@@ -253,11 +273,15 @@ const PayBooking = () => {
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                     <PaymentMethod value="VNPay" control={<Radio />} label="VNPay" />
-                    <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
+                    <img src="/vnpay.jpg" alt="VNPay" style={{ width: '40px', height: '40px', position: 'absolute', marginRight: 25 }} />
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="Momo" control={<Radio />} label="Momo" />
-                    <img src="/momo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
+                    <PaymentMethod value="ZaloPay" control={<Radio />} label="ZaloPay" />
+                    <img src="/zalopay.png" alt="ZaloPay" style={{ width: '35px', height: '35px', position: 'absolute', marginRight: 30 }} />
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                    <PaymentMethod value="PayOS" control={<Radio />} label="PayOS" />
+                    <img src="/payos.jpg" alt="PayOS" style={{ width: '40px', height: '40px', position: 'absolute', marginRight: 25 }} />
                   </Box>
                 </RadioGroup>
                 <SummaryItem>
