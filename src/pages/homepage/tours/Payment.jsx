@@ -89,7 +89,7 @@ const PayBooking = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
-  
+
   useEffect(() => {
     const token = getCookie('customerToken');
     if (!token) {
@@ -122,13 +122,13 @@ const PayBooking = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const vnpCode = queryParams.get('vnpCode');
-    
+
     if (vnpCode) {
       const message = VnPayCode[vnpCode] || 'Giao dịch thất bại';
       setSnackbarMessage(message);
       setSnackbarSeverity(vnpCode === '00' ? 'success' : 'error');
       setOpenSnackbar(true);
-      
+
       // Redirect after payment result
       if (vnpCode === '00') {
         setTimeout(() => {
@@ -225,9 +225,8 @@ const PayBooking = () => {
                   <Typography sx={{ fontWeight: 'bold' }}>Hình thức thanh toán:</Typography>
                   <Typography>
                     {paymentMethod === 'VNPay' ? 'VNPay' :
-                      paymentMethod === 'ZaloPay' ? 'ZaloPay' :
-                        paymentMethod === 'PayOS' ? 'PayOS' :
-                          'Thanh toán sau'}
+                      paymentMethod === 'Momo' ? 'Momo' :
+                        'Thanh toán sau'}
                   </Typography>
                 </SummaryItem>
                 <RadioGroup
@@ -241,12 +240,8 @@ const PayBooking = () => {
                     <img src="/vnpay.jpg" alt="VNPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="ZaloPay" control={<Radio />} label="ZaloPay" />
-                    <img src="/zalopay.png" alt="ZaloPay" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                    <PaymentMethod value="PayOS" control={<Radio />} label="PayOS" />
-                    <img src="/payos.jpg" alt="PayOS" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
+                    <PaymentMethod value="Momo" control={<Radio />} label="Momo" />
+                    <img src="/momo.png" alt="Momo" style={{ width: '24px', height: '24px', position: 'absolute', marginRight: 25, marginTop: -10 }} />
                   </Box>
                 </RadioGroup>
                 <SummaryItem>
@@ -272,7 +267,7 @@ const PayBooking = () => {
                     </SummaryItem>
                     <SummaryItem>
                       <Typography sx={{ fontWeight: 'bold' }}>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'}) || 'Không xác định'}</Typography>
+                      <Typography>{participant.dateOfBirth.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) || 'Không xác định'}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
@@ -285,35 +280,37 @@ const PayBooking = () => {
                 <Box sx={{ mb: 2 }}>
                   <img src={bookingData.imageUrl} alt={bookingData.tourName} style={{ width: "100%", height: "auto" }} />
                 </Box>
-                <Typography variant="h6" style={{ fontWeight: "bold" }} gutterBottom>
+                <Typography variant="h6" style={{ fontWeight: "bold", fontSize: "1.2rem" }} gutterBottom>
                   {bookingData.tourName}
                 </Typography>
-                <Typography variant="body1" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Số booking:</span>
                   <span style={{ color: '#EF3535', fontWeight: 'bold', fontSize: '1.2rem', fontStyle: 'italic' }}>{bookingData.bookingId}</span>
                 </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="body2" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Mã Tour:</span>
                   {bookingData.code}
                 </Typography>
-                <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Thời lượng:</span>
                   {bookingData.durationName}
                 </Typography>
-                <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Thời gian khởi hành:</span>
                   {bookingData.startDate.toLocaleDateString('vi-VN')} - {new Date(bookingData.startDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
                 </Typography>
-                <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {
-                    (() => {
-                      const end = sessionStorage.getItem('endDate');
-                      return end ? end : '';
-                    })()
-                  }
+                  {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
                 </Typography>
+                <Divider sx={{ my: 2 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
+                  <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                </Box>
+                <Divider sx={{ my: 2 }} />
                 <TotalPrice variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền:</span>
                   <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem' }}>
@@ -323,11 +320,11 @@ const PayBooking = () => {
                 <Button onClick={() => { handlePayment() }} variant="contained" fullWidth>
                   Thanh toán ngay
                 </Button>
-                <Button 
-                  component={Link} 
-                  to={`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${bookingData.bookingId}`} 
-                  variant="outlined" 
-                  fullWidth 
+                <Button
+                  component={Link}
+                  to={`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${bookingData.bookingId}`}
+                  variant="outlined"
+                  fullWidth
                   sx={{ mt: 1 }}
                 >
                   Thanh toán sau

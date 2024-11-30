@@ -10,12 +10,13 @@ export const fetchToursByTemplateId = async (id) => {
             startLocation: item.startLocation,
             startTime: new Date(item.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
             startDate: new Date(item.startDate),
-            endDate: new Date(item.endDate),
             price: item.defaultTouristPrice,
             maxParticipant: item.maxParticipant,
             minParticipant: item.minParticipant,
             currentParticipant: item.currentParticipant,
-            status: item.status
+            status: item.status,
+            depositPercent: item.depositPercent,
+            paymentDeadline: new Date(item.paymentDeadline),
         }));
         return tours;
     } catch (error) {
@@ -50,7 +51,9 @@ export const fetchTourById = async (id) => {
                 ageTo: price.ageTo
             })),
             registerOpenDate: new Date(item.registerOpenDate),
-            registerCloseDate: new Date(item.registerCloseDate)
+            registerCloseDate: new Date(item.registerCloseDate),
+            depositPercent: item.depositPercent,
+            paymentDeadline: new Date(item.paymentDeadline),
         };
         return tour;
     } catch (error) {

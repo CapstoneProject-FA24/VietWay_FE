@@ -23,6 +23,8 @@ export const fetchBookingData = async (bookingId) => {
             status: bookingData.status,
             createdOn: bookingData.createdOn,
             startLocation: bookingData.startLocation,
+            depositPercent: bookingData.depositPercent,
+            paymentDeadline: new Date(bookingData.paymentDeadline),
             startDate: new Date(bookingData.startDate),
             durationName: bookingData.durationName,
             numberOfDay: bookingData.numberOfDay,

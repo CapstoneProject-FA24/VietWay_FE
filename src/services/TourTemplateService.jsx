@@ -55,7 +55,8 @@ export const fetchTourTemplates = async (params) => {
             provinces: item.provinces,
             imageUrl: item.imageUrl,
             minPrice: item.minPrice,
-            startDates: item.startDate.sort((a, b) => new Date(a) - new Date(b))
+            startDates: item.startDate.sort((a, b) => new Date(a) - new Date(b)),
+            startingProvince: item.startingProvince,
         }));
         
         return ({

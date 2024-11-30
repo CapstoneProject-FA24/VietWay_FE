@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar, CircularProgress } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQrcode, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { faQrcode, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone, faBus  } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -205,8 +205,17 @@ const TourDetails = () => {
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
                 <FontAwesomeIcon icon={faMoneyBill1} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C', fontWeight: 600, mr: 1, ml: 1 }}>Loại tour:</Typography>
-                <Typography sx={{ color: '#05073C' }}>{tour.tourCategoryName}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2 }}>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Loại tour:</Typography>
+                  <Typography sx={{ color: '#05073C' }}>{tour.tourCategoryName}</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
+                <FontAwesomeIcon icon={faBus} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2 }}>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Phương tiện di chuyển:</Typography>
+                  <Typography sx={{ color: '#05073C' }}>{tour.transportation}</Typography>
+                </Box>
               </Box>
             </Box>
             <Box sx={{ mb: 5 }}>
@@ -249,7 +258,13 @@ const TourDetails = () => {
                     <ul>
                       {s.attractions.map((attraction, i) => (
                         <li key={attraction.attractionId}>
-                          {attraction.name}
+                          <Link
+                            to={`/diem-tham-quan/${attraction.attractionId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {attraction.name}
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -273,9 +288,9 @@ const TourDetails = () => {
           </Grid>
           <Grid item xs={12} md={4}>
             <Paper elevation={3} sx={{ p: 4, mb: 3, borderRadius: '10px', boxShadow: '1px 1px 10px grey' }}>
-              <Box sx={{ mb: 5 }}>
-                <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.3rem' }}> Chọn ngày đi </Typography>
-                <FormControl fullWidth sx={{ mb: 2, mt: 1 }}>
+              <Box sx={{ mb: 2 }}>
+                <Typography sx={{ fontWeight: 700, color: '#5d5d5d', fontSize: '1.1rem' }}> Chọn ngày đi </Typography>
+                <FormControl fullWidth sx={{ mb: 2, mt: 1.5 }}>
                   <InputLabel id="month-select-label">Chọn tháng</InputLabel>
                   <Select labelId="month-select-label" id="month-select" value={selectedMonth}
                     label="Chọn tháng" onChange={handleMonthChange} inputRef={monthSelectRef} >
@@ -305,31 +320,31 @@ const TourDetails = () => {
                   )
                 )}
               </Box>
-              <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.6rem', marginBottom: '10px' }}> Thông tin tour </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+              <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.7rem', marginBottom: '10px', textAlign: 'center' }}> Thông tin tour </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1.5 }}>
                 <FontAwesomeIcon icon={faQrcode} style={{ marginRight: '10px', color: '#3572EF' }} />
                 Mã tour:
                 <Typography sx={{ ml: 1, color: 'primary.main', fontWeight: 700, fontSize: '1.1rem' }}>{tour.code}</Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1.5 }}>
                 <FontAwesomeIcon icon={faLocationDot} style={{ marginRight: '10px', color: '#3572EF', marginTop: '3px' }} />
                 <Typography sx={{ color: '#05073C' }}>Khởi hành từ: {availableTours.find(t => t.id === selectedTour)?.startLocation || ''}</Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1.5 }}>
                 <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '10px', color: '#3572EF' }} />
                 <Typography sx={{ color: '#05073C' }}>
                   Khởi hành ngày: {availableTours.find(t => t.id === selectedTour)?.startDate ? new Date(availableTours.find(t => t.id === selectedTour).startDate).toLocaleDateString('vi-VN') : ''} {' '}
                   {availableTours.find(t => t.id === selectedTour)?.startTime ? new Date(`1970-01-01T${availableTours.find(t => t.id === selectedTour).startTime}`).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1.5 }}>
                 <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '10px', color: '#3572EF' }} />
                 <Typography sx={{ color: '#05073C' }}>
                   Kết thúc ngày: {
                     (() => {
                       const selectedTourData = availableTours.find(t => t.id === selectedTour);
                       if (selectedTourData) {
-                        const endDate = calculateEndDate(selectedTourData.startDate, { durationName: tour.duration });
+                        const endDate = new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString();
                         return endDate ? endDate.toLocaleDateString('vi-VN') : '';
                       }
                       return '';
@@ -337,7 +352,7 @@ const TourDetails = () => {
                   }
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
                 <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px', color: '#3572EF' }} />
                 <Typography sx={{ color: '#05073C' }}>
                   Số chỗ còn nhận: {
@@ -351,7 +366,7 @@ const TourDetails = () => {
                   }
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <FontAwesomeIcon icon={faTag} style={{ marginRight: '10px', color: '#3572EF' }} />
                 <Typography sx={{ color: '#05073C' }}>Giá:</Typography>
                 <Typography sx={{ ml: 1, color: 'red', fontWeight: 700, fontSize: '1.5rem' }}>
@@ -360,6 +375,11 @@ const TourDetails = () => {
                     `Chỉ từ ${formatPrice(getMinTourPrice())}`
                   }
                 </Typography>
+              </Box>
+              <Box sx={{ border: '1px solid #ddd', borderRadius: 1, bgcolor: '#f9f9f9', mb: 2 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện thanh toán:</Typography>
+                <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Đặt cọc {(availableTours.find(t => t.id === selectedTour)?.depositPercent || 0)}% số tiền tour khi đăng ký</Typography>
+                <Typography sx={{ color: '#05073C' }}>• Thanh toán số tiền còn lại trước {availableTours.find(t => t.id === selectedTour)?.paymentDeadline ? new Date(availableTours.find(t => t.id === selectedTour).paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
               </Box>
               <Button onClick={handleBooking} variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

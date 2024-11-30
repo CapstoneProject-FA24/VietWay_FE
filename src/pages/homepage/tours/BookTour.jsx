@@ -66,20 +66,24 @@ const ErrorText = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(0.5),
 }));
 
-const isCCCDRequired = (birthday) => {
+const isCCCDRequired = (birthday, transportation) => {
+  if (!['máy bay', 'tàu hỏa'].includes(transportation?.toLowerCase())) {
+    return false;
+  }
+
   if (!birthday) return false;
-  
+
   const birthDate = new Date(birthday);
   const today = new Date();
-  
+
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
   const dayDiff = today.getDate() - birthDate.getDate();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
     age--;
   }
-  
+
   return age >= 14;
 }
 
@@ -87,7 +91,7 @@ const BookTour = () => {
   const { id } = useParams();
   const [bookingData, setBookingData] = useState(null);
   const [formData, setFormData] = useState({
-    fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "",
+    fullName: "", email: "", phone: "", address: "", note: "", paymentMethod: "", isDeposit: false,
     passengers: [{ type: 'Người lớn', name: '', gender: 0, birthday: '', cccd: '' }]
   });
   const topRef = useRef(null);
@@ -111,8 +115,9 @@ const BookTour = () => {
         setLoading(true);
         const customer = await getCustomerInfo();
         const tour = await fetchTourById(id);
+        console.log
         const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
-        
+
         const completepricesByAge = [
           {
             name: "Người lớn",
@@ -131,9 +136,11 @@ const BookTour = () => {
           code: tourTemplate.code,
           duration: tourTemplate.duration,
           numberOfDay: tourTemplate.numberOfDay,
-          pricesByAge: completepricesByAge
+          pricesByAge: completepricesByAge,
+          transportation: tourTemplate.transportation,
+          depositPercent: tour.depositPercent
         };
-        
+
         setBookingData(data);
         setFormData(prevState => ({
           ...prevState,
@@ -247,11 +254,11 @@ const BookTour = () => {
       ...prevErrors,
       [`passenger${index}-${field}`]: error
     }));
-    
+
     if (field === 'cccd') {
       const passenger = formData.passengers[index];
-      const requiresCCCD = isCCCDRequired(passenger.birthday);
-      
+      const requiresCCCD = isCCCDRequired(passenger.birthday, bookingData?.transportation);
+
       if (requiresCCCD) {
         if (!value) {
           setErrors(prevErrors => ({
@@ -292,14 +299,14 @@ const BookTour = () => {
       const priceByAge = bookingData.pricesByAge.find(
         p => p.name.toLowerCase() === type
       );
-      
+
       if (!summary[type]) {
         summary[type] = {
           count: 0,
           total: 0
         };
       }
-      
+
       summary[type].count += 1;
       summary[type].total += priceByAge ? priceByAge.price : bookingData.defaultTouristPrice;
     });
@@ -395,6 +402,13 @@ const BookTour = () => {
     setOpenSnackbar(false);
   };
 
+  const handleDepositToggle = (event) => {
+    setFormData(prev => ({
+      ...prev,
+      isDeposit: event.target.checked
+    }));
+  };
+
   if (loading) {
     return (
       <>
@@ -481,7 +495,7 @@ const BookTour = () => {
                         >
                           {bookingData.pricesByAge?.map(priceByAge => (
                             <MenuItem key={priceByAge.name} value={priceByAge.name.toLowerCase()}>
-                              {priceByAge.name === 'Người lớn' ? 
+                              {priceByAge.name === 'Người lớn' ?
                                 `${priceByAge.name} (Trên ${priceByAge.ageFrom} tuổi) - ${priceByAge.price?.toLocaleString()} đ` :
                                 `${priceByAge.name} (Từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi) - ${priceByAge.price?.toLocaleString()} đ`
                               }
@@ -556,22 +570,24 @@ const BookTour = () => {
                         />
                       </LocalizationProvider>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <CustomTextField
-                        fullWidth
-                        label={`Số CCCD`}
-                        name={`passengerCCCD-${index}`}
-                        value={passenger.cccd || ''}
-                        onChange={(e) => handlePassengerInfoChange(index, 'cccd', e.target.value)}
-                        onBlur={() => validatePassengerField(index, 'cccd', passenger.cccd)}
-                        error={!!errors[`passenger${index}-cccd`]}
-                        helperText={errors[`passenger${index}-cccd`] || 
-                          (isCCCDRequired(passenger.birthday) ? 
-                            'Bắt buộc nhập CCCD vì hành khách đã đủ 14 tuổi' : 
-                            'Không bắt buộc nhập CCCD')}
-                        required={isCCCDRequired(passenger.birthday)}
-                      />
-                    </Grid>
+                    {['máy bay', 'tàu hỏa'].includes(bookingData?.transportation?.toLowerCase()) && (
+                      <Grid item xs={12} sm={6}>
+                        <CustomTextField
+                          fullWidth
+                          label={`Số CCCD`}
+                          name={`passengerCCCD-${index}`}
+                          value={passenger.cccd || ''}
+                          onChange={(e) => handlePassengerInfoChange(index, 'cccd', e.target.value)}
+                          onBlur={() => validatePassengerField(index, 'cccd', passenger.cccd)}
+                          error={!!errors[`passenger${index}-cccd`]}
+                          helperText={errors[`passenger${index}-cccd`] ||
+                            (isCCCDRequired(passenger.birthday, bookingData?.transportation) ?
+                              'Bắt buộc nhập CCCD vì hành khách đã đủ 14 tuổi' :
+                              'Không bắt buộc nhập CCCD')}
+                          required={isCCCDRequired(passenger.birthday, bookingData?.transportation)}
+                        />
+                      </Grid>
+                    )}
                     <Grid item xs={12}>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                         {index > 0 && (
@@ -668,6 +684,14 @@ const BookTour = () => {
                 <SummaryItem>
                   <Typography variant="body2" sx={{ minWidth: '6rem' }}>Khởi hành từ:</Typography>
                   <Typography variant="body2">{bookingData.startLocation}</Typography>
+                </SummaryItem>
+                <Divider sx={{ my: 1 }} />
+                <SummaryItem>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
+                    <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                  </Box>
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />
                 <SummarySubtitle variant="subtitle2">KHÁCH HÀNG</SummarySubtitle>
