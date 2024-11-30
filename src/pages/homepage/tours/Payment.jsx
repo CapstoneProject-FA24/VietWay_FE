@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, RadioGroup, Radio, FormControlLabel, Snackbar } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, RadioGroup, Radio, FormControlLabel, Snackbar, Checkbox } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -68,7 +68,6 @@ const SummaryItem = styled(Box)(({ theme }) => ({
 
 const TotalPrice = styled(Typography)(({ theme }) => ({
   fontWeight: "bold",
-  marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
   fontSize: "1.2rem",
   color: theme.palette.primary.main,
@@ -89,6 +88,10 @@ const PayBooking = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
+  const [formData, setFormData] = useState({
+    paymentAmount: '100',
+    paymentMethod: ''
+  });
 
   useEffect(() => {
     const token = getCookie('customerToken');
@@ -156,6 +159,19 @@ const PayBooking = () => {
       return;
     }
     setOpenSnackbar(false);
+  };
+
+  const handlePaymentAmountChange = (event) => {
+    setFormData(prev => ({
+      ...prev,
+      paymentAmount: event.target.value
+    }));
+  };
+
+  const calculateTotalWithDeposit = () => {
+    return formData.paymentAmount === 'deposit'
+      ? bookingData.totalPrice * (bookingData.depositPercent / 100) 
+      : bookingData.totalPrice;
   };
 
   if (loading) {
@@ -311,10 +327,28 @@ const PayBooking = () => {
                   <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
                 </Box>
                 <Divider sx={{ my: 2 }} />
+                {bookingData.depositPercent < 100 && (
+                  <RadioGroup
+                    value={formData.paymentAmount}
+                    onChange={handlePaymentAmountChange}
+                    sx={{ mb: 2 }}
+                  >
+                    <FormControlLabel 
+                      value="deposit" 
+                      control={<Radio />} 
+                      label={`Đặt cọc ${bookingData.depositPercent}%`}
+                    />
+                    <FormControlLabel 
+                      value="100" 
+                      control={<Radio />} 
+                      label="Thanh toán 100%"
+                    />
+                  </RadioGroup>
+                )}
                 <TotalPrice variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền:</span>
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền cần thanh toán:</span>
                   <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem' }}>
-                    {bookingData.totalPrice.toLocaleString()} đ
+                    {calculateTotalWithDeposit().toLocaleString()} đ
                   </span>
                 </TotalPrice>
                 <Button onClick={() => { handlePayment() }} variant="contained" fullWidth>
