@@ -104,14 +104,6 @@ const BookingDetail = () => {
         const vnpCode = searchParams.get('vnp_ResponseCode');
 
         if (vnpAmount && vnpCode === '00') {
-          //remove when use online payment
-          //start from here
-          const vnPayIPN = `?vnp_TmnCode=${searchParams.get('vnp_TmnCode')}&vnp_Amount=${searchParams.get('vnp_Amount')}&vnp_BankCode=${searchParams.get('vnp_BankCode')}&vnp_BankTranNo=${searchParams.get('vnp_BankTranNo')}&vnp_CardType=${searchParams.get('vnp_CardType')}&vnp_PayDate=${searchParams.get('vnp_PayDate')}&vnp_OrderInfo=${searchParams.get('vnp_OrderInfo').replace(/\+/g, '%2B')}&vnp_TransactionNo=${searchParams.get('vnp_TransactionNo')}&vnp_ResponseCode=${searchParams.get('vnp_ResponseCode')}&vnp_TransactionStatus=${searchParams.get('vnp_TransactionStatus')}&vnp_TxnRef=${searchParams.get('vnp_TxnRef')}&vnp_SecureHash=${searchParams.get('vnp_SecureHash')}`;
-          const response = await fetchCreatePayment(vnPayIPN);
-          if (response.rspCode === '00') {
-            setOpenSnackbar(true);
-          }
-          //end here
           const paymentData = await fetchBookingPayments(id);
           setPayments(paymentData.items);
         }
