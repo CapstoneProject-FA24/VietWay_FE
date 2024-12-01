@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -19,6 +19,7 @@ import { BookingStatus } from '@hooks/Statuses';
 import CancelBooking from '@components/profiles/CancelBooking';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
 import { VnPayCode } from "@hooks/VnPayCode";
+import { fetchTourById } from "@services/TourService";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -54,12 +55,13 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
   fontWeight: "bold",
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
-  fontSize: "1.2rem",
+  fontSize: "1.4rem",
   color: theme.palette.primary.main,
 }));
 
 const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
   marginRight: 0,
+  marginTop: -5,
   '& .MuiFormControlLabel-label': {
     fontSize: '0.9rem',
   },
@@ -89,18 +91,60 @@ const ProfileBookingDetail = () => {
     severity: 'success'
   });
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    paymentAmount: '100',
+    paymentMethod: ''
+  });
+
+  const PaymentMethodEnum = {
+    VNPay: 0,
+    ZaloPay: 2,
+    PayOS: 3
+  };
 
   useEffect(() => {
     const customerToken = getCookie('customerToken');
     if (!customerToken) { navigate('/'); }
   }, []);
 
+  const handlePaymentAmountChange = (event) => {
+    setFormData(prev => ({
+      ...prev,
+      paymentAmount: event.target.value
+    }));
+  };
+
+  const calculateTotalWithDeposit = () => {
+    if (!bookingData) return 0;
+    return formData.paymentAmount === 'deposit'
+      ? bookingData.totalPrice * (bookingData.depositPercent / 100)
+      : bookingData.totalPrice - (bookingData.paidAmount || 0);
+  };
+
   const handlePayment = async () => {
-    if (paymentMethod === 'VNPay') {
-      const response = await fetchPaymentURL(id);
-      if (response !== null && response !== '') {
-        window.location.href = response;
+    if (paymentMethod !== '') {
+      try {
+        const paymentMethodId = PaymentMethodEnum[paymentMethod];
+        const isFullPayment = formData.paymentAmount === '100';
+
+        const response = await fetchPaymentURL(id, paymentMethodId, isFullPayment);
+
+        if (response !== null && response !== '') {
+          window.location.href = response;
+        }
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: 'Có lỗi xảy ra khi tạo URL thanh toán',
+          severity: 'error'
+        });
       }
+    } else {
+      setSnackbar({
+        open: true,
+        message: 'Vui lòng chọn phương thức thanh toán',
+        severity: 'warning'
+      });
     }
   };
 
@@ -109,35 +153,28 @@ const ProfileBookingDetail = () => {
       try {
         const data = await fetchBookingData(id);
         const paymentData = await fetchBookingPayments(id);
-        setPayments(paymentData.items);
-
-        const searchParams = new URLSearchParams(location.search);
-        const vnpAmount = searchParams.get('vnp_Amount');
-        const vnpCode = searchParams.get('vnp_ResponseCode');
+        const tour = await fetchTourById(data.tourId);
         
-        // Handle VNPay response
-        if (vnpCode) {
-          const message = VnPayCode[vnpCode] || 'Giao dịch thất bại';
-          setSnackbar({
-            open: true,
-            message: message,
-            severity: vnpCode === '00' ? 'success' : 'error'
-          });
-          
-          // Refresh data after successful payment
-          if (vnpCode === '00') {
-            const updatedData = await fetchBookingData(id);
-            setBookingData(updatedData);
-          }
-        }
+        const bookingDataWithTour = {
+          ...data,
+          tourId: tour.id,
+          tourTemplateId: tour.tourTemplateId,
+          startLocation: tour.startLocation,
+          startTime: tour.startTime,
+          startDate: tour.startDate,
+          maxParticipant: tour.maxParticipant,
+          minParticipant: tour.minParticipant,
+          currentParticipant: tour.currentParticipant,
+          depositPercent: tour.depositPercent,
+          paymentDeadline: tour.paymentDeadline,
+          refundPolicies: tour.refundPolicies,
+          pricesByAge: tour.pricesByAge,
+          registerOpenDate: tour.registerOpenDate,
+          registerCloseDate: tour.registerCloseDate,
+        };
 
-        if (vnpAmount) {
-          const paidAmount = parseInt(vnpAmount) / 100;
-          data.paymentMethod = "VNPay";
-          data.paidAmount = paidAmount;
-        }
-
-        setBookingData(data);
+        setPayments(paymentData.items);
+        setBookingData(bookingDataWithTour);
       } catch (error) {
         console.error("Error fetching booking details:", error);
         setSnackbar({
@@ -338,25 +375,25 @@ const ProfileBookingDetail = () => {
                   <Typography>{bookingData?.totalPrice?.toLocaleString() || 0} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
-                  <Typography>Hình thức thanh toán:</Typography>
-                  <Typography>{bookingData.status === 0 ? 'Thanh toán sau' : 'VNPay'}</Typography>
+                  <Typography>Đã thanh toán:</Typography>
+                  <Typography>{bookingData?.paidAmount?.toLocaleString() || 0} đ</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Tình trạng:</Typography>
                   <Typography sx={{ color: getBookingStatusInfo(bookingData.status).color }}>{getBookingStatusInfo(bookingData.status).text}</Typography>
                 </SummaryItem>
                 {bookingData.status === 0 && (
-                  <SummaryItem>
-                    <Typography>Thời hạn thanh toán:</Typography>
-                    <Typography>
-                      {dayjs(bookingData.createdOn).add(24, 'hour').format('DD/MM/YYYY HH:mm')} (Theo giờ Việt Nam)
+                  <>
+                    <SummaryItem>
+                      <Typography>Thời hạn thanh toán:</Typography>
+                      <Typography>
+                        {dayjs(bookingData.createdOn).add(24, 'hour').format('DD/MM/YYYY HH:mm')} (Theo giờ Việt Nam)
+                      </Typography>
+                    </SummaryItem>
+                    <Typography variant="body2" sx={{ color: 'error.main', mt: 1 }}>
+                      Nếu quá thời hạn trên mà quý khách chưa thanh toán, VietWay sẽ hủy booking này.
                     </Typography>
-                  </SummaryItem>
-                )}
-                {bookingData.status === 0 && (
-                  <Typography variant="body2" sx={{ color: 'error.main', mt: 1 }}>
-                    Nếu quá thời hạn trên mà Quý khách chưa thanh toán, VietWay sẽ hủy booking này.
-                  </Typography>
+                  </>
                 )}
                 {/* <SummaryItem>
                   <Typography>Số tiền còn lại:</Typography>
@@ -398,11 +435,11 @@ const ProfileBookingDetail = () => {
                       </SummaryItem>
                       <SummaryItem>
                         <Typography>Thời gian:</Typography>
-                        <Typography>{dayjs(payment.payTime).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                        <Typography>{dayjs(payment.payTime || payment.createAt).format('DD/MM/YYYY HH:mm:ss')}</Typography>
                       </SummaryItem>
                       <SummaryItem>
                         <Typography>Ngân hàng:</Typography>
-                        <Typography>{payment.bankCode || 'VNPay'}</Typography>
+                        <Typography>{payment.bankCode || 'Không có'}</Typography>
                       </SummaryItem>
                       <SummaryItem>
                         <Typography>Trạng thái:</Typography>
@@ -446,30 +483,65 @@ const ProfileBookingDetail = () => {
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
                   {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
                 </Typography>
-                <TotalPrice variant="h6">
-                  Tổng tiền: {bookingData?.totalPrice?.toLocaleString() || 0} đ
-                </TotalPrice>
+                {bookingData.status === 3 && (
+                  <>
+                    <Typography sx={{ display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: '1.1rem' }}>
+                      Trị giá booking:
+                      <TotalPrice variant="h4" sx={{ ml: 1 }}>
+                        {bookingData?.totalPrice?.toLocaleString() || 0} đ
+                      </TotalPrice>
+                    </Typography>
+                    <ActionButton
+                      variant="outlined"
+                      color="primary"
+                      onClick={handleFeedbackOpen}
+                    >
+                      Đánh giá
+                    </ActionButton>
+                  </>
+                )}
                 {bookingData.status === 2 && (
-                  <ActionButton
-                    variant="outlined"
-                    color="primary"
-                    onClick={handleFeedbackOpen}
-                  >
-                    Đánh giá
-                  </ActionButton>
+                  <>
+                    <Typography sx={{ display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: '1.1rem' }}>
+                      Trị giá booking:
+                      <TotalPrice variant="h4" sx={{ ml: 1 }}>
+                        {bookingData?.totalPrice?.toLocaleString() || 0} đ
+                      </TotalPrice>
+                    </Typography>
+                    <ActionButton
+                      variant="outlined"
+                      color="primary"
+                      onClick={handleCancelOpen}
+                    >
+                      Hủy Đặt
+                    </ActionButton>
+                  </>
                 )}
-                {bookingData.status === 1 && (
-                  <ActionButton
-                    variant="outlined"
-                    color="primary"
-                    onClick={handleCancelOpen}
-                  >
-                    Hủy Đặt
-                  </ActionButton>
-                )}
-                {bookingData.status === 0 && (
+                {(bookingData.status === 0 || bookingData.status === 1) && (
                   <Box sx={{ mt: 5 }}>
-                    <Typography>Chọn hình thức thanh toán</Typography>
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
+                      <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                    </Box>
+                    <Box sx={{ mb: 2, mt: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
+                      {bookingData?.refundPolicies
+                        .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                        .map((policy, index) => {
+                          return (
+                            <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
+                              • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                              Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
+                            </Typography>
+                          );
+                        })}
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
+                      </Typography>
+                    </Box>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, mb: 1 }}>Chọn hình thức thanh toán</Typography>
                     <Box sx={{ ml: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
                         <PaymentMethod
@@ -478,7 +550,7 @@ const ProfileBookingDetail = () => {
                         />
                         <img src="/zalopay.png" alt="ZaloPay" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%', mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%' }}>
                         <PaymentMethod
                           value="VNPay" label="VNPay"
                           control={<Radio checked={paymentMethod === 'VNPay'} onChange={(e) => setPaymentMethod(e.target.value)} />}
@@ -493,6 +565,59 @@ const ProfileBookingDetail = () => {
                         <img src="/payos.jpg" alt="PayOS" style={{ width: '24px', height: '24px', marginLeft: '10px' }} />
                       </Box>
                     </Box>
+                    {bookingData.status === 0 && (
+                      <>
+                        <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, mt: 2 }}>Thanh toán</Typography>
+                        {bookingData.depositPercent < 100 && (
+                          <RadioGroup
+                            value={formData.paymentAmount}
+                            onChange={handlePaymentAmountChange}
+                            sx={{ mb: 2 }}
+                          >
+                            <FormControlLabel
+                              value="deposit" sx={{ mb: -1.5 }}
+                              control={<Radio />}
+                              label={`Đặt cọc ${bookingData.depositPercent}%`}
+                            />
+                            <FormControlLabel
+                              value="100"
+                              control={<Radio />}
+                              label="Thanh toán 100%"
+                            />
+                          </RadioGroup>
+                        )}
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -2 }}>
+                          <Typography sx={{ fontSize: '1.1rem' }}>Trị giá booking:</Typography>
+                          <Typography sx={{ fontSize: '1.1rem', fontWeight: 700 }}>
+                            {bookingData?.totalPrice?.toLocaleString() || 0} đ
+                          </Typography>
+                        </Box>
+                        <TotalPrice variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0 }}>
+                          <span style={{ marginRight: '5px', color: 'black', fontSize: '1.2rem' }}>
+                            Tổng tiền cần thanh toán:
+                          </span>
+                          <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem' }}>
+                            {calculateTotalWithDeposit().toLocaleString()} đ
+                          </span>
+                        </TotalPrice>
+                      </>
+                    )}
+                    {bookingData.status === 1 && (
+                      <>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
+                          <Typography sx={{ fontSize: '1.1rem' }}>Trị giá booking:</Typography>
+                          <Typography sx={{ fontSize: '1.1rem', fontWeight: 700 }}>{bookingData?.totalPrice?.toLocaleString() || 0} đ</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Typography sx={{ fontSize: '1.1rem' }}>Đã thanh toán:</Typography>
+                          <Typography sx={{ fontSize: '1.1rem', fontWeight: 700 }}>{bookingData?.paidAmount?.toLocaleString() || 0} đ</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -1.5 }}>
+                          <Typography sx={{ fontSize: '1.1rem' }}>Tổng tiền cần thanh toán:</Typography>
+                          <TotalPrice variant="h4" sx={{ ml: 1 }}>{(bookingData?.totalPrice - bookingData?.paidAmount).toLocaleString() || 0} đ</TotalPrice>
+                        </Box>
+                      </>
+                    )}
                     <ActionButton onClick={handlePayment} variant="contained" fullWidth>
                       Thanh toán ngay
                     </ActionButton>
@@ -532,13 +657,15 @@ const ProfileBookingDetail = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      {isFeedbackOpen && (
-        <FeedbackPopup 
-          onClose={handleFeedbackClose} 
-          bookingId={bookingData.bookingId} 
-        />
-      )}
-    </Box>
+      {
+        isFeedbackOpen && (
+          <FeedbackPopup
+            onClose={handleFeedbackClose}
+            bookingId={bookingData.bookingId}
+          />
+        )
+      }
+    </Box >
   );
 };
 

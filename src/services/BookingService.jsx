@@ -14,15 +14,20 @@ export const fetchBookingData = async (bookingId) => {
         return {
             bookingId: bookingData.bookingId,
             tourId: bookingData.tourId,
+            customerId: bookingData.customerId,
             numberOfParticipants: bookingData.numberOfParticipants,
             contactFullName: bookingData.contactFullName,
             contactEmail: bookingData.contactEmail,
             contactPhoneNumber: bookingData.contactPhoneNumber,
             contactAddress: bookingData.contactAddress,
             totalPrice: bookingData.totalPrice,
+            paidAmount: bookingData.paidAmount,
             status: bookingData.status,
             createdOn: bookingData.createdOn,
+            note: bookingData.note,
             startLocation: bookingData.startLocation,
+            depositPercent: bookingData.depositPercent,
+            paymentDeadline: new Date(bookingData.paymentDeadline),
             startDate: new Date(bookingData.startDate),
             durationName: bookingData.durationName,
             numberOfDay: bookingData.numberOfDay,
@@ -33,7 +38,8 @@ export const fetchBookingData = async (bookingId) => {
                 fullName: participant.fullName,
                 phoneNumber: participant.phoneNumber,
                 gender: participant.gender,
-                dateOfBirth: new Date(participant.dateOfBirth)
+                dateOfBirth: new Date(participant.dateOfBirth),
+                price: participant.price
             }))
         };
     } catch (error) {
@@ -103,6 +109,7 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 imageUrl: booking.imageUrl,
                 code: booking.code,
                 startDate: booking.startDate,
+                isReviewed: booking.isReviewed
             }))
         };
     } catch (error) {

@@ -55,7 +55,12 @@ const SuggestAttractionByProvinces = () => {
   };
 
   const handleProvinceClick = (provinceId) => {
-    navigate(`/diem-tham-quan?tinh=${provinceId}`);
+    const searchParams = new URLSearchParams({
+      name: "",
+      provinceId: provinceId,
+      applySearch: 'true'
+    }).toString();
+    navigate(`/diem-tham-quan?${searchParams}`);
   };
 
   useEffect(() => {
@@ -83,14 +88,14 @@ const SuggestAttractionByProvinces = () => {
             <Box key={province.provinceId} sx={{ px: 1 }}>
               <Card 
                 sx={{ width: 170, height: '100%', display: 'flex', flexDirection: 'column', boxShadow: 'none' }}
-                onClick={() => handleProvinceClick(province.provinceId)}
               >
-                <CardActionArea component={Link} to={`/diem-tham-quan?tinh=${province.provinceId}`}>
+                <CardActionArea>
                   <CardMedia
                     component="img"
                     height="170"
                     image={province.imageURL}
                     alt={province.provinceName}
+                    onClick={() => handleProvinceClick(province.provinceId)}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = '/path/to/fallback/image.jpg'; // Replace with your fallback image path
