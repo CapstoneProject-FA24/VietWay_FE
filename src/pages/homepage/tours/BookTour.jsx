@@ -115,7 +115,6 @@ const BookTour = () => {
         setLoading(true);
         const customer = await getCustomerInfo();
         const tour = await fetchTourById(id);
-        console.log
         const tourTemplate = await fetchTourTemplateById(tour.tourTemplateId);
 
         const completepricesByAge = [
@@ -642,15 +641,6 @@ const BookTour = () => {
                 </Box>
               </RadioGroup>
               {errors.paymentMethod && <ErrorText>{errors.paymentMethod}</ErrorText>}
-
-              {/* <Box sx={{ mb: 5, mt: 2 }}>
-                <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Chính sách hoàn tiền</Typography>
-                {bookingData.refundPolicies.map((policy, index) => (
-                  <Typography key={index} paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>
-                    Hủy trước {policy.cancelBefore.toLocaleDateString('vi-VN')}, hoàn {policy.refundPercent}%
-                  </Typography>
-                ))}
-              </Box> */}
             </Grid>
             <Grid item xs={12} md={4} sx={{ width: "100%" }}>
               <SummaryTitle variant="h5" style={{ alignContent: "center" }}>
@@ -689,8 +679,26 @@ const BookTour = () => {
                 <SummaryItem>
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% tổng giá trị booking khi đăng ký <span style={{ color: 'grey' }}> - tạm tính: {(bookingData.depositPercent * calculateTotal() / 100).toLocaleString()} đ</span></Typography>
                     <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                  </Box>
+                </SummaryItem>
+                <SummaryItem>
+                  <Box sx={{ mb: 2, mt: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
+                    {bookingData.refundPolicies
+                      .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                      .map((policy, index) => {
+                        return (
+                          <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
+                            • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                            Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * calculateTotal() / 100).toLocaleString()} đ</span>
+                          </Typography>
+                        );
+                      })}
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
+                      </Typography>
                   </Box>
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />

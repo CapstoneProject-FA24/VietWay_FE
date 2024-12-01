@@ -17,6 +17,10 @@ export const fetchToursByTemplateId = async (id) => {
             status: item.status,
             depositPercent: item.depositPercent,
             paymentDeadline: new Date(item.paymentDeadline),
+            refundPolicies: item.refundPolicies.map(policy => ({
+                cancelBefore: new Date(policy.cancelBefore),
+                refundPercent: policy.refundPercent
+            })),
         }));
         return tours;
     } catch (error) {

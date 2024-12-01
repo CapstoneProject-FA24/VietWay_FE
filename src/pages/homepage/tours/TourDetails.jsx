@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, Paper, Button, Collapse, IconButton, Select, MenuItem, FormControl, InputLabel, Alert, Snackbar, CircularProgress, Divider } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQrcode, faUser, faClock, faMoneyBill1, faLocationDot, faCalendarAlt, faTag, faPhone, faBus  } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
@@ -220,7 +220,7 @@ const TourDetails = () => {
             </Box>
             <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Tổng quan</Typography>
-              <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>{tour.description}</Typography>
+              <div dangerouslySetInnerHTML={{ __html: tour.description }} />
             </Box>
             <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C', mb: 3 }}>Lịch trình</Typography>
@@ -376,10 +376,25 @@ const TourDetails = () => {
                   }
                 </Typography>
               </Box>
-              <Box sx={{ border: '1px solid #ddd', borderRadius: 1, bgcolor: '#f9f9f9', mb: 2 }}>
+              <Divider/>
+              <Box sx={{ mb: 2, mt: 1 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện thanh toán:</Typography>
-                <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Đặt cọc {(availableTours.find(t => t.id === selectedTour)?.depositPercent || 0)}% số tiền tour khi đăng ký</Typography>
+                <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Đặt cọc {(availableTours.find(t => t.id === selectedTour)?.depositPercent || 0)}% số tiền tour khi đăng ký - //số tiền</Typography>
                 <Typography sx={{ color: '#05073C' }}>• Thanh toán số tiền còn lại trước {availableTours.find(t => t.id === selectedTour)?.paymentDeadline ? new Date(availableTours.find(t => t.id === selectedTour).paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+              </Box>
+              <Divider/>
+              <Box sx={{ mb: 2, mt: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện hủy tour:</Typography>
+                {availableTours.find(t => t.id === selectedTour)?.refundPolicies
+                  .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                  .map((policy, index) => {
+                    return (
+                      <Typography key={index} sx={{ color: '#05073C', mb: 0.5 }}>
+                        • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}: 
+                        Chi phí hủy tour là {policy.refundPercent}% tổng giá trị tour
+                      </Typography>
+                    );
+                  })}
               </Box>
               <Button onClick={handleBooking} variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

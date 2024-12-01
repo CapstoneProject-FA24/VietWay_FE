@@ -19,6 +19,7 @@ import { BookingStatus } from '@hooks/Statuses';
 import CancelBooking from '@components/profiles/CancelBooking';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
 import { VnPayCode } from "@hooks/VnPayCode";
+import { fetchTourById } from "@services/TourService";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -152,8 +153,28 @@ const ProfileBookingDetail = () => {
       try {
         const data = await fetchBookingData(id);
         const paymentData = await fetchBookingPayments(id);
+        const tour = await fetchTourById(data.tourId);
+        
+        const bookingDataWithTour = {
+          ...data,
+          tourId: tour.id,
+          tourTemplateId: tour.tourTemplateId,
+          startLocation: tour.startLocation,
+          startTime: tour.startTime,
+          startDate: tour.startDate,
+          maxParticipant: tour.maxParticipant,
+          minParticipant: tour.minParticipant,
+          currentParticipant: tour.currentParticipant,
+          depositPercent: tour.depositPercent,
+          paymentDeadline: tour.paymentDeadline,
+          refundPolicies: tour.refundPolicies,
+          pricesByAge: tour.pricesByAge,
+          registerOpenDate: tour.registerOpenDate,
+          registerCloseDate: tour.registerCloseDate,
+        };
+
         setPayments(paymentData.items);
-        setBookingData(data);
+        setBookingData(bookingDataWithTour);
       } catch (error) {
         console.error("Error fetching booking details:", error);
         setSnackbar({
@@ -502,6 +523,22 @@ const ProfileBookingDetail = () => {
                       <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
                       <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
                       <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                    </Box>
+                    <Box sx={{ mb: 2, mt: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
+                      {bookingData?.refundPolicies
+                        .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                        .map((policy, index) => {
+                          return (
+                            <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
+                              • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                              Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
+                            </Typography>
+                          );
+                        })}
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
+                      </Typography>
                     </Box>
                     <Divider sx={{ my: 2 }} />
                     <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, mb: 1 }}>Chọn hình thức thanh toán</Typography>

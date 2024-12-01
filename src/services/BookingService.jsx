@@ -109,6 +109,7 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 imageUrl: booking.imageUrl,
                 code: booking.code,
                 startDate: booking.startDate,
+                isReviewed: booking.isReviewed
             }))
         };
     } catch (error) {

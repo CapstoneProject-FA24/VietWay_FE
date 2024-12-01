@@ -14,6 +14,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ViewFeedback from '@components/profiles/ViewFeedback';
 
 const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
+  console.log(tour);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -31,7 +32,6 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const handleCancelOpen = () => setIsCancelOpen(true);
   const handleCancelClose = () => setIsCancelOpen(false);
   const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
-  const handleViewFeedbackOpen = () => setIsViewFeedbackOpen(true);
   const handleViewFeedbackClose = () => setIsViewFeedbackOpen(false);
 
   const handleCancelConfirm = async (reason) => {
@@ -101,20 +101,20 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
             {renderActionButtons(handleFeedbackOpen, handlePayment, handleCancelOpen, tour)}
           </Grid>
         </Grid>
-        {isFeedbackOpen && 
-          <FeedbackPopup 
-            onClose={handleFeedbackClose} 
-            bookingId={tour.bookingId} 
+        {isFeedbackOpen &&
+          <FeedbackPopup
+            onClose={handleFeedbackClose}
+            bookingId={tour.bookingId}
             onSubmitSuccess={() => {
               handleFeedbackClose();
               if (onBookingCancelled) {
                 onBookingCancelled();
               }
-            }} 
+            }}
           />
         }
-        {isViewFeedbackOpen && 
-          <ViewFeedback 
+        {isViewFeedbackOpen &&
+          <ViewFeedback
             onClose={handleViewFeedbackClose}
             feedback={tour.feedback}
           />
@@ -131,18 +131,18 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
             open={snackbar.open}
             autoHideDuration={6000}
             onClose={handleSnackbarClose}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right'}}
-            sx={{ 
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            sx={{
               zIndex: (theme) => theme.zIndex.tooltip + 1000,
               position: 'fixed'
             }}
           >
-            <Alert 
-              onClose={handleSnackbarClose} 
-              severity={snackbar.severity} 
+            <Alert
+              onClose={handleSnackbarClose}
+              severity={snackbar.severity}
               variant="filled"
-              sx={{ 
-                zIndex: (theme) => theme.zIndex.tooltip + 1000 
+              sx={{
+                zIndex: (theme) => theme.zIndex.tooltip + 1000
               }}
             >
               {snackbar.message}
@@ -193,18 +193,25 @@ const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen
     case BookingStatus.Completed:
       return (
         <>
-          <ActionButton 
-            onClick={tour.hasFeedback ? handleViewFeedbackOpen : handleFeedbackOpen} 
-            variant="contained" 
+          <ActionButton
+            onClick={handleFeedbackOpen}
+            variant="contained"
             color="primary"
           >
-            {tour.hasFeedback ? 'Xem lại đánh giá' : 'Đánh giá'}
+            {tour.isReviewed ? 'Xem đánh giá' : 'Đánh giá'}
           </ActionButton>
         </>
       );
-    case BookingStatus.Confirmed:
+    case BookingStatus.Paid:
       return <ActionButton onClick={handleCancelOpen} variant="outlined" color="primary">Hủy Đặt</ActionButton>;
     case BookingStatus.Pending:
+      return (
+        <>
+          <ActionButton variant="contained" color="error" onClick={handlePayment}>Thanh Toán</ActionButton>
+          <ActionButton variant="outlined" color="primary" onClick={handleCancelOpen}>Hủy Đặt</ActionButton>
+        </>
+      );
+    case BookingStatus.Deposited:
       return (
         <>
           <ActionButton variant="contained" color="error" onClick={handlePayment}>Thanh Toán</ActionButton>

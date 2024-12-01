@@ -52,7 +52,7 @@ const StyledRating = styled(Rating)(({ theme }) => ({
   },
 }));
 
-const FeedbackPopup = ({ onClose, bookingId }) => {
+const FeedbackPopup = ({ onClose, bookingId, onSubmitSuccess }) => {
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
@@ -83,6 +83,9 @@ const FeedbackPopup = ({ onClose, bookingId }) => {
     try {
       setSubmitting(true);
       await submitBookingReview(bookingId, rating, feedback, isPublic);
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
+      }
       onClose();
     } catch (error) {
       console.error('Error submitting feedback:', error);
@@ -146,7 +149,8 @@ const FeedbackPopup = ({ onClose, bookingId }) => {
               <TextField autoFocus margin="dense" id="feedback" 
               label="Chia sẻ những ý kiến chi tiết về trải nghiệm của bạn" type="text" 
               fullWidth variant="outlined" multiline rows={4} value={feedback} 
-              onChange={(e) => setFeedback(e.target.value)} />
+              onChange={(e) => setFeedback(e.target.value)}
+              disabled={existingReview} />
               <ContactInfo sx={{ color: (theme) => theme.palette.primary.main }}>
                 Liên hệ hotline <strong>1900 123 456</strong> hoặc <strong>emailsupport@vietwaytour.com</strong>
                 <br />
