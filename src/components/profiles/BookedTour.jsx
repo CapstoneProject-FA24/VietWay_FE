@@ -47,9 +47,7 @@ const BookedTour = () => {
             booking.code.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (
             statusTab === 0 ||
-            booking.status === statusTab - 1 ||
-            (statusTab === 4 && (booking.status == 3 || booking.status == 4)) ||
-            (statusTab === 5 && (booking.status == 5 || booking.status == 6))
+            booking.status === statusTab - 1
         )
     );
 
