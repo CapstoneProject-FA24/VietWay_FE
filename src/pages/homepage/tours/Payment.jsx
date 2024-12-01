@@ -440,7 +440,7 @@ const PayBooking = () => {
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -1.5 }}>
                       <Typography sx={{ fontSize: '1.1rem' }}>Tổng tiền cần thanh toán:</Typography>
-                      <TotalPrice variant="h4" sx={{ ml: 1 }}>{(bookingData?.totalPrice - bookingData?.paidAmount).toLocaleString() || 0} đ</TotalPrice>
+                      <TotalPrice variant="h4" sx={{ ml: 1 }}>{calculateTotalWithDeposit().toLocaleString()} đ</TotalPrice>
                     </Box>
                   </>
                 )}
