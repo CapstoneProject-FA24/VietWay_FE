@@ -521,8 +521,14 @@ const ProfileBookingDetail = () => {
                   <Box sx={{ mt: 5 }}>
                     <Box>
                       <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
-                      <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
-                      <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                      {bookingData.depositPercent === 100 ? (
+                        <Typography variant="body2" sx={{ mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
+                      ) : (
+                        <>
+                          <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
+                          <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                        </>
+                      )}
                     </Box>
                     <Box sx={{ mb: 2, mt: 1 }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
@@ -586,7 +592,7 @@ const ProfileBookingDetail = () => {
                             />
                           </RadioGroup>
                         )}
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: bookingData.depositPercent < 100 ? -2 : 0 }}>
                           <Typography sx={{ fontSize: '1.1rem' }}>Trị giá booking:</Typography>
                           <Typography sx={{ fontSize: '1.1rem', fontWeight: 700 }}>
                             {bookingData?.totalPrice?.toLocaleString() || 0} đ

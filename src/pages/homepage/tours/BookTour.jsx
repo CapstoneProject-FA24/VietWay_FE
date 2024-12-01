@@ -374,7 +374,7 @@ const BookTour = () => {
         setOpenSnackbar(true);
         window.location.href = `/dat-tour/thanh-toan/${response.data}`;
       } catch (error) {
-        if(error.response.data.error.includes("Customer has already booked this tour")){
+        if (error.response.data.error.includes("Customer has already booked this tour")) {
           setSnackbarMessage('Quý khách đã đặt tour này rồi.');
           setSnackbarSeverity('error');
           setOpenSnackbar(true);
@@ -685,8 +685,14 @@ const BookTour = () => {
                 <SummaryItem>
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% tổng giá trị booking khi đăng ký <span style={{ color: 'grey' }}> - tạm tính: {(bookingData.depositPercent * calculateTotal() / 100).toLocaleString()} đ</span></Typography>
-                    <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                    {bookingData.depositPercent === 100 ? (
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
+                    ) : (
+                      <>
+                        <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% tổng giá trị booking khi đăng ký <span style={{ color: 'grey' }}> - tạm tính: {(bookingData.depositPercent * calculateTotal() / 100).toLocaleString()} đ</span></Typography>
+                        <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                      </>
+                    )}
                   </Box>
                 </SummaryItem>
                 <SummaryItem>
@@ -702,9 +708,9 @@ const BookTour = () => {
                           </Typography>
                         );
                       })}
-                      <Typography variant="body2" sx={{ mb: 0.5 }}>
-                        • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
-                      </Typography>
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                      • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
+                    </Typography>
                   </Box>
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />
@@ -722,9 +728,10 @@ const BookTour = () => {
                   )
                 ))}
                 <Divider sx={{ my: 1 }} />
-                <TotalPrice variant="h6">
-                  Tổng tiền: {calculateTotal().toLocaleString()} đ
-                </TotalPrice>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -1.5 }}>
+                  <Typography sx={{ fontSize: '1.1rem', fontWeight: 700 }}>Tổng tiền:</Typography>
+                  <TotalPrice variant="h4" sx={{ ml: 1 }}>{calculateTotal().toLocaleString()} đ</TotalPrice>
+                </Box>
                 <Button variant="contained" fullWidth onClick={handleBooking}>
                   Đặt Ngay
                 </Button>

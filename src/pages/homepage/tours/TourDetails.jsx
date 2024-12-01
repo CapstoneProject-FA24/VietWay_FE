@@ -381,8 +381,14 @@ const TourDetails = () => {
               <Divider/>
               <Box sx={{ mb: 2, mt: 1 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện thanh toán:</Typography>
-                <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Đặt cọc {(availableTours.find(t => t.id === selectedTour)?.depositPercent || 0)}% số tiền tour khi đăng ký - //số tiền</Typography>
-                <Typography sx={{ color: '#05073C' }}>• Thanh toán số tiền còn lại trước {availableTours.find(t => t.id === selectedTour)?.paymentDeadline ? new Date(availableTours.find(t => t.id === selectedTour).paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                {availableTours.find(t => t.id === selectedTour)?.depositPercent === 100 ? (
+                  <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
+                ) : (
+                  <>
+                    <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Đặt cọc {(availableTours.find(t => t.id === selectedTour)?.depositPercent || 0)}% số tiền tour khi đăng ký</Typography>
+                    <Typography sx={{ color: '#05073C' }}>• Thanh toán số tiền còn lại trước {availableTours.find(t => t.id === selectedTour)?.paymentDeadline ? new Date(availableTours.find(t => t.id === selectedTour).paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                  </>
+                )}
               </Box>
               <Divider/>
               <Box sx={{ mb: 2, mt: 1 }}>

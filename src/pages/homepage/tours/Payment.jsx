@@ -373,8 +373,14 @@ const PayBooking = () => {
                 <Divider sx={{ my: 2 }} />
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
-                  <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                  {bookingData.depositPercent === 100 ? (
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
+                  ) : (
+                    <>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
+                      <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                    </>
+                  )}
                 </Box>
                 <Divider sx={{ my: 2 }} />
                 <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, mb: 1 }}>Chọn hình thức thanh toán</Typography>
@@ -404,7 +410,7 @@ const PayBooking = () => {
                 {bookingData.status === 0 && (
                   <>
                     <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, mt: 2 }}>Thanh toán</Typography>
-                    {bookingData.depositPercent < 100 && (
+                    {bookingData.depositPercent < 100 ? (
                       <RadioGroup
                         value={formData.paymentAmount}
                         onChange={handlePaymentAmountChange}
@@ -421,17 +427,21 @@ const PayBooking = () => {
                           label="Thanh toán 100%"
                         />
                       </RadioGroup>
+                    ) : (
+                      <input 
+                        type="hidden" 
+                        value="100" 
+                        onChange={handlePaymentAmountChange}
+                      />
                     )}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Typography sx={{ fontSize: '1.1rem' }}>Trị giá booking:</Typography>
                       <Typography sx={{ fontSize: '1.1rem', fontWeight: 700 }}>{bookingData?.totalPrice?.toLocaleString() || 0} đ</Typography>
                     </Box>
-                    <TotalPrice variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng tiền cần thanh toán:</span>
-                      <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem' }}>
-                        {calculateTotalWithDeposit().toLocaleString()} đ
-                      </span>
-                    </TotalPrice>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -1.5 }}>
+                      <Typography sx={{ fontSize: '1.1rem' }}>Tổng tiền cần thanh toán:</Typography>
+                      <TotalPrice variant="h4" sx={{ ml: 1 }}>{(bookingData?.totalPrice - bookingData?.paidAmount).toLocaleString() || 0} đ</TotalPrice>
+                    </Box>
                   </>
                 )}
                 {bookingData.status === 1 && (
