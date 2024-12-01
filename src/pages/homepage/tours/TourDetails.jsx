@@ -169,7 +169,7 @@ const TourDetails = () => {
           <strong> {tour.tourName}</strong>
         </Typography>
         <Typography gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'grey', fontSize: '1.15rem' }}>
-          {tour.provinces.map(province => province.name).join(' - ')}
+          Từ {tour.startingProvince} đi {tour.provinces.map(province => province.name).join(' - ')}
         </Typography>
         <Typography variant="h3" gutterBottom sx={{ fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C' }}>
           {tour.tourName}
@@ -200,8 +200,10 @@ const TourDetails = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
                 <FontAwesomeIcon icon={faClock} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
-                <Typography sx={{ color: '#05073C', fontWeight: 600, mr: 1, ml: 1 }}>Thời lượng:</Typography>
-                <Typography sx={{ color: '#05073C' }}>{tour.duration}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2 }}>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Thời lượng:</Typography>
+                  <Typography sx={{ color: '#05073C' }}>{tour.duration}</Typography>
+                </Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
                 <FontAwesomeIcon icon={faMoneyBill1} style={{ fontSize: '1.6rem', color: '#3572EF' }} />

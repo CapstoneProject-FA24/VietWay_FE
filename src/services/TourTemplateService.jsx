@@ -92,7 +92,9 @@ export const fetchTourTemplateById = async (id) => {
             creatorName: response.data.data.creatorName,
             provinces: response.data.data.provinces,
             schedule: response.data.data.schedules,
-            imageUrls: response.data.data.images
+            imageUrls: response.data.data.images,
+            startingProvince: response.data.data.startingProvince,
+            transportation: response.data.data.transportation
         };
     } catch (error) {
         console.error('Error fetching tour template:', error);
