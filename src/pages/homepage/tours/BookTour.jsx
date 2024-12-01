@@ -374,6 +374,12 @@ const BookTour = () => {
         setOpenSnackbar(true);
         window.location.href = `/dat-tour/thanh-toan/${response.data}`;
       } catch (error) {
+        if(error.response.data.error.includes("Customer has already booked this tour")){
+          setSnackbarMessage('Quý khách đã đặt tour này rồi.');
+          setSnackbarSeverity('error');
+          setOpenSnackbar(true);
+          return;
+        }
         setSnackbarMessage('Đặt tour thất bại. Vui lòng thử lại sau.');
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
