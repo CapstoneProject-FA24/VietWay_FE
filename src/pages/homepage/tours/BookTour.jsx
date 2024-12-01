@@ -232,7 +232,7 @@ const BookTour = () => {
           if (priceByAge) {
             if (priceByAge.name === 'Người lớn') {
               if (age < priceByAge.ageFrom) {
-                error = `${priceByAge.name} phải trên ${priceByAge.ageFrom} tuổi`;
+                error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} tuổi trở lên`;
               }
             } else {
               if (age < priceByAge.ageFrom || age > priceByAge.ageTo) {
@@ -501,7 +501,7 @@ const BookTour = () => {
                           {bookingData.pricesByAge?.map(priceByAge => (
                             <MenuItem key={priceByAge.name} value={priceByAge.name.toLowerCase()}>
                               {priceByAge.name === 'Người lớn' ?
-                                `${priceByAge.name} (Trên ${priceByAge.ageFrom} tuổi) - ${priceByAge.price?.toLocaleString()} đ` :
+                                `${priceByAge.name} (Từ ${priceByAge.ageFrom} tuổi trở lên) - ${priceByAge.price?.toLocaleString()} đ` :
                                 `${priceByAge.name} (Từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi) - ${priceByAge.price?.toLocaleString()} đ`
                               }
                             </MenuItem>
