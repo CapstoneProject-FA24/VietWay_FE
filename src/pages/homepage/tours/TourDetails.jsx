@@ -344,8 +344,8 @@ const TourDetails = () => {
                     (() => {
                       const selectedTourData = availableTours.find(t => t.id === selectedTour);
                       if (selectedTourData) {
-                        const endDate = new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString();
-                        return endDate ? endDate.toLocaleDateString('vi-VN') : '';
+                        const endDate = new Date(selectedTourData.startDate.getTime() + ((tour.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString();
+                        return endDate ? endDate : '';
                       }
                       return '';
                     })()

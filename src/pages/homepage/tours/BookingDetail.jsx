@@ -120,10 +120,10 @@ const BookingDetail = () => {
         }
 
         const data = await fetchBookingData(id);
-        console.log(data);
         if (vnpAmount && vnpCode === '00') {
           data.paymentMethod = "VNPay";
         }
+
         setBookingData(data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -274,15 +274,11 @@ const BookingDetail = () => {
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Thời gian:</Typography>
-                      <Typography>{dayjs(payment.payTime).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                      <Typography>{dayjs(payment.payTime || payment.createAt).format('DD/MM/YYYY HH:mm:ss')}</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Ngân hàng:</Typography>
-                      <Typography>{payment.bankCode}</Typography>
-                    </SummaryItem>
-                    <SummaryItem>
-                      <Typography>Mã giao dịch:</Typography>
-                      <Typography>{payment.thirdPartyTransactionNumber}</Typography>
+                      <Typography>{payment.bankCode || 'Không có'}</Typography>
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Trạng thái:</Typography>
@@ -322,6 +318,7 @@ const BookingDetail = () => {
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
                   {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
                 </Typography>
+                <Divider sx={{ my: 1 }} />
                 <SummaryItem>
                   <Typography>Số tiền đã thanh toán:</Typography>
                   <Typography>{bookingData?.paidAmount?.toLocaleString()} đ</Typography>
@@ -330,8 +327,11 @@ const BookingDetail = () => {
                   <Typography>Số tiền còn lại:</Typography>
                   <Typography>{(bookingData?.totalPrice - bookingData?.paidAmount).toLocaleString()} đ</Typography>
                 </SummaryItem>
-                <TotalPrice variant="h6">
-                  Tổng tiền: {bookingData?.totalPrice?.toLocaleString()} đ
+                <TotalPrice variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0 }}>
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng trị giá booking:</span>
+                  <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem' }}>
+                  {bookingData?.totalPrice?.toLocaleString()} đ
+                  </span>
                 </TotalPrice>
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
