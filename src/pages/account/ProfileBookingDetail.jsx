@@ -177,7 +177,7 @@ const ProfileBookingDetail = () => {
       console.error("Error fetching booking details:", error);
       setSnackbar({
         open: true,
-        message: 'Có lỗi xảy ra khi tải th��ng tin đặt tour',
+        message: 'Có lỗi xảy ra khi tải thông tin đặt tour',
         severity: 'error'
       });
     } finally {
