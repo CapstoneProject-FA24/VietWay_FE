@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory } from "@services/BookingService";
+import { fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService"; getCookie
@@ -90,6 +90,8 @@ const ProfileBookingDetail = () => {
     paymentAmount: '100',
     paymentMethod: ''
   });
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [denyDialogOpen, setDenyDialogOpen] = useState(false);
 
   const PaymentMethodEnum = {
     VNPay: 0,
@@ -175,7 +177,7 @@ const ProfileBookingDetail = () => {
       console.error("Error fetching booking details:", error);
       setSnackbar({
         open: true,
-        message: 'Có lỗi xảy ra khi tải thông tin đặt tour',
+        message: 'Có lỗi xảy ra khi tải th��ng tin đặt tour',
         severity: 'error'
       });
     } finally {
@@ -217,6 +219,60 @@ const ProfileBookingDetail = () => {
 
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
+
+  const handleConfirmDialogOpen = () => setConfirmDialogOpen(true);
+  const handleConfirmDialogClose = () => setConfirmDialogOpen(false);
+
+  const handleConfirmChangeTour = async () => {
+    handleConfirmDialogOpen();
+  };
+
+  const handleConfirmChange = async () => {
+    try {
+      await confirmTourChange(bookingData.bookingId);
+      handleConfirmDialogClose();
+      setSnackbar({
+        open: true,
+        message: 'Xác nhận chuyển tour thành công',
+        severity: 'success'
+      });
+      await fetchData(); // Refresh the data
+    } catch (error) {
+      console.error('Failed to confirm tour change:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Không thể xác nhận chuyển tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    }
+  };
+
+  const handleDenyDialogOpen = () => setDenyDialogOpen(true);
+  const handleDenyDialogClose = () => setDenyDialogOpen(false);
+
+  const handleDenyChangeTour = async () => {
+    handleDenyDialogOpen();
+  };
+
+  const handleDenyChange = async () => {
+    try {
+      await denyTourChange(bookingData.bookingId);
+      handleDenyDialogClose();
+      setSnackbar({
+        open: true,
+        message: 'Từ chối chuyển tour thành công',
+        severity: 'success'
+      });
+      await fetchData(); // Refresh the data
+    } catch (error) {
+      console.error('Failed to deny tour change:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Không thể từ chối chuyển tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -580,6 +636,9 @@ const ProfileBookingDetail = () => {
                 )}
                 {bookingData.status === 5 && (
                   <>
+                    <Typography sx={{ fontSize: '0.9rem', mb: 1, color: "#2c4af3" }}>
+                      Booking của bạn đã được chuyển sang một tour mới, vui lòng kiểm tra lại thông tin mới và xác nhận chuyển tour. Nếu có sai sót thông tin xin vui lòng liên hệ tư vấn qua số điện thoại: 1900 1234.
+                    </Typography>
                     {bookingData.history
                       .filter(his => his.action === EntityModifyAction.Update && !his.newStatus)
                       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
@@ -604,6 +663,11 @@ const ProfileBookingDetail = () => {
                       color="primary"
                       onClick={handleConfirmChangeTour}
                     > Xác nhận chuyển </ActionButton>
+                    <ActionButton
+                      variant="outlined"
+                      color="primary"
+                      onClick={handleDenyChangeTour}
+                    > Từ chối chuyển </ActionButton>
                   </>
                 )}
               </SummaryBox>
@@ -665,6 +729,30 @@ const ProfileBookingDetail = () => {
           />
         )
       }
+      <Dialog open={confirmDialogOpen} onClose={handleConfirmDialogClose}>
+        <DialogTitle>Xác nhận chuyển tour</DialogTitle>
+        <DialogContent>
+          Bạn có chắc chắn muốn xác nhận chuyển tour này không?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmDialogClose}>Hủy</Button>
+          <Button onClick={handleConfirmChange} variant="contained" color="primary">
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={denyDialogOpen} onClose={handleDenyDialogClose}>
+        <DialogTitle>Từ chối chuyển tour</DialogTitle>
+        <DialogContent>
+          Bạn có chắc chắn muốn từ chối chuyển tour này không?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDenyDialogClose}>Hủy</Button>
+          <Button onClick={handleDenyChange} variant="contained" color="error">
+            Từ chối
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box >
   );
 };

@@ -267,7 +267,7 @@ export const getBookingHistory = async (bookingId) => {
 export const confirmTourChange = async (bookingId) => {
     const customerToken = getCookie('customerToken');
     try {
-        const response = await axios.post(
+        const response = await axios.patch(
             `${baseURL}/api/bookings/${bookingId}/confirm-tour-change`,
             {},
             {
@@ -279,6 +279,25 @@ export const confirmTourChange = async (bookingId) => {
         return response.data;
     } catch (error) {
         console.error('Error confirming tour change:', error);
+        throw error;
+    }
+};
+
+export const denyTourChange = async (bookingId) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.patch(
+            `${baseURL}/api/bookings/${bookingId}/deny-tour-change`,
+            {},
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error denying tour change:', error);
         throw error;
     }
 };
