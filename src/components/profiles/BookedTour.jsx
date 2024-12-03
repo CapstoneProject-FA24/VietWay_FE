@@ -113,7 +113,8 @@ const BookedTour = () => {
                                         totalPrice: booking.totalPrice,
                                         bookingDate: booking.bookingDate,
                                         startDate: booking.startDate,
-                                        isReviewed: booking.isReviewed
+                                        isReviewed: booking.isReviewed,
+                                        havePendingRefund: booking.havePendingRefund
                                     }}
                                     onBookingCancelled={handleBookingCancelled}
                                 />

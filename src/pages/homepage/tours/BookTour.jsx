@@ -664,6 +664,10 @@ const BookTour = () => {
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <SummaryItem>
+                  <Typography variant="body2">Phương tiện:</Typography>
+                  <Typography variant="body2">{bookingData.transportation}</Typography>
+                </SummaryItem>
+                <SummaryItem>
                   <Typography variant="body2">Thời lượng:</Typography>
                   <Typography variant="body2">{bookingData.duration}</Typography>
                 </SummaryItem>

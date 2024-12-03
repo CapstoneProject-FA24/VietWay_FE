@@ -34,12 +34,18 @@ export const fetchBookingData = async (bookingId) => {
             tourName: bookingData.tourName,
             imageUrl: bookingData.imageUrl,
             code: bookingData.code,
+            transportation: bookingData.transportation,
             participants: bookingData.participants.map(participant => ({
                 fullName: participant.fullName,
                 phoneNumber: participant.phoneNumber,
                 gender: participant.gender,
                 dateOfBirth: new Date(participant.dateOfBirth),
                 price: participant.price
+            })),
+            refundRequests: bookingData.refundRequests?.map(refund => ({
+                refundAmount: refund.refundAmount,
+                refundStatus: refund.refundStatus,
+                refundDate: new Date(refund.refundDate)
             }))
         };
     } catch (error) {
@@ -109,7 +115,8 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 imageUrl: booking.imageUrl,
                 code: booking.code,
                 startDate: booking.startDate,
-                isReviewed: booking.isReviewed
+                isReviewed: booking.isReviewed,
+                havePendingRefund: booking.havePendingRefund
             }))
         };
     } catch (error) {
@@ -224,6 +231,35 @@ export const getBookingReview = async (bookingId) => {
         };
     } catch (error) {
         console.error('Error fetching booking review:', error);
+        throw error;
+    }
+};
+
+export const getBookingHistory = async (bookingId) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(
+            `${baseURL}/api/bookings/${bookingId}/history`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        return {
+            statusCode: response.data.statusCode,
+            message: response.data.message,
+            data: response.data.data.map(history => ({
+                modifierRole: history.modifierRole,
+                reason: history.reason,
+                action: history.action,
+                timestamp: history.timestamp,
+                oldStatus: history.oldStatus,
+                newStatus: history.newStatus
+            }))
+        };
+    } catch (error) {
+        console.error('Error fetching booking history:', error);
         throw error;
     }
 };
