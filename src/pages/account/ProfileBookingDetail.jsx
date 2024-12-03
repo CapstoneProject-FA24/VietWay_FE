@@ -373,11 +373,12 @@ const ProfileBookingDetail = () => {
                         <SummaryItem>
                           <Typography>Hành động:</Typography>
                           <Typography>{his.action == EntityModifyAction.Create ? 'Đặt tour' :
-                            (his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Cancelled) ? 'Hủy tour' :
-                              (his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Deposited) ? 'Đặt cọc' :
-                                (his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Paid) ? 'Thanh toán toàn bộ' : 'Không xác định'}</Typography>
+                            (his.action == EntityModifyAction.Update && !his.newStatus) ? 'Đổi tour' :
+                              (his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Cancelled) ? 'Hủy đặt tour' :
+                                (his.action == EntityModifyAction.Update && his.newStatus == BookingStatus.Deposited) ? 'Đặt cọc' :
+                                  (his.action == EntityModifyAction.Update && his.newStatus == BookingStatus.Paid) ? 'Thanh toán toàn bộ' : 'Không xác định'}</Typography>
                         </SummaryItem>
-                        {(his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Cancelled) && (
+                        {((his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Cancelled) || (his.action == EntityModifyAction.Update && !his.newStatus)) && (
                           <SummaryItem>
                             <Typography>Lý do:</Typography>
                             <Typography>{his.reason || 'Không có'}</Typography>
@@ -577,33 +578,63 @@ const ProfileBookingDetail = () => {
                     </ActionButton>
                   </Box>
                 )}
+                {bookingData.status === 5 && (
+                  <>
+                    {bookingData.history
+                      .filter(his => his.action === EntityModifyAction.Update && !his.newStatus)
+                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                      .slice(0, 1)
+                      .map((his, index) => (
+                        <Box key={index}>
+                          <Typography sx={{ fontSize: '1.1rem', fontWeight: 'bold', mb: 1 }}>
+                            Thông tin chuyển tour
+                          </Typography>
+                          <SummaryItem>
+                            <Typography>Thời gian:</Typography>
+                            <Typography>{dayjs(his.timestamp).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                          </SummaryItem>
+                          <SummaryItem>
+                            <Typography>Lý do:</Typography>
+                            <Typography>{his.reason || 'Không có'}</Typography>
+                          </SummaryItem>
+                        </Box>
+                      ))}
+                    <ActionButton
+                      variant="contained"
+                      color="primary"
+                      onClick={handleConfirmChangeTour}
+                    > Xác nhận chuyển </ActionButton>
+                  </>
+                )}
               </SummaryBox>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, mb: 4 }}>
                 <PhoneIcon sx={{ marginRight: '10px' }} />
                 <Typography>Liên hệ tư vấn: 1900 1234</Typography>
               </Box>
-              <SummaryBox>
-                <SummaryTitle variant="h6">LỊCH SỬ HOÀN TIỀN</SummaryTitle>
-                {bookingData.refundRequests.map((refund, index) => (
-                  <Box key={index} mb={2}>
-                    <SummaryItem>
-                      <Typography>Tình trạng hoàn:</Typography>
-                      <Typography sx={{color: refund.refundStatus == 0 ? '#f16210' : 'green' }}>{refund.refundStatus == 0 ? 'Chờ hoàn tiền' : 'Đã hoàn tiền'}</Typography>
-                    </SummaryItem>
-                    <SummaryItem>
-                      <Typography>Số tiền:</Typography>
-                      <Typography>{refund.refundAmount.toLocaleString() || 0} đ</Typography>
-                    </SummaryItem>
-                    {refund.refundStatus == 1 && (
+              {bookingData.refundRequests?.length > 0 && (
+                <SummaryBox>
+                  <SummaryTitle variant="h6">LỊCH SỬ HOÀN TIỀN</SummaryTitle>
+                  {bookingData.refundRequests.map((refund, index) => (
+                    <Box key={index} mb={2}>
                       <SummaryItem>
-                        <Typography>Ngày hoàn:</Typography>
-                        <Typography>{new Date(refund.refundStatus).toLocaleDateString('vi-VN')}</Typography>
+                        <Typography>Tình trạng hoàn:</Typography>
+                        <Typography sx={{ color: refund.refundStatus == 0 ? '#f16210' : 'green' }}>{refund.refundStatus == 0 ? 'Chờ hoàn tiền' : 'Đã hoàn tiền'}</Typography>
                       </SummaryItem>
-                    )}
-                    {index < bookingData.refundRequests.length - 1 && <Divider sx={{ my: 1 }} />}
-                  </Box>
-                ))}
-              </SummaryBox>
+                      <SummaryItem>
+                        <Typography>Số tiền:</Typography>
+                        <Typography>{refund.refundAmount.toLocaleString() || 0} đ</Typography>
+                      </SummaryItem>
+                      {refund.refundStatus == 1 && (
+                        <SummaryItem>
+                          <Typography>Ngày hoàn:</Typography>
+                          <Typography>{new Date(refund.refundStatus).toLocaleDateString('vi-VN')}</Typography>
+                        </SummaryItem>
+                      )}
+                      {index < bookingData.refundRequests.length - 1 && <Divider sx={{ my: 1 }} />}
+                    </Box>
+                  ))}
+                </SummaryBox>
+              )}
             </Grid>
           </Grid>
         </StyledBox>

@@ -263,3 +263,22 @@ export const getBookingHistory = async (bookingId) => {
         throw error;
     }
 };
+
+export const confirmTourChange = async (bookingId) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.post(
+            `${baseURL}/api/bookings/${bookingId}/confirm-tour-change`,
+            {},
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error confirming tour change:', error);
+        throw error;
+    }
+};
