@@ -16,13 +16,10 @@ import PostDetails from "@pages/homepage/posts/PostDetails";
 import Posts from "@pages/homepage/posts/Posts";
 import ProvinceDetail from "@pages/homepage/provinces/ProvinceDetail";
 import Provinces from "@pages/homepage/provinces/Provinces.jsx";
-import Events from "@pages/homepage/events/Events.jsx";
-import PaymentDetail from '@pages/account/PaymentDetail';
 import ProfileBookingDetail from "@pages/account/ProfileBookingDetail";
 import BookingDetailPayLater from "@pages/homepage/tours/BookingDetailPayLater";
 import { useEffect } from 'react';
 import { saveNavigationHistory } from '@utils/NavigationHistory';
-import EventDetail from "@pages/homepage/events/EventDetail";
 import Storage from "@pages/homepage/storage/Storage";
 import RegisterWithGoogle from '@pages/authen/RegisterWithGoogle';
 import ChangePass from '@pages/authen/ChangePass';
@@ -51,7 +48,6 @@ const AppRoutes = () => {
       <Route path="/tour-du-lich" element={<Tours />} />
       <Route path="/tour-du-lich/:id" element={<TourDetails />} />
       <Route path="/tai-khoan/*" element={<Profile />} />
-      <Route path="/tai-khoan/thanh-toan/:id" element={<PaymentDetail />} />
       <Route path="/dat-tour/:id" element={<BookTour />} />
       <Route path="/dat-tour/thanh-toan/:id" element={<Payment />} />
       <Route path="/thanh-toan/:id" element={<Payment />} />
@@ -60,8 +56,6 @@ const AppRoutes = () => {
       <Route path="/bai-viet/:id" element={<PostDetails />} />
       <Route path="/bai-viet" element={<Posts />} />
       <Route path="/tinh-thanh" element={<Provinces />} />
-      <Route path="/su-kien" element={<Events />} />
-      <Route path="/su-kien/:id" element={<EventDetail />} />
       <Route path="/booking/:id" element={<ProfileBookingDetail />} />
       <Route path="/doi-mat-khau" element={<ChangePass />} />
       <Route path="/error" element={<NotFound />} />

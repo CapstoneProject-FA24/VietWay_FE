@@ -4,10 +4,8 @@ import MuiAlert from '@mui/material/Alert';
 import '@styles/Homepage.css';
 import Footer from '@layouts/Footer';
 import Header from '@layouts/Header';
-import { mockPayments } from '@hooks/MockProfile';
 import ProfileDetail from '@components/profiles/ProfileDetail';
 import BookedTour from '@components/profiles/BookedTour';
-import PaymentHistory from '@components/profiles/PaymentHistory';
 import { useNavigate, Route, Routes } from 'react-router-dom';
 import { getCustomerInfo } from '@services/CustomerService';
 import { getCookie } from '@services/AuthenService';
@@ -21,10 +19,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 const Profile = () => {
     const [profile, setProfile] = useState({});
-    const [payments, setPayments] = useState([]);
     const [tabValue, setTabValue] = useState(getLastProfileTab());
-    const [statusTab, setStatusTab] = useState(0);
-    const [searchTerm, setSearchTerm] = useState('');
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
     const navigate = useNavigate();
 
@@ -35,7 +30,6 @@ const Profile = () => {
         }
         saveNavigationHistory(window.location.pathname);
         fetchCustomerInfo();
-        setPayments(mockPayments);
     }, []);
 
     const fetchCustomerInfo = async () => {
@@ -83,17 +77,12 @@ const Profile = () => {
                     <Tab label="Tài khoản" sx={{ color: '#D4D4D4', width: '50%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
                     <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
                     <Tab label="Tour Đăng Ký" sx={{ color: '#D4D4D4', width: '50%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} />
-                    {/* <Box sx={{ width: '2px', height: '50px', backgroundColor: 'white' }} />
-                    <Tab label="Lịch Sử Thanh Toán" sx={{ color: '#D4D4D4', width: '25%', '&.Mui-selected': { color: 'white', fontWeight: 700 } }} /> */}
                 </Tabs>
                 <Routes>
                     <Route path="/" element={
                         <>
                             {tabValue === 0 && <ProfileDetail profile={profile} onProfileUpdate={handleProfileUpdate} />}
-                            {tabValue === 2 && (
-                                <BookedTour />
-                            )}
-                            {/* {tabValue === 4 && <PaymentHistory payments={payments} />} */}
+                            {tabValue === 2 && ( <BookedTour /> )}
                         </>
                     } />
                 </Routes>

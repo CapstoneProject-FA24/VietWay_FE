@@ -16,13 +16,18 @@ export const fetchPaymentURL = async (bookingId, paymentMethod,isFullPayment) =>
 };
 
 
-export const fetchCreatePayment = async (url) => {
+export const fetchCreatePayment = async (url, paymentMethod) => {
     try {
-        console.log(url);
-        const response = await axios.get(`https://localhost:7144/api/BookingPayment/VnPayIPN/${url}` );
+        let apiUrl;
+        if (paymentMethod === 'ZaloPay') {
+            apiUrl = `https://localhost:7144/api/booking-payments/ZaloPayCallback/local/${url}`;
+        } else if (paymentMethod === 'VNPay'){
+            apiUrl = `https://localhost:7144/api/booking-payments/VnPayIPN/${url}`;
+        }
+        const response = await axios.get(apiUrl);
         return response.data;
     } catch (error) {
-        console.error('Error processing VnPay IPN:', error);
+        console.error(`Error processing ${paymentMethod} payment:`, error);
         throw error;
     }
 };

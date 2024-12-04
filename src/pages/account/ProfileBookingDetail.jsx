@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup } from "@mui/material";
-import MuiAlert from "@mui/material/Alert";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchBookingData, fetchBookingPayments, cancelBooking } from "@services/BookingService";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService"; getCookie
-import { getPreviousPage } from "@utils/NavigationHistory";
 import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
-import { BookingStatus } from '@hooks/Statuses';
 import CancelBooking from '@components/profiles/CancelBooking';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
-import { VnPayCode } from "@hooks/VnPayCode";
 import { fetchTourById } from "@services/TourService";
+import { EntityModifyAction, BookingStatus } from '@hooks/Statuses';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -35,7 +30,7 @@ const ContentContainer = styled(Box)(({ theme }) => ({
 const SummaryBox = styled(Box)(({ theme }) => ({
   border: "1px solid #ddd",
   borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
+  padding: theme.spacing(3),
   backgroundColor: "#f5f5f5",
   marginBottom: theme.spacing(2),
 }));
@@ -95,6 +90,8 @@ const ProfileBookingDetail = () => {
     paymentAmount: '100',
     paymentMethod: ''
   });
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [denyDialogOpen, setDenyDialogOpen] = useState(false);
 
   const PaymentMethodEnum = {
     VNPay: 0,
@@ -148,58 +145,49 @@ const ProfileBookingDetail = () => {
     }
   };
 
+  const fetchData = async () => {
+    try {
+      const data = await fetchBookingData(id);
+      const paymentData = await fetchBookingPayments(id);
+      const tour = await fetchTourById(data.tourId);
+      const history = await getBookingHistory(id);
+
+      const bookingDataWithTour = {
+        ...data,
+        tourId: tour.id,
+        tourTemplateId: tour.tourTemplateId,
+        startLocation: tour.startLocation,
+        startTime: tour.startTime,
+        startDate: tour.startDate,
+        maxParticipant: tour.maxParticipant,
+        minParticipant: tour.minParticipant,
+        currentParticipant: tour.currentParticipant,
+        depositPercent: tour.depositPercent,
+        paymentDeadline: tour.paymentDeadline,
+        refundPolicies: tour.refundPolicies,
+        pricesByAge: tour.pricesByAge,
+        registerOpenDate: tour.registerOpenDate,
+        registerCloseDate: tour.registerCloseDate,
+        history: history.data
+      };
+
+      setPayments(paymentData.items);
+      setBookingData(bookingDataWithTour);
+    } catch (error) {
+      console.error("Error fetching booking details:", error);
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi tải thông tin đặt tour',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchBookingData(id);
-        const paymentData = await fetchBookingPayments(id);
-        const tour = await fetchTourById(data.tourId);
-        
-        const bookingDataWithTour = {
-          ...data,
-          tourId: tour.id,
-          tourTemplateId: tour.tourTemplateId,
-          startLocation: tour.startLocation,
-          startTime: tour.startTime,
-          startDate: tour.startDate,
-          maxParticipant: tour.maxParticipant,
-          minParticipant: tour.minParticipant,
-          currentParticipant: tour.currentParticipant,
-          depositPercent: tour.depositPercent,
-          paymentDeadline: tour.paymentDeadline,
-          refundPolicies: tour.refundPolicies,
-          pricesByAge: tour.pricesByAge,
-          registerOpenDate: tour.registerOpenDate,
-          registerCloseDate: tour.registerCloseDate,
-        };
-
-        setPayments(paymentData.items);
-        setBookingData(bookingDataWithTour);
-      } catch (error) {
-        console.error("Error fetching booking details:", error);
-        setSnackbar({
-          open: true,
-          message: 'Có lỗi xảy ra khi tải thông tin đặt tour',
-          severity: 'error'
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, [id, location]);
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenSnackbar(false);
-  };
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const handleCancelOpen = () => setIsCancelOpen(true);
   const handleCancelClose = () => setIsCancelOpen(false);
@@ -216,8 +204,7 @@ const ProfileBookingDetail = () => {
         severity: 'success'
       });
       // Refresh the booking data after cancellation
-      const updatedData = await fetchBookingData(id);
-      setBookingData(updatedData);
+      fetchData();
     } catch (error) {
       console.error('Failed to cancel booking:', error);
       setSnackbar({
@@ -233,71 +220,57 @@ const ProfileBookingDetail = () => {
   const handleFeedbackOpen = () => setIsFeedbackOpen(true);
   const handleFeedbackClose = () => setIsFeedbackOpen(false);
 
-  const renderActionButtons = () => {
-    if (!bookingData) return null;
+  const handleConfirmDialogOpen = () => setConfirmDialogOpen(true);
+  const handleConfirmDialogClose = () => setConfirmDialogOpen(false);
 
-    const buttonContainer = {
-      display: 'flex',
-      flexDirection: 'column',
-      mt: 2,
-      px: 2,
-      pb: 2
-    };
+  const handleConfirmChangeTour = async () => {
+    handleConfirmDialogOpen();
+  };
 
-    switch (bookingData.status) {
-      case BookingStatus.Completed:
-        return (
-          <Box sx={buttonContainer}>
-            <ActionButton
-              variant="contained"
-              color="primary"
-              component={Link}
-              to={`/feedback/${bookingData.tourId}`}
-            >
-              Đánh giá
-            </ActionButton>
-            <ActionButton
-              variant="outlined"
-              color="primary"
-              onClick={handleFeedbackOpen}
-            >
-              Đánh giá
-            </ActionButton>
-          </Box>
-        );
-      case BookingStatus.Confirmed:
-        return (
-          <Box sx={buttonContainer}>
-            <ActionButton
-              variant="outlined"
-              color="primary"
-              onClick={handleCancelOpen}
-            >
-              Hủy Đặt
-            </ActionButton>
-          </Box>
-        );
-      case BookingStatus.Pending:
-        return (
-          <Box sx={buttonContainer}>
-            <ActionButton
-              variant="contained"
-              color="error"
-              onClick={handlePayment}
-            >
-              Thanh Toán
-            </ActionButton>
-            <ActionButton
-              variant="outlined"
-              color="primary"
-              onClick={handleCancelOpen}
-            >
-              Hủy Đặt
-            </ActionButton>
-          </Box>
-        );
-      default:
-        return null;
+  const handleConfirmChange = async () => {
+    try {
+      await confirmTourChange(bookingData.bookingId);
+      handleConfirmDialogClose();
+      setSnackbar({
+        open: true,
+        message: 'Xác nhận chuyển tour thành công',
+        severity: 'success'
+      });
+      await fetchData(); // Refresh the data
+    } catch (error) {
+      console.error('Failed to confirm tour change:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Không thể xác nhận chuyển tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    }
+  };
+
+  const handleDenyDialogOpen = () => setDenyDialogOpen(true);
+  const handleDenyDialogClose = () => setDenyDialogOpen(false);
+
+  const handleDenyChangeTour = async () => {
+    handleDenyDialogOpen();
+  };
+
+  const handleDenyChange = async () => {
+    try {
+      await denyTourChange(bookingData.bookingId);
+      handleDenyDialogClose();
+      setSnackbar({
+        open: true,
+        message: 'Từ chối chuyển tour thành công',
+        severity: 'success'
+      });
+      await fetchData(); // Refresh the data
+    } catch (error) {
+      console.error('Failed to deny tour change:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Không thể từ chối chuyển tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
     }
   };
 
@@ -318,20 +291,6 @@ const ProfileBookingDetail = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          {/* <div
-            onClick={handleGoBack}
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 16,
-              marginTop: 10,
-              cursor: "pointer"
-            }}
-          >
-            <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
-          </div> */}
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             THÔNG TIN BOOKING
           </Typography>
@@ -456,6 +415,40 @@ const ProfileBookingDetail = () => {
                   </Typography>
                 )}
               </SummaryBox>
+              <SummaryBox>
+                <SummaryTitle variant="h6">LỊCH SỬ BOOKING</SummaryTitle>
+                {bookingData?.history?.length > 0 ? (
+                  [...bookingData.history]
+                    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                    .map((his, index) => (
+                      <Box key={index}>
+                        <SummaryItem>
+                          <Typography>Thời gian:</Typography>
+                          <Typography>{dayjs(his.timestamp).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                        </SummaryItem>
+                        <SummaryItem>
+                          <Typography>Hành động:</Typography>
+                          <Typography>{his.action == EntityModifyAction.Create ? 'Đặt tour' :
+                            (his.action == EntityModifyAction.Update && !his.newStatus) ? 'Đổi tour' :
+                              (his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Cancelled) ? 'Hủy đặt tour' :
+                                (his.action == EntityModifyAction.Update && his.newStatus == BookingStatus.Deposited) ? 'Đặt cọc' :
+                                  (his.action == EntityModifyAction.Update && his.newStatus == BookingStatus.Paid) ? 'Thanh toán toàn bộ' : 'Không xác định'}</Typography>
+                        </SummaryItem>
+                        {((his.action == EntityModifyAction.ChangeStatus && his.newStatus == BookingStatus.Cancelled) || (his.action == EntityModifyAction.Update && !his.newStatus)) && (
+                          <SummaryItem>
+                            <Typography>Lý do:</Typography>
+                            <Typography>{his.reason || 'Không có'}</Typography>
+                          </SummaryItem>
+                        )}
+                        {index < bookingData.history.length - 1 && <Divider sx={{ my: 2 }} />}
+                      </Box>
+                    ))
+                ) : (
+                  <Typography variant="body1" sx={{ textAlign: 'center', py: 2 }}>
+                    Chưa có lịch sử booking
+                  </Typography>
+                )}
+              </SummaryBox>
             </Grid>
             <Grid item xs={12} md={4}>
               <SummaryBox>
@@ -473,6 +466,9 @@ const ProfileBookingDetail = () => {
                   Mã tour: {bookingData.code}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom>
+                  Phương tiện: {bookingData.transportation}
+                </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom>
                   Thời lượng: {bookingData.durationName}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
@@ -483,6 +479,35 @@ const ProfileBookingDetail = () => {
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
                   {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
                 </Typography>
+                <Divider sx={{ mb: 3, mt: 2 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
+                  {bookingData.depositPercent === 100 ? (
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
+                  ) : (
+                    <>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
+                      <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
+                    </>
+                  )}
+                </Box>
+                <Box sx={{ mb: 2, mt: 1 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
+                  {bookingData?.refundPolicies
+                    .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                    .map((policy, index) => {
+                      return (
+                        <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
+                          • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                          Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
+                        </Typography>
+                      );
+                    })}
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
+                  </Typography>
+                </Box>
+                <Divider sx={{ my: 2 }} />
                 {bookingData.status === 3 && (
                   <>
                     <Typography sx={{ display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: '1.1rem' }}>
@@ -518,28 +543,7 @@ const ProfileBookingDetail = () => {
                   </>
                 )}
                 {(bookingData.status === 0 || bookingData.status === 1) && (
-                  <Box sx={{ mt: 5 }}>
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
-                      <Typography variant="body2" sx={{ mb: 0.5 }}>• Đặt cọc {bookingData.depositPercent}% số tiền tour khi đăng ký</Typography>
-                      <Typography variant="body2">• Thanh toán số tiền còn lại trước {bookingData.paymentDeadline ? new Date(bookingData.paymentDeadline).toLocaleDateString('vi-VN') : ''} {' '}</Typography>
-                    </Box>
-                    <Box sx={{ mb: 2, mt: 1 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
-                      {bookingData?.refundPolicies
-                        .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
-                        .map((policy, index) => {
-                          return (
-                            <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
-                              • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
-                              Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
-                            </Typography>
-                          );
-                        })}
-                      <Typography variant="body2" sx={{ mb: 0.5 }}>
-                        • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
-                      </Typography>
-                    </Box>
+                  <Box sx={{ mt: 2 }}>
                     <Divider sx={{ my: 2 }} />
                     <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, mb: 1 }}>Chọn hình thức thanh toán</Typography>
                     <Box sx={{ ml: 2 }}>
@@ -586,7 +590,7 @@ const ProfileBookingDetail = () => {
                             />
                           </RadioGroup>
                         )}
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: bookingData.depositPercent < 100 ? -2 : 0 }}>
                           <Typography sx={{ fontSize: '1.1rem' }}>Trị giá booking:</Typography>
                           <Typography sx={{ fontSize: '1.1rem', fontWeight: 700 }}>
                             {bookingData?.totalPrice?.toLocaleString() || 0} đ
@@ -630,11 +634,71 @@ const ProfileBookingDetail = () => {
                     </ActionButton>
                   </Box>
                 )}
+                {bookingData.status === 5 && (
+                  <>
+                    <Typography sx={{ fontSize: '0.9rem', mb: 1, color: "#2c4af3" }}>
+                      Booking của bạn đã được chuyển sang một tour mới, vui lòng kiểm tra lại thông tin mới và xác nhận chuyển tour. Nếu có sai sót thông tin xin vui lòng liên hệ tư vấn qua số điện thoại: 1900 1234.
+                    </Typography>
+                    {bookingData.history
+                      .filter(his => his.action === EntityModifyAction.Update && !his.newStatus)
+                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                      .slice(0, 1)
+                      .map((his, index) => (
+                        <Box key={index}>
+                          <Typography sx={{ fontSize: '1.1rem', fontWeight: 'bold', mb: 1 }}>
+                            Thông tin chuyển tour
+                          </Typography>
+                          <SummaryItem>
+                            <Typography>Thời gian:</Typography>
+                            <Typography>{dayjs(his.timestamp).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+                          </SummaryItem>
+                          <SummaryItem>
+                            <Typography>Lý do:</Typography>
+                            <Typography>{his.reason || 'Không có'}</Typography>
+                          </SummaryItem>
+                        </Box>
+                      ))}
+                    <ActionButton
+                      variant="contained"
+                      color="primary"
+                      onClick={handleConfirmChangeTour}
+                    > Xác nhận chuyển </ActionButton>
+                    <ActionButton
+                      variant="outlined"
+                      color="primary"
+                      onClick={handleDenyChangeTour}
+                    > Từ chối chuyển </ActionButton>
+                  </>
+                )}
               </SummaryBox>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, mb: 4 }}>
                 <PhoneIcon sx={{ marginRight: '10px' }} />
                 <Typography>Liên hệ tư vấn: 1900 1234</Typography>
               </Box>
+              {bookingData.refundRequests?.length > 0 && (
+                <SummaryBox>
+                  <SummaryTitle variant="h6">LỊCH SỬ HOÀN TIỀN</SummaryTitle>
+                  {bookingData.refundRequests.map((refund, index) => (
+                    <Box key={index} mb={2}>
+                      <SummaryItem>
+                        <Typography>Tình trạng hoàn:</Typography>
+                        <Typography sx={{ color: refund.refundStatus == 0 ? '#f16210' : 'green' }}>{refund.refundStatus == 0 ? 'Chờ hoàn tiền' : 'Đã hoàn tiền'}</Typography>
+                      </SummaryItem>
+                      <SummaryItem>
+                        <Typography>Số tiền:</Typography>
+                        <Typography>{refund.refundAmount.toLocaleString() || 0} đ</Typography>
+                      </SummaryItem>
+                      {refund.refundStatus == 1 && (
+                        <SummaryItem>
+                          <Typography>Ngày hoàn:</Typography>
+                          <Typography>{new Date(refund.refundStatus).toLocaleDateString('vi-VN')}</Typography>
+                        </SummaryItem>
+                      )}
+                      {index < bookingData.refundRequests.length - 1 && <Divider sx={{ my: 1 }} />}
+                    </Box>
+                  ))}
+                </SummaryBox>
+              )}
             </Grid>
           </Grid>
         </StyledBox>
@@ -665,6 +729,30 @@ const ProfileBookingDetail = () => {
           />
         )
       }
+      <Dialog open={confirmDialogOpen} onClose={handleConfirmDialogClose}>
+        <DialogTitle>Xác nhận chuyển tour</DialogTitle>
+        <DialogContent>
+          Bạn có chắc chắn muốn xác nhận chuyển tour này không?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmDialogClose}>Hủy</Button>
+          <Button onClick={handleConfirmChange} variant="contained" color="primary">
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={denyDialogOpen} onClose={handleDenyDialogClose}>
+        <DialogTitle>Từ chối chuyển tour</DialogTitle>
+        <DialogContent>
+          Bạn có chắc chắn muốn từ chối chuyển tour này không?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDenyDialogClose}>Hủy</Button>
+          <Button onClick={handleDenyChange} variant="contained" color="error">
+            Từ chối
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box >
   );
 };

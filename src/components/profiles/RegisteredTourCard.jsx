@@ -14,7 +14,6 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ViewFeedback from '@components/profiles/ViewFeedback';
 
 const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
-  console.log(tour);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -64,7 +63,12 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
     <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
       <Card
         sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'none', position: 'relative' }}>
-        <StatusChip status={tour.bookedTourStatus} />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+          {tour.havePendingRefund && <Chip label="Chờ hoàn tiền" sx={{ fontSize: '0.75rem', height: '24px', backgroundColor: '#FF9800', color: 'white' }} />}
+          <Chip label={getBookingStatusInfo(tour.bookedTourStatus).text}
+            sx={{ fontSize: '0.75rem', height: '24px', backgroundColor: getBookingStatusInfo(tour.bookedTourStatus).color, color: 'white', mr: 2 }}
+          />
+        </Box>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3} md={3} component={Link} to={`/booking/${tour.bookingId}`}>
             <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }}
@@ -168,24 +172,6 @@ const InfoItem = ({ icon, label, value }) => (
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
-
-const StatusChip = ({ status }) => {
-  return (
-    <Chip
-      label={getBookingStatusInfo(status).text}
-      sx={{
-        position: 'absolute',
-        top: 20,
-        right: 15,
-        zIndex: 1,
-        fontSize: '0.75rem',
-        height: '24px',
-        backgroundColor: getBookingStatusInfo(status).color,
-        color: 'white',
-      }}
-    />
-  );
 };
 
 const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen, tour) => {

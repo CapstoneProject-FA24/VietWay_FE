@@ -9,10 +9,11 @@ const TourStatusTab = ({ statusTab, handleStatusTabChange, searchTerm, handleSea
       '& .MuiTabs-indicator': { backgroundColor: '#000' }, backgroundColor: 'white', borderRadius: '8px', mb: 2, display: 'flex', justifyContent: 'space-between' }}>
         <Tab label="Tất cả" />
         <Tab label="Chờ thanh toán" />
+        <Tab label="Đã đặt cọc" />
         <Tab label="Đã thanh toán" />
         <Tab label="Hoàn tất" />
         <Tab label="Đã hủy" />
-        <Tab label="Hoàn tiền" />
+        <Tab label="Chờ xác nhận đổi tour" />
       </Tabs>
     </Box>
   );

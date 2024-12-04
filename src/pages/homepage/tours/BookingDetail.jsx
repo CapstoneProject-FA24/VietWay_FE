@@ -102,8 +102,19 @@ const BookingDetail = () => {
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
+        const zaloStatus = searchParams.get('status');
 
-        if (vnpAmount && vnpCode === '00') {
+        if (zaloStatus === '1') {
+          setOpenSnackbar(true);
+          const paymentData = await fetchBookingPayments(id);
+          setPayments(paymentData.items);
+        }
+        else if (zaloStatus !== null) {
+          navigate(`/dat-tour/thanh-toan/${id}?status=${zaloStatus}`);
+        }
+
+        if (vnpCode === '00') {
+          setOpenSnackbar(true);
           const paymentData = await fetchBookingPayments(id);
           setPayments(paymentData.items);
         }
@@ -114,6 +125,9 @@ const BookingDetail = () => {
         const data = await fetchBookingData(id);
         if (vnpAmount && vnpCode === '00') {
           data.paymentMethod = "VNPay";
+        }
+        else if (zaloStatus === '1') {
+          data.paymentMethod = "ZaloPay";
         }
 
         setBookingData(data);
@@ -322,7 +336,7 @@ const BookingDetail = () => {
                 <TotalPrice variant="h6" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0 }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'black' }}>Tổng trị giá booking:</span>
                   <span style={{ color: '#3572EF', fontWeight: 'medium', fontSize: '1.4rem' }}>
-                  {bookingData?.totalPrice?.toLocaleString()} đ
+                    {bookingData?.totalPrice?.toLocaleString()} đ
                   </span>
                 </TotalPrice>
               </SummaryBox>
