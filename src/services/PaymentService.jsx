@@ -20,9 +20,9 @@ export const fetchCreatePayment = async (url, paymentMethod) => {
     try {
         let apiUrl;
         if (paymentMethod === 'ZaloPay') {
-            apiUrl = `${baseURL}/api/booking-payments/ZaloPayCallback/local/${url}`;
+            apiUrl = `https://dashboard.vietway.projectpioneer.id.vn/api/booking-payments/ZaloPayCallback/local/${url}`;
         } else if (paymentMethod === 'VNPay'){
-            apiUrl = `${baseURL}/api/booking-payments/VnPayIPN/${url}`;
+            apiUrl = `https://dashboard.vietway.projectpioneer.id.vn/api/booking-payments/VnPayIPN/${url}`;
         }
         const response = await axios.get(apiUrl);
         return response.data;
