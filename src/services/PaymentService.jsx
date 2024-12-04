@@ -20,9 +20,9 @@ export const fetchCreatePayment = async (url, paymentMethod) => {
     try {
         let apiUrl;
         if (paymentMethod === 'ZaloPay') {
-            apiUrl = `https://localhost:7144/api/booking-payments/ZaloPayCallback/local/${url}`;
+            apiUrl = `${baseURL}/api/booking-payments/ZaloPayCallback/local/${url}`;
         } else if (paymentMethod === 'VNPay'){
-            apiUrl = `https://localhost:7144/api/booking-payments/VnPayIPN/${url}`;
+            apiUrl = `${baseURL}/api/booking-payments/VnPayIPN/${url}`;
         }
         const response = await axios.get(apiUrl);
         return response.data;
