@@ -128,18 +128,20 @@ const Header = () => {
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Typography variant="h6" component={Link} to="/trang-chu" sx={{ color: 'text.primary' }}>
           <img src={location.pathname === '/trang-chu' && scrollY === 0 ? "/logo2.png" : "/logo2_color.png"} alt="Logo" style={{ height: '55px', marginTop: '10px' }} />
-        </Typography>    
+        </Typography>
         <Box sx={{ display: 'flex', ml: 0.5 }}>
-          <StyledButton component={Link} to="/trang-chu" sx={{ textTransform: 'none',
-              fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal', mr: 1.5,
-              color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black' }}>
+          <StyledButton component={Link} to="/trang-chu" sx={{
+            textTransform: 'none',
+            fontWeight: location.pathname === '/trang-chu' ? 'bold' : 'normal', mr: 1.5,
+            color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
+          }}>
             Trang chủ
           </StyledButton>
           <StyledButton
             color="inherit" component={Link} to="/tinh-thanh"
             sx={{
               textTransform: 'none', ml: 1.5, mr: 1.5,
-              fontWeight: location.pathname === '/tinh-thanh' ? 'bold' : 'normal', 
+              fontWeight: location.pathname === '/tinh-thanh' ? 'bold' : 'normal',
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
           >
@@ -149,7 +151,7 @@ const Header = () => {
             color="inherit" component={Link} to="/diem-tham-quan"
             sx={{
               textTransform: 'none', ml: 1.5, mr: 1.5,
-              fontWeight: location.pathname === '/diem-tham-quan' ? 'bold' : 'normal', 
+              fontWeight: location.pathname === '/diem-tham-quan' ? 'bold' : 'normal',
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
           >
@@ -159,7 +161,7 @@ const Header = () => {
             color="inherit" component={Link} to="/tour-du-lich"
             sx={{
               textTransform: 'none', ml: 1.5, mr: 1.5,
-              fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal', 
+              fontWeight: location.pathname === '/tour-du-lich' ? 'bold' : 'normal',
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
           >
@@ -167,8 +169,9 @@ const Header = () => {
           </StyledButton>
           <StyledButton
             color="inherit" component={Link} to="/bai-viet"
-            sx={{ textTransform: 'none', ml: 1.5, mr: 1.5,
-              fontWeight: location.pathname === '/bai-viet' ? 'bold' : 'normal', 
+            sx={{
+              textTransform: 'none', ml: 1.5, mr: 1.5,
+              fontWeight: location.pathname === '/bai-viet' ? 'bold' : 'normal',
               color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : 'black'
             }}
           >
@@ -184,10 +187,13 @@ const Header = () => {
             Tin tức sự kiện
           </StyledButton> */}
         </Box>
-        
+
         <Box sx={{ display: 'flex' }}>
           {isLoggedIn ? (
-            <>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography sx={{ mr: 1, color: location.pathname === '/trang-chu' && scrollY === 0 ? 'white' : '#404040', }}>
+                {getCookie('customerFullName')}
+              </Typography>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -195,8 +201,8 @@ const Header = () => {
                 aria-haspopup="true"
                 onClick={handleMenu}
                 sx={{
-                  border: location.pathname === '/trang-chu' && scrollY === 0 
-                    ? '2px solid white' 
+                  border: location.pathname === '/trang-chu' && scrollY === 0
+                    ? '2px solid white'
                     : '2px solid #666',
                   padding: '8px',
                   transition: 'all 0.2s',
@@ -205,10 +211,10 @@ const Header = () => {
                   },
                 }}
               >
-                <AccountCircleIcon 
-                  sx={{ 
-                    color: location.pathname === '/trang-chu' && scrollY === 0 
-                      ? "white" 
+                <AccountCircleIcon
+                  sx={{
+                    color: location.pathname === '/trang-chu' && scrollY === 0
+                      ? "white"
                       : "#666",
                     fontSize: 28
                   }}
@@ -237,10 +243,10 @@ const Header = () => {
                   Đăng xuất
                 </StyledMenuItem>
               </StyledMenu>
-            </>
+            </Box>
           ) : (
             <>
-              <StyledButton color="inherit" component={Link} to="/dang-ky" sx={{ color: location.pathname === '/trang-chu' && scrollY === 0  ? "white" : "black", textTransform: 'none' }}>Đăng ký</StyledButton>
+              <StyledButton color="inherit" component={Link} to="/dang-ky" sx={{ color: location.pathname === '/trang-chu' && scrollY === 0 ? "white" : "black", textTransform: 'none' }}>Đăng ký</StyledButton>
               <StyledButton color="inherit" component={Link} to="/dang-nhap" sx={{ color: 'white', textTransform: 'none', backgroundColor: '#3572EF', borderRadius: '100px', padding: '9px 14px', marginLeft: '10px', '&:hover': { backgroundColor: '#CAECFF' } }}>Đăng nhập</StyledButton>
             </>
           )}

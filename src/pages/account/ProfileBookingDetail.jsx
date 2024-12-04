@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
 import CancelBooking from '@components/profiles/CancelBooking';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
-import { fetchTourById } from "@services/TourService";
+import { fetchTourByBookingId } from "@services/BookingService";
 import { EntityModifyAction, BookingStatus } from '@hooks/Statuses';
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -149,7 +149,7 @@ const ProfileBookingDetail = () => {
     try {
       const data = await fetchBookingData(id);
       const paymentData = await fetchBookingPayments(id);
-      const tour = await fetchTourById(data.tourId);
+      const tour = await fetchTourByBookingId(data.bookingId);
       const history = await getBookingHistory(id);
 
       const bookingDataWithTour = {

@@ -16,6 +16,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { fetchProvinces } from '@services/ProvinceService';
 import { getCustomerInfo, updateCustomerInfo } from '@services/CustomerService';
 import { useNavigate } from 'react-router-dom';
+import { setCookie } from '@services/AuthenService';
 
 const ProfileDetail = ({ profile, onProfileUpdate }) => {
   const navigate = useNavigate();
@@ -112,6 +113,7 @@ const ProfileDetail = ({ profile, onProfileUpdate }) => {
         setDisplayProfile({...editedProfile});
         setEditMode({});
         onProfileUpdate(editedProfile);
+        setCookie('customerFullName', updatedProfile.fullName);
       } catch (error) {
         console.error('Failed to update customer info:', error);
       }
