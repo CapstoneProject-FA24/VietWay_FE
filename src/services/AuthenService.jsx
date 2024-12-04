@@ -9,8 +9,9 @@ export const login = async (credentials) => {
         };
         const response = await axios.post(`${baseURL}/api/account/login`, loginRequest);
         const data = response.data;
-        if (data.data) {
-            setCookie('customerToken', data.data);
+        if (data.data?.token) {
+            setCookie('customerToken', data.data.token);
+            setCookie('customerFullName', data.data.fullName);
         }
         return data;
     } catch (error) {
