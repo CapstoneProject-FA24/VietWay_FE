@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box, CircularProgress, Divider, FormControl, RadioGroup, FormControlLabel, Radio, TextField } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { fetchTourById } from '@services/TourService';
+import { fetchTourByBookingId } from '@services/BookingService';
 
 const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
     const [tourInfo, setTourInfo] = useState(null);
@@ -24,7 +24,7 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
             if (open && tour.tourId) {
                 try {
                     setLoadingPolicy(true);
-                    const result = await fetchTourById(tour.tourId);
+                    const result = await fetchTourByBookingId(tour.bookingId);
                     setTourInfo(result);
                 } catch (error) {
                     console.error('Failed to fetch tour info:', error);

@@ -97,7 +97,7 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 'Authorization': `Bearer ${customerToken}`
             }
         });
-        
+
         const bookingListData = response.data.data;
         return {
             total: bookingListData.total,
@@ -162,7 +162,7 @@ export const fetchBookingPayments = async (bookingId, pageIndex = 1, pageSize = 
         const paymentListData = response.data.data;
         return {
             total: paymentListData.total,
-            pageSize: paymentListData.pageSize, 
+            pageSize: paymentListData.pageSize,
             pageIndex: paymentListData.pageIndex,
             items: paymentListData.items.map(payment => ({
                 paymentId: payment.paymentId,
@@ -298,6 +298,49 @@ export const denyTourChange = async (bookingId) => {
         return response.data;
     } catch (error) {
         console.error('Error denying tour change:', error);
+        throw error;
+    }
+};
+
+export const fetchTourByBookingId = async (id) => {
+    const customerToken = getCookie('customerToken');
+    try {
+        const response = await axios.get(`${baseURL}/api/bookings/${id}/tour-info`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${customerToken}`
+                }
+            });
+        const item = response.data.data;
+        const tour = {
+            id: item.tourId,
+            tourTemplateId: item.tourTemplateId,
+            startLocation: item.startLocation,
+            startTime: new Date(item.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+            startDate: new Date(item.startDate),
+            price: item.defaultTouristPrice,
+            maxParticipant: item.maxParticipant,
+            minParticipant: item.minParticipant,
+            createdAt: new Date(item.createdAt),
+            currentParticipant: item.currentParticipant,
+            refundPolicies: item.refundPolicies.map(policy => ({
+                cancelBefore: new Date(policy.cancelBefore),
+                refundPercent: policy.refundPercent
+            })),
+            pricesByAge: item.pricesByAge.map(price => ({
+                name: price.name,
+                price: price.price,
+                ageFrom: price.ageFrom,
+                ageTo: price.ageTo
+            })),
+            registerOpenDate: new Date(item.registerOpenDate),
+            registerCloseDate: new Date(item.registerCloseDate),
+            depositPercent: item.depositPercent,
+            paymentDeadline: new Date(item.paymentDeadline),
+        };
+        return tour;
+    } catch (error) {
+        console.error('Error fetching tour:', error);
         throw error;
     }
 };
