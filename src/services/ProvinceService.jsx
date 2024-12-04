@@ -4,8 +4,6 @@ import axios from 'axios';
 export const fetchProvinces = async () => {
     try {
         const response = await axios.get(`${baseURL}/api/provinces`);
-        console.log('API Response:', response.data);
-        
         const provinces = response.data.data.map(province => ({
             provinceId: province.provinceId,
             provinceName: province.name || province.provinceName,

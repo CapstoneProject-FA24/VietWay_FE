@@ -47,7 +47,6 @@ const AttractionDetails = () => {
         setLoading(true);
         await new Promise(resolve => setTimeout(resolve, 1000));
         const response = await getAttractionById(id);
-        console.log(response);
         setIsSaved(response.isLiked);
         setAttraction(response);
       } catch (error) {

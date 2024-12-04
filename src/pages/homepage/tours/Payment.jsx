@@ -17,6 +17,7 @@ import { Helmet } from 'react-helmet';
 import { VnPayCode } from "@hooks/VnPayCode";
 import dayjs from "dayjs";
 import { fetchTourById } from "@services/TourService";
+import { getZaloPayMessage } from "@hooks/ZaloPayCode";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -158,6 +159,20 @@ const PayBooking = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const vnpCode = queryParams.get('vnpCode');
+    const zaloStatus = queryParams.get('status');
+
+    if (zaloStatus) {
+      const message = getZaloPayMessage(zaloStatus);
+      setSnackbarMessage(message);
+      setSnackbarSeverity(zaloStatus === '1' ? 'success' : 'error');
+      setOpenSnackbar(true);
+
+      if (zaloStatus === '1') {
+        setTimeout(() => {
+          navigate(`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${id}`);
+        }, 2000);
+      }
+    }
 
     if (vnpCode) {
       const message = VnPayCode[vnpCode] || 'Giao dịch thất bại';

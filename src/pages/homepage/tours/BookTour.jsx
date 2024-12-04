@@ -713,7 +713,7 @@ const BookTour = () => {
                         );
                       })}
                     <Typography variant="body2" sx={{ mb: 0.5 }}>
-                      • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
+                      • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
                     </Typography>
                   </Box>
                 </SummaryItem>

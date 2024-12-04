@@ -118,15 +118,15 @@ export default function PostDetails() {
     if (!post) {
         return (
             <>
-              <Header />
-              <Helmet>
-                <title>Không tìm thấy bài viết</title>
-              </Helmet>
-              <Box sx={{ p: 3 }}>
-                <Typography variant="h4">Không tìm thấy thông tin bài viết</Typography>
-              </Box>
+                <Header />
+                <Helmet>
+                    <title>Không tìm thấy bài viết</title>
+                </Helmet>
+                <Box sx={{ p: 3 }}>
+                    <Typography variant="h4">Không tìm thấy thông tin bài viết</Typography>
+                </Box>
             </>
-          );
+        );
     }
 
     return (
@@ -318,12 +318,10 @@ export default function PostDetails() {
                             />
                         </Box>
                     </Grid>
+                    <Grid item xs={11} md={11}>
+                        <RelatedPosts provinceId={post.provinceId} currentPostId={post.id} />
+                    </Grid>
                 </Grid>
-
-                {/* Related Posts */}
-                <Box sx={{ mt: 8, mb: 10, ml: 9.5 }}>
-                    <RelatedPosts provinceId={post.provinceId} currentPostId={post.id} />
-                </Box>
             </Container>
 
             <Snackbar
@@ -331,27 +329,27 @@ export default function PostDetails() {
                 autoHideDuration={3000}
                 onClose={handleCloseNotification}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                sx={{ 
-                    position: 'fixed', 
-                    top: '24px', 
+                sx={{
+                    position: 'fixed',
+                    top: '24px',
                     right: '24px',
                     '& .MuiPaper-root': {
                         minWidth: '300px'
                     }
                 }}
             >
-                <Alert 
-                    onClose={handleCloseNotification} 
+                <Alert
+                    onClose={handleCloseNotification}
                     severity={isApiError ? "error" : "success"}
-                    sx={{ 
+                    sx={{
                         width: '100%', mt: 10,
-                        bgcolor: 'rgba(0, 0, 0, 0.8)', 
+                        bgcolor: 'rgba(0, 0, 0, 0.8)',
                         color: 'white',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', 
-                        '& .MuiAlert-icon': { 
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        '& .MuiAlert-icon': {
                             color: isApiError ? '#f44336' : '#4caf50'
                         },
-                        '& .MuiSvgIcon-root': { 
+                        '& .MuiSvgIcon-root': {
                             color: 'white'
                         },
                         fontSize: '0.95rem',
@@ -360,7 +358,7 @@ export default function PostDetails() {
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         {alertMessage} {!isApiError && getCookie('customerToken') && (
-                            <> - 
+                            <> -
                                 <Box
                                     component="span"
                                     onClick={handleOpenStorage}
@@ -382,7 +380,7 @@ export default function PostDetails() {
                 </Alert>
             </Snackbar>
 
-            <UnsavedConfirmPopup 
+            <UnsavedConfirmPopup
                 open={openUnsaveDialog}
                 onClose={handleCloseUnsaveDialog}
                 onConfirm={handleConfirmUnsave}
