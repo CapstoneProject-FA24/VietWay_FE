@@ -105,6 +105,9 @@ const BookingDetail = () => {
         const zaloStatus = searchParams.get('status');
 
         if (zaloStatus === '1') {
+          console.log(searchParams.get('appid'));
+          const zaloUrl = `?appid=${searchParams.get('appid')}&apptransid=${searchParams.get('apptransid')}`;
+          await fetchCreatePayment(zaloUrl, 'ZaloPay');
           setOpenSnackbar(true);
           const paymentData = await fetchBookingPayments(id);
           setPayments(paymentData.items);
@@ -114,6 +117,8 @@ const BookingDetail = () => {
         }
 
         if (vnpCode === '00') {
+          const vnPayIPN = `?vnp_TmnCode=${searchParams.get('vnp_TmnCode')}&vnp_Amount=${searchParams.get('vnp_Amount')}&vnp_BankCode=${searchParams.get('vnp_BankCode')}&vnp_BankTranNo=${searchParams.get('vnp_BankTranNo')}&vnp_CardType=${searchParams.get('vnp_CardType')}&vnp_PayDate=${searchParams.get('vnp_PayDate')}&vnp_OrderInfo=${searchParams.get('vnp_OrderInfo').replace(/\+/g, '%2B')}&vnp_TransactionNo=${searchParams.get('vnp_TransactionNo')}&vnp_ResponseCode=${searchParams.get('vnp_ResponseCode')}&vnp_TransactionStatus=${searchParams.get('vnp_TransactionStatus')}&vnp_TxnRef=${searchParams.get('vnp_TxnRef')}&vnp_SecureHash=${searchParams.get('vnp_SecureHash')}`;
+          await fetchCreatePayment(vnPayIPN, 'VNPay');
           setOpenSnackbar(true);
           const paymentData = await fetchBookingPayments(id);
           setPayments(paymentData.items);
