@@ -88,6 +88,8 @@ const autocompleteStyle = `
 
   #pac-input{
     left: 0 !important;
+    background-color: #fff !important;
+    color: #000000 !important;
   }
 
   .visually-hidden {
@@ -101,13 +103,19 @@ const autocompleteStyle = `
     white-space: nowrap;
     border: 0;
   }
+
+  #map-button-container button{
+    color: #505050 !important;
+  }
 `;
 
 function Map({ placeId }) {
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-        libraries: GOOGLE_MAPS_LIBRARIES
+        libraries: GOOGLE_MAPS_LIBRARIES,
+        region: 'VN',
+        language: 'vi'
     });
 
     const [map, setMap] = useState(null);
