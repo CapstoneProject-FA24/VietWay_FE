@@ -257,6 +257,7 @@ const TourDetails = () => {
                     </IconButton>
                   </Box>
                   <Collapse in={expandedDay === s.dayNumber} sx={{ ml: 1 }}>
+                    <Typography sx={{ mt: 1.5, mb: -2, fontWeight: 700 }}>Các điểm đến nổi bật:</Typography>
                     <ul>
                       {s.attractions.map((attraction, i) => (
                         <li key={attraction.attractionId}>
@@ -270,22 +271,15 @@ const TourDetails = () => {
                         </li>
                       ))}
                     </ul>
-                    <Typography paragraph sx={{ textAlign: 'justify' }}>
-                      {s.description}
-                    </Typography>
+                    <Typography sx={{ mt: 2, mb: 0.5, fontWeight: 700 }}>Chi tiết:</Typography>
+                    <Box dangerouslySetInnerHTML={{ __html: s.description }} sx={{ '& p': { lineHeight: 1.2, mt: 0, textAlign: 'justify' } }} />
                   </Collapse>
                 </Box>
               ))}
             </Box>
-            {/* <Box sx={{ mb: 5 }}>
-              <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Chính sách</Typography>
-              {tour.tour.refundPolicies.map((policy, index) => (
-                <Typography key={index} paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>Hủy trước {policy.cancelBefore}, hoàn {policy.refundPercent}</Typography>
-              ))}
-            </Box> */}
             <Box sx={{ mb: 5 }}>
               <Typography variant="h5" gutterBottom sx={{ textAlign: 'left', fontWeight: '700', fontSize: '1.6rem', color: '#05073C' }}>Lưu ý</Typography>
-              <Typography paragraph sx={{ textAlign: 'justify', color: '#05073C' }}>{tour.note}</Typography>
+              <Box dangerouslySetInnerHTML={{ __html: tour.note }} sx={{ '& p': { lineHeight: 1.2, mt: 0, textAlign: 'justify' } }} />
             </Box>
           </Grid>
           <Grid item xs={12} md={4}>

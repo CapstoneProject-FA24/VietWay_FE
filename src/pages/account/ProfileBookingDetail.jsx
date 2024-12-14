@@ -459,17 +459,17 @@ const ProfileBookingDetail = () => {
                   {bookingData.tourName}
                 </Typography>
                 <Typography variant="body1" color="textSecondary" gutterBottom>
-                  Số booking: {bookingData.bookingId}
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Số booking:</span> {bookingData.bookingId}
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="body1" color="textPrimary" gutterBottom>
-                  Mã tour: {bookingData.code}
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Mã tour:</span> {bookingData.code}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom>
-                  Phương tiện: {bookingData.transportation}
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Phương tiện:</span> {bookingData.transportation}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom>
-                  Thời lượng: {bookingData.durationName}
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Thời lượng:</span> {bookingData.durationName}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
