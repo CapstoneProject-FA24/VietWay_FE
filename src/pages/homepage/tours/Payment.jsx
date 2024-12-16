@@ -87,8 +87,8 @@ const PaymentMethod = styled(FormControlLabel)(({ theme }) => ({
 
 const PaymentMethodEnum = {
   VNPay: 0,
-  ZaloPay: 2,
-  PayOS: 3
+  ZaloPay: 1,
+  PayOS: 2
 };
 
 const PayBooking = () => {
