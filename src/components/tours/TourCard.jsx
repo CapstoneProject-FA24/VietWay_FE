@@ -6,6 +6,9 @@ import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import FlightOutlinedIcon from '@mui/icons-material/FlightOutlined';
+import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
+import DirectionsTransitOutlinedIcon from '@mui/icons-material/DirectionsTransitOutlined';
 import { styled } from '@mui/material/styles';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -18,6 +21,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const TourCard = ({ tour }) => {
+  console.log(tour);
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -29,16 +33,16 @@ const TourCard = ({ tour }) => {
   };
 
   return (
-    <Card sx={{ display: 'flex', height: '235px', textAlign: 'left', borderRadius: '7px', width: '100%', mb: 2 }}>
-      <CardMedia component="img" sx={{ width: '35%', objectFit: 'cover', margin: '7px', borderRadius: '7px' }}
+    <Card sx={{ display: 'flex', height: '252px', textAlign: 'left', borderRadius: '7px', width: '100%', mb: 2 }}>
+      <CardMedia component="img" sx={{ width: '37%', objectFit: 'cover', margin: '7px', borderRadius: '7px' }}
         image={tour.imageUrl} alt={tour.tourName} />
-      <Box sx={{ display: 'flex', flexDirection: 'column', width: '45%', p: 1.5 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', width: '43%', p: 1.5 }}>
         <Chip label={tour.tourCategory} size="small"
           sx={{ alignSelf: 'flex-start', mb: 1, fontSize: '0.85rem', pt: 1.5, pb: 1.5, pl: 0.5, pr: 0.5 }} />
         <Typography variant="h5" component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`}
           sx={{
-            overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, fontSize: '1.35rem',
-            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', lineHeight: 1.2, height: '3.6rem'
+            overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, fontSize: '1.3rem',
+            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', lineHeight: 1.2, height: '3.55rem'
           }}>
           {tour.tourName}
         </Typography>
@@ -46,13 +50,19 @@ const TourCard = ({ tour }) => {
           <SubtitlesOutlinedIcon sx={{ marginRight: '8px' }} />
           Mã tour: {tour.code}
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+        {/* <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
           <MapOutlinedIcon sx={{ marginRight: '8px' }} />
           Điểm đến: {tour.provinces.join(' - ')}
-        </Typography>
+        </Typography> */}
         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
           <LocationOnOutlinedIcon sx={{ marginRight: '8px' }} />
           Khởi hành từ: {tour.startingProvince}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+          {tour.transportation === 'Máy bay' && (<FlightOutlinedIcon sx={{ marginRight: '8px' }} />)}
+          {tour.transportation === 'Tàu hỏa' && (<DirectionsTransitOutlinedIcon sx={{ marginRight: '8px' }} />)}
+          {tour.transportation === 'Xe du lịch' && (<DirectionsCarFilledOutlinedIcon sx={{ marginRight: '8px' }} />)}
+          Phương tiện: {tour.transportation}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mr: 1 }}>

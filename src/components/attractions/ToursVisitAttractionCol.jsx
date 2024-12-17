@@ -3,7 +3,9 @@ import { Box, Typography, Card, CardContent, CardMedia, Grid, CardActionArea, Ch
 import { Link, useParams } from 'react-router-dom';
 import { fetchToursByAttractionId } from '@services/TourTemplateService';
 import SubtitlesOutlinedIcon from '@mui/icons-material/SubtitlesOutlined';
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import DirectionsTransitOutlinedIcon from '@mui/icons-material/DirectionsTransitOutlined';
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
@@ -19,6 +21,7 @@ const ToursVisitAttractionCol = () => {
     const fetchTours = async () => {
       try {
         const response = await fetchToursByAttractionId(id, 10);
+        console.log(response);
         setTours(response);
         setLoading(false);
       } catch (err) {
@@ -43,20 +46,20 @@ const ToursVisitAttractionCol = () => {
           textAlign: 'left', 
           fontSize: '1.5rem'
         }}>
-          Các tour du lịch tham quan điểm này
+          Các tour du lịch liên quan
         </Typography>
       )}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pl: 3.5, pr: 3.5, maxHeight: '870px', overflowY: 'auto' }}>
         {tours.map((tour) => (
           <Card key={tour.tourTemplateId} sx={{ 
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'column',
             boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
             transition: 'transform 0.2s ease-in-out',
             '&:hover': {
               transform: 'translateY(-4px)'
             },
-            height: '200px',
+            height: '350px', minHeight: '400px',
             width: '100%'
           }}>
             <CardActionArea 
@@ -64,7 +67,7 @@ const ToursVisitAttractionCol = () => {
               to={`/tour-du-lich/${tour.tourTemplateId}`}
               sx={{ 
                 display: 'flex', 
-                flexDirection: 'row',
+                flexDirection: 'column',
                 height: '100%'
               }}
             >
@@ -77,9 +80,8 @@ const ToursVisitAttractionCol = () => {
                   e.target.src = '/path/to/fallback/image.jpg';
                 }}
                 sx={{
-                  width: '50%',
-                  height: '90%',
-                  objectFit: 'cover'
+                  width: '100%',
+                  objectFit: 'cover', height: '190px'
                 }}
               />
               <CardContent sx={{ 
@@ -87,7 +89,7 @@ const ToursVisitAttractionCol = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                p: 2
+                p: 1.5
               }}>
                 <Box>
                   <Chip 
@@ -107,21 +109,26 @@ const ToursVisitAttractionCol = () => {
                       WebkitLineClamp: '2', 
                       WebkitBoxOrient: 'vertical', 
                       lineHeight: 1.3, 
-                      mb: 1 
                     }}
                   >
                     {tour.tourName}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
                     <SubtitlesOutlinedIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 14 }}>
                       Mã: {tour.code}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <LocationOnOutlinedIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
-                      Khởi hành từ: {tour.provinces[0]}
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 14 }}>
+                      Khởi hành từ: {tour.startingProvince}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <DirectionsTransitOutlinedIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 14 }}>
+                      Phương tiện: {tour.transportation}
                     </Typography>
                   </Box>
                 </Box>
@@ -131,8 +138,8 @@ const ToursVisitAttractionCol = () => {
                   justifyContent: 'space-between', 
                   alignItems: 'center',
                   borderTop: '1px solid #dfdfdf',
-                  pt: 2,
-                  mt: 2
+                  pt: 1,
+                  mt: 1
                 }}>
                   <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
                     {tour.duration}

@@ -24,6 +24,7 @@ import Storage from "@pages/homepage/storage/Storage";
 import RegisterWithGoogle from '@pages/authen/RegisterWithGoogle';
 import ChangePass from '@pages/authen/ChangePass';
 import NotFound from '@pages/homepage/NotFound';
+import DeletedTourDetails from "@pages/account/DeletedTourDetails.jsx";
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -59,6 +60,7 @@ const AppRoutes = () => {
       <Route path="/booking/:id" element={<ProfileBookingDetail />} />
       <Route path="/doi-mat-khau" element={<ChangePass />} />
       <Route path="/error" element={<NotFound />} />
+      <Route path="/thong-tin/tour-du-lich/:id" element={<DeletedTourDetails />} />
     </Routes>
   );
 };

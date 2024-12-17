@@ -89,7 +89,7 @@ const Tours = () => {
     }
     fetchProvinceData();
     fetchCategoryData();
-  }, [page, pageSize]);
+  }, [page, pageSize, searchTerm]);
 
   const fetchTours = async (overrideParams = {}) => {
     try {
@@ -149,6 +149,7 @@ const Tours = () => {
   const handleSearch = () => {
     setSearchTerm(searchInput);
     setPage(1);
+    fetchTours({ searchTerm: searchInput });
   };
 
   const handleKeyPress = (event) => {
@@ -271,7 +272,7 @@ const Tours = () => {
               sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '15px' } }}
             />
           </Grid>
-          <Grid item xs={12} md={3.5}>
+          <Grid item xs={12} md={3.2}>
             <Box sx={{ position: 'sticky', top: 10, maxHeight: '100vh', overflowY: 'auto', borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)' }}>
               <Paper elevation={3} sx={{ borderRadius: '10px', pb: 2 }}>
                 <Typography variant="h5" sx={{ fontWeight: '500', textAlign: 'center', color: 'white', backgroundColor: '#3572EF', p: 2, width: '100%', borderRadius: '10px 10px 0 0' }}>Bộ lọc</Typography>
@@ -399,7 +400,7 @@ const Tours = () => {
               </Paper>
             </Box>
           </Grid>
-          <Grid item xs={12} md={8.5}>
+          <Grid item xs={12} md={8.8}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center' }}>
               <Typography sx={{ textAlign: 'left', color: 'black' }}>
                 {totalItems} kết quả

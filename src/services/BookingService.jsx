@@ -12,8 +12,6 @@ export const fetchBookingData = async (bookingId) => {
         });
         const bookingData = response.data.data;
 
-        console.log('Fetched Booking Data:', bookingData);
-
         return {
             bookingId: bookingData.bookingId,
             tourId: bookingData.tourId,
@@ -77,8 +75,6 @@ export const createBooking = async (bookingData) => {
             contactAddress: bookingData.address,
             note: bookingData.note,
         };
-
-        console.log('Request Data:', requestData);
 
         const response = await axios.post(`${baseURL}/api/bookings`, requestData, {
             headers: {
@@ -324,12 +320,12 @@ export const fetchTourByBookingId = async (id) => {
             id: item.tourId,
             tourTemplateId: item.tourTemplateId,
             startLocation: item.startLocation,
+            startLocationPlaceId: item.startLocationPlaceId,
             startTime: new Date(item.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
             startDate: new Date(item.startDate),
             price: item.defaultTouristPrice,
             maxParticipant: item.maxParticipant,
             minParticipant: item.minParticipant,
-            createdAt: new Date(item.createdAt),
             currentParticipant: item.currentParticipant,
             refundPolicies: item.refundPolicies.map(policy => ({
                 cancelBefore: new Date(policy.cancelBefore),
@@ -345,6 +341,39 @@ export const fetchTourByBookingId = async (id) => {
             registerCloseDate: new Date(item.registerCloseDate),
             depositPercent: item.depositPercent,
             paymentDeadline: new Date(item.paymentDeadline),
+            tourTemplate: item.tourTemplate && {
+                tourTemplateId: item.tourTemplate.tourTemplateId,
+                code: item.tourTemplate.code,
+                tourName: item.tourTemplate.tourName,
+                description: item.tourTemplate.description,
+                duration: item.tourTemplate.duration,
+                tourCategory: item.tourTemplate.tourCategory,
+                startingProvince: item.tourTemplate.startingProvince,
+                note: item.tourTemplate.note,
+                transportation: item.tourTemplate.transportation,
+                provinces: item.tourTemplate.provinces,
+                schedules: item.tourTemplate.schedules?.map(schedule => ({
+                    dayNumber: schedule.dayNumber,
+                    title: schedule.title,
+                    description: schedule.description,
+                    attractions: schedule.attractions?.map(attraction => ({
+                        attractionId: attraction.attractionId,
+                        name: attraction.name,
+                        address: attraction.address,
+                        province: attraction.province,
+                        attractionCategory: attraction.attractionCategory,
+                        imageUrl: attraction.imageUrl,
+                        averageRating: attraction.averageRating,
+                        likeCount: attraction.likeCount,
+                        isLiked: attraction.isLiked
+                    }))
+                })),
+                images: item.tourTemplate.images?.map(image => ({
+                    imageId: image.imageId,
+                    url: image.url
+                })),
+                isDeleted: item.tourTemplate.isDeleted
+            }
         };
         return tour;
     } catch (error) {

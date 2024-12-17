@@ -69,7 +69,7 @@ const Attractions = () => {
     }
     fetchProvinceData();
     fetchAttractionTypeData();
-  }, [page, pageSize]);
+  }, [page, pageSize, searchTerm]);
 
   const fetchAttractionData = async (overrideParams = {}) => {
     try {
@@ -119,6 +119,7 @@ const Attractions = () => {
   const handleSearch = () => {
     setSearchTerm(searchInput);
     setPage(1);
+    fetchAttractionData({ searchTerm: searchInput });
   };
 
   const handleKeyPress = (event) => {

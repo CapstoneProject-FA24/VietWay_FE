@@ -112,7 +112,7 @@ const Homepage = () => {
 
         <Box component="section" className="destinations">
           <Box className="section-header">
-            <Typography variant="h4" className="section-title" sx={{ mb: 2, fontWeight: 'bold', fontSize: '2rem' }}>Khám phá các điểm tham quan</Typography>
+            <Typography variant="h4" className="section-title" sx={{ mb: 4, fontWeight: 'bold', fontSize: '2rem' }}>Khám phá các điểm tham quan</Typography>
             <Button component={Link} to="/diem-tham-quan" className="view-all-button" sx={{ mb: '1.5rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestAttractionByProvinces />
@@ -134,7 +134,7 @@ const Homepage = () => {
             <Map />
           </Box>
           <Box className="section-header">
-            <Typography variant="h4" className="section-title" sx={{ fontWeight: 'bold', fontSize: '2rem', mb: '1rem' }}>Điểm đến yêu thích</Typography>
+            <Typography variant="h4" className="section-title" sx={{ fontWeight: 'bold', fontSize: '2rem', mb: '1rem' }}>Các tỉnh thành nổi bật</Typography>
             <Button component={Link} to={"/tinh-thanh"} className="view-all-button" sx={{ mb: '1rem' }}>Xem tất cả</Button>
           </Box>
           <SuggestProvinces />

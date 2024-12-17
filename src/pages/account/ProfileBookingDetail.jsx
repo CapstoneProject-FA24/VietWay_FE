@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup, Dialog, DialogTitle, DialogContent, DialogActions, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange } from "@services/BookingService";
+import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
+import { fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange, fetchTourByBookingId } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
 import { getCookie } from "@services/AuthenService"; getCookie
@@ -13,8 +13,9 @@ import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
 import CancelBooking from '@components/profiles/CancelBooking';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
-import { fetchTourByBookingId } from "@services/BookingService";
 import { EntityModifyAction, BookingStatus } from '@hooks/Statuses';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -168,7 +169,8 @@ const ProfileBookingDetail = () => {
         pricesByAge: tour.pricesByAge,
         registerOpenDate: tour.registerOpenDate,
         registerCloseDate: tour.registerCloseDate,
-        history: history.data
+        history: history.data,
+        tourTemplate: tour.tourTemplate
       };
 
       setPayments(paymentData.items);
@@ -283,6 +285,10 @@ const ProfileBookingDetail = () => {
     );
   }
 
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
   if (!bookingData) return null;
 
   return (
@@ -291,7 +297,13 @@ const ProfileBookingDetail = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
+          <Button
+            variant="text" startIcon={<ArrowBackIosNewIcon />} onClick={handleBackClick}
+            sx={{ color: '#4B4B4B', mt: 5, justifyContent: 'flex-start' }}
+          >
+            Quay lại
+          </Button>
+          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 10, color: "#3572EF" }}>
             THÔNG TIN BOOKING
           </Typography>
           <Grid container spacing={3}>
@@ -455,8 +467,13 @@ const ProfileBookingDetail = () => {
                 <Box sx={{ mb: 2 }}>
                   <img src={bookingData.imageUrl} alt={bookingData.tourName} style={{ width: "100%", height: "auto" }} />
                 </Box>
-                <Typography variant="h6" style={{ fontWeight: "bold" }} gutterBottom>
+                <Typography
+                  component={Link} to={bookingData.tourTemplate.isDeleted === false ? `/tour-du-lich/${bookingData.tourTemplate.tourTemplateId}` : `/thong-tin/tour-du-lich/${bookingData.bookingId}`} variant="h6"
+                  sx={{ fontWeight: "bold", color: 'black', '&:hover': { color: 'primary.main', cursor: 'pointer' } }} gutterBottom>
                   {bookingData.tourName}
+                  <Tooltip title="Nhấp để xem chi tiết tour" arrow>
+                    <InfoOutlinedIcon sx={{ fontSize: 16, color: 'primary.main', ml: 1 }} />
+                  </Tooltip>
                 </Typography>
                 <Typography variant="body1" color="textSecondary" gutterBottom>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Số booking:</span> {bookingData.bookingId}
