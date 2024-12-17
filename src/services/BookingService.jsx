@@ -44,7 +44,7 @@ export const fetchBookingData = async (bookingId) => {
                 gender: participant.gender,
                 dateOfBirth: new Date(participant.dateOfBirth),
                 price: participant.price,
-                PIN: participant.cccd
+                PIN: participant.pin
             })),
             refundRequests: bookingData.refundRequests?.map(refund => ({
                 refundAmount: refund.refundAmount,

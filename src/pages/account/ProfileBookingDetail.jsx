@@ -354,10 +354,6 @@ const ProfileBookingDetail = () => {
                     </Typography>
                   </>
                 )}
-                {/* <SummaryItem>
-                  <Typography>Số tiền còn lại:</Typography>
-                  <Typography>{(bookingData.totalPrice - bookingData.paidAmount).toLocaleString()} đ</Typography>
-                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>

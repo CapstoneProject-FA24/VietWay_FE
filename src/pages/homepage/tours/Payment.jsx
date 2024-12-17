@@ -337,12 +337,14 @@ const PayBooking = () => {
                       <Typography sx={{ fontWeight: 'bold' }}>Ngày sinh:</Typography>
                       <Typography>{participant.dateOfBirth.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) || 'Không xác định'}</Typography>
                     </SummaryItem>
-                    <SummaryItem>
-                      <Typography sx={{ fontWeight: 'bold' }}>CCCD:</Typography>
-                      <Typography>
-                        {participant.PIN || participant.cccd || 'Không có'}
-                      </Typography>
-                    </SummaryItem>
+                    {bookingData.transportation !== 'Xe du lịch' && (
+                      <SummaryItem>
+                        <Typography sx={{ fontWeight: 'bold' }}>CCCD:</Typography>
+                        <Typography>
+                          {participant.PIN || participant.cccd || 'Không có'}
+                        </Typography>
+                      </SummaryItem>
+                    )}
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
                 ))}
@@ -542,7 +544,7 @@ const PayBooking = () => {
         </StyledBox>
       </ContentContainer>
       <Footer />
-      <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={3000} open={openSnackbar} onClose={handleCloseSnackbar}>
+      <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={3000} open={openSnackbar} onClose={handleCloseSnackbar}>
         <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
           {snackbarMessage || 'Vui lòng chọn phương thức thanh toán'}
         </MuiAlert>

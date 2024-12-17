@@ -394,7 +394,9 @@ const BookTour = () => {
         setSnackbarMessage('Đặt tour thành công!');
         setSnackbarSeverity('success');
         setOpenSnackbar(true);
-        window.location.href = `/dat-tour/thanh-toan/${response.data}`;
+        setTimeout(() => {
+          navigate(`/dat-tour/thanh-toan/${response.data}`);
+        }, 1500);
       } catch (error) {
         if (error.response.data.error.includes("Customer has already booked this tour")) {
           setSnackbarMessage('Quý khách đã đặt tour này rồi.');
@@ -772,7 +774,7 @@ const BookTour = () => {
       </ContentContainer>
       <Footer />
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}
       >
         <Alert onClose={handleCloseSnackbar} variant="filled" severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}

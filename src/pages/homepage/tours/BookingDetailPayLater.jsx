@@ -226,13 +226,9 @@ const BookingDetailPayLater = () => {
                 )}
                 {bookingData.status === 0 && (
                   <Typography variant="body2" sx={{ color: 'error.main', mt: 1 }}>
-                    Nếu quá thời hạn trên mà Quý khách chưa thanh toán, VietWay sẽ hủy booking này.
+                    Nếu quá thời hạn trên mà quý khách chưa thanh toán, VietWay sẽ hủy booking này.
                   </Typography>
                 )}
-                {/* <SummaryItem>
-                  <Typography>Số tiền còn lại:</Typography>
-                  <Typography>{(bookingData.totalPrice - bookingData.paidAmount).toLocaleString()} đ</Typography>
-                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
@@ -277,6 +273,9 @@ const BookingDetailPayLater = () => {
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="body1" color="textPrimary" gutterBottom>
                   Mã tour: {bookingData.code}
+                </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom>
+                  Phương tiện: {bookingData.transportation}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom>
                   Thời lượng: {bookingData.durationName}
