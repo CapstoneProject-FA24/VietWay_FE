@@ -11,6 +11,9 @@ export const fetchBookingData = async (bookingId) => {
             }
         });
         const bookingData = response.data.data;
+
+        console.log('Fetched Booking Data:', bookingData);
+
         return {
             bookingId: bookingData.bookingId,
             tourId: bookingData.tourId,
@@ -40,7 +43,8 @@ export const fetchBookingData = async (bookingId) => {
                 phoneNumber: participant.phoneNumber,
                 gender: participant.gender,
                 dateOfBirth: new Date(participant.dateOfBirth),
-                price: participant.price
+                price: participant.price,
+                PIN: participant.cccd
             })),
             refundRequests: bookingData.refundRequests?.map(refund => ({
                 refundAmount: refund.refundAmount,
@@ -64,7 +68,8 @@ export const createBooking = async (bookingData) => {
                 fullName: passenger.fullName,
                 phoneNumber: passenger.phoneNumber,
                 gender: passenger.gender,
-                dateOfBirth: passenger.dateOfBirth
+                dateOfBirth: passenger.dateOfBirth,
+                PIN: passenger.PIN
             })),
             contactFullName: bookingData.fullName,
             contactEmail: bookingData.email,
@@ -72,6 +77,9 @@ export const createBooking = async (bookingData) => {
             contactAddress: bookingData.address,
             note: bookingData.note,
         };
+
+        console.log('Request Data:', requestData);
+
         const response = await axios.post(`${baseURL}/api/bookings`, requestData, {
             headers: {
                 'Authorization': `Bearer ${customerToken}`
@@ -343,4 +351,21 @@ export const fetchTourByBookingId = async (id) => {
         console.error('Error fetching tour:', error);
         throw error;
     }
+};
+
+export const getBookingById = async (bookingId) => {
+  try {
+    const customerToken = getCookie('customerToken');
+    const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`, {
+      headers: {
+        'Authorization': `Bearer ${customerToken}`
+      }
+    });
+    
+    // Make sure the API returns participant data including PIN
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching booking data:', error);
+    throw error;
+  }
 };

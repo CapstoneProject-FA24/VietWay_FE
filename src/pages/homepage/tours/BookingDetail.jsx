@@ -271,6 +271,10 @@ const BookingDetail = () => {
                       <Typography>Ngày sinh:</Typography>
                       <Typography>{dayjs(participant.dateOfBirth).format('DD/MM/YYYY')}</Typography>
                     </SummaryItem>
+                    <SummaryItem>
+                      <Typography>CCCD:</Typography>
+                      <Typography>{participant.PIN}</Typography>
+                    </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
                 ))}

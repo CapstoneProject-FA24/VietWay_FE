@@ -188,7 +188,18 @@ const BookTour = () => {
     const newPassengers = [...formData.passengers];
     newPassengers[index] = { ...newPassengers[index], [field]: value };
     setFormData({ ...formData, passengers: newPassengers });
+
     validatePassengerField(index, field, value);
+
+    if (field === 'birthday') {
+      const requiresCCCD = isCCCDRequired(value, bookingData?.transportation);
+      if (requiresCCCD && !newPassengers[index].cccd) {
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          [`passenger${index}-cccd`]: 'Vui lòng nhập số CCCD vì hành khách đã đủ 14 tuổi'
+        }));
+      }
+    }
   };
 
   const validateField = (name, value, passengerType) => {
@@ -335,12 +346,22 @@ const BookTour = () => {
       const error = validateField(field, formData[field]);
       if (error) newErrors[field] = error;
     });
+
     formData.passengers.forEach((passenger, index) => {
       ['type', 'name', 'gender', 'birthday'].forEach(field => {
         const error = validateField(field, passenger[field], passenger.type);
         if (error) newErrors[`passenger${index}-${field}`] = error;
       });
+
+      if (isCCCDRequired(passenger.birthday, bookingData?.transportation)) {
+        if (!passenger.cccd) {
+          newErrors[`passenger${index}-cccd`] = 'Vui lòng nhập số CCCD vì hành khách đã đủ 14 tuổi';
+        } else if (!/^\d{12}$/.test(passenger.cccd)) {
+          newErrors[`passenger${index}-cccd`] = 'CCCD phải có đúng 12 chữ số';
+        }
+      }
     });
+
     if (!formData.paymentMethod) {
       newErrors.paymentMethod = 'Vui lòng chọn phương thức thanh toán';
     }
@@ -357,7 +378,8 @@ const BookTour = () => {
             fullName: passenger.name,
             phoneNumber: formData.phone,
             gender: parseInt(passenger.gender),
-            dateOfBirth: passenger.birthday
+            dateOfBirth: passenger.birthday,
+            PIN: passenger.cccd
           })),
           fullName: formData.fullName,
           email: formData.email,

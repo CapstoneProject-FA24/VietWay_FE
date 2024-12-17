@@ -280,7 +280,7 @@ const PayBooking = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography sx={{ fontWeight: 'bold' }}>Địa chỉ:</Typography>
-                  <Typography>{bookingData.contactAddress}</Typography>
+                  <Typography>{bookingData.contactAddress || 'Không có'}</Typography>
                 </SummaryItem>
               </SummaryBox>
               <SummaryBox>
@@ -336,6 +336,12 @@ const PayBooking = () => {
                     <SummaryItem>
                       <Typography sx={{ fontWeight: 'bold' }}>Ngày sinh:</Typography>
                       <Typography>{participant.dateOfBirth.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) || 'Không xác định'}</Typography>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <Typography sx={{ fontWeight: 'bold' }}>CCCD:</Typography>
+                      <Typography>
+                        {participant.PIN || participant.cccd || 'Không có'}
+                      </Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>

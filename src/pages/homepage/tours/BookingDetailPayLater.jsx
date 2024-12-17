@@ -254,6 +254,10 @@ const BookingDetailPayLater = () => {
                       <Typography>Ngày sinh:</Typography>
                       <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
                     </SummaryItem>
+                    <SummaryItem>
+                      <Typography>CCCD:</Typography>
+                      <Typography>{participant.PIN}</Typography>
+                    </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
                 ))}
