@@ -702,7 +702,7 @@ const BookTour = () => {
                 <SummaryItem>
                   <Typography variant="body2">Ngày kết thúc:</Typography>
                   <Typography variant="body2">
-                    {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                    {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('vi-VN')}
                   </Typography>
                 </SummaryItem>
                 <SummaryItem>
@@ -737,7 +737,7 @@ const BookTour = () => {
                         );
                       })}
                     <Typography variant="body2" sx={{ mb: 0.5 }}>
-                      • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
+                      • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
                     </Typography>
                   </Box>
                 </SummaryItem>

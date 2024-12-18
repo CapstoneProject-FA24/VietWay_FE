@@ -82,11 +82,11 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
                                 .sort((a, b) => a.refundPercent - b.refundPercent)
                                 .map((policy, index) => (
                                     <Typography key={index} variant="body2" sx={{ mb: 0.5 }}>
-                                        • Hủy trước ngày {new Date(policy.cancelBefore).toLocaleDateString()}: Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - {(policy.refundPercent * tour.totalPrice / 100).toLocaleString()} đ</span>
+                                        • Hủy trước ngày {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - {(policy.refundPercent * tour.totalPrice / 100).toLocaleString()} đ</span>
                                     </Typography>
                                 ))}
                             <Typography variant="body2" sx={{ mb: 0.5 }}>
-                                • Hủy từ ngày {new Date(tourInfo.refundPolicies[tourInfo.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {tour.totalPrice.toLocaleString()} đ</span>
+                                • Hủy từ ngày {new Date(tourInfo.refundPolicies[tourInfo.refundPolicies.length - 1].cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {tour.totalPrice.toLocaleString()} đ</span>
                             </Typography>
                         </Box>
                     ) : null}

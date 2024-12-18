@@ -347,7 +347,7 @@ const TourDetails = () => {
                     (() => {
                       const selectedTourData = availableTours.find(t => t.id === selectedTour);
                       if (selectedTourData) {
-                        const endDate = new Date(selectedTourData.startDate.getTime() + ((tour.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString();
+                        const endDate = new Date(selectedTourData.startDate.getTime() + ((tour.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('vi-VN');
                         return endDate ? endDate : '';
                       }
                       return '';
@@ -405,7 +405,7 @@ const TourDetails = () => {
                     );
                   })}
                 <Typography sx={{ color: '#05073C', mb: 0.5 }}>
-                  • Hủy từ ngày {new Date(availableTours.find(t => t.id === selectedTour)?.refundPolicies[availableTours.find(t => t.id === selectedTour)?.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking
+                  • Hủy từ ngày {new Date(availableTours.find(t => t.id === selectedTour)?.refundPolicies[availableTours.find(t => t.id === selectedTour)?.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking
                 </Typography>
               </Box>
               <Button onClick={handleBooking} variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>
