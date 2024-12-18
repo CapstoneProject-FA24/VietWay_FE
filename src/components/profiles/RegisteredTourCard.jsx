@@ -7,21 +7,15 @@ import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import { Link, useNavigate } from 'react-router-dom';
 import CancelBooking from '@components/profiles/CancelBooking';
-import { cancelBooking } from '@services/BookingService';
 import { BookingStatus } from '@hooks/Statuses';
 import { getBookingStatusInfo } from "@services/StatusService";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ViewFeedback from '@components/profiles/ViewFeedback';
 
-const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
+const RegisteredTourCard = ({ tour, onBookingCancelled, onBookingFeedback }) => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success'
-  });
   const [isViewFeedbackOpen, setIsViewFeedbackOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -30,30 +24,15 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const handlePayment = () => navigate(`/booking/${tour.bookingId}`);
   const handleCancelOpen = () => setIsCancelOpen(true);
   const handleCancelClose = () => setIsCancelOpen(false);
-  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
   const handleViewFeedbackClose = () => setIsViewFeedbackOpen(false);
 
   const handleCancelConfirm = async (reason) => {
     try {
       setCancelLoading(true);
-      await cancelBooking(tour.bookingId, reason);
+      onBookingCancelled(tour.bookingId, reason);
       handleCancelClose();
-      setSnackbar({
-        open: true,
-        message: 'Hủy đặt tour thành công',
-        severity: 'success'
-      });
-      // Refresh the booking list
-      if (onBookingCancelled) {
-        onBookingCancelled();
-      }
     } catch (error) {
       console.error('Failed to cancel booking:', error);
-      setSnackbar({
-        open: true,
-        message: 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
-        severity: 'error'
-      });
     } finally {
       setCancelLoading(false);
     }
@@ -109,10 +88,10 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
           <FeedbackPopup
             onClose={handleFeedbackClose}
             bookingId={tour.bookingId}
-            onSubmitSuccess={() => {
+            onSubmitSuccess={(bookingId, rating, feedback, isPublic) => {
               handleFeedbackClose();
-              if (onBookingCancelled) {
-                onBookingCancelled();
+              if (onBookingFeedback) {
+                onBookingFeedback(bookingId, rating, feedback, isPublic);
               }
             }}
           />
@@ -130,29 +109,6 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
           loading={cancelLoading}
           tour={tour}
         />
-        <Portal>
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={handleSnackbarClose}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            sx={{
-              zIndex: (theme) => theme.zIndex.tooltip + 1000,
-              position: 'fixed'
-            }}
-          >
-            <Alert
-              onClose={handleSnackbarClose}
-              severity={snackbar.severity}
-              variant="filled"
-              sx={{
-                zIndex: (theme) => theme.zIndex.tooltip + 1000
-              }}
-            >
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
-        </Portal>
       </Card>
     </Box>
   );

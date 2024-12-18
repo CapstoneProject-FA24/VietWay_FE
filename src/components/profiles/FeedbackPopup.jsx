@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Rating, 
 import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
 import Checkbox from '@mui/material/Checkbox';
-import { submitBookingReview, getBookingReview } from '@services/BookingService';
+import { getBookingReview } from '@services/BookingService';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -82,9 +82,8 @@ const FeedbackPopup = ({ onClose, bookingId, onSubmitSuccess }) => {
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
-      await submitBookingReview(bookingId, rating, feedback, isPublic);
       if (onSubmitSuccess) {
-        onSubmitSuccess();
+        onSubmitSuccess(bookingId, rating, feedback, isPublic);
       }
       onClose();
     } catch (error) {
@@ -144,7 +143,7 @@ const FeedbackPopup = ({ onClose, bookingId, onSubmitSuccess }) => {
               <Divider sx={{ my: 2 }} />
               <Typography gutterBottom align="center">Chuyến đi của bạn như thế nào?</Typography>
               <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
-                <StyledRating name="simple-controlled" value={rating} onChange={(event, newValue) => { setRating(newValue); }} size="large" emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />} />
+                <StyledRating name="simple-controlled" value={rating} onChange={(event, newValue) => { if (!existingReview) { setRating(newValue); } }} size="large" emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />} />
               </Box>
               <TextField autoFocus margin="dense" id="feedback" 
               label="Chia sẻ những ý kiến chi tiết về trải nghiệm của bạn" type="text" 
@@ -159,6 +158,7 @@ const FeedbackPopup = ({ onClose, bookingId, onSubmitSuccess }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
                 <Checkbox
                   checked={isPublic}
+                  disabled={existingReview}
                   onChange={(e) => setIsPublic(e.target.checked)}
                   inputProps={{ 'aria-label': 'Công khai đánh giá' }}
                 />

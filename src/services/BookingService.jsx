@@ -48,7 +48,8 @@ export const fetchBookingData = async (bookingId) => {
                 refundAmount: refund.refundAmount,
                 refundStatus: refund.refundStatus,
                 refundDate: new Date(refund.refundDate)
-            }))
+            })),
+            isReviewed: bookingData.isReviewed
         };
     } catch (error) {
         console.error('Error fetching booking data:', error);
@@ -372,7 +373,7 @@ export const fetchTourByBookingId = async (id) => {
                     imageId: image.imageId,
                     url: image.url
                 })),
-                isDeleted: item.tourTemplate.isDeleted
+                isDeleted: item.tourTemplate.isDeleted,
             }
         };
         return tour;

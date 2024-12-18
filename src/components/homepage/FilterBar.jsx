@@ -69,15 +69,6 @@ const FilterBar = () => {
         }).toString();
         navigate(`/bai-viet?${searchParams}`);
         break;
-      case 3:
-        searchParams = new URLSearchParams({
-          name: selectedDestination,
-          provinceId: selectedProvince,
-          applySearch: 'true',
-          startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : ''
-        }).toString();
-        navigate(`/su-kien?${searchParams}`);
-        break;
     }
   };
 
@@ -89,7 +80,7 @@ const FilterBar = () => {
             <TextField
               placeholder="Bạn muốn đi đâu?" value={selectedDestination}
               onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '30%' }}
-              InputProps={{ endAdornment:(<InputAdornment position="end"><IconButton><SearchIcon /></IconButton></InputAdornment>)}}
+              InputProps={{ endAdornment: (<InputAdornment position="end"><IconButton><SearchIcon /></IconButton></InputAdornment>) }}
             />
             <DatePicker
               label="Ngày đi" value={departureDate}
@@ -116,7 +107,7 @@ const FilterBar = () => {
             <TextField
               placeholder={value === 1 ? "Tên điểm tham quan" : "Tên bài viết"} value={selectedDestination}
               onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '50%' }}
-              InputProps={{endAdornment:(<InputAdornment position="end"><IconButton><SearchIcon/></IconButton></InputAdornment>)}}
+              InputProps={{ endAdornment: (<InputAdornment position="end"><IconButton><SearchIcon /></IconButton></InputAdornment>) }}
             />
             <Select
               value={selectedProvince} onChange={(e) => setSelectedProvince(e.target.value)}
@@ -129,29 +120,6 @@ const FilterBar = () => {
             </Select>
           </>
         );
-      case 3: // Sự kiện
-        return (
-          <>
-            <TextField
-              placeholder="Tên sự kiện" value={selectedDestination}
-              onChange={(e) => setSelectedDestination(e.target.value)} sx={{ width: '30%' }}
-              InputProps={{endAdornment:(<InputAdornment position="end"><IconButton><SearchIcon/></IconButton></InputAdornment>)}}
-            />
-            <Select
-              value={selectedProvince} onChange={(e) => setSelectedProvince(e.target.value)}
-              displayEmpty sx={{ width: '25%' }}
-            >
-              <MenuItem value="" disabled> Chọn tỉnh thành </MenuItem>
-              {provinces.map((province) => (
-                <MenuItem key={province.provinceId} value={province.provinceId}> {province.provinceName} </MenuItem>
-              ))}
-            </Select>
-            <DatePicker
-              label="Ngày bắt đầu" value={startDate} onChange={(newValue) => setStartDate(newValue)}
-              format="DD/MM/YYYY" sx={{ width: '23%' }} 
-            />
-          </>
-        );
     }
   };
 
@@ -159,10 +127,9 @@ const FilterBar = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs} sx={{ width: '100%' }}>
       <Box sx={{ width: '100%', maxWidth: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 1, position: 'relative', zIndex: 3, transform: 'none !important' }}>
         <Tabs value={value} onChange={handleChange} sx={{ width: '100%' }}>
-          <Tab icon={<DirectionsBusIcon />} label="Tour du lịch" iconPosition="start" sx={{ width: '28%' }}/>
-          <Tab icon={<LocationOnIcon />} label="Địa điểm tham quan" iconPosition="start" sx={{ width: '31%' }}/>
-          <Tab icon={<ArticleIcon />} label="Bài viết" iconPosition="start" sx={{ width: '20%' }}/>
-          <Tab icon={<EventIcon />} label="Sự kiện" iconPosition="start" sx={{ width: '21%' }}/>
+          <Tab icon={<DirectionsBusIcon />} label="Tour du lịch" iconPosition="start" sx={{ width: '33%' }} />
+          <Tab icon={<LocationOnIcon />} label="Địa điểm tham quan" iconPosition="start" sx={{ width: '33%' }} />
+          <Tab icon={<ArticleIcon />} label="Bài viết" iconPosition="start" sx={{ width: '33%' }} />
         </Tabs>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
           {renderFilterFields()}

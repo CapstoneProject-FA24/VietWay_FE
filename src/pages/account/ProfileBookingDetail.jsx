@@ -5,10 +5,10 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
 import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
-import { fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange, fetchTourByBookingId } from "@services/BookingService";
+import { submitBookingReview, fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange, fetchTourByBookingId } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
-import { getCookie } from "@services/AuthenService"; getCookie
+import { getCookie } from "@services/AuthenService";
 import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
 import CancelBooking from '@components/profiles/CancelBooking';
@@ -152,7 +152,6 @@ const ProfileBookingDetail = () => {
       const paymentData = await fetchBookingPayments(id);
       const tour = await fetchTourByBookingId(data.bookingId);
       const history = await getBookingHistory(id);
-
       const bookingDataWithTour = {
         ...data,
         tourId: tour.id,
@@ -170,7 +169,8 @@ const ProfileBookingDetail = () => {
         registerOpenDate: tour.registerOpenDate,
         registerCloseDate: tour.registerCloseDate,
         history: history.data,
-        tourTemplate: tour.tourTemplate
+        tourTemplate: tour.tourTemplate,
+        isReviewed: data.isReviewed
       };
 
       setPayments(paymentData.items);
@@ -271,6 +271,25 @@ const ProfileBookingDetail = () => {
       setSnackbar({
         open: true,
         message: error.response?.data?.message || 'Không thể từ chối chuyển tour. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    }
+  };
+
+  const handleBookingFeedback = async (bookingId, rating, feedback, isPublic) => {
+    try {
+      await submitBookingReview(bookingId, rating, feedback, isPublic);
+      setSnackbar({
+        open: true,
+        message: 'Đánh giá tour thành công',
+        severity: 'success'
+      });
+      fetchData();
+    } catch (err) {
+      console.error('Failed to feedback booking:', err);
+      setSnackbar({
+        open: true,
+        message: 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
         severity: 'error'
       });
     }
@@ -538,7 +557,7 @@ const ProfileBookingDetail = () => {
                       color="primary"
                       onClick={handleFeedbackOpen}
                     >
-                      Đánh giá
+                      {bookingData.isReviewed === false ? 'Đánh giá' : 'Xem đánh giá'}
                     </ActionButton>
                   </>
                 )}
@@ -743,6 +762,9 @@ const ProfileBookingDetail = () => {
           <FeedbackPopup
             onClose={handleFeedbackClose}
             bookingId={bookingData.bookingId}
+            onSubmitSuccess={(bookingId, rating, feedback, isPublic) => {
+              handleBookingFeedback(bookingId, rating, feedback, isPublic);
+            }}
           />
         )
       }
