@@ -177,13 +177,31 @@ const BookTour = () => {
   };
 
   const handlePassengerInfoChange = (index, field, value) => {
-    const adultType = bookingData?.pricesByAge?.find(p => p.ageFrom >= 12)?.name || 'Người lớn';
+    const adultType = bookingData?.pricesByAge?.find(p => p.ageFrom >= 18)?.name || 'Người lớn';
 
-    if (index === 0 && field === 'type' && value !== adultType.toLowerCase()) {
-      setSnackbarMessage('Hành khách đầu tiên phải là người lớn');
-      setSnackbarSeverity('error');
-      setOpenSnackbar(true);
-      return;
+    if (index === 0) {
+      if (field === 'type' && value !== adultType.toLowerCase()) {
+        setSnackbarMessage('Hành khách đầu tiên phải là người lớn từ 18 tuổi trở lên');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+        return;
+      }
+
+      if (field === 'birthday') {
+        const birthDate = new Date(value);
+        const age = calculateAge(birthDate);
+        if (age < 18) {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [`passenger${index}-birthday`]: 'Hành khách đầu tiên phải từ 18 tuổi trở lên'
+          }));
+        } else {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [`passenger${index}-birthday`]: ''
+          }));
+        }
+      }
     }
 
     const newPassengers = [...formData.passengers];
@@ -203,7 +221,7 @@ const BookTour = () => {
     }
   };
 
-  const validateField = (name, value, passengerType) => {
+  const validateField = (name, value, passengerType, index) => {
     let error = '';
     switch (name) {
       case 'fullName':
@@ -236,19 +254,24 @@ const BookTour = () => {
         } else {
           const birthDate = new Date(value);
           const age = calculateAge(birthDate);
-          const selectedType = passengerType?.toLowerCase();
-          const priceByAge = bookingData?.pricesByAge?.find(p =>
-            p.name.toLowerCase() === selectedType
-          );
 
-          if (priceByAge) {
-            if (priceByAge.name === 'Người lớn') {
-              if (age < priceByAge.ageFrom) {
-                error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} tuổi trở lên`;
-              }
-            } else {
-              if (age < priceByAge.ageFrom || age > priceByAge.ageTo) {
-                error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi`;
+          if (index === 0 && age < 18) {
+            error = 'Hành khách đầu tiên phải từ 18 tuổi trở lên';
+          } else {
+            const selectedType = passengerType?.toLowerCase();
+            const priceByAge = bookingData?.pricesByAge?.find(p =>
+              p.name.toLowerCase() === selectedType
+            );
+
+            if (priceByAge) {
+              if (priceByAge.name === 'Người lớn') {
+                if (age < priceByAge.ageFrom) {
+                  error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} tuổi trở lên`;
+                }
+              } else {
+                if (age < priceByAge.ageFrom || age > priceByAge.ageTo) {
+                  error = `${priceByAge.name} phải từ ${priceByAge.ageFrom} - ${priceByAge.ageTo} tuổi`;
+                }
               }
             }
           }
@@ -260,7 +283,7 @@ const BookTour = () => {
 
   const validatePassengerField = (index, field, value) => {
     const passengerType = formData.passengers[index].type;
-    const error = validateField(field, value, passengerType);
+    const error = validateField(field, value, passengerType, index);
     setErrors(prevErrors => ({
       ...prevErrors,
       [`passenger${index}-${field}`]: error
@@ -350,7 +373,7 @@ const BookTour = () => {
 
     formData.passengers.forEach((passenger, index) => {
       ['type', 'name', 'gender', 'birthday'].forEach(field => {
-        const error = validateField(field, passenger[field], passenger.type);
+        const error = validateField(field, passenger[field], passenger.type, index);
         if (error) newErrors[`passenger${index}-${field}`] = error;
       });
 
@@ -372,6 +395,7 @@ const BookTour = () => {
 
   const handleBooking = async () => {
     if (validateAllFields()) {
+      setLoading(true);
       try {
         const bookingData = {
           tourId: id,
@@ -403,6 +427,9 @@ const BookTour = () => {
         setSnackbarMessage(getErrorMessage(error));
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
+      }
+      finally {
+        setLoading(false);
       }
     } else {
       setSnackbarMessage('Thông tin đặt tour không chính xác. Vui lòng kiểm tra lại trước khi đặt tour.');
@@ -595,7 +622,7 @@ const BookTour = () => {
                         />
                       </LocalizationProvider>
                     </Grid>
-                    {['máy bay', 'tàu hỏa'].includes(bookingData?.transportation?.toLowerCase()) && (
+                    {(['máy bay', 'tàu hỏa'].includes(bookingData?.transportation?.toLowerCase()) && passenger.type?.toLowerCase() === 'người lớn') && (
                       <Grid item xs={12} sm={6}>
                         <CustomTextField
                           fullWidth
