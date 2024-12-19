@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Typography, Grid, Button, Divider, CircularProgress, Snackbar, Radio, FormControlLabel, Alert, RadioGroup, Dialog, DialogTitle, DialogContent, DialogActions, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import PhoneIcon from '@mui/icons-material/Phone';
 import Header from "@layouts/Header";
 import Footer from "@layouts/Footer";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange } from "@services/BookingService";
+import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
+import { submitBookingReview, fetchBookingData, fetchBookingPayments, cancelBooking, getBookingHistory, confirmTourChange, denyTourChange, fetchTourByBookingId } from "@services/BookingService";
 import { getBookingStatusInfo } from "@services/StatusService";
 import { fetchPaymentURL } from "@services/PaymentService";
-import { getCookie } from "@services/AuthenService"; getCookie
+import { getCookie } from "@services/AuthenService";
 import dayjs from "dayjs";
 import { Helmet } from 'react-helmet';
 import CancelBooking from '@components/profiles/CancelBooking';
 import FeedbackPopup from '@components/profiles/FeedbackPopup';
-import { fetchTourByBookingId } from "@services/BookingService";
 import { EntityModifyAction, BookingStatus } from '@hooks/Statuses';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -151,7 +152,6 @@ const ProfileBookingDetail = () => {
       const paymentData = await fetchBookingPayments(id);
       const tour = await fetchTourByBookingId(data.bookingId);
       const history = await getBookingHistory(id);
-
       const bookingDataWithTour = {
         ...data,
         tourId: tour.id,
@@ -168,7 +168,9 @@ const ProfileBookingDetail = () => {
         pricesByAge: tour.pricesByAge,
         registerOpenDate: tour.registerOpenDate,
         registerCloseDate: tour.registerCloseDate,
-        history: history.data
+        history: history.data,
+        tourTemplate: tour.tourTemplate,
+        isReviewed: data.isReviewed
       };
 
       setPayments(paymentData.items);
@@ -274,6 +276,25 @@ const ProfileBookingDetail = () => {
     }
   };
 
+  const handleBookingFeedback = async (bookingId, rating, feedback, isPublic) => {
+    try {
+      await submitBookingReview(bookingId, rating, feedback, isPublic);
+      setSnackbar({
+        open: true,
+        message: 'Đánh giá tour thành công',
+        severity: 'success'
+      });
+      fetchData();
+    } catch (err) {
+      console.error('Failed to feedback booking:', err);
+      setSnackbar({
+        open: true,
+        message: 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+        severity: 'error'
+      });
+    }
+  };
+
   if (loading) {
     return (
       <Box>
@@ -283,6 +304,10 @@ const ProfileBookingDetail = () => {
     );
   }
 
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
   if (!bookingData) return null;
 
   return (
@@ -291,7 +316,13 @@ const ProfileBookingDetail = () => {
       <Header />
       <ContentContainer>
         <StyledBox>
-          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
+          <Button
+            variant="text" startIcon={<ArrowBackIosNewIcon />} onClick={handleBackClick}
+            sx={{ color: '#4B4B4B', mt: 5, justifyContent: 'flex-start' }}
+          >
+            Quay lại
+          </Button>
+          <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 10, color: "#3572EF" }}>
             THÔNG TIN BOOKING
           </Typography>
           <Grid container spacing={3}>
@@ -354,10 +385,6 @@ const ProfileBookingDetail = () => {
                     </Typography>
                   </>
                 )}
-                {/* <SummaryItem>
-                  <Typography>Số tiền còn lại:</Typography>
-                  <Typography>{(bookingData.totalPrice - bookingData.paidAmount).toLocaleString()} đ</Typography>
-                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
@@ -378,6 +405,10 @@ const ProfileBookingDetail = () => {
                     <SummaryItem>
                       <Typography>Ngày sinh:</Typography>
                       <Typography>{dayjs(participant.dateOfBirth).format('DD/MM/YYYY')}</Typography>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <Typography>CCCD:</Typography>
+                      <Typography>{participant.PIN}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
@@ -455,8 +486,13 @@ const ProfileBookingDetail = () => {
                 <Box sx={{ mb: 2 }}>
                   <img src={bookingData.imageUrl} alt={bookingData.tourName} style={{ width: "100%", height: "auto" }} />
                 </Box>
-                <Typography variant="h6" style={{ fontWeight: "bold" }} gutterBottom>
+                <Typography
+                  component={Link} to={bookingData.tourTemplate.isDeleted === false ? `/tour-du-lich/${bookingData.tourTemplate.tourTemplateId}` : `/thong-tin/tour-du-lich/${bookingData.bookingId}`} variant="h6"
+                  sx={{ fontWeight: "bold", color: 'black', '&:hover': { color: 'primary.main', cursor: 'pointer' } }} gutterBottom>
                   {bookingData.tourName}
+                  <Tooltip title="Nhấp để xem chi tiết tour" arrow>
+                    <InfoOutlinedIcon sx={{ fontSize: 16, color: 'primary.main', ml: 1 }} />
+                  </Tooltip>
                 </Typography>
                 <Typography variant="body1" color="textSecondary" gutterBottom>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Số booking:</span> {bookingData.bookingId}
@@ -472,16 +508,16 @@ const ProfileBookingDetail = () => {
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Thời lượng:</span> {bookingData.durationName}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString()}
+                  <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Thời gian khởi hành:</span>
+                  {bookingData.startDate.toLocaleDateString('vi-VN')}
                 </Typography>
                 <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                  {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('vi-VN')}
                 </Typography>
                 <Divider sx={{ mb: 3, mt: 2 }} />
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>CHÍNH SÁCH THANH TOÁN</Typography>
                   {bookingData.depositPercent === 100 ? (
                     <Typography variant="body2" sx={{ mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
                   ) : (
@@ -492,20 +528,29 @@ const ProfileBookingDetail = () => {
                   )}
                 </Box>
                 <Box sx={{ mb: 2, mt: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
-                  {bookingData?.refundPolicies
-                    .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
-                    .map((policy, index) => {
-                      return (
-                        <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
-                          • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
-                          Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
-                        </Typography>
-                      );
-                    })}
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
-                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>CHÍNH SÁCH HỦY TOUR</Typography>
+                  {(bookingData?.refundPolicies && bookingData?.refundPolicies.length > 0) ? (
+                    <>
+                      {bookingData?.refundPolicies
+                        .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                        .map((policy, index) => {
+                          return (
+                            <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
+                              • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                              Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
+                            </Typography>
+                          );
+                        })}
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>Tour này không hỗ trợ hoàn tiền khi khách hàng hủy tour</Typography>
+                    </>
+                  )}
+                  <Typography variant="body2" color='error' sx={{ mb: 0.5 }}>Lưu ý: Trong trường hợp Vietway hủy tour, bạn sẽ được hoàn tiền đầy đủ.</Typography>
                 </Box>
                 <Divider sx={{ my: 2 }} />
                 {bookingData.status === 3 && (
@@ -521,7 +566,7 @@ const ProfileBookingDetail = () => {
                       color="primary"
                       onClick={handleFeedbackOpen}
                     >
-                      Đánh giá
+                      {bookingData.isReviewed === false ? 'Đánh giá' : 'Xem đánh giá'}
                     </ActionButton>
                   </>
                 )}
@@ -726,6 +771,9 @@ const ProfileBookingDetail = () => {
           <FeedbackPopup
             onClose={handleFeedbackClose}
             bookingId={bookingData.bookingId}
+            onSubmitSuccess={(bookingId, rating, feedback, isPublic) => {
+              handleBookingFeedback(bookingId, rating, feedback, isPublic);
+            }}
           />
         )
       }

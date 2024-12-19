@@ -11,6 +11,7 @@ export const fetchBookingData = async (bookingId) => {
             }
         });
         const bookingData = response.data.data;
+
         return {
             bookingId: bookingData.bookingId,
             tourId: bookingData.tourId,
@@ -40,13 +41,15 @@ export const fetchBookingData = async (bookingId) => {
                 phoneNumber: participant.phoneNumber,
                 gender: participant.gender,
                 dateOfBirth: new Date(participant.dateOfBirth),
-                price: participant.price
+                price: participant.price,
+                PIN: participant.pin
             })),
             refundRequests: bookingData.refundRequests?.map(refund => ({
                 refundAmount: refund.refundAmount,
                 refundStatus: refund.refundStatus,
                 refundDate: new Date(refund.refundDate)
-            }))
+            })),
+            isReviewed: bookingData.isReviewed
         };
     } catch (error) {
         console.error('Error fetching booking data:', error);
@@ -64,7 +67,8 @@ export const createBooking = async (bookingData) => {
                 fullName: passenger.fullName,
                 phoneNumber: passenger.phoneNumber,
                 gender: passenger.gender,
-                dateOfBirth: passenger.dateOfBirth
+                dateOfBirth: passenger.dateOfBirth,
+                PIN: passenger.PIN
             })),
             contactFullName: bookingData.fullName,
             contactEmail: bookingData.email,
@@ -72,6 +76,7 @@ export const createBooking = async (bookingData) => {
             contactAddress: bookingData.address,
             note: bookingData.note,
         };
+
         const response = await axios.post(`${baseURL}/api/bookings`, requestData, {
             headers: {
                 'Authorization': `Bearer ${customerToken}`
@@ -116,7 +121,8 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 code: booking.code,
                 startDate: booking.startDate,
                 isReviewed: booking.isReviewed,
-                havePendingRefund: booking.havePendingRefund
+                havePendingRefund: booking.havePendingRefund,
+                numberOfDay: booking.numberOfDay
             }))
         };
     } catch (error) {
@@ -316,12 +322,12 @@ export const fetchTourByBookingId = async (id) => {
             id: item.tourId,
             tourTemplateId: item.tourTemplateId,
             startLocation: item.startLocation,
+            startLocationPlaceId: item.startLocationPlaceId,
             startTime: new Date(item.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
             startDate: new Date(item.startDate),
             price: item.defaultTouristPrice,
             maxParticipant: item.maxParticipant,
             minParticipant: item.minParticipant,
-            createdAt: new Date(item.createdAt),
             currentParticipant: item.currentParticipant,
             refundPolicies: item.refundPolicies.map(policy => ({
                 cancelBefore: new Date(policy.cancelBefore),
@@ -337,10 +343,60 @@ export const fetchTourByBookingId = async (id) => {
             registerCloseDate: new Date(item.registerCloseDate),
             depositPercent: item.depositPercent,
             paymentDeadline: new Date(item.paymentDeadline),
+            tourTemplate: item.tourTemplate && {
+                tourTemplateId: item.tourTemplate.tourTemplateId,
+                code: item.tourTemplate.code,
+                tourName: item.tourTemplate.tourName,
+                description: item.tourTemplate.description,
+                duration: item.tourTemplate.duration,
+                tourCategory: item.tourTemplate.tourCategory,
+                startingProvince: item.tourTemplate.startingProvince,
+                note: item.tourTemplate.note,
+                transportation: item.tourTemplate.transportation,
+                provinces: item.tourTemplate.provinces,
+                schedules: item.tourTemplate.schedules?.map(schedule => ({
+                    dayNumber: schedule.dayNumber,
+                    title: schedule.title,
+                    description: schedule.description,
+                    attractions: schedule.attractions?.map(attraction => ({
+                        attractionId: attraction.attractionId,
+                        name: attraction.name,
+                        address: attraction.address,
+                        province: attraction.province,
+                        attractionCategory: attraction.attractionCategory,
+                        imageUrl: attraction.imageUrl,
+                        averageRating: attraction.averageRating,
+                        likeCount: attraction.likeCount,
+                        isLiked: attraction.isLiked
+                    }))
+                })),
+                images: item.tourTemplate.images?.map(image => ({
+                    imageId: image.imageId,
+                    url: image.url
+                })),
+                isDeleted: item.tourTemplate.isDeleted,
+            }
         };
         return tour;
     } catch (error) {
         console.error('Error fetching tour:', error);
         throw error;
     }
+};
+
+export const getBookingById = async (bookingId) => {
+  try {
+    const customerToken = getCookie('customerToken');
+    const response = await axios.get(`${baseURL}/api/bookings/${bookingId}`, {
+      headers: {
+        'Authorization': `Bearer ${customerToken}`
+      }
+    });
+    
+    // Make sure the API returns participant data including PIN
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching booking data:', error);
+    throw error;
+  }
 };

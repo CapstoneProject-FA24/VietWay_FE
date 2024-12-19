@@ -188,7 +188,18 @@ const BookTour = () => {
     const newPassengers = [...formData.passengers];
     newPassengers[index] = { ...newPassengers[index], [field]: value };
     setFormData({ ...formData, passengers: newPassengers });
+
     validatePassengerField(index, field, value);
+
+    if (field === 'birthday') {
+      const requiresCCCD = isCCCDRequired(value, bookingData?.transportation);
+      if (requiresCCCD && !newPassengers[index].cccd) {
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          [`passenger${index}-cccd`]: 'Vui lòng nhập số CCCD vì hành khách đã đủ 14 tuổi'
+        }));
+      }
+    }
   };
 
   const validateField = (name, value, passengerType) => {
@@ -335,12 +346,22 @@ const BookTour = () => {
       const error = validateField(field, formData[field]);
       if (error) newErrors[field] = error;
     });
+
     formData.passengers.forEach((passenger, index) => {
       ['type', 'name', 'gender', 'birthday'].forEach(field => {
         const error = validateField(field, passenger[field], passenger.type);
         if (error) newErrors[`passenger${index}-${field}`] = error;
       });
+
+      if (isCCCDRequired(passenger.birthday, bookingData?.transportation)) {
+        if (!passenger.cccd) {
+          newErrors[`passenger${index}-cccd`] = 'Vui lòng nhập số CCCD vì hành khách đã đủ 14 tuổi';
+        } else if (!/^\d{12}$/.test(passenger.cccd)) {
+          newErrors[`passenger${index}-cccd`] = 'CCCD phải có đúng 12 chữ số';
+        }
+      }
     });
+
     if (!formData.paymentMethod) {
       newErrors.paymentMethod = 'Vui lòng chọn phương thức thanh toán';
     }
@@ -357,7 +378,8 @@ const BookTour = () => {
             fullName: passenger.name,
             phoneNumber: formData.phone,
             gender: parseInt(passenger.gender),
-            dateOfBirth: passenger.birthday
+            dateOfBirth: passenger.birthday,
+            PIN: passenger.cccd
           })),
           fullName: formData.fullName,
           email: formData.email,
@@ -372,7 +394,9 @@ const BookTour = () => {
         setSnackbarMessage('Đặt tour thành công!');
         setSnackbarSeverity('success');
         setOpenSnackbar(true);
-        window.location.href = `/dat-tour/thanh-toan/${response.data}`;
+        setTimeout(() => {
+          navigate(`/dat-tour/thanh-toan/${response.data}`);
+        }, 1500);
       } catch (error) {
         if (error.response.data.error.includes("Customer has already booked this tour")) {
           setSnackbarMessage('Quý khách đã đặt tour này rồi.');
@@ -678,7 +702,7 @@ const BookTour = () => {
                 <SummaryItem>
                   <Typography variant="body2">Ngày kết thúc:</Typography>
                   <Typography variant="body2">
-                    {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                    {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('vi-VN')}
                   </Typography>
                 </SummaryItem>
                 <SummaryItem>
@@ -688,7 +712,7 @@ const BookTour = () => {
                 <Divider sx={{ my: 1 }} />
                 <SummaryItem>
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>CHÍNH SÁCH THANH TOÁN</Typography>
                     {bookingData.depositPercent === 100 ? (
                       <Typography variant="body2" sx={{ mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
                     ) : (
@@ -701,20 +725,29 @@ const BookTour = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Box sx={{ mb: 2, mt: 1 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
-                    {bookingData.refundPolicies
-                      .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
-                      .map((policy, index) => {
-                        return (
-                          <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
-                            • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
-                            Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * calculateTotal() / 100).toLocaleString()} đ</span>
-                          </Typography>
-                        );
-                      })}
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
-                      • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
-                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>CHÍNH SÁCH HỦY TOUR</Typography>
+                    {(bookingData?.refundPolicies && bookingData?.refundPolicies.length > 0) ? (
+                      <>
+                        {bookingData?.refundPolicies
+                          .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                          .map((policy, index) => {
+                            return (
+                              <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
+                                • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                                Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * calculateTotal() / 100).toLocaleString()} đ</span>
+                              </Typography>
+                            );
+                          })}
+                        <Typography variant="body2" sx={{ mb: 0.5 }}>
+                          • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {calculateTotal().toLocaleString()} đ</span>
+                        </Typography>
+                      </>
+                    ) : (
+                      <>
+                        <Typography variant="body2" sx={{ mb: 0.5 }}>Tour này không hỗ trợ hoàn tiền khi khách hàng hủy tour</Typography>
+                      </>
+                    )}
+                    <Typography variant="body2" color='error' sx={{ mb: 0.5 }}>Lưu ý: Trong trường hợp Vietway hủy tour, bạn sẽ được hoàn tiền đầy đủ.</Typography>
                   </Box>
                 </SummaryItem>
                 <Divider sx={{ my: 1 }} />
@@ -750,7 +783,7 @@ const BookTour = () => {
       </ContentContainer>
       <Footer />
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}
       >
         <Alert onClose={handleCloseSnackbar} variant="filled" severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}

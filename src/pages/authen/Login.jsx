@@ -11,7 +11,7 @@ import { login, loginWithGoogle } from '@services/AuthenService';
 import { getPreviousPage, clearNavigationHistory } from '@utils/NavigationHistory';
 import { getCookie } from '@services/AuthenService';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -25,6 +25,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export default function Login() {
   const settingLogin = {
@@ -138,6 +141,8 @@ export default function Login() {
       setLoading(true);
       setError('');
       
+      await signOut(auth);
+      
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const idToken = await user.getIdToken();
@@ -147,6 +152,7 @@ export default function Login() {
         clearNavigationHistory();
         navigate(targetPage);
       }
+      setLoading(false);
     } catch (error) {
       console.error('Google login error:', error);
       if (error.code === 'auth/popup-closed-by-user') {

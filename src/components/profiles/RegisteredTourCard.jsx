@@ -7,21 +7,16 @@ import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import TourOutlinedIcon from '@mui/icons-material/TourOutlined';
 import { Link, useNavigate } from 'react-router-dom';
 import CancelBooking from '@components/profiles/CancelBooking';
-import { cancelBooking } from '@services/BookingService';
 import { BookingStatus } from '@hooks/Statuses';
 import { getBookingStatusInfo } from "@services/StatusService";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ViewFeedback from '@components/profiles/ViewFeedback';
 
-const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
+const RegisteredTourCard = ({ tour, onBookingCancelled, onBookingFeedback }) => {
+  console.log(tour);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success'
-  });
   const [isViewFeedbackOpen, setIsViewFeedbackOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -30,30 +25,15 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
   const handlePayment = () => navigate(`/booking/${tour.bookingId}`);
   const handleCancelOpen = () => setIsCancelOpen(true);
   const handleCancelClose = () => setIsCancelOpen(false);
-  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
   const handleViewFeedbackClose = () => setIsViewFeedbackOpen(false);
 
   const handleCancelConfirm = async (reason) => {
     try {
       setCancelLoading(true);
-      await cancelBooking(tour.bookingId, reason);
+      onBookingCancelled(tour.bookingId, reason);
       handleCancelClose();
-      setSnackbar({
-        open: true,
-        message: 'Hủy đặt tour thành công',
-        severity: 'success'
-      });
-      // Refresh the booking list
-      if (onBookingCancelled) {
-        onBookingCancelled();
-      }
     } catch (error) {
       console.error('Failed to cancel booking:', error);
-      setSnackbar({
-        open: true,
-        message: 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
-        severity: 'error'
-      });
     } finally {
       setCancelLoading(false);
     }
@@ -63,7 +43,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
     <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
       <Card
         sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'none', position: 'relative' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1, mt: 1, mb: -6 }}>
           {tour.havePendingRefund && <Chip label="Chờ hoàn tiền" sx={{ fontSize: '0.75rem', height: '24px', backgroundColor: '#FF9800', color: 'white' }} />}
           <Chip label={getBookingStatusInfo(tour.bookedTourStatus).text}
             sx={{ fontSize: '0.75rem', height: '24px', backgroundColor: getBookingStatusInfo(tour.bookedTourStatus).color, color: 'white', mr: 2 }}
@@ -71,12 +51,12 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
         </Box>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3} md={3} component={Link} to={`/booking/${tour.bookingId}`}>
-            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }}
+            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%', height: '190px' }}
               image={tour.imageUrl} alt={tour.name} />
           </Grid>
           <Grid item xs={12} md={7}>
             <CardContent>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }} component={Link} to={`/booking/${tour.bookingId}`}>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2, fontSize: '1.35rem' }} component={Link} to={`/booking/${tour.bookingId}`}>
                 {tour.name}
               </Typography>
               <Divider sx={{ mb: 2 }} />
@@ -109,10 +89,10 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
           <FeedbackPopup
             onClose={handleFeedbackClose}
             bookingId={tour.bookingId}
-            onSubmitSuccess={() => {
+            onSubmitSuccess={(bookingId, rating, feedback, isPublic) => {
               handleFeedbackClose();
-              if (onBookingCancelled) {
-                onBookingCancelled();
+              if (onBookingFeedback) {
+                onBookingFeedback(bookingId, rating, feedback, isPublic);
               }
             }}
           />
@@ -130,29 +110,6 @@ const RegisteredTourCard = ({ tour, onBookingCancelled }) => {
           loading={cancelLoading}
           tour={tour}
         />
-        <Portal>
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={handleSnackbarClose}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            sx={{
-              zIndex: (theme) => theme.zIndex.tooltip + 1000,
-              position: 'fixed'
-            }}
-          >
-            <Alert
-              onClose={handleSnackbarClose}
-              severity={snackbar.severity}
-              variant="filled"
-              sx={{
-                zIndex: (theme) => theme.zIndex.tooltip + 1000
-              }}
-            >
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
-        </Portal>
       </Card>
     </Box>
   );
@@ -179,13 +136,24 @@ const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen
     case BookingStatus.Completed:
       return (
         <>
-          <ActionButton
-            onClick={handleFeedbackOpen}
-            variant="contained"
-            color="primary"
-          >
-            {tour.isReviewed ? 'Xem đánh giá' : 'Đánh giá'}
-          </ActionButton>
+          {(() => {
+            const tourEndDate = new Date(tour.startDate);
+            tourEndDate.setDate(tourEndDate.getDate() + tour.numberOfDay);
+            const feedbackDeadline = new Date(tourEndDate);
+            feedbackDeadline.setDate(feedbackDeadline.getDate() + 7);
+            
+            const currentDate = new Date();
+            
+            return currentDate <= feedbackDeadline && (
+              <ActionButton
+                onClick={handleFeedbackOpen}
+                variant="contained"
+                color="primary"
+              >
+                {tour.isReviewed ? 'Xem đánh giá' : 'Đánh giá'}
+              </ActionButton>
+            );
+          })()}
         </>
       );
     case BookingStatus.Paid:

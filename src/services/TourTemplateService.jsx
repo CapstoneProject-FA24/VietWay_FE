@@ -57,6 +57,7 @@ export const fetchTourTemplates = async (params) => {
             minPrice: item.minPrice,
             startDates: item.startDate.sort((a, b) => new Date(a) - new Date(b)),
             startingProvince: item.startingProvince,
+            transportation: item.transportation
         }));
         
         return ({
@@ -117,7 +118,9 @@ export const fetchToursByAttractionId = async (attractionId, previewCount) => {
             tourCategory: item.tourCategory,
             provinces: item.provinces,
             imageUrl: item.imageUrl,
-            price: item.price
+            price: item.price,
+            startingProvince: item.startingProvince,
+            transportation: item.transportation
         }));
         return templates;
     } catch (error) {

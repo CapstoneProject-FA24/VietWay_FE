@@ -202,7 +202,7 @@ const BookingDetailPayLater = () => {
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Ngày đặt tour:</Typography>
-                  <Typography>{new Date(bookingData.createdOn).toLocaleDateString()}</Typography>
+                  <Typography>{new Date(bookingData.createdOn).toLocaleDateString('vi-VN')}</Typography>
                 </SummaryItem>
                 <SummaryItem>
                   <Typography>Trị giá booking:</Typography>
@@ -226,13 +226,9 @@ const BookingDetailPayLater = () => {
                 )}
                 {bookingData.status === 0 && (
                   <Typography variant="body2" sx={{ color: 'error.main', mt: 1 }}>
-                    Nếu quá thời hạn trên mà Quý khách chưa thanh toán, VietWay sẽ hủy booking này.
+                    Nếu quá thời hạn trên mà quý khách chưa thanh toán, VietWay sẽ hủy booking này.
                   </Typography>
                 )}
-                {/* <SummaryItem>
-                  <Typography>Số tiền còn lại:</Typography>
-                  <Typography>{(bookingData.totalPrice - bookingData.paidAmount).toLocaleString()} đ</Typography>
-                </SummaryItem> */}
               </SummaryBox>
               <SummaryBox>
                 <SummaryTitle variant="h6">DANH SÁCH HÀNH KHÁCH</SummaryTitle>
@@ -252,7 +248,11 @@ const BookingDetailPayLater = () => {
                     </SummaryItem>
                     <SummaryItem>
                       <Typography>Ngày sinh:</Typography>
-                      <Typography>{participant.dateOfBirth.toLocaleDateString() || 'Không xác định'}</Typography>
+                      <Typography>{participant.dateOfBirth.toLocaleDateString('vi-VN') || 'Không xác định'}</Typography>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <Typography>CCCD:</Typography>
+                      <Typography>{participant.PIN}</Typography>
                     </SummaryItem>
                     {index < bookingData.participants.length - 1 && <Divider sx={{ my: 1 }} />}
                   </Box>
@@ -275,15 +275,18 @@ const BookingDetailPayLater = () => {
                   Mã tour: {bookingData.code}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom>
+                  Phương tiện: {bookingData.transportation}
+                </Typography>
+                <Typography variant="body1" color="textPrimary" gutterBottom>
                   Thời lượng: {bookingData.durationName}
                 </Typography>
                 <Typography variant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày bắt đầu:</span>
-                  {bookingData.startDate.toLocaleDateString()}
+                  {bookingData.startDate.toLocaleDateString('vi-VN')}
                 </Typography>
                 <Typography variant="body1" cvariant="body1" color="textPrimary" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold', marginRight: '5px', color: 'primary.main' }}>Ngày kết thúc:</span>
-                  {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                  {new Date(bookingData.startDate.getTime() + ((bookingData.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('vi-VN')}
                 </Typography>
                 <TotalPrice variant="h6">
                   Tổng tiền: {bookingData.totalPrice.toLocaleString()} đ

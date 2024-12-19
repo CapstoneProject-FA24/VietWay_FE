@@ -4,22 +4,18 @@ class GooglePlaceService {
             return true;
         }
 
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
-        script.async = true;
-        document.head.appendChild(script);
-
         return new Promise((resolve, reject) => {
-            script.onload = () => {
-                setTimeout(() => {
-                    if (window.google?.maps?.places) {
-                        resolve(true);
-                    } else {
-                        reject(new Error('Google Maps Places library failed to load'));
-                    }
-                }, 100);
+            const checkForApi = () => {
+                if (window.google?.maps?.places) {
+                    resolve(true);
+                } else if (document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) {
+                    setTimeout(checkForApi, 100);
+                } else {
+                    reject(new Error('Google Maps script not found'));
+                }
             };
-            script.onerror = () => reject(new Error('Failed to load Google Maps script'));
+            
+            checkForApi();
         });
     }
 

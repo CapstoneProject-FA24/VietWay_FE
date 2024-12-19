@@ -7,7 +7,6 @@ import OtherAttractions from '@components/attractions/OtherAttractions';
 import Footer from '@layouts/Footer';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-//import ToursVisitAttraction from '@components/attractions/ToursVisitAttraction';
 import { getAttractionById, likeAttraction } from '@services/AttractionService';
 import ReviewList from '@components/reviews/ReviewList';
 import { Typography, Grid, Paper, Box, Button } from '@mui/material';
@@ -212,7 +211,6 @@ const AttractionDetails = () => {
           <a href="/diem-tham-quan" style={{ color: '#05073C', textDecoration: 'none', padding: '5px' }}>Điểm tham quan</a>
           &gt; <strong>{attraction.name}</strong>
         </Typography>
-        {/* <ToursVisitAttraction /> */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="body1" gutterBottom sx={{ fontFamily: 'Inter, sans-serif', textAlign: 'left', color: 'gray', fontSize: '1.2rem' }}>
             {attraction.attractionTypeName}
@@ -279,7 +277,7 @@ const AttractionDetails = () => {
               ))}
             </Box>
             <Box sx={{ mt: 3 }}>
-              <Typography variant="h4" sx={{ mb: 2, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>Thông tin</Typography>
+              <Typography variant="h4" sx={{ mb: 2, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '27px' }}>Thông tin chi tiết</Typography>
               <div dangerouslySetInnerHTML={{ __html: attraction.description }} />
             </Box>
           </Grid>
@@ -302,7 +300,7 @@ const AttractionDetails = () => {
 
               {attraction.contactInfo && (
                 <>
-                  <Typography variant="h4" sx={{ mt: 4, fontWeight: '700', fontFamily: 'Inter, sans-serif', textAlign: 'left', color: '#05073C', fontSize: '20px' }}>Các thông tin liên hệ khác</Typography>
+                  <Typography sx={{ mb: -1 }}><strong>Các thông tin liên hệ khác: </strong></Typography>
                   <div dangerouslySetInnerHTML={{ __html: attraction.contactInfo }} />
                 </>
               )}
@@ -438,7 +436,7 @@ const AttractionDetails = () => {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {notificationMessage} {!isApiError && getCookie('customerToken') && (
-              <> - 
+              <> -
                 <Box
                   component="span"
                   onClick={handleOpenStorage}

@@ -8,13 +8,20 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import '@styles/Homepage.css'
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchTourTemplateById } from '@services/TourTemplateService';
-import { fetchToursByTemplateId, calculateEndDate } from '@services/TourService';
+import { fetchToursByTemplateId } from '@services/TourService';
 import Header from '@layouts/Header';
 import Footer from '@layouts/Footer';
 import OtherTours from '@components/tours/OtherTours';
 import ReviewListTour from '@components/reviews/ReviewListTour';
 import MediaShare from '@components/posts/MediaShare';
 import { getCookie } from '@services/AuthenService';
+import CategoryIcon from '@mui/icons-material/Category';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import FlightIcon from '@mui/icons-material/Flight';
+import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
+import DirectionsTransitIcon from '@mui/icons-material/DirectionsTransit';
+import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -40,12 +47,12 @@ const TourDetails = () => {
         const fetchedTours = await fetchToursByTemplateId(id);
         fetchedTourTemplate.tours = fetchedTours;
         setTour(fetchedTourTemplate);
-
+        console.log(fetchedTours);
         const months = [...new Set(fetchedTours.map(tour => {
           const date = new Date(tour.startDate);
           return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
         }))].sort();
-
+        console.log(months);
         setAvailableMonths(months.map(month => {
           const [year, monthNum] = month.split('-');
           const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
@@ -77,7 +84,10 @@ const TourDetails = () => {
     if (tour && selectedMonth) {
       const token = getCookie('customerToken');
       setIsLoggedIn(!!token);
-      const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
+      const filteredTours = tour.tours.filter(t => dayjs(t.startDate).format('YYYY-MM-DD').startsWith(selectedMonth));
+      console.log(selectedMonth);
+      console.log(dayjs(tour.tours[0].startDate).format('YYYY-MM-DD'));
+      console.log(filteredTours);
       setAvailableTours(filteredTours);
 
       if (filteredTours.length > 0) {
@@ -199,24 +209,26 @@ const TourDetails = () => {
           <Grid item xs={12} md={8}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
-                <FontAwesomeIcon icon={faClock} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
+                <AccessTimeFilledIcon sx={{ fontSize: '2rem', color: '#3572EF' }} />
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2 }}>
-                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Thời lượng:</Typography>
-                  <Typography sx={{ color: '#05073C' }}>{tour.duration}</Typography>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600, fontSize: '1.1rem' }}>Thời lượng:</Typography>
+                  <Typography sx={{ color: '#05073C', fontSize: '1.1rem' }}>{tour.duration}</Typography>
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
-                <FontAwesomeIcon icon={faMoneyBill1} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
+                <CategoryIcon sx={{ fontSize: '2rem', color: '#3572EF' }} />
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2 }}>
-                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Loại tour:</Typography>
-                  <Typography sx={{ color: '#05073C' }}>{tour.tourCategoryName}</Typography>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600, fontSize: '1.1rem' }}>Loại tour:</Typography>
+                  <Typography sx={{ color: '#05073C', fontSize: '1.1rem' }}>{tour.tourCategoryName}</Typography>
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
-                <FontAwesomeIcon icon={faBus} style={{ fontSize: '1.6rem', color: '#3572EF' }} />
+                {tour.transportation === 'Máy bay' && (<FlightIcon sx={{ fontSize: '2rem', color: '#3572EF' }} />)}
+                {tour.transportation === 'Tàu hỏa' && (<DirectionsTransitIcon sx={{ fontSize: '2rem', color: '#3572EF' }} />)}
+                {tour.transportation === 'Xe du lịch' && (<DirectionsCarFilledIcon sx={{ fontSize: '2rem', color: '#3572EF' }} />)}
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', ml: 2 }}>
-                  <Typography sx={{ color: '#05073C', fontWeight: 600 }}>Phương tiện di chuyển:</Typography>
-                  <Typography sx={{ color: '#05073C' }}>{tour.transportation}</Typography>
+                  <Typography sx={{ color: '#05073C', fontWeight: 600, fontSize: '1.1rem' }}>Phương tiện:</Typography>
+                  <Typography sx={{ color: '#05073C', fontSize: '1.1rem' }}>{tour.transportation}</Typography>
                 </Box>
               </Box>
             </Box>
@@ -317,7 +329,7 @@ const TourDetails = () => {
                 )}
               </Box>
               <Typography sx={{ fontWeight: 700, color: '#05073C', fontSize: '1.7rem', marginBottom: '10px', textAlign: 'center' }}> Thông tin tour </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, justifyContent: 'flex-start' }}>
                 <FontAwesomeIcon icon={faQrcode} style={{ marginRight: '10px', color: '#3572EF' }} />
                 Mã tour:
                 <Typography sx={{ ml: 1, color: 'primary.main', fontWeight: 700, fontSize: '1.1rem' }}>{tour.code}</Typography>
@@ -340,7 +352,7 @@ const TourDetails = () => {
                     (() => {
                       const selectedTourData = availableTours.find(t => t.id === selectedTour);
                       if (selectedTourData) {
-                        const endDate = new Date(selectedTourData.startDate.getTime() + ((tour.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString();
+                        const endDate = new Date(selectedTourData.startDate.getTime() + ((tour.numberOfDay - 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('vi-VN');
                         return endDate ? endDate : '';
                       }
                       return '';
@@ -374,7 +386,7 @@ const TourDetails = () => {
               </Box>
               <Divider />
               <Box sx={{ mb: 2, mt: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện thanh toán:</Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Chính sách thanh toán:</Typography>
                 {availableTours.find(t => t.id === selectedTour)?.depositPercent === 100 ? (
                   <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
                 ) : (
@@ -386,19 +398,32 @@ const TourDetails = () => {
               </Box>
               <Divider />
               <Box sx={{ mb: 2, mt: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện hủy tour:</Typography>
-                {availableTours.find(t => t.id === selectedTour)?.refundPolicies
-                  .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
-                  .map((policy, index) => {
-                    return (
-                      <Typography key={index} sx={{ color: '#05073C', mb: 0.5 }}>
-                        • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
-                        Chi phí hủy tour là {policy.refundPercent}% tổng giá trị tour
-                      </Typography>
-                    );
-                  })}
-                <Typography sx={{ color: '#05073C', mb: 0.5 }}>
-                  • Hủy từ ngày {new Date(availableTours.find(t => t.id === selectedTour)?.refundPolicies[availableTours.find(t => t.id === selectedTour)?.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString()}: Chi phí hủy tour là 100% tổng giá trị booking
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Chính sách hủy tour:</Typography>
+
+                {availableTours.find(t => t.id === selectedTour)?.refundPolicies?.length > 0 ? (
+                  <>
+                    {availableTours.find(t => t.id === selectedTour)?.refundPolicies
+                      .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                      .map((policy, index) => {
+                        return (
+                          <Typography key={index} sx={{ color: '#05073C', mb: 0.5 }}>
+                            • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                            Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking
+                          </Typography>
+                        );
+                      })}
+                    <Typography sx={{ color: '#05073C', mb: 0.5 }}>
+                      • Hủy từ ngày {new Date(availableTours.find(t => t.id === selectedTour)?.refundPolicies[availableTours.find(t => t.id === selectedTour)?.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString('vi-VN')}:
+                      Chi phí hủy tour là 100% tổng giá trị booking
+                    </Typography>
+                  </>
+                ) : (
+                  <Typography sx={{ color: '#05073C', mb: 0.5 }}>
+                    Tour này không hỗ trợ hoàn tiền khi khách hàng hủy tour
+                  </Typography>
+                )}
+                <Typography color="error" sx={{ mt: 1, fontSize: '0.9rem' }}>
+                  Lưu ý: Trong trường hợp Vietway hủy tour, bạn sẽ được hoàn tiền đầy đủ.
                 </Typography>
               </Box>
               <Button onClick={handleBooking} variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>

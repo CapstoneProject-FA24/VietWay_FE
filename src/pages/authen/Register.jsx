@@ -100,16 +100,27 @@ export default function Register() {
     };
 
     const validateAge = (birthDate) => {
-        if (!birthDate) return false;
+        if (!birthDate) return { isValid: false, message: 'Ngày sinh là bắt buộc' };
+        
         const today = dayjs();
+        if (birthDate.isAfter(today)) {
+            return { isValid: false, message: 'Ngày sinh không thể là ngày trong tương lai.' };
+        }
+        
         const age = today.diff(birthDate, 'year');
-        return age >= 12;
+        if (age < 12) {
+            return { isValid: false, message: 'Bạn phải đủ 12 tuổi' };
+        }
+        if (age >= 100) {
+            return { isValid: false, message: 'Độ tuổi của bạn quá lớn.' };
+        }
+        
+        return { isValid: true, message: null };
     };
 
     const handleGoogleSignIn = async () => {
         try {
             const result = await signInWithPopup(auth, provider);
-            console.log(result);
             const user = result.user;
             
             sessionStorage.setItem('googleSignInData', JSON.stringify({
@@ -154,10 +165,9 @@ export default function Register() {
         if (!selectedProvince) newErrors.province = 'Tỉnh/Thành phố là bắt buộc';
         if (!gender && gender !== 0) newErrors.gender = 'Giới tính là bắt buộc';
 
-        if (!dob) {
-            newErrors.dob = 'Ngày sinh là bắt buộc';
-        } else if (!validateAge(dob)) {
-            newErrors.dob = 'Bạn phải từ 12 tuổi trở lên';
+        const ageValidation = validateAge(dob);
+        if (!ageValidation.isValid) {
+            newErrors.dob = ageValidation.message;
         }
 
         const password = data.get('password');
@@ -352,7 +362,7 @@ export default function Register() {
                                         }}
                                         onError={(error) => {
                                             if (error) {
-                                                setErrors(prev => ({ ...prev, dob: 'Invalid date' }));
+                                                setErrors(prev => ({ ...prev, dob: 'Ngày sinh không hợp lệ.' }));
                                             } else {
                                                 setErrors(prev => ({ ...prev, dob: null }));
                                             }

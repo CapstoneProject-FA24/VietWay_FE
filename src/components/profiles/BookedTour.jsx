@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Paper, InputAdornment, CircularProgress, Pagination, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, TextField, Paper, InputAdornment, CircularProgress, Pagination, Select, MenuItem, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TourStatusTab from '@components/profiles/TourStatusTab';
 import RegisteredTourCard from '@components/profiles/RegisteredTourCard';
-import { fetchBookingList } from '@services/BookingService';
-import { getBookingStatusInfo } from "@services/StatusService";
+import { fetchBookingList, cancelBooking, submitBookingReview } from '@services/BookingService';
 
 const BookedTour = () => {
     const [statusTab, setStatusTab] = useState(0);
@@ -15,6 +14,11 @@ const BookedTour = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
     useEffect(() => {
         const loadBookings = async () => {
@@ -44,7 +48,7 @@ const BookedTour = () => {
 
     const filteredBookings = bookings.filter(booking =>
         (booking.tourName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            booking.code.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            booking.bookingId.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (
             statusTab === 0 ||
             booking.status === statusTab - 1
@@ -60,19 +64,51 @@ const BookedTour = () => {
         setPage(1); // Reset to first page when changing page size
     };
 
-    const handleBookingCancelled = async () => {
+    const handleBookingCancelled = async (bookingId, reason) => {
         try {
-            setLoading(true);
+            await cancelBooking(bookingId, reason);
+            setSnackbar({
+                open: true,
+                message: 'Hủy đặt tour thành công',
+                severity: 'success'
+            });
             const result = await fetchBookingList(pageSize, page);
             setBookings(result.items);
             setTotalItems(result.total);
             setError(null);
         } catch (err) {
-            setError('Failed to reload bookings. Please try again later.');
-        } finally {
-            setLoading(false);
+            console.error('Failed to cancel booking:', err);
+            setSnackbar({
+                open: true,
+                message: 'Không thể hủy đặt tour. Vui lòng thử lại sau.',
+                severity: 'error'
+            });
         }
     };
+
+    const handleBookingFeedback = async (bookingId, rating, feedback, isPublic) => {
+        try {
+            await submitBookingReview(bookingId, rating, feedback, isPublic);
+            setSnackbar({
+                open: true,
+                message: 'Đánh giá tour thành công',
+                severity: 'success'
+            });
+            const result = await fetchBookingList(pageSize, page);
+            setBookings(result.items);
+            setTotalItems(result.total);
+            setError(null);
+        } catch (err) {
+            console.error('Failed to feedback booking:', err);
+            setSnackbar({
+                open: true,
+                message: 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+                severity: 'error'
+            });
+        }
+    };
+
+    const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
     return (
         <Box sx={{ my: 5 }}>
@@ -114,9 +150,11 @@ const BookedTour = () => {
                                         bookingDate: booking.bookingDate,
                                         startDate: booking.startDate,
                                         isReviewed: booking.isReviewed,
-                                        havePendingRefund: booking.havePendingRefund
+                                        havePendingRefund: booking.havePendingRefund,
+                                        numberOfDay: booking.numberOfDay
                                     }}
                                     onBookingCancelled={handleBookingCancelled}
+                                    onBookingFeedback={handleBookingFeedback}
                                 />
                             ))}
                             <Box sx={{
@@ -150,6 +188,23 @@ const BookedTour = () => {
                     )}
                 </Box>
             </Paper>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{
+                        mt: 8
+                    }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

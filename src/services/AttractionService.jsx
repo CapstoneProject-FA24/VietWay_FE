@@ -143,12 +143,12 @@ export const getCurrentCustomerAttractionReviews = async (attractionId) => {
             headers: createHeaders(customerToken)
         });
         return {
-            reviewId: response.data.data.reviewId,
-            rating: response.data.data.rating,
-            review: response.data.data.review,
-            createdAt: response.data.data.createdAt,
-            reviewer: response.data.data.reviewer,
-            likeCount: response.data.data.likeCount
+            reviewId: response.data.data?.reviewId,
+            rating: response.data.data?.rating,
+            review: response.data.data?.review,
+            createdAt: response.data.data?.createdAt,
+            reviewer: response.data.data?.reviewer,
+            likeCount: response.data.data?.likeCount
         };
     } catch (error) {
         console.error('Error getting attraction reviews:', error);
@@ -163,9 +163,9 @@ export const addAttractionReview = async (attractionId, reviewData) => {
             rating: reviewData.rating,
             review: reviewData.review
         },
-        {
-            headers: createHeaders(customerToken)
-        });
+            {
+                headers: createHeaders(customerToken)
+            });
         return response.data;
     } catch (error) {
         console.error('Error adding attraction review:', error);
@@ -181,9 +181,9 @@ export const updateAttractionReview = async (attractionId, reviewData) => {
             rating: reviewData.rating,
             review: reviewData.review
         },
-        {
-            headers: createHeaders(customerToken)
-        });
+            {
+                headers: createHeaders(customerToken)
+            });
         return response.data;
     } catch (error) {
         console.error('Error adding attraction review:', error);
