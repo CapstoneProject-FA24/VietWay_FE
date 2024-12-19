@@ -121,7 +121,8 @@ export const fetchBookingList = async (pageCount, pageIndex) => {
                 code: booking.code,
                 startDate: booking.startDate,
                 isReviewed: booking.isReviewed,
-                havePendingRefund: booking.havePendingRefund
+                havePendingRefund: booking.havePendingRefund,
+                numberOfDay: booking.numberOfDay
             }))
         };
     } catch (error) {

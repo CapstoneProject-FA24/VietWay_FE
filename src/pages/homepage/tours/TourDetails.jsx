@@ -20,6 +20,8 @@ import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import FlightIcon from '@mui/icons-material/Flight';
 import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
 import DirectionsTransitIcon from '@mui/icons-material/DirectionsTransit';
+import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
 
 const TourDetails = () => {
   const [tour, setTour] = useState(null);
@@ -45,12 +47,12 @@ const TourDetails = () => {
         const fetchedTours = await fetchToursByTemplateId(id);
         fetchedTourTemplate.tours = fetchedTours;
         setTour(fetchedTourTemplate);
-
+        console.log(fetchedTours);
         const months = [...new Set(fetchedTours.map(tour => {
           const date = new Date(tour.startDate);
           return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
         }))].sort();
-
+        console.log(months);
         setAvailableMonths(months.map(month => {
           const [year, monthNum] = month.split('-');
           const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
@@ -82,7 +84,10 @@ const TourDetails = () => {
     if (tour && selectedMonth) {
       const token = getCookie('customerToken');
       setIsLoggedIn(!!token);
-      const filteredTours = tour.tours.filter(t => t.startDate.toISOString().startsWith(selectedMonth));
+      const filteredTours = tour.tours.filter(t => dayjs(t.startDate).format('YYYY-MM-DD').startsWith(selectedMonth));
+      console.log(selectedMonth);
+      console.log(dayjs(tour.tours[0].startDate).format('YYYY-MM-DD'));
+      console.log(filteredTours);
       setAvailableTours(filteredTours);
 
       if (filteredTours.length > 0) {
@@ -381,7 +386,7 @@ const TourDetails = () => {
               </Box>
               <Divider />
               <Box sx={{ mb: 2, mt: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện thanh toán:</Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Chính sách thanh toán:</Typography>
                 {availableTours.find(t => t.id === selectedTour)?.depositPercent === 100 ? (
                   <Typography sx={{ color: '#05073C', mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
                 ) : (
@@ -393,19 +398,32 @@ const TourDetails = () => {
               </Box>
               <Divider />
               <Box sx={{ mb: 2, mt: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Điều kiện hủy tour:</Typography>
-                {availableTours.find(t => t.id === selectedTour)?.refundPolicies
-                  .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
-                  .map((policy, index) => {
-                    return (
-                      <Typography key={index} sx={{ color: '#05073C', mb: 0.5 }}>
-                        • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
-                        Chi phí hủy tour là {policy.refundPercent}% tổng giá trị tour
-                      </Typography>
-                    );
-                  })}
-                <Typography sx={{ color: '#05073C', mb: 0.5 }}>
-                  • Hủy từ ngày {new Date(availableTours.find(t => t.id === selectedTour)?.refundPolicies[availableTours.find(t => t.id === selectedTour)?.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#05073C', mb: 1 }}>Chính sách hủy tour:</Typography>
+
+                {availableTours.find(t => t.id === selectedTour)?.refundPolicies?.length > 0 ? (
+                  <>
+                    {availableTours.find(t => t.id === selectedTour)?.refundPolicies
+                      .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                      .map((policy, index) => {
+                        return (
+                          <Typography key={index} sx={{ color: '#05073C', mb: 0.5 }}>
+                            • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                            Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking
+                          </Typography>
+                        );
+                      })}
+                    <Typography sx={{ color: '#05073C', mb: 0.5 }}>
+                      • Hủy từ ngày {new Date(availableTours.find(t => t.id === selectedTour)?.refundPolicies[availableTours.find(t => t.id === selectedTour)?.refundPolicies.length - 1]?.cancelBefore).toLocaleDateString('vi-VN')}:
+                      Chi phí hủy tour là 100% tổng giá trị booking
+                    </Typography>
+                  </>
+                ) : (
+                  <Typography sx={{ color: '#05073C', mb: 0.5 }}>
+                    Tour này không hỗ trợ hoàn tiền khi khách hàng hủy tour
+                  </Typography>
+                )}
+                <Typography color="error" sx={{ mt: 1, fontSize: '0.9rem' }}>
+                  Lưu ý: Trong trường hợp Vietway hủy tour, bạn sẽ được hoàn tiền đầy đủ.
                 </Typography>
               </Box>
               <Button onClick={handleBooking} variant="contained" fullWidth sx={{ mb: 2, height: '45px' }}>Đặt tour</Button>

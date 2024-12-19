@@ -13,6 +13,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ViewFeedback from '@components/profiles/ViewFeedback';
 
 const RegisteredTourCard = ({ tour, onBookingCancelled, onBookingFeedback }) => {
+  console.log(tour);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -42,7 +43,7 @@ const RegisteredTourCard = ({ tour, onBookingCancelled, onBookingFeedback }) => 
     <Box sx={{ p: 0.5, mb: 2, bgcolor: 'background.paper', borderRadius: '16px', boxShadow: 2 }}>
       <Card
         sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: 'none', position: 'relative' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1, mt: 1, mb: -6 }}>
           {tour.havePendingRefund && <Chip label="Chờ hoàn tiền" sx={{ fontSize: '0.75rem', height: '24px', backgroundColor: '#FF9800', color: 'white' }} />}
           <Chip label={getBookingStatusInfo(tour.bookedTourStatus).text}
             sx={{ fontSize: '0.75rem', height: '24px', backgroundColor: getBookingStatusInfo(tour.bookedTourStatus).color, color: 'white', mr: 2 }}
@@ -50,12 +51,12 @@ const RegisteredTourCard = ({ tour, onBookingCancelled, onBookingFeedback }) => 
         </Box>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3} md={3} component={Link} to={`/booking/${tour.bookingId}`}>
-            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%' }}
+            <CardMedia component="img" sx={{ margin: '12px', borderRadius: '8px', width: '100%', height: '190px' }}
               image={tour.imageUrl} alt={tour.name} />
           </Grid>
           <Grid item xs={12} md={7}>
             <CardContent>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }} component={Link} to={`/booking/${tour.bookingId}`}>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2, fontSize: '1.35rem' }} component={Link} to={`/booking/${tour.bookingId}`}>
                 {tour.name}
               </Typography>
               <Divider sx={{ mb: 2 }} />
@@ -135,13 +136,24 @@ const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen
     case BookingStatus.Completed:
       return (
         <>
-          <ActionButton
-            onClick={handleFeedbackOpen}
-            variant="contained"
-            color="primary"
-          >
-            {tour.isReviewed ? 'Xem đánh giá' : 'Đánh giá'}
-          </ActionButton>
+          {(() => {
+            const tourEndDate = new Date(tour.startDate);
+            tourEndDate.setDate(tourEndDate.getDate() + tour.numberOfDay);
+            const feedbackDeadline = new Date(tourEndDate);
+            feedbackDeadline.setDate(feedbackDeadline.getDate() + 7);
+            
+            const currentDate = new Date();
+            
+            return currentDate <= feedbackDeadline && (
+              <ActionButton
+                onClick={handleFeedbackOpen}
+                variant="contained"
+                color="primary"
+              >
+                {tour.isReviewed ? 'Xem đánh giá' : 'Đánh giá'}
+              </ActionButton>
+            );
+          })()}
         </>
       );
     case BookingStatus.Paid:

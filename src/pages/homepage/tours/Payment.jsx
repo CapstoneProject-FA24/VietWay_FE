@@ -418,7 +418,7 @@ const PayBooking = () => {
                 </Typography>
                 <Divider sx={{ my: 2 }} />
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>ĐIỀU KIỆN THANH TOÁN</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>CHÍNH SÁCH THANH TOÁN</Typography>
                   {bookingData.depositPercent === 100 ? (
                     <Typography variant="body2" sx={{ mb: 0.5 }}>• Thanh toán 100% giá tour khi đăng ký</Typography>
                   ) : (
@@ -429,20 +429,29 @@ const PayBooking = () => {
                   )}
                 </Box>
                 <Box sx={{ mb: 2, mt: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>ĐIỀU KIỆN HỦY TOUR</Typography>
-                  {bookingData?.refundPolicies
-                    .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
-                    .map((policy, index) => {
-                      return (
-                        <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
-                          • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
-                          Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
-                        </Typography>
-                      );
-                    })}
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
-                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>CHÍNH SÁCH HỦY TOUR</Typography>
+                  {(bookingData?.refundPolicies && bookingData?.refundPolicies.length > 0) ? (
+                    <>
+                      {bookingData?.refundPolicies
+                        .sort((a, b) => new Date(a.cancelBefore) - new Date(b.cancelBefore))
+                        .map((policy, index) => {
+                          return (
+                            <Typography variant="body2" key={index} sx={{ mb: 0.5 }}>
+                              • Hủy trước {new Date(policy.cancelBefore).toLocaleDateString('vi-VN')}:
+                              Chi phí hủy tour là {policy.refundPercent}% tổng giá trị booking <span style={{ color: 'grey' }}> - tạm tính: {(policy.refundPercent * bookingData.totalPrice / 100).toLocaleString()} đ</span>
+                            </Typography>
+                          );
+                        })}
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        • Hủy từ ngày {new Date(bookingData.refundPolicies[bookingData.refundPolicies.length - 1].cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {bookingData.totalPrice.toLocaleString()} đ</span>
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>Tour này không hỗ trợ hoàn tiền khi khách hàng hủy tour</Typography>
+                    </>
+                  )}
+                  <Typography variant="body2" color='error' sx={{ mb: 0.5 }}>Lưu ý: Trong trường hợp Vietway hủy tour, bạn sẽ được hoàn tiền đầy đủ.</Typography>
                 </Box>
                 <Divider sx={{ my: 2 }} />
                 <Typography sx={{ fontSize: '1.1rem', fontWeight: 700, mb: 1 }}>Chọn hình thức thanh toán</Typography>

@@ -9,7 +9,7 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
     const [cancelReason, setCancelReason] = useState('');
     const [otherReason, setOtherReason] = useState('');
 
-    const reasons = [ 'Thay đổi kế hoạch', 'Lý do sức khỏe', 'Thời tiết không thuận lợi', 'Vấn đề tài chính', 'Thay đổi số lượng người tham gia tour', 'Lý do gia đình', 'Đã đặt tour khác', 'Khác' ];
+    const reasons = ['Thay đổi kế hoạch', 'Lý do sức khỏe', 'Thời tiết không thuận lợi', 'Vấn đề tài chính', 'Thay đổi số lượng người tham gia tour', 'Lý do gia đình', 'Đã đặt tour khác', 'Khác'];
 
     const handleConfirm = () => {
         if (!cancelReason || (cancelReason === 'Khác' && !otherReason)) {
@@ -73,7 +73,7 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
                         <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
                             <CircularProgress size={24} />
                         </Box>
-                    ) : tourInfo?.refundPolicies ? (
+                    ) : tourInfo?.refundPolicies && tourInfo?.refundPolicies.length > 0 ? (
                         <Box sx={{ textAlign: 'left', mt: 2 }}>
                             <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
                                 Chính sách hoàn tiền:
@@ -89,7 +89,16 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
                                 • Hủy từ ngày {new Date(tourInfo.refundPolicies[tourInfo.refundPolicies.length - 1].cancelBefore).toLocaleDateString('vi-VN')}: Chi phí hủy tour là 100% tổng giá trị booking <span style={{ color: 'grey' }}> - {tour.totalPrice.toLocaleString()} đ</span>
                             </Typography>
                         </Box>
-                    ) : null}
+                    ) : (
+                        <Box sx={{ textAlign: 'left', mt: 2 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                Chính sách hoàn tiền:
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                Tour này không hỗ trợ hoàn tiền khi khách hàng hủy tour
+                            </Typography>
+                        </Box>
+                    )}
 
                     <Box sx={{ textAlign: 'left', mt: 2 }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -110,7 +119,7 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
                                 ))}
                             </RadioGroup>
                         </FormControl>
-                        
+
                         {cancelReason === 'Khác' && (
                             <TextField
                                 fullWidth
@@ -128,11 +137,11 @@ const CancelBookingPopup = ({ open, onClose, onConfirm, loading, tour }) => {
                 <Button onClick={onClose} variant="outlined" disabled={loading} fullWidth>
                     Không
                 </Button>
-                <Button 
-                    onClick={handleConfirm} 
-                    variant="contained" 
-                    color="error" 
-                    disabled={loading || !cancelReason || (cancelReason === 'Khác' && !otherReason)} 
+                <Button
+                    onClick={handleConfirm}
+                    variant="contained"
+                    color="error"
+                    disabled={loading || !cancelReason || (cancelReason === 'Khác' && !otherReason)}
                     fullWidth
                 >
                     {loading ? <CircularProgress size={24} /> : 'Xác nhận hủy'}

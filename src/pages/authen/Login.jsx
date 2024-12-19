@@ -147,6 +147,7 @@ export default function Login() {
         clearNavigationHistory();
         navigate(targetPage);
       }
+      setLoading(false);
     } catch (error) {
       console.error('Google login error:', error);
       if (error.code === 'auth/popup-closed-by-user') {

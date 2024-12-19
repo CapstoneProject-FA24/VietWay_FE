@@ -150,7 +150,8 @@ const BookedTour = () => {
                                         bookingDate: booking.bookingDate,
                                         startDate: booking.startDate,
                                         isReviewed: booking.isReviewed,
-                                        havePendingRefund: booking.havePendingRefund
+                                        havePendingRefund: booking.havePendingRefund,
+                                        numberOfDay: booking.numberOfDay
                                     }}
                                     onBookingCancelled={handleBookingCancelled}
                                     onBookingFeedback={handleBookingFeedback}
