@@ -372,6 +372,7 @@ const BookTour = () => {
 
   const handleBooking = async () => {
     if (validateAllFields()) {
+      setLoading(true);
       try {
         const bookingData = {
           tourId: id,
@@ -403,6 +404,9 @@ const BookTour = () => {
         setSnackbarMessage(getErrorMessage(error));
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
+      }
+      finally{
+        setLoading(false);
       }
     } else {
       setSnackbarMessage('Thông tin đặt tour không chính xác. Vui lòng kiểm tra lại trước khi đặt tour.');
@@ -595,7 +599,7 @@ const BookTour = () => {
                         />
                       </LocalizationProvider>
                     </Grid>
-                    {['máy bay', 'tàu hỏa'].includes(bookingData?.transportation?.toLowerCase()) && (
+                    {(['máy bay', 'tàu hỏa'].includes(bookingData?.transportation?.toLowerCase()) && passenger.type?.toLowerCase() === 'người lớn') && (
                       <Grid item xs={12} sm={6}>
                         <CustomTextField
                           fullWidth
