@@ -100,6 +100,7 @@ const Header = () => {
 
   const handleLogout = () => {
     removeCookie('customerToken');
+    removeCookie('customerFullName');
     setIsLoggedIn(false);
     handleClose();
     navigate('/trang-chu');
