@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Helmet } from 'react-helmet';
+import { getErrorMessage } from '@hooks/Message';
 
 const StyledBox = styled(Box)(({ theme }) => ({ padding: theme.spacing(3), maxWidth: "100%", margin: "0 auto", boxSizing: "border-box" }));
 
@@ -62,7 +63,7 @@ const TotalPrice = styled(Typography)(({ theme }) => ({
 
 const ErrorText = styled(Typography)(({ theme }) => ({
   color: theme.palette.error.main,
-  fontSize: '0.75rem',
+  fontSize: '0.85rem',
   marginTop: theme.spacing(0.5),
 }));
 
@@ -398,13 +399,8 @@ const BookTour = () => {
           navigate(`/dat-tour/thanh-toan/${response.data}`);
         }, 1500);
       } catch (error) {
-        if (error.response.data.error.includes("Customer has already booked this tour")) {
-          setSnackbarMessage('Quý khách đã đặt tour này rồi.');
-          setSnackbarSeverity('error');
-          setOpenSnackbar(true);
-          return;
-        }
-        setSnackbarMessage('Đặt tour thất bại. Vui lòng thử lại sau.');
+        console.error('Booking failed:', error);
+        setSnackbarMessage(getErrorMessage(error));
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
       }

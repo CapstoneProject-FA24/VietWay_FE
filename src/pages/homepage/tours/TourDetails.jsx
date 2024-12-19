@@ -47,12 +47,10 @@ const TourDetails = () => {
         const fetchedTours = await fetchToursByTemplateId(id);
         fetchedTourTemplate.tours = fetchedTours;
         setTour(fetchedTourTemplate);
-        console.log(fetchedTours);
         const months = [...new Set(fetchedTours.map(tour => {
           const date = new Date(tour.startDate);
           return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
         }))].sort();
-        console.log(months);
         setAvailableMonths(months.map(month => {
           const [year, monthNum] = month.split('-');
           const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
@@ -85,9 +83,6 @@ const TourDetails = () => {
       const token = getCookie('customerToken');
       setIsLoggedIn(!!token);
       const filteredTours = tour.tours.filter(t => dayjs(t.startDate).format('YYYY-MM-DD').startsWith(selectedMonth));
-      console.log(selectedMonth);
-      console.log(dayjs(tour.tours[0].startDate).format('YYYY-MM-DD'));
-      console.log(filteredTours);
       setAvailableTours(filteredTours);
 
       if (filteredTours.length > 0) {
