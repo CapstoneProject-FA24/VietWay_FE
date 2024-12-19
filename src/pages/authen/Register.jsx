@@ -19,6 +19,7 @@ import { getPreviousPage } from '@utils/NavigationHistory';
 import { getCookie } from '@services/AuthenService';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { getErrorMessage } from '@hooks/Message';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -130,7 +131,6 @@ export default function Register() {
                 idToken: user.accessToken
             }));
             
-            // Redirect to Google registration page
             navigate('/dang-ky-google');
         } catch (error) {
             console.error('Google sign in error:', error);
@@ -211,7 +211,7 @@ export default function Register() {
                 console.error('Registration failed:', error);
                 setSnackbar({
                     open: true,
-                    message: 'Đăng ký thất bại. Vui lòng thử lại.',
+                    message: getErrorMessage(error),
                     severity: 'error'
                 });
             }

@@ -159,15 +159,15 @@ const PayBooking = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const vnpCode = queryParams.get('vnpCode');
-    const zaloStatus = queryParams.get('status');
+    const payStatus = queryParams.get('status');
 
-    if (zaloStatus) {
-      const message = getZaloPayMessage(zaloStatus);
+    if (payStatus) {
+      const message = getZaloPayMessage(payStatus);
       setSnackbarMessage(message);
-      setSnackbarSeverity(zaloStatus === '1' ? 'success' : 'error');
+      setSnackbarSeverity(payStatus === '1' ? (payStatus === 'Paid' ? 'success' : 'error') : 'error');
       setOpenSnackbar(true);
 
-      if (zaloStatus === '1') {
+      if (payStatus === '1') {
         setTimeout(() => {
           navigate(`${currentPath.includes('dat-tour') ? '/dat-tour/hoan-thanh/' : '/hoan-thanh/'}${id}`);
         }, 2000);

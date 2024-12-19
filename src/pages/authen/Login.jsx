@@ -142,7 +142,6 @@ export default function Login() {
       setError('');
       
       await signOut(auth);
-      
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const idToken = await user.getIdToken();

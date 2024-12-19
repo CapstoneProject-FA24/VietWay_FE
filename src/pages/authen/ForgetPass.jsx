@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { requestPasswordReset, confirmResetPasswordOTP, resetPassword } from '@services/AuthenService';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { getErrorMessage } from '@hooks/Message';
 
 export default function ForgetPass() {
   const settingLogin = {
@@ -118,19 +119,19 @@ export default function ForgetPass() {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasNumber = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(password);
-    
+
     if (!password) {
       return 'Mật khẩu là bắt buộc.';
     }
-    
+
     if (password.length < minLength) {
       return 'Mật khẩu phải có ít nhất 8 ký tự và phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
     }
-    
+
     if (!(hasLowerCase && hasUpperCase && hasNumber && hasSpecialChar)) {
       return 'Mật khẩu phải có ít nhất 8 ký tự và phải chứa ít nhất 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
     }
-    
+
     return '';
   };
 
@@ -160,7 +161,7 @@ export default function ForgetPass() {
           message: 'Mã OTP đã được gửi đến số điện thoại của bạn',
           severity: 'success'
         });
-      } 
+      }
       else if (step === 2) {
         if (otpExpired || countdown === 0) {
           setSnackbar({
@@ -176,7 +177,7 @@ export default function ForgetPass() {
           return;
         }
         setErrors(prev => ({ ...prev, otp: '' }));
-        
+
         try {
           const response = await confirmResetPasswordOTP(phoneNumber, otp);
           setResetToken(response.data);
@@ -184,22 +185,13 @@ export default function ForgetPass() {
           setShowConfirmPassword(false);
           setStep(3);
         } catch (error) {
-          if (error.response?.status === 500 && error.response?.data?.error?.includes('Invalid OTP')) {
-            setErrors(prev => ({ ...prev, otp: 'Mã OTP không đúng' }));
-            setSnackbar({
-              open: true,
-              message: 'Mã OTP không đúng, vui lòng kiểm tra lại',
-              severity: 'error'
-            });
-          } else {
-            setSnackbar({
-              open: true,
-              message: 'Đã có lỗi xảy ra, vui lòng thử lại',
-              severity: 'error'
-            });
-          }
+          setSnackbar({
+            open: true,
+            message: getErrorMessage(error),
+            severity: 'error'
+          });
         }
-      } 
+      }
       else {
         if (otpExpired || countdown === 0) {
           setStep(2);
@@ -217,12 +209,12 @@ export default function ForgetPass() {
           setErrors(prev => ({ ...prev, newPassword: passwordError }));
           return;
         }
-        
+
         if (!confirmPassword) {
           setErrors(prev => ({ ...prev, confirmPassword: 'Vui lòng xác nhận mật khẩu' }));
           return;
         }
-        
+
         if (newPassword !== confirmPassword) {
           setErrors(prev => ({ ...prev, confirmPassword: 'Mật khẩu không khớp' }));
           return;
@@ -237,26 +229,17 @@ export default function ForgetPass() {
           });
           navigate('/dang-nhap');
         } catch (error) {
-          if (error.response?.status === 500 && error.response?.data?.error?.includes('Invalid phone number')) {
-            setStep(2);
-            setSnackbar({
-              open: true,
-              message: 'Mã OTP đã hết hạn, vui lòng yêu cầu mã mới',
-              severity: 'warning'
-            });
-          } else {
-            setSnackbar({
-              open: true,
-              message: 'Đã có lỗi xảy ra, vui lòng thử lại',
-              severity: 'error'
-            });
-          }
+          setSnackbar({
+            open: true,
+            message: getErrorMessage(error),
+            severity: 'error'
+          });
         }
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: 'Đã có lỗi xảy ra, vui lòng thử lại',
+        message: getErrorMessage(error),
         severity: 'error'
       });
     }
@@ -279,7 +262,7 @@ export default function ForgetPass() {
       } catch (error) {
         setSnackbar({
           open: true,
-          message: 'Không thể gửi lại mã OTP',
+          message: getErrorMessage(error),
           severity: 'error'
         });
       }
@@ -347,7 +330,7 @@ export default function ForgetPass() {
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setNewPassword(value);
-    
+
     // Validate password as user types
     const passwordError = validatePassword(value);
     if (passwordError) {
@@ -355,7 +338,7 @@ export default function ForgetPass() {
     } else {
       setErrors(prev => ({ ...prev, newPassword: '' }));
     }
-    
+
     // Check confirm password match if it exists
     if (confirmPassword && value !== confirmPassword) {
       setErrors(prev => ({ ...prev, confirmPassword: 'Mật khẩu không khớp' }));
@@ -374,13 +357,13 @@ export default function ForgetPass() {
         <Grid item square md={12} sx={{ display: 'flex ' }}>
           <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', alignItems: 'left', textAlign: 'left', width: '47%', marginRight: 10, marginLeft: -6 }}>
             <img style={{ width: 90, marginBottom: 40 }} src='/logo1_color.png' alt="Logo" />
-            <Button 
-              variant="text" 
-              startIcon={<ArrowBackIosNewIcon/>} 
+            <Button
+              variant="text"
+              startIcon={<ArrowBackIosNewIcon />}
               onClick={handleBackClick}
               sx={{
-                color: '#4B4B4B', 
-                marginBottom: 1, 
+                color: '#4B4B4B',
+                marginBottom: 1,
                 justifyContent: 'flex-start'
               }}
             >
@@ -394,16 +377,16 @@ export default function ForgetPass() {
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               {step === 1 ? (
-                <TextField 
-                  margin="normal" 
-                  required 
-                  fullWidth 
-                  id="phoneNumber" 
-                  label="Số điện thoại" 
-                  name="phoneNumber" 
-                  autoComplete="phoneNumber" 
-                  autoFocus 
-                  value={phoneNumber} 
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="phoneNumber"
+                  label="Số điện thoại"
+                  name="phoneNumber"
+                  autoComplete="phoneNumber"
+                  autoFocus
+                  value={phoneNumber}
                   onChange={(e) => {
                     setPhoneNumber(e.target.value);
                     setErrors(prev => ({ ...prev, phoneNumber: '' }));
@@ -413,14 +396,14 @@ export default function ForgetPass() {
                 />
               ) : step === 2 ? (
                 <>
-                  <TextField 
-                    margin="normal" 
-                    required 
-                    fullWidth 
-                    id="otp" 
-                    label="Nhập mã OTP" 
-                    name="otp" 
-                    autoFocus 
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="otp"
+                    label="Nhập mã OTP"
+                    name="otp"
+                    autoFocus
                     value={otp}
                     disabled={otpExpired}
                     onChange={(e) => {
@@ -444,10 +427,10 @@ export default function ForgetPass() {
                           Gửi lại mã sau {resendCooldown}s
                         </Typography>
                       ) : (
-                        <Button 
+                        <Button
                           onClick={handleResendOTP}
                           disabled={!canResend || resendCooldown > 0}
-                          sx={{ 
+                          sx={{
                             textTransform: 'none',
                             fontSize: '0.875rem',
                             color: 'primary.main',
@@ -464,15 +447,15 @@ export default function ForgetPass() {
                 </>
               ) : (
                 <>
-                  <TextField 
-                    margin="normal" 
-                    required 
-                    fullWidth 
-                    name="newPassword" 
-                    label="Nhập mật khẩu mới" 
-                    type={showNewPassword ? 'text' : 'password'} 
-                    id="newPassword" 
-                    value={newPassword} 
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="newPassword"
+                    label="Nhập mật khẩu mới"
+                    type={showNewPassword ? 'text' : 'password'}
+                    id="newPassword"
+                    value={newPassword}
                     onChange={handlePasswordChange}
                     error={!!errors.newPassword}
                     helperText={errors.newPassword}
@@ -484,17 +467,17 @@ export default function ForgetPass() {
                           </IconButton>
                         </InputAdornment>
                       ),
-                    }} 
+                    }}
                   />
-                  <TextField 
-                    margin="normal" 
-                    required 
-                    fullWidth 
-                    name="confirmPassword" 
-                    label="Nhập lại mật khẩu mới" 
-                    type={showConfirmPassword ? 'text' : 'password'} 
-                    id="confirmPassword" 
-                    value={confirmPassword} 
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="confirmPassword"
+                    label="Nhập lại mật khẩu mới"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    value={confirmPassword}
                     onChange={(e) => {
                       setConfirmPassword(e.target.value);
                       setErrors(prev => ({ ...prev, confirmPassword: '' }));
@@ -509,12 +492,12 @@ export default function ForgetPass() {
                           </IconButton>
                         </InputAdornment>
                       ),
-                    }} 
+                    }}
                   />
                   <Typography sx={{ mt: 2, color: 'gray', fontSize: '0.875rem' }}>
                     Mã OTP sẽ hết hạn trong {formatTime(countdown)}, quý khách vui lòng hoàn tất đặt lại mật khẩu mới trong thời gian này.
                     {(otpExpired || countdown === 0) && (
-                      <Button 
+                      <Button
                         onClick={() => setStep(2)}
                         sx={{ textTransform: 'none', p: 0, ml: 1, color: 'primary.main' }}
                       >
@@ -540,14 +523,14 @@ export default function ForgetPass() {
           </Box>
         </Grid>
       </Grid>
-      <Snackbar 
+      <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
+        <Alert
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           variant="filled"
           sx={{ width: '100%' }}

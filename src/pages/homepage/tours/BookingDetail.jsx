@@ -102,22 +102,27 @@ const BookingDetail = () => {
         const searchParams = new URLSearchParams(location.search);
         const vnpAmount = searchParams.get('vnp_Amount');
         const vnpCode = searchParams.get('vnp_ResponseCode');
-        const zaloStatus = searchParams.get('status');
+        const payStatus = searchParams.get('status');
 
-        if (zaloStatus === '1') {
-          const zaloUrl = `?appid=${searchParams.get('appid')}&apptransid=${searchParams.get('apptransid')}`;
-          await fetchCreatePayment(zaloUrl, 'ZaloPay');
+        if (payStatus === '1') {
+          /* const zaloUrl = `?appid=${searchParams.get('appid')}&apptransid=${searchParams.get('apptransid')}`;
+          await fetchCreatePayment(zaloUrl, 'ZaloPay'); */
           setOpenSnackbar(true);
           const paymentData = await fetchBookingPayments(id);
           setPayments(paymentData.items);
         }
-        else if (zaloStatus !== null) {
-          navigate(`/dat-tour/thanh-toan/${id}?status=${zaloStatus}`);
+        else if (payStatus === "PAID") {
+          setOpenSnackbar(true);
+          const paymentData = await fetchBookingPayments(id);
+          setPayments(paymentData.items);
+        }
+        else if (payStatus !== null) {
+          navigate(`/dat-tour/thanh-toan/${id}?status=${payStatus}`);
         }
 
         if (vnpCode === '00') {
-          const vnPayIPN = `?vnp_TmnCode=${searchParams.get('vnp_TmnCode')}&vnp_Amount=${searchParams.get('vnp_Amount')}&vnp_BankCode=${searchParams.get('vnp_BankCode')}&vnp_BankTranNo=${searchParams.get('vnp_BankTranNo')}&vnp_CardType=${searchParams.get('vnp_CardType')}&vnp_PayDate=${searchParams.get('vnp_PayDate')}&vnp_OrderInfo=${searchParams.get('vnp_OrderInfo').replace(/\+/g, '%2B')}&vnp_TransactionNo=${searchParams.get('vnp_TransactionNo')}&vnp_ResponseCode=${searchParams.get('vnp_ResponseCode')}&vnp_TransactionStatus=${searchParams.get('vnp_TransactionStatus')}&vnp_TxnRef=${searchParams.get('vnp_TxnRef')}&vnp_SecureHash=${searchParams.get('vnp_SecureHash')}`;
-          await fetchCreatePayment(vnPayIPN, 'VNPay');
+          /* const vnPayIPN = `?vnp_TmnCode=${searchParams.get('vnp_TmnCode')}&vnp_Amount=${searchParams.get('vnp_Amount')}&vnp_BankCode=${searchParams.get('vnp_BankCode')}&vnp_BankTranNo=${searchParams.get('vnp_BankTranNo')}&vnp_CardType=${searchParams.get('vnp_CardType')}&vnp_PayDate=${searchParams.get('vnp_PayDate')}&vnp_OrderInfo=${searchParams.get('vnp_OrderInfo').replace(/\+/g, '%2B')}&vnp_TransactionNo=${searchParams.get('vnp_TransactionNo')}&vnp_ResponseCode=${searchParams.get('vnp_ResponseCode')}&vnp_TransactionStatus=${searchParams.get('vnp_TransactionStatus')}&vnp_TxnRef=${searchParams.get('vnp_TxnRef')}&vnp_SecureHash=${searchParams.get('vnp_SecureHash')}`;
+          await fetchCreatePayment(vnPayIPN, 'VNPay'); */
           setOpenSnackbar(true);
           const paymentData = await fetchBookingPayments(id);
           setPayments(paymentData.items);
@@ -130,8 +135,11 @@ const BookingDetail = () => {
         if (vnpAmount && vnpCode === '00') {
           data.paymentMethod = "VNPay";
         }
-        else if (zaloStatus === '1') {
+        else if (payStatus === '1') {
           data.paymentMethod = "ZaloPay";
+        }
+        else if (payStatus === 'PAID') {
+          data.paymentMethod = "PayOs";
         }
 
         setBookingData(data);
@@ -153,14 +161,13 @@ const BookingDetail = () => {
   };
 
   const handleGoBack = () => {
-    const previousPage = getPreviousPageBooking();
-    navigate(previousPage);
+    navigate("/trang-chu");
   };
 
   if (loading) {
     return (
       <Box>
-        <Helmet> <title>Chi tiết booking</title> </Helmet> <Header />
+        <Helmet> <title>Hoàn tất booking</title> </Helmet> <Header />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}> <CircularProgress /> </Box>
       </Box>
     );
@@ -170,11 +177,11 @@ const BookingDetail = () => {
 
   return (
     <Box sx={{ width: "89vw" }}>
-      <Helmet> <title>Chi tiết booking</title> </Helmet>
+      <Helmet> <title>Hoàn tất booking</title> </Helmet>
       <Header />
       <ContentContainer>
         <StyledBox>
-          {/* <div
+          <div
             onClick={handleGoBack}
             style={{
               textDecoration: "none",
@@ -187,7 +194,7 @@ const BookingDetail = () => {
             }}
           >
             <ArrowBackIcon style={{ marginLeft: 15 }} /> Quay lại
-          </div> */}
+          </div>
           <Typography variant="h4" align="center" gutterBottom style={{ fontWeight: "bolder", fontSize: 45, marginBottom: 30, marginTop: 40, color: "#3572EF" }}>
             ĐẶT TOUR
           </Typography>

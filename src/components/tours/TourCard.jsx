@@ -42,7 +42,7 @@ const TourCard = ({ tour }) => {
         <Typography variant="h5" component={Link} to={`/tour-du-lich/${tour.tourTemplateId}`}
           sx={{
             overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, fontSize: '1.3rem',
-            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', lineHeight: 1.2, height: '3.55rem'
+            WebkitBoxOrient: 'vertical', textDecoration: 'none', color: 'inherit', lineHeight: 1.2, height: 'fit-content', mb: 1, mt: 1
           }}>
           {tour.tourName}
         </Typography>
@@ -50,10 +50,6 @@ const TourCard = ({ tour }) => {
           <SubtitlesOutlinedIcon sx={{ marginRight: '8px' }} />
           Mã tour: {tour.code}
         </Typography>
-        {/* <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-          <MapOutlinedIcon sx={{ marginRight: '8px' }} />
-          Điểm đến: {tour.provinces.join(' - ')}
-        </Typography> */}
         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
           <LocationOnOutlinedIcon sx={{ marginRight: '8px' }} />
           Khởi hành từ: {tour.startingProvince}
