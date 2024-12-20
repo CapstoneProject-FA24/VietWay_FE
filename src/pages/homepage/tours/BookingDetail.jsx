@@ -105,8 +105,8 @@ const BookingDetail = () => {
         const payStatus = searchParams.get('status');
 
         if (payStatus === '1') {
-          /* const zaloUrl = `?appid=${searchParams.get('appid')}&apptransid=${searchParams.get('apptransid')}`;
-          await fetchCreatePayment(zaloUrl, 'ZaloPay'); */
+          const zaloUrl = `?appid=${searchParams.get('appid')}&apptransid=${searchParams.get('apptransid')}`;
+          await fetchCreatePayment(zaloUrl, 'ZaloPay');
           setOpenSnackbar(true);
           const paymentData = await fetchBookingPayments(id);
           setPayments(paymentData.items);
