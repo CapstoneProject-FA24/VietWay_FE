@@ -295,6 +295,16 @@ const ProfileBookingDetail = () => {
     }
   };
 
+  const isCancellationAllowed = (bookingData) => {
+    if (!bookingData?.startDate) return false;
+    const today = new Date();
+    const startDate = new Date(bookingData.startDate);
+    // Set times to midnight for accurate date comparison
+    today.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    return today < startDate;
+  };
+
   if (loading) {
     return (
       <Box>
@@ -578,13 +588,15 @@ const ProfileBookingDetail = () => {
                         {bookingData?.totalPrice?.toLocaleString() || 0} đ
                       </TotalPrice>
                     </Typography>
-                    <ActionButton
-                      variant="outlined"
-                      color="primary"
-                      onClick={handleCancelOpen}
-                    >
-                      Hủy Đặt
-                    </ActionButton>
+                    {isCancellationAllowed(bookingData) && (
+                      <ActionButton
+                        variant="outlined"
+                        color="primary"
+                        onClick={handleCancelOpen}
+                      >
+                        Hủy Đặt
+                      </ActionButton>
+                    )}
                   </>
                 )}
                 {(bookingData.status === 0 || bookingData.status === 1) && (
