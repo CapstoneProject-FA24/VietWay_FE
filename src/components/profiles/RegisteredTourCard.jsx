@@ -132,6 +132,14 @@ const formatDate = (dateString) => {
 };
 
 const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen, tour) => {
+  const isCancellationAllowed = () => {
+    const today = new Date();
+    const startDate = new Date(tour.startDate);
+    today.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    return today < startDate;
+  };
+
   switch (tour.bookedTourStatus) {
     case BookingStatus.Completed:
       return (
@@ -157,7 +165,11 @@ const renderActionButtons = (handleFeedbackOpen, handlePayment, handleCancelOpen
         </>
       );
     case BookingStatus.Paid:
-      return <ActionButton onClick={handleCancelOpen} variant="outlined" color="primary">Hủy Đặt</ActionButton>;
+      return isCancellationAllowed() ? (
+        <ActionButton onClick={handleCancelOpen} variant="outlined" color="primary">
+          Hủy Đặt
+        </ActionButton>
+      ) : null;
     case BookingStatus.Pending:
       return (
         <>
