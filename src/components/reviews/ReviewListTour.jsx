@@ -28,7 +28,6 @@ const ReviewListTour = ({ tourTemplateId }) => {
         pageIndex,
         ratingValues: selectedRatings.length > 0 ? selectedRatings : undefined
       });
-      console.log(response);
       setReviews(response.items);
     } catch (error) {
       console.error('Error fetching reviews:', error);

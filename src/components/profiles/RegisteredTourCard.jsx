@@ -13,7 +13,6 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ViewFeedback from '@components/profiles/ViewFeedback';
 
 const RegisteredTourCard = ({ tour, onBookingCancelled, onBookingFeedback }) => {
-  console.log(tour);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);

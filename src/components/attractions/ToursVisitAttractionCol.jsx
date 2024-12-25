@@ -21,7 +21,6 @@ const ToursVisitAttractionCol = () => {
     const fetchTours = async () => {
       try {
         const response = await fetchToursByAttractionId(id, 10);
-        console.log(response);
         setTours(response);
         setLoading(false);
       } catch (err) {
