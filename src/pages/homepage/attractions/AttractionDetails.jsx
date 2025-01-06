@@ -48,6 +48,19 @@ const AttractionDetails = () => {
         const response = await getAttractionById(id);
         setIsSaved(response.isLiked);
         setAttraction(response);
+
+        if (sessionStorage.getItem('previousPage') !== location.pathname) {
+          const searchParams = new URLSearchParams(location.search);
+          if(searchParams.get('ref') === 'facebook'){
+              console.log("facebook click");
+          } else if(searchParams.get('ref') === 'x'){
+              console.log("x click");
+          } else {
+              console.log("click");
+          }
+      }
+        sessionStorage.setItem('previousPage', location.pathname);
+
       } catch (error) {
         console.error("Error fetching attraction data:", error);
       } finally {
@@ -252,7 +265,7 @@ const AttractionDetails = () => {
                   {attraction.images.map((image, index) => (
                     <div key={index} style={{ position: 'relative' }}>
                       <img
-                        src={image.url}
+                        src={image.url?.replace('w_1000', 'w_2000')}
                         alt={`Attraction ${index + 1}`}
                         style={{ width: '100%', height: '450px', objectFit: 'cover' }}
                       />
@@ -269,7 +282,7 @@ const AttractionDetails = () => {
                   onClick={() => handleThumbnailClick(index)}
                 >
                   <img
-                    src={image.url}
+                    src={image.url?.replace('w_1000', 'w_200')}
                     alt={`Thumbnail ${index + 1}`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />

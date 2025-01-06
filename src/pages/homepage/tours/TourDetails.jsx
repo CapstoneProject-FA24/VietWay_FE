@@ -63,6 +63,19 @@ const TourDetails = () => {
         if (months.length > 0) {
           setSelectedMonth(months[0]);
         }
+
+        if (sessionStorage.getItem('previousPage') !== location.pathname) {
+          const searchParams = new URLSearchParams(location.search);
+          if(searchParams.get('ref') === 'facebook'){
+              console.log("facebook click");
+          } else if(searchParams.get('ref') === 'x'){
+              console.log("x click");
+          } else {
+              console.log("click");
+          }
+      }
+        sessionStorage.setItem('previousPage', location.pathname);
+
       } catch (error) {
         console.error('Error fetching tour:', error);
       } finally {
@@ -184,7 +197,7 @@ const TourDetails = () => {
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', minWidth: '100%', height: '450px', mb: 3 }}>
               <Box sx={{ flex: '0 0 59.5%', mr: '1%', position: 'relative' }}>
-                <img src={tour.imageUrls[0]?.url || 'https://doc.cerp.ideria.co/assets/images/image-a5238aed7050a0691758858b2569566d.jpg'} alt={tour.tourName} style={{ width: '100%', height: '450px', objectFit: 'cover' }} />
+                <img src={tour.imageUrls[0]?.url?.replace('w_1000', 'w_2000') || 'https://doc.cerp.ideria.co/assets/images/image-a5238aed7050a0691758858b2569566d.jpg'} alt={tour.tourName} style={{ width: '100%', height: '450px', objectFit: 'cover' }} />
               </Box>
               <Box sx={{ flex: '0 0 39.5%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ flex: '0 0 50%', mb: 1.2, position: 'relative' }}>

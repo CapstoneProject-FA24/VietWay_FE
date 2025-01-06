@@ -35,6 +35,18 @@ export default function PostDetails() {
                 const fetchedPost = await fetchPostById(id);
                 setPost(fetchedPost);
                 setIsSaved(fetchedPost.isLiked);
+                
+                if (sessionStorage.getItem('previousPage') !== location.pathname) {
+                    const searchParams = new URLSearchParams(location.search);
+                    if(searchParams.get('ref') === 'facebook'){
+                        console.log("facebook click");
+                    } else if(searchParams.get('ref') === 'x'){
+                        console.log("x click");
+                    } else {
+                        console.log("click");
+                    }
+                }
+                sessionStorage.setItem('previousPage', location.pathname);
             } catch (error) {
                 console.error("Error fetching post data:", error);
             } finally {
@@ -158,7 +170,7 @@ export default function PostDetails() {
                     alt={post.title}
                     sx={{
                         width: '100%',
-                        height: '100%',
+                        height: 'auto',
                         objectFit: 'cover',
                         transform: 'scale(1.1)',
                         transition: 'transform 0.3s ease-in-out',
