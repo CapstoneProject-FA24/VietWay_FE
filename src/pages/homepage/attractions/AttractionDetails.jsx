@@ -41,35 +41,35 @@ const AttractionDetails = () => {
   const [isApiError, setIsApiError] = useState(false);
 
   useEffect(() => {
-    const fetchAttractionData = async () => {
-      try {
-        setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const response = await getAttractionById(id);
-        setIsSaved(response.isLiked);
-        setAttraction(response);
-
-        if (sessionStorage.getItem('previousPage') !== location.pathname) {
-          const searchParams = new URLSearchParams(location.search);
-          if(searchParams.get('ref') === 'facebook'){
-              console.log("facebook click");
-          } else if(searchParams.get('ref') === 'x'){
-              console.log("x click");
-          } else {
-              console.log("click");
-          }
-      }
-        sessionStorage.setItem('previousPage', location.pathname);
-
-      } catch (error) {
-        console.error("Error fetching attraction data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAttractionData();
   }, [id]);
+
+  const fetchAttractionData = async () => {
+    try {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      let site = null;
+      if (sessionStorage.getItem('previousPage') !== location.pathname) {
+        const searchParams = new URLSearchParams(location.search);
+        if (searchParams.get('ref') === 'facebook') {
+          site = 0;
+        } else if (searchParams.get('ref') === 'x') {
+          site = 1;
+        } else {
+          site = 2;
+        }
+      }
+      sessionStorage.setItem('previousPage', location.pathname);
+      const response = await getAttractionById(id, site);
+      setIsSaved(response.isLiked);
+      setAttraction(response);
+
+    } catch (error) {
+      console.error("Error fetching attraction data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (pageTopRef.current) {

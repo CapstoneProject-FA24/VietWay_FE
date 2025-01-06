@@ -73,9 +73,11 @@ export const fetchTourTemplates = async (params) => {
     }
 };
 
-export const fetchTourTemplateById = async (id) => {
+export const fetchTourTemplateById = async (id, socialMediaSite) => {
     try {
-        const response = await axios.get(`${baseURL}/api/tour-templates/${id}`);
+        const queryParams = new URLSearchParams();
+        if (socialMediaSite) queryParams.append('socialMediaSite', socialMediaSite);
+        const response = await axios.get(`${baseURL}/api/tour-templates/${id}?${queryParams.toString()}`);
         return {
             tourTemplateId: response.data.data.tourTemplateId,
             code: response.data.data.code,

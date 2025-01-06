@@ -61,11 +61,13 @@ export const fetchAttractions = async (params) => {
     }
 };
 
-export const getAttractionById = async (id) => {
+export const getAttractionById = async (id, socialMediaSite) => {
     const customerToken = getCookie('customerToken');
     try {
+        const queryParams = new URLSearchParams();
+        if (socialMediaSite) queryParams.append('socialMediaSite', socialMediaSite);
         const headers = createHeaders(customerToken);
-        const response = await axios.get(`${baseURL}/api/attractions/${id}`, {
+        const response = await axios.get(`${baseURL}/api/attractions/${id}?${queryParams.toString()}`, {
             headers
         });
         const data = response.data.data;

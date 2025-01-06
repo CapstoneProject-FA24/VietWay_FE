@@ -41,49 +41,51 @@ const TourDetails = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedTourTemplate = await fetchTourTemplateById(id);
-        const fetchedTours = await fetchToursByTemplateId(id);
-        fetchedTourTemplate.tours = fetchedTours;
-        setTour(fetchedTourTemplate);
-        const months = [...new Set(fetchedTours.map(tour => {
-          const date = new Date(tour.startDate);
-          return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-        }))].sort();
-        setAvailableMonths(months.map(month => {
-          const [year, monthNum] = month.split('-');
-          const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
-          return {
-            value: month,
-            label: date.toLocaleString('vi-VN', { month: 'long', year: 'numeric' })
-          };
-        }));
-
-        if (months.length > 0) {
-          setSelectedMonth(months[0]);
-        }
-
-        if (sessionStorage.getItem('previousPage') !== location.pathname) {
-          const searchParams = new URLSearchParams(location.search);
-          if(searchParams.get('ref') === 'facebook'){
-              console.log("facebook click");
-          } else if(searchParams.get('ref') === 'x'){
-              console.log("x click");
-          } else {
-              console.log("click");
-          }
-      }
-        sessionStorage.setItem('previousPage', location.pathname);
-
-      } catch (error) {
-        console.error('Error fetching tour:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, [id]);
+
+  const fetchData = async () => {
+    try {
+      let site = null;
+      if (sessionStorage.getItem('previousPage') !== location.pathname) {
+        const searchParams = new URLSearchParams(location.search);
+        if (searchParams.get('ref') === 'facebook') {
+          site = 0;
+        } else if (searchParams.get('ref') === 'x') {
+          site = 1;
+        } else {
+          site = 2;
+        }
+      }
+      sessionStorage.setItem('previousPage', location.pathname);
+
+      const fetchedTourTemplate = await fetchTourTemplateById(id, site);
+      const fetchedTours = await fetchToursByTemplateId(id);
+      fetchedTourTemplate.tours = fetchedTours;
+      setTour(fetchedTourTemplate);
+      const months = [...new Set(fetchedTours.map(tour => {
+        const date = new Date(tour.startDate);
+        return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      }))].sort();
+      setAvailableMonths(months.map(month => {
+        const [year, monthNum] = month.split('-');
+        const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
+        return {
+          value: month,
+          label: date.toLocaleString('vi-VN', { month: 'long', year: 'numeric' })
+        };
+      }));
+
+      if (months.length > 0) {
+        setSelectedMonth(months[0]);
+      }
+
+    } catch (error) {
+      console.error('Error fetching tour:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (pageTopRef.current) {
