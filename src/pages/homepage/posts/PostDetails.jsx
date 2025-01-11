@@ -29,20 +29,33 @@ export default function PostDetails() {
     const [isApiError, setIsApiError] = useState(false);
 
     useEffect(() => {
-        const loadPost = async () => {
-            setLoading(true);
-            try {
-                const fetchedPost = await fetchPostById(id);
-                setPost(fetchedPost);
-                setIsSaved(fetchedPost.isLiked);
-            } catch (error) {
-                console.error("Error fetching post data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
         loadPost();
     }, [id]);
+
+    const loadPost = async () => {
+        setLoading(true);
+        try {
+            let site = null;
+            if (sessionStorage.getItem('previousPage') !== location.pathname) {
+                const searchParams = new URLSearchParams(location.search);
+                if (searchParams.get('ref') === 'facebook') {
+                    site = 0;
+                } else if (searchParams.get('ref') === 'x') {
+                    site = 1;
+                } else {
+                    site = 2;
+                }
+            }
+            sessionStorage.setItem('previousPage', location.pathname);
+            const fetchedPost = await fetchPostById(id, site);
+            setPost(fetchedPost);
+            setIsSaved(fetchedPost.isLiked);
+        } catch (error) {
+            console.error("Error fetching post data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (pageTopRef.current) {
@@ -158,7 +171,7 @@ export default function PostDetails() {
                     alt={post.title}
                     sx={{
                         width: '100%',
-                        height: '100%',
+                        height: 'auto',
                         objectFit: 'cover',
                         transform: 'scale(1.1)',
                         transition: 'transform 0.3s ease-in-out',

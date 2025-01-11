@@ -165,7 +165,6 @@ function Map({ placeId }) {
             if (!place.geometry || !place.geometry.location) {
                 return;
             }
-            console.log(place);
             // Create marker with all necessary data
             const newMarker = {
                 position: place.geometry.location,

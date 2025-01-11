@@ -56,15 +56,16 @@ export const fetchPosts = async (params) => {
 };
 
 
-export const fetchPostById = async (id) => {
+export const fetchPostById = async (id, socialMediaSite) => {
     const customerToken = getCookie('customerToken');
     try {
         const headers = {};
         if (customerToken) {
             headers['Authorization'] = `Bearer ${customerToken}`;
         }
-
-        const response = await axios.get(`${baseURL}/api/post/${id}`, { headers });
+        const queryParams = new URLSearchParams();
+        if (socialMediaSite) queryParams.append('socialMediaSite', socialMediaSite);
+        const response = await axios.get(`${baseURL}/api/post/${id}?${queryParams.toString()}`, { headers });
         const item = response.data.data;
         
         const post = {

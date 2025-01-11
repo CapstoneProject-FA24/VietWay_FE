@@ -84,7 +84,11 @@ const Header = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-
+    if (!location.pathname.startsWith('/tour-du-lich/')
+      && !location.pathname.startsWith('/diem-tham-quan/')
+      && !location.pathname.startsWith('/bai-viet/')) {
+      sessionStorage.setItem('previousPage', location.pathname);
+    }
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };

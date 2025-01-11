@@ -41,22 +41,35 @@ const AttractionDetails = () => {
   const [isApiError, setIsApiError] = useState(false);
 
   useEffect(() => {
-    const fetchAttractionData = async () => {
-      try {
-        setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const response = await getAttractionById(id);
-        setIsSaved(response.isLiked);
-        setAttraction(response);
-      } catch (error) {
-        console.error("Error fetching attraction data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAttractionData();
   }, [id]);
+
+  const fetchAttractionData = async () => {
+    try {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      let site = null;
+      if (sessionStorage.getItem('previousPage') !== location.pathname) {
+        const searchParams = new URLSearchParams(location.search);
+        if (searchParams.get('ref') === 'facebook') {
+          site = 0;
+        } else if (searchParams.get('ref') === 'x') {
+          site = 1;
+        } else {
+          site = 2;
+        }
+      }
+      sessionStorage.setItem('previousPage', location.pathname);
+      const response = await getAttractionById(id, site);
+      setIsSaved(response.isLiked);
+      setAttraction(response);
+
+    } catch (error) {
+      console.error("Error fetching attraction data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (pageTopRef.current) {
@@ -252,7 +265,7 @@ const AttractionDetails = () => {
                   {attraction.images.map((image, index) => (
                     <div key={index} style={{ position: 'relative' }}>
                       <img
-                        src={image.url}
+                        src={image.url?.replace('w_1000', 'w_2000')}
                         alt={`Attraction ${index + 1}`}
                         style={{ width: '100%', height: '450px', objectFit: 'cover' }}
                       />
@@ -269,7 +282,7 @@ const AttractionDetails = () => {
                   onClick={() => handleThumbnailClick(index)}
                 >
                   <img
-                    src={image.url}
+                    src={image.url?.replace('w_1000', 'w_200')}
                     alt={`Thumbnail ${index + 1}`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />

@@ -34,9 +34,8 @@
 }
 
 .attraction-slider {
-  width: 182%;
+  width: 100%;
   height: 450px;
-  margin-left: -40%;
 }
 
 .slider-dots {
